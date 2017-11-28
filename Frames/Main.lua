@@ -1,0 +1,274 @@
+local GRA, gra = unpack(select(2, ...))
+local L = select(2, ...).L
+local LPP = LibStub:GetLibrary("LibPixelPerfect")
+
+local lastFrame = nil
+
+-----------------------------------------
+-- main frame
+-----------------------------------------
+gra.mainFrame = GRA:CreateMovableFrame("Guild Raid Attendance", "GRA_MainFrame", 620, 400, "GRA_FONT_TITLE", false)
+
+-----------------------------------------
+-- Guild Message of the Day
+-----------------------------------------
+-- guildMOTDScroll : scroll effect (SetHorizontalScroll(scroll) @ OnUpdate)
+--		└ content : scroll child
+--			└ text : the guild message of the day (get scroll range from string width)
+--				└ animation : fade-in effect
+		
+local guildMOTDScroll = CreateFrame("ScrollFrame", nil, gra.mainFrame)
+guildMOTDScroll:Hide() -- hide by default
+guildMOTDScroll:SetPoint("TOPLEFT", 8, -5)
+guildMOTDScroll:SetPoint("BOTTOMRIGHT", gra.mainFrame, "TOPRIGHT", -8, -25)
+gra.mainFrame.guildMOTDScroll = guildMOTDScroll
+
+guildMOTDScroll.content = CreateFrame("Frame", nil, guildMOTDScroll)
+guildMOTDScroll.content:SetSize(100, 20)
+guildMOTDScroll:SetScrollChild(guildMOTDScroll.content)
+
+guildMOTDScroll.content.text = guildMOTDScroll.content:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
+guildMOTDScroll.content.text:SetWordWrap(false)
+guildMOTDScroll.content.text:SetPoint("LEFT")
+
+-- alpha changing animation
+local fadeIn = guildMOTDScroll.content.text:CreateAnimationGroup()
+local alpha = fadeIn:CreateAnimation("Alpha")
+alpha:SetFromAlpha(0)
+alpha:SetToAlpha(1)
+alpha:SetDuration(.5)
+
+local elapsedTime, delay, scroll, maxHScrollRange, doScroll -- delay: delay before scroll (include time for alpha changing), 5 by default
+-- init guildMOTDScroll
+guildMOTDScroll:SetScript("OnShow", function()
+	if GRA_Config.MOTD == "" then -- if empty, hide
+		guildMOTDScroll:Hide()
+		return
+	end
+	
+	guildMOTDScroll.content.text:SetText("|cff40ff40" .. string.format(GUILD_MOTD_TEMPLATE, GRA_Config.MOTD) .. "|r")
+	-- init
+	fadeIn:Play()
+	guildMOTDScroll:SetHorizontalScroll(0)
+	elapsedTime, delay, scroll = 0, 0, 0
+	maxHScrollRange = guildMOTDScroll.content.text:GetStringWidth() + 30 -- 30*0.05 = 1.5s delay to next round
+	if guildMOTDScroll.content.text:GetStringWidth() <= guildMOTDScroll:GetWidth() then
+		doScroll = false 
+	else
+		doScroll = true
+	end
+end)
+
+guildMOTDScroll:SetScript("OnUpdate", function(self, elapsed)
+	elapsedTime = elapsedTime + elapsed
+	delay = delay + elapsed
+	if elapsedTime >= 0.025 then
+		if doScroll and delay >= 5 then	-- when the text opacity is full
+			if scroll >= maxHScrollRange then	-- prepare for next round
+				scroll = 0 
+				delay = 0
+				fadeIn:Play()
+			end
+			guildMOTDScroll:SetHorizontalScroll(scroll)
+			-- print(guildMOTDScroll:GetHorizontalScroll() .. "/" .. maxHScrollRange)
+			scroll = scroll + .5
+		end
+		elapsedTime = elapsedTime - 0.025
+	end
+end)
+
+-----------------------------------------
+-- button
+-----------------------------------------
+local configBtn = GRA:CreateButton(gra.mainFrame, L["Config"], "red", {55, 20}, "GRA_FONT_SMALL")
+configBtn:SetPoint("BOTTOMRIGHT", -8, 5)
+configBtn:SetScript("OnClick", function()
+	gra.importFrame:Hide()
+	gra.epgpOptionsFrame:Hide()
+	gra.attendanceEditor:Hide()
+	gra.rosterEditorFrame:Hide()
+	if gra.configFrame:IsShown() then
+		gra.configFrame:Hide()
+	else
+		gra.configFrame:Show()
+	end
+end)
+
+local buttons = {}
+local function HighlightButton(button)
+	for n, b in pairs(buttons) do
+		if n == button then
+			b:SetBackdropBorderColor(.5, 1, 0, 1)
+		else
+			b:SetBackdropBorderColor(0, 0, 0, 1)
+		end
+	end
+end
+
+buttons["attendanceSheetBtn"] = GRA:CreateButton(gra.mainFrame, L["Attendance Sheet"], "red", {100, 20}, "GRA_FONT_SMALL")
+buttons["attendanceSheetBtn"]:SetPoint("BOTTOMLEFT", 8, 5)
+buttons["attendanceSheetBtn"]:SetScript("OnClick", function()
+	HighlightButton("attendanceSheetBtn")
+	lastFrame = gra.attendanceFrame
+	gra.attendanceFrame:Show()
+	gra.announcementsFrame:Hide()
+	gra.raidLogsFrame:Hide()
+end)
+
+buttons["raidLogsBtn"] = GRA:CreateButton(gra.mainFrame, L["Raid Logs"], "red", {100, 20}, "GRA_FONT_SMALL")
+buttons["raidLogsBtn"]:SetPoint("LEFT", buttons["attendanceSheetBtn"], "RIGHT", 5, 0)
+buttons["raidLogsBtn"]:SetScript("OnClick", function()
+	HighlightButton("raidLogsBtn")
+	lastFrame = gra.raidLogsFrame
+	gra.attendanceFrame:Hide()
+	gra.announcementsFrame:Hide()
+	gra.raidLogsFrame:Show()
+end)
+
+buttons["announcementsBtn"] = GRA:CreateButton(gra.mainFrame, L["Announcements"], "red", {100, 20}, "GRA_FONT_SMALL")
+buttons["announcementsBtn"]:SetPoint("LEFT", buttons["raidLogsBtn"], "RIGHT", 5, 0)
+buttons["announcementsBtn"]:SetScript("OnClick", function()
+	HighlightButton("announcementsBtn")
+	lastFrame = gra.announcementsFrame
+	gra.attendanceFrame:Hide()
+	gra.announcementsFrame:Show()
+	gra.raidLogsFrame:Hide()
+end)
+-- TODO: announcements
+buttons["announcementsBtn"]:SetEnabled(false)
+
+-- track button, change text and color OnClick
+local trackBtn = GRA:CreateButton(gra.mainFrame.header, "TRACK", nil, {60, 22}, "GRA_FONT_PIXEL")
+trackBtn:SetPoint("LEFT", gra.mainFrame.header)
+trackBtn:SetScript("OnClick", function()
+	if gra.isTracking then
+		GRA:StopTracking()
+	else
+		GRA:StartTracking()
+	end
+end)
+trackBtn:Hide()
+
+GRA:RegisterEvent("GRA_TRACK",  "Main_TrackStatus", function(raidDate)
+	if raidDate then
+		trackBtn:GetFontString():SetText("TRACKING...")
+		trackBtn:SetBackdropColor(.5, 1, 0, .5)
+		trackBtn:SetScript("OnEnter", function(self) self:SetBackdropColor(.5, 1, 0, .7) end)
+		trackBtn:SetScript("OnLeave", function(self) self:SetBackdropColor(.5, 1, 0, .5) end)
+	else
+		trackBtn:GetFontString():SetText("TRACK")
+		trackBtn:SetBackdropColor(.1, .1, .1, .7)
+		trackBtn:SetScript("OnEnter", function(self) self:SetBackdropColor(.5, 1, 0, .6) end)
+		trackBtn:SetScript("OnLeave", function(self) self:SetBackdropColor(.1, .1, .1, .7) end)
+	end
+end)
+
+GRA:RegisterEvent("GRA_PERMISSION", "MainFrame_CheckPermissions", function(isAdmin)
+	if isAdmin then
+		trackBtn:Show()
+	end
+end)
+
+-----------------------------------------
+-- script
+-----------------------------------------
+local function EnableMiniMode(f)
+	if f then
+		buttons["attendanceSheetBtn"]:Hide()
+		buttons["raidLogsBtn"]:Hide()
+		buttons["announcementsBtn"]:Hide()
+		buttons["attendanceSheetBtn"]:Click()
+		-- gra.mainFrame:SetHeight(420)
+	else
+		buttons["attendanceSheetBtn"]:Show()
+		buttons["raidLogsBtn"]:Show()
+		buttons["announcementsBtn"]:Show()
+		-- gra.mainFrame:SetHeight(400)
+	end
+end
+
+GRA:RegisterEvent("GRA_MINI", "MiniMode", function(enabled)
+	EnableMiniMode(enabled)
+end)
+
+gra.mainFrame:SetScript("OnShow", function(self)
+	EnableMiniMode(GRA_Config["minimalMode"])
+	LPP:PixelPerfectPoint(gra.mainFrame)
+
+	if not IsInGuild() then
+		GRA:CreateMask(gra.mainFrame, GRA_FORCE_ENGLISH and "You are not in a guild." or ERR_GUILD_PLAYER_NOT_IN_GUILD, {1, -1, -1, 1})
+		return
+	end
+
+	if lastFrame then
+		lastFrame:Show()
+	else
+		HighlightButton("attendanceSheetBtn")
+		gra.attendanceFrame:Show()
+	end
+end)
+
+-- OnHide: 
+gra.mainFrame:SetScript("OnHide", function()
+	
+end)
+
+local trial, count = nil, 0
+-- Get MOTD
+guildMOTDScroll:RegisterEvent("PLAYER_ENTERING_WORLD")
+guildMOTDScroll:SetScript("OnEvent", function(self, event, arg)
+	if event == "PLAYER_ENTERING_WORLD" then -- after login (in world)
+		guildMOTDScroll:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		if IsInGuild() then
+			guildMOTDScroll:RegisterEvent("GUILD_ROSTER_UPDATE")
+			guildMOTDScroll:RegisterEvent("GUILD_MOTD")
+		end
+	elseif event == "GUILD_ROSTER_UPDATE" then
+		local motd = GetGuildRosterMOTD()
+		GRA:Debug("|cff66CD00GUILD_ROSTER_UPDATE:|r " .. (motd=="" and "MOTD empty" or "MOTD non-empty"))
+		if motd ~= "" then	-- ALWAYS can get MOTD (RIGHT AFTER LOGIN), but NOT sure after RELOAD
+			GRA_Config.MOTD = motd
+			guildMOTDScroll:Show() -- get non-empty motd, show it
+			guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE") -- already get non-empty motd, using GUILD_MOTD instead
+			if trial then -- stop timer
+				trial:Cancel()
+				GRA:Debug("motd_trial cancelled")
+			end
+		elseif not trial then -- get empty motd (maybe not the true motd, try 6 more times)
+			trial = C_Timer.NewTicker(10, function()
+				securecall("GuildRoster") -- try again
+				count = count + 1
+				GRA:Debug("motd_trial: " .. count)
+				-- trial._remainingIterations
+			end, 6)
+		else
+			if count == 6 then
+				-- tried 6 times, still get empty motd, then GRA_Config.MOTD = ""
+				guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE")
+				GRA_Config.MOTD = ""
+				GRA:Debug("motd_trial ends, GRA_Config.MOTD = \"\"")
+			end
+		end
+	elseif event == "GUILD_MOTD" then
+		guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE") -- got motd, GUILD_ROSTER_UPDATE is no longer need
+		if trial then -- stop timer
+			trial:Cancel()
+			trial = nil
+			GRA:Debug("trial:Cancel()")
+		end
+		
+		GRA:Debug("|cff66CD00GUILD_MOTD:|r " .. arg)
+		GRA_Config.MOTD = arg
+		
+		-- re-show, whether motd == "" or not (judgement in guildMOTDScroll_OnShow)
+		guildMOTDScroll:Hide()
+		guildMOTDScroll:Show()
+	end
+end)
+
+if GRA:Debug() then
+	-- local tex = guildMOTDScroll.content:CreateTexture()
+	-- tex:SetColorTexture(0, .5, 1, .2)
+	-- tex:SetAllPoints(guildMOTDScroll.content)
+	-- GRA:StylizeFrame(guildMOTDScroll, {.5, 0, 0, .2})
+end

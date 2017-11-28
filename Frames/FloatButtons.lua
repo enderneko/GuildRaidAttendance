@@ -1,0 +1,188 @@
+local GRA, gra = unpack(select(2, ...))
+local L = select(2, ...).L
+local LPP = LibStub:GetLibrary("LibPixelPerfect")
+
+local floatButtonsAnchor = CreateFrame("Frame", "GRA_FloatButtonsAnchor")
+GRA:StylizeFrame(floatButtonsAnchor, {.1, .1, .1, .5}, {0, 0, 0, .5})
+floatButtonsAnchor:SetSize(283, 40)
+floatButtonsAnchor:Hide()
+floatButtonsAnchor:SetPoint("BOTTOMLEFT", 20, 200)
+floatButtonsAnchor:EnableMouse(true)
+floatButtonsAnchor:SetMovable(true)
+floatButtonsAnchor:SetUserPlaced(true)
+floatButtonsAnchor:SetClampedToScreen(true)
+floatButtonsAnchor:RegisterForDrag("LeftButton")
+LPP:PixelPerfectScale(floatButtonsAnchor)
+floatButtonsAnchor:SetScript("OnDragStart", function() floatButtonsAnchor:StartMoving() end)
+floatButtonsAnchor:SetScript("OnDragStop", function() floatButtonsAnchor:StopMovingOrSizing() end)
+floatButtonsAnchor:RegisterEvent("VARIABLES_LOADED")
+floatButtonsAnchor:SetScript("OnEvent", function()
+	LPP:PixelPerfectPoint(floatButtonsAnchor)
+end)
+
+floatButtonsAnchor.text = floatButtonsAnchor:CreateFontString(nil, "OVERLAY", "GRA_FONT_TITLE")
+floatButtonsAnchor.text:SetPoint("TOPLEFT")
+floatButtonsAnchor.text:SetText("GRA Float Buttons Anchor")
+
+function GRA:ShowHideFloatButtonsAnchor()
+    if floatButtonsAnchor:IsShown() then
+		floatButtonsAnchor:Hide()
+		LPP:PixelPerfectPoint(floatButtonsAnchor)
+	else
+		floatButtonsAnchor:Show()
+	end
+end
+
+local buttons = {}
+local function ShowButtons()
+    local last
+    for _, b in pairs(buttons) do
+        b:ClearAllPoints()
+        if last then
+            b:SetPoint("LEFT", last, "RIGHT", 5, 0)
+        else
+            b:SetPoint("BOTTOMLEFT", floatButtonsAnchor)
+        end
+        last = b
+    end
+end
+
+local raidDate
+local function CreateItemButton(itemLink, looter)
+    if not string.find(looter, "-") then looter = looter .. "-" .. GetRealmName() end
+
+    local b = GRA:CreateIconButton(nil, 27, 27)
+    LPP:PixelPerfectScale(b)
+    table.insert(buttons, b)
+    b.index = #buttons
+    b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+    if string.find(itemLink, "|Hitem") then
+        local icon = GetItemIcon(itemLink)
+        b:SetIcon(icon)
+
+        b:SetScript("OnEnter", function(self)
+            gra.tooltip:SetOwner(self, "ANCHOR_NONE")
+            gra.tooltip:SetHyperlink(itemLink)
+            gra.tooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 1)
+        end)
+        b:SetScript("OnLeave", function() gra.tooltip:Hide() end)
+
+        b:SetScript("OnClick", function(self, button)
+            if button == "LeftButton" then
+                if GRA_Config["useEPGP"] then
+                    GRA:ShowGPCreditFrame(raidDate, itemLink, nil, looter, GRA_RaidLogs[raidDate]["attendees"], nil, b)
+                else
+                    GRA:ShowRecordLootFrame(raidDate, itemLink, nil, looter, GRA_RaidLogs[raidDate]["attendees"], nil, b)
+                end
+            elseif button == "RightButton" then
+                b:Hide()
+            end
+        end)
+
+        b:SetScript("OnHide", function()
+            -- hide & remove button
+            b:Hide()
+            b:ClearAllPoints()
+            table.remove(buttons, b.index)
+            for i = b.index, #buttons do
+                buttons[i].index = buttons[i].index - 1
+            end
+            ShowButtons()
+        end)
+    end
+    ShowButtons()
+end
+
+local function CreateBossButton(bossName)
+    local b = GRA:CreateButton(nil, "BOSS\nKILL", "green", {27, 27}, "GRA_FONT_PIXEL", false, bossName)
+    LPP:PixelPerfectScale(b)
+    table.insert(buttons, b)
+    b.index = #buttons
+    b:GetFontString():SetWordWrap(true)
+    b:GetFontString():SetSpacing(3)
+    b:GetFontString():ClearAllPoints()
+    b:GetFontString():SetPoint("CENTER",1,0)
+    b:SetPushedTextOffset(0, 0)
+    b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+    b:SetScript("OnClick", function(self, button)
+        if button == "LeftButton" then
+            GRA:ShowEPAwardFrame(raidDate, bossName, "", nil, GRA_RaidLogs[raidDate]["attendees"], GRA_RaidLogs[raidDate]["absentees"], nil, b)
+        elseif button == "RightButton" then
+            b:Hide()
+        end
+    end)
+
+    b:SetScript("OnHide", function()
+        -- hide & remove button
+        b:Hide()
+        b:ClearAllPoints()
+        table.remove(buttons, b.index)
+        for i = b.index, #buttons do
+            buttons[i].index = buttons[i].index - 1
+        end
+        ShowButtons()
+    end)
+
+    ShowButtons()
+end
+
+-----------------------------------------
+-- events
+-----------------------------------------
+local awardedItemLink, awardedSlot, awardedTo
+hooksecurefunc("GiveMasterLoot", function(slot, index)
+    awardedSlot = slot
+    awardedItemLink = GetLootSlotLink(slot)
+    awardedTo = GetMasterLootCandidate(slot, index)
+    -- print("slot: " .. slot .. "(" .. awardedItemLink .. "), index: " .. index .. "(" .. awardedTo .. ")")
+end)
+
+floatButtonsAnchor:SetScript("OnEvent", function(self, event, ...)
+    if not gra.isLootMaster then return end
+
+    if event == "CHAT_MSG_LOOT" then
+        local msg, _, _, _, looter = ...
+        if looter and looter ~= "" then
+            local itemLink = msg:match("|c.+|Hitem:.+|h")
+            -- if GetItemInfo(itemLink)
+            CreateItemButton(itemLink, looter)
+        end
+    
+    elseif event == "LOOT_SLOT_CLEARED" then
+        local slot = ...
+        if slot == awardedSlot then
+            CreateItemButton(awardedItemLink, awardedTo)
+            awardedItemLink, awardedSlot, awardedTo = nil, nil, nil
+        end
+
+    elseif event == "BOSS_KILL" then
+        local encounterID, encounterName = ...
+        CreateBossButton(encounterName)
+    end
+end)
+
+GRA:RegisterEvent("GRA_TRACK", "FloatButtons_TrackStatus", function(d)
+    if d then
+        -- floatButtonsAnchor:RegisterEvent("CHAT_MSG_LOOT")
+        floatButtonsAnchor:RegisterEvent("BOSS_KILL")
+        floatButtonsAnchor:RegisterEvent("LOOT_SLOT_CLEARED")
+        -- floatButtonsAnchor:RegisterEvent("ENCOUNTER_END")
+        -- floatButtonsAnchor:RegisterEvent("ENCOUNTER_LOOT_RECEIVED")
+        raidDate = d
+    else
+        floatButtonsAnchor:UnregisterEvent("CHAT_MSG_LOOT")
+        floatButtonsAnchor:UnregisterEvent("BOSS_KILL")
+    end
+end)
+
+-----------------------------------------
+-- test
+-----------------------------------------
+for i = 1, 2 do
+    -- CreateItemButton(GetInventoryItemLink("player", i), UnitName("player"))
+    -- CreateItemButton(GetInventoryItemLink("player", i+1), UnitName("player"))
+    -- CreateItemButton(GetInventoryItemLink("player", i+2), UnitName("player"))
+    -- CreateBossButton(i)
+end

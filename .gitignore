@@ -1,0 +1,10 @@
+#external libraries
+AceComm-3.0/
+AceSerializer-3.0/
+CallbackHandler-1.0/
+LibCompress/
+LibDataBroker-1.1/
+LibDBIcon-1.0/
+LibItemUpgradeInfo-1.0/
+LibSmoothStatusBar-1.0/
+LibStub/

@@ -1,0 +1,55 @@
+## Interface: 70300
+## Title: |cff80FF00Guild|r Raid Attendance
+## Notes: Keeps track of raid loot and attendance for guild. Build-in simple loot distribution tool, support Loot Council and EPGP. 
+## Notes-zhCN: 记录公会活动出勤与拾取。内置简单装备分配工具，支持CL与EPGP。
+## Version: r70-release
+## Author: fyhcslb
+## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Roster, GRA_Config
+
+embeds.xml
+
+Core.lua
+
+Locales\enUS.lua
+Locales\zhCN.lua
+
+Utils.lua
+CustomEvents.lua
+EPGP.lua
+Comm.lua
+Track.lua
+
+Widgets\TooltipTemplate.xml
+Widgets\Tooltip.lua
+Widgets\Widgets.lua
+Widgets\ScrollFrame.lua
+Widgets\Popups.lua
+Widgets\DropDownMenu.lua
+
+Frames\Main.lua
+Frames\GetStarted.lua
+Frames\Attendance.lua
+Frames\Announcements.lua
+Frames\AttendanceEditor.lua
+Frames\RaidLogs.lua
+Frames\NewRaidLog.lua
+Frames\EPAward.lua
+Frames\GPCredit.lua
+Frames\RecordLoot.lua
+Frames\Penalize.lua
+Frames\FloatButtons.lua
+Frames\EPGPOptions.lua
+Frames\Config.lua
+Frames\RosterEditor.lua
+Frames\MemberDetails.lua
+Frames\Import.lua
+Frames\About.lua
+
+LootDistribution\Common.lua
+LootDistribution\Token.lua
+LootDistribution\Artifact.lua
+LootDistribution\Distribution.lua
+LootDistribution\Loot.lua
+LootDistribution\Config.lua
+
+Help.lua

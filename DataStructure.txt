@@ -1,0 +1,58 @@
+|TINTERFACE\\MONEYFRAME\\UI-SILVERICON.BLP:0|t
+╔========================╗
+‖      GRA_RaidLogs      ‖
+╚========================╝
+GRA_RaidLogs = {
+	date(string) = {
+		["startTime"] = (string),
+		["attendees"] = {
+			playerName(string) = {attendance("PRESENT", "LATE"), joinTime(number)},
+		},
+		["absentees"] = {
+			playerName(string) = reason(string),
+		},
+		["details"] = {
+			-- EPGP
+			{"EP"/"GP", ep/gp, reason(string)/itemLink, {playerName...}},
+			{"PEP"/"PGP", value, reason(string), {playerName...}},
+			-- Non-EPGP (fake GP)
+			{"GP", 0, reason(string)/itemLink, {playerName}, note},
+		},
+	},
+}
+
+╔========================╗
+‖      GRA_Roster        ‖
+╚========================╝
+GRA_Roster = {
+	["playerName"] = {
+		["ilvl"] = {equipped, average},
+		["class"] = (string),
+		["att30"] = {present(number), absent(number)},
+		["att60"] = {present(number), absent(number)},
+		["att90"] = {present(number), absent(number)},
+		["attLifetime"] = {present(number), absent(number)},
+		["EP"] = (number),
+		["GP"] = (number),
+	},
+}
+
+╔========================╗
+‖       GRA_Config       ‖
+╚========================╝
+GRA_Config = {
+	["MOTD"] = (string),
+	["raidInfo"] = {
+		["name"] = (string),
+		["EPGP"] = {baseGP, minEP, decay},
+		["startTime"] = "19:30",
+		["days"]={4,5,1,2},
+	},
+	["raidLeader"] = (string),
+	["lastRaidDate"] = (string),
+}
+
+╔========================╗
+‖       Guild Info       ‖
+╚========================╝
+#GRA:admin1,admin2...
