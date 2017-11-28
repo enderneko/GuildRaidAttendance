@@ -4,7 +4,7 @@ local GRA, gra = {}, {}
 E[1] = GRA -- functions
 E[2] = gra -- global variables, frames...
 
-local debugMode = true
+local debugMode = false
 function GRA:Debug(arg, ...)
 	if debugMode then
 		if type(arg) == "string" or type(arg) == "number" then

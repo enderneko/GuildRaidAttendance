@@ -1,6 +1,6 @@
 # **Guild Raid Attendance**
 
-This addon keeps track of raid loot and attendance for guild. Support **Loot Council** and **EPGP** (build-in EPGP module).
+This addon keeps track of raid loot and attendance for guild. Support **Loot Council** and **EPGP** (built-in EPGP module).
 
 Please leave me a pm on curseforge if you want to help with the localization.</br>
 [Submit a ticket](https://wow.curseforge.com/projects/guild-raid-attendance/issues), let me know what you need or what bugs you've found.
