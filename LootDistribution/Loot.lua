@@ -247,8 +247,7 @@ Comm:RegisterComm("GRA_LOOT_S", function(prefix, message, channel, sender)
         -- {itemLink, count}
         if GetItemInfo(t[1]) then
             local itemSig = strjoin(":", GRA:GetItemSignatures(t[1]))
-            local reply = {select(3, UnitClass("player")), GetSpecialization(), itemSig, 9} -- considering
-            SendReply({itemSig, 9})
+            SendReply({itemSig, 9}) -- considering
 
             -- item exists. 物品分配者重载了界面，再次发送此装备，不再创建
             if frames[itemSig] then return end
@@ -286,8 +285,10 @@ lootFrame:SetScript("OnEvent", function(self, event, arg1)
     for i = #itemsNotFound, 1, -1 do
         if tonumber(arg1) == itemsNotFound[i][1] then
             local itemSig = strjoin(":", GRA:GetItemSignatures(itemsNotFound[i][2]))
-            local reply = {select(3, UnitClass("player")), GetSpecialization(), itemSig, 9}
-            SendReply({itemSig, 9})
+            SendReply({itemSig, 9}) -- considering
+
+            -- item exists. 物品分配者重载了界面，再次发送此装备，不再创建
+            if frames[itemSig] then return end
 
             table.insert(indices, itemSig)
             CreateItemFrame(itemSig, itemsNotFound[i][2], itemsNotFound[i][3])

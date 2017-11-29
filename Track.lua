@@ -7,6 +7,8 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 
 local raidDate = nil
 local function RaidRosterUpdate()
+	-- 处于意外删除了刚刚创建的记录，再次询问
+	if not GRA_RaidLogs[raidDate] then GRA:StartTracking() end
 	local n = GetNumGroupMembers("LE_PARTY_CATEGORY_HOME")
 	for i = 1, n do
 		-- name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(index)
@@ -15,7 +17,7 @@ local function RaidRosterUpdate()
 			if not string.find(playerName, "-") then playerName = playerName .. "-" .. GetRealmName() end
 			
 			-- only log players in raid team, and "ONCE"
-			if GRA_Roster[playerName] and not GRA_RaidLogs[raidDate]["attendees"][playerName] then -- not saved yet
+			if GRA_Roster[playerName] and not GRA_RaidLogs[raidDate]["attendees"][playerName] then
 				-- check attendance (PRESENT or LATE)
 				local joinTime = time()
 				local att = GRA:IsLate(joinTime, raidDate..GRA_Config["raidInfo"]["startTime"])
@@ -73,6 +75,9 @@ function GRA:StartTracking(instanceName, difficultyName)
 		if cb then cb:Hide() end
 	end, function()
 		if cb then cb:Hide() end
+		eventFrame:UnregisterEvent("GROUP_ROSTER_UPDATE")
+		GRA:FireEvent("GRA_TRACK")
+		gra.isTracking = false
 	end)
 	
 	if GRA_Config["lastRaidDate"] and GRA_Config["lastRaidDate"] ~= raidDate then

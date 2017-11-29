@@ -4,7 +4,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
 local floatButtonsAnchor = CreateFrame("Frame", "GRA_FloatButtonsAnchor")
 GRA:StylizeFrame(floatButtonsAnchor, {.1, .1, .1, .5}, {0, 0, 0, .5})
-floatButtonsAnchor:SetSize(283, 40)
+floatButtonsAnchor:SetSize(335, 40)
 floatButtonsAnchor:Hide()
 floatButtonsAnchor:SetPoint("BOTTOMLEFT", 20, 200)
 floatButtonsAnchor:EnableMouse(true)
@@ -36,14 +36,23 @@ end
 local buttons = {}
 local function ShowButtons()
     local last
-    for _, b in pairs(buttons) do
-        b:ClearAllPoints()
+    -- for _, b in pairs(buttons) do
+    --     b:ClearAllPoints()
+    --     if last then
+    --         b:SetPoint("LEFT", last, "RIGHT", 5, 0)
+    --     else
+    --         b:SetPoint("BOTTOMLEFT", floatButtonsAnchor)
+    --     end
+    --     last = b
+    -- end
+    for i = 1, (#buttons > 10) and 10 or #buttons do
+        buttons[i]:ClearAllPoints()
         if last then
-            b:SetPoint("LEFT", last, "RIGHT", 5, 0)
+            buttons[i]:SetPoint("LEFT", last, "RIGHT", 5, 0)
         else
-            b:SetPoint("BOTTOMLEFT", floatButtonsAnchor)
+            buttons[i]:SetPoint("BOTTOMLEFT", floatButtonsAnchor)
         end
-        last = b
+        last = buttons[i]
     end
 end
 
@@ -51,7 +60,7 @@ local raidDate
 local function CreateItemButton(itemLink, looter)
     if not string.find(looter, "-") then looter = looter .. "-" .. GetRealmName() end
 
-    local b = GRA:CreateIconButton(nil, 27, 27)
+    local b = GRA:CreateIconButton(nil, 29, 29)
     LPP:PixelPerfectScale(b)
     table.insert(buttons, b)
     b.index = #buttons
@@ -82,7 +91,6 @@ local function CreateItemButton(itemLink, looter)
 
         b:SetScript("OnHide", function()
             -- hide & remove button
-            b:Hide()
             b:ClearAllPoints()
             table.remove(buttons, b.index)
             for i = b.index, #buttons do
@@ -95,7 +103,7 @@ local function CreateItemButton(itemLink, looter)
 end
 
 local function CreateBossButton(bossName)
-    local b = GRA:CreateButton(nil, "BOSS\nKILL", "green", {27, 27}, "GRA_FONT_PIXEL", false, bossName)
+    local b = GRA:CreateButton(nil, "BOSS\nKILL", "green", {29, 29}, "GRA_FONT_PIXEL", false, bossName)
     LPP:PixelPerfectScale(b)
     table.insert(buttons, b)
     b.index = #buttons
@@ -116,7 +124,6 @@ local function CreateBossButton(bossName)
 
     b:SetScript("OnHide", function()
         -- hide & remove button
-        b:Hide()
         b:ClearAllPoints()
         table.remove(buttons, b.index)
         for i = b.index, #buttons do
@@ -180,9 +187,10 @@ end)
 -----------------------------------------
 -- test
 -----------------------------------------
-for i = 1, 2 do
-    -- CreateItemButton(GetInventoryItemLink("player", i), UnitName("player"))
-    -- CreateItemButton(GetInventoryItemLink("player", i+1), UnitName("player"))
-    -- CreateItemButton(GetInventoryItemLink("player", i+2), UnitName("player"))
-    -- CreateBossButton(i)
-end
+-- for i = 1, 3 do
+--     CreateItemButton(GetInventoryItemLink("player", i), UnitName("player"))
+--     CreateItemButton(GetInventoryItemLink("player", i+1), UnitName("player"))
+--     CreateItemButton(GetInventoryItemLink("player", i+2), UnitName("player"))
+--     CreateBossButton(i)
+--     CreateBossButton(i)
+-- end

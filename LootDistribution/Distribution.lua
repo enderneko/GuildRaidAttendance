@@ -10,10 +10,6 @@ local I = LibStub("LibItemUpgradeInfo-1.0")
 local distributionFrame = GRA:CreateMovableFrame("GRA Distribution Frame", "GRA_DistributionFrame", 478, 357, "GRA_FONT_TITLE", true, "DIALOG")
 gra.distributionFrame = distributionFrame
 
-distributionFrame:SetScript("OnShow", function()
-    LPP:PixelPerfectPoint(distributionFrame)
-end)
-
 --------------------------------------------------------
 -- var
 --------------------------------------------------------
@@ -372,42 +368,42 @@ local function CreateItemFrame(itemSig, itemLink, count)
     infoText:SetText(L["iLevel: "] .. iLevel .. itemStatus .. itemSocket .. localizedBindType .. "    " .. gra.colors.grey.s .. (itemSubType or "") .. " " .. (_G[itemEquipLoc] or ""))
     
     -- end session button
-    if gra.isLootMaster then
-        local endSessionBtn = GRA:CreateButton(titleFrame, L["End Session"], "red", {100, 20})
-        endSessionBtn:SetPoint("RIGHT", -8, 0)
-        endSessionBtn:SetScript("OnClick", function()
+    local closeBtn = GRA:CreateButton(titleFrame, gra.isLootMaster and L["End Session"] or L["Dismiss"], "red", {90, 20})
+    closeBtn:SetPoint("RIGHT", -8, 0)
+    closeBtn:SetScript("OnClick", function()
+        if gra.isLootMaster then
             -- hide loot frame
             Comm:SendCommMessage("GRA_LOOT_E", itemSig, "RAID", nil, "ALERT")
-            
-            local nextIndex
-            if currentIndex == #indices then -- 删除最后一个
-                nextIndex = currentIndex - 1
-            else
-                nextIndex = currentIndex
-            end
+        end
+        
+        local nextIndex
+        if currentIndex == #indices then -- 删除最后一个
+            nextIndex = currentIndex - 1
+        else
+            nextIndex = currentIndex
+        end
 
-            -- local nextShown, found = nil, false
-            -- for n, _ in pairs(frames) do
-            --     if n ~= itemSig then
-            --         nextShown = n
-            --         if found then break end
-            --     else
-            --         found = true
-            --     end
-            -- end
+        -- local nextShown, found = nil, false
+        -- for n, _ in pairs(frames) do
+        --     if n ~= itemSig then
+        --         nextShown = n
+        --         if found then break end
+        --     else
+        --         found = true
+        --     end
+        -- end
 
-            -- hide frame and button
-            f:Hide()
-            buttons[itemSig]:Hide()
-            frames = GRA:RemoveElementsByKeys(frames, {itemSig})
-            buttons = GRA:RemoveElementsByKeys(buttons, {itemSig})
-            lootsToSend = GRA:RemoveElementsByKeys(lootsToSend, {itemSig})
-            table.remove(indices, currentIndex)
-            -- show
-            ShowButtons()
-            ShowFrame(indices[nextIndex])
-        end)
-    end
+        -- hide frame and button
+        f:Hide()
+        buttons[itemSig]:Hide()
+        frames = GRA:RemoveElementsByKeys(frames, {itemSig})
+        buttons = GRA:RemoveElementsByKeys(buttons, {itemSig})
+        lootsToSend = GRA:RemoveElementsByKeys(lootsToSend, {itemSig})
+        table.remove(indices, currentIndex)
+        -- show
+        ShowButtons()
+        ShowFrame(indices[nextIndex])
+    end)
 
     -- scroll frame
     f.scrollFrame = GRA:CreateScrollFrame(f, -71, 0)
@@ -514,6 +510,7 @@ end
 distributionFrame:SetScript("OnShow", function()
     if not currentIndex then currentIndex = 1 end
     ShowFrame(indices[currentIndex])
+    LPP:PixelPerfectPoint(distributionFrame)
 end)
 
 --------------------------------------------------------
@@ -624,27 +621,6 @@ Comm:RegisterComm("GRA_LOOT_R", function(prefix, message, channel, sender)
     end
 end)
 
--- for non loot master
--- Comm:RegisterComm("GRA_LOOT_S", function(prefix, message, channel, sender)
-    
---     if UnitName("player") == sender then return end
-    
---     local success, t = Serializer:Deserialize(message)
---     if success then
---         -- {itemLink, count}
---         if GetItemInfo(t[1]) then
---             local itemSig = strjoin(":", GRA:GetItemSignatures(itemLink))
---             if not lootsToSend[itemSig] then
---                 table.insert(indices, itemSig)
---                 CreateItemButton(itemSig, t[1], t[2])
---             end
---         else
---             -- wait for GET_ITEM_INFO_RECEIVED
---             table.insert(itemsNotFound, {GRA:GetItemID(t[1]), t[1], t[2]})
---         end
---     end
--- end)
-
 --------------------------------------------------------
 -- for non loot master
 --------------------------------------------------------
@@ -681,10 +657,13 @@ end
 --------------------------------------------------------
 SLASH_LOOTDISTRTEST1 = "/ldtest"
 function SlashCmdList.LOOTDISTRTEST(msg, editbox)
+    if not gra.isLootMaster then return end
+    -- gra.isLootMaster = true
+
     wipe(loots)
-    wipe(lootsToSend)
-    wipe(indices)
-    currentIndex = 1
+    -- wipe(lootsToSend)
+    -- wipe(indices)
+    -- currentIndex = 1
 
     for i = 1, 2 do
         -- local itemLink = GetInventoryItemLink("player", math.random(14))

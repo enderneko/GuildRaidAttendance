@@ -67,12 +67,15 @@ content:SetFontObject("p", "GRA_FONT_TEXT")
 -- content:SetHyperlinkFormat("|H%s|h|cffffa0b4%s|r|h")
 content:SetHyperlinkFormat("|H%s|h"..gra.colors.yellow.s.."%s|r|h")
 
-local slider = GRA:CreateSlider(listRegion, "", .5, 1.5, 100, .1, nil, function(value)
+local slider = GRA:CreateSlider(listRegion, nil, LPP:GetPixelPerfectScale(), 1.5, 100, .1, nil, function(value)
     -- content:ClearAllPoints()
     -- content:SetPoint("TOPLEFT", 15 + value, 0)
     helpFrame:SetScale(value)
 end)
 slider:SetPoint("BOTTOM", 0, 10)
+local testMsg = slider:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
+testMsg:SetPoint("BOTTOM", slider, "TOP", 0, 10)
+testMsg:SetText("Adjust scale (experimental)")
 
 -- content:SetText([[
 --     <html><body>
@@ -88,6 +91,7 @@ slider:SetPoint("BOTTOM", 0, 10)
 local about = [[
     <html><body>
     <p></p>
+    <p>]]..L["Run wow in full screen mode, if you want GRA to be pixel perfect."]..[[</p>
     <p>Click on |cffffd100yellow text|r to copy it.</p>
     <h1>]]..L["Author"]..[[</h1>
     <img src="Interface\AddOns\GuildRaidAttendance\Media\author" height="16" align="left"/>
@@ -103,7 +107,7 @@ local about = [[
     <p></p>
     <p>Please leave me a pm on curseforge if you want to help with the localization.</p>
     <p></p>
-    <p>Submit a ticket here <a href="link">https://wow.curseforge.com/projects/guild-raid-attendance/issues</a>, let me know what you need or what bugs you've found.</p>
+    <p>Submit a ticket here <a href="link">https://github.com/enderneko/GuildRaidAttendance/issues</a>, let me know what you need or what bugs you've found.</p>
     <br/>
     <h1>]]..L["Translators"]..[[</h1>
     </body></html>
