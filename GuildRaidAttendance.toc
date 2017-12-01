@@ -2,7 +2,7 @@
 ## Title: |cff80FF00Guild|r Raid Attendance
 ## Notes: Keeps track of raid loot and attendance for guild. Built-in simple loot distribution tool, support Loot Council and EPGP. 
 ## Notes-zhCN: 记录公会活动出勤与拾取。内置简单装备分配工具，支持CL与EPGP。
-## Version: r70-release
+## Version: r71-release
 ## Author: fyhcslb
 ## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Roster, GRA_Config
 

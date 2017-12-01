@@ -7,6 +7,10 @@ TODO:
     （待定）新成员加入团队，如过记录窗口正在显示，不应当刷新scroll，如果当前显示的为今天，那么仅刷新名单列表
     larger font and frame (just use larger scale???)
 
+version r71-release
+------------------------
+    * Fixed "Penalize" bug
+
 version r70-release
 ------------------------
     + Loot distribution tool

@@ -8,14 +8,14 @@ select(2, ...).L = setmetatable({
 	["GET_STARTED"] = [[
 		<h1>Get Started</h1>
 		<p>|cFFFF3030Assign admin:|r In order to use GRA, your guild must have a GRA admin.</p>
-		<p>Add a newline for example: |cFF00CCFF#GRA:Archimonde|r to guild information (no spaces).</p>
+		<p>Add a newline for example: |cFF00CCFF#GRA:Archimonde|r to guild information (no spaces). Require a UI reload.</p>
 		<img src="Interface\AddOns\GuildRaidAttendance\Media\Help\getting_started_1.tga" height="128" align="center"/>
 		<p></p>
 		<p>|cFFFF3030Import members:|r |cFF00CCFFConfig > Import|r to select your raid members.</p>
 		<p></p>
 		<p>|cFFFF3030Init/Set EPGP (if your guild use EPGP):|r |cFF00CCFFConfig > EPGP Options > Enable EPGP|r. Auto decay is CURRENTLY not available, you have to do it manually.</p>
 		<p></p>
-		<p>|cFFFF3030Set raid days:|r |cFF00CCFFConfig > Attendance Sheet|r, select raid days depending on your raid schedule (select which day to show).</p>
+		<p>|cFFFF3030Set raid days:|r |cFF00CCFFConfig > Attendance Sheet|r, select raid days to show in the attendance sheet.</p>
 		<p></p>
 		<p>|cFFFF3030Set raid start time:|r |cFF00CCFFConfig > Attendance Sheet|r, set |cFF00CCFFRaid Start Time|r for your raid. This time is used to check whether members are late or not. You can also set different times for each day.</p>
 		<p></p>

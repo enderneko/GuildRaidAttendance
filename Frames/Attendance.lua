@@ -1029,7 +1029,7 @@ local function CountByDate(d)
 				end
 			else -- PGP
 				for _, name in pairs(detail[4]) do
-					if not gps[d][name] then gps[d][name] = {} end
+					if not gps[d][name] then gps[d][name] = {["loots"] = 0} end
 					table.insert(gps[d][name], "|cffffffff" .. detail[3] .. ": " .. detail[2] .. " GP")
 
 					if not todaysGP[d][name] then todaysGP[d][name] = 0 end

@@ -147,18 +147,18 @@ L["Item"] = "物品"
 -- L["Sort attendance sheet by attendance rate (90 days)."]
 -- L["Sort attendance sheet by attendance rate (60 days)."]
 -- L["Sort attendance sheet by attendance rate (30 days)."]
--- L["Send roster data to raid members"]
--- L["Raid members data (including attendance rate)."]
--- L["Raid schedule settings."]
--- L["EPGP settings (if enabled)."]
+L["Send roster data to raid members"] = "发送名单数据给团队成员"
+L["GRA must be installed to receive data."] = "只有安装了GRA才能收到数据。"
+L["Raid members data (including attendance rate)."] = "团队成员数据（包括出勤率）。"
+L["Raid schedule settings."] = "团队日程设置。"
+L["EPGP settings (if enabled)."] = "EPGP设置（如果启用）。"
 L["Raid Date: "] = "活动日期："
--- L["Send selected logs to raid members"]
--- L["GRA must be installed to receive data."]
--- L["Select multiple logs with the Ctrl and Shift keys."]
--- L["Attendance rate data will be sent ATST."]
+L["Send selected logs to raid members"] = "发送选中的记录给团队成员"
+L["Select multiple logs with the Ctrl and Shift keys."] = "通过Ctrl和Shift可以多选。"
+L["Attendance rate data will be sent ATST."] = "出勤率数据将同时发送。"
 L["New Raid Log"] = "新建活动记录"
 L["Create a new raid log"] = "创建新的活动记录"
--- L["After creating it, you can manually edit attendance."]
+L["After creating it, you can manually edit attendance."] = "创建后，你可以手动修改出勤。"
 L["Create"] = "创建"
 L["Cancel"] = "取消"
 L["Delete Raid Log"] = "删除活动记录"

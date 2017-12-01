@@ -32,3 +32,4 @@ externals:
 
 ignore:
     - Libs/LibStub/tests
+    - Libs/LibItemUpgradeInfo-1.0/LibStub
