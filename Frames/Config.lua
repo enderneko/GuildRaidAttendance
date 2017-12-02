@@ -188,7 +188,7 @@ arCB:SetPoint("LEFT", ar90CB, "RIGHT", 58, 0)
 -- raid start time
 local raidStartTimeTitle = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 raidStartTimeTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -65)
-raidStartTimeTitle:SetText(L["Raid Start Time: "])
+raidStartTimeTitle:SetText(L["Raid Start Time"] .. ": ")
 
 local raidStartTimeText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 raidStartTimeText:Hide()
@@ -232,14 +232,14 @@ raidStartTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
 end)
 
 raidStartTimeEditBox:SetScript("OnEnter", function(self)
-	gra.tooltip:SetOwner(self, "ANCHOR_TOP", 0, 1)
-	gra.tooltip:AddLine(L["Raid Start Time"])
-	gra.tooltip:AddLine(L["Join after \"Raid Start Time\" means the member is late.\n\nIt's used as default raid start time for each day, you can set a different time in attendance editor."], 1, 1, 1, true)
-	gra.tooltip:SetWidth(250)
-	gra.tooltip:Show()
+	GRA_Tooltip:SetOwner(self, "ANCHOR_TOP", 0, 1)
+	GRA_Tooltip:AddLine(L["Raid Start Time"])
+	GRA_Tooltip:AddLine(L["Join after \"Raid Start Time\" means the member is late.\n\nIt's used as default raid start time for each day, you can set a different time in attendance editor."], 1, 1, 1, true)
+	GRA_Tooltip:SetWidth(250)
+	GRA_Tooltip:Show()
 end)
 
-raidStartTimeEditBox:SetScript("OnLeave", function() gra.tooltip:Hide() end)
+raidStartTimeEditBox:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
 
 -- next OnShow, its data MUST be valid
 raidStartTimeEditBox:SetScript("OnHide", function()
@@ -263,7 +263,6 @@ local function RefreshRaidSchedule()
 	end
 end
 
--- local setBtn = GRA:CreateButton(configFrame, L["Set"], nil, {41, 20}, "GRA_FONT_SMALL")
 local setBtn = GRA:CreateButton(configFrame, "", nil, {18, 18}, "GRA_FONT_SMALL")
 -- setBtn:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -2)
 setBtn:SetPoint("BOTTOMRIGHT", daysFrame, -28, 2)
@@ -339,7 +338,7 @@ end)
 local resetBtn = GRA:CreateButton(configFrame, L["Reset"], "red", {57, 20}, "GRA_FONT_SMALL")
 resetBtn:SetPoint("RIGHT", reloadBtn, "LEFT", -5, 0)
 resetBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmBox(configFrame, configFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset all data?"] .. "|r \n" .. L["Excluding EP/GP in officer note"], function()
+	local confirm = GRA:CreateConfirmBox(configFrame, configFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset all data?"] .. "|r \n" .. L["Including roster and logs"], function()
 		GRA_RaidLogs = nil
 		GRA_Roster = nil
 		GRA_Config = nil

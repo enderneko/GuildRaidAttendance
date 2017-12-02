@@ -14,7 +14,7 @@ statementFrame:SetPoint("TOPLEFT", 5, -5)
 statementFrame:SetPoint("TOPRIGHT", -5, -5)
 statementFrame:SetHeight(13)
 
-local s = L["A simple loot distribution tool. You might want to use |cFF00BFFFBigDumbLootCouncil|r or |cFF00BFFFRCLootCouncil|r, if you need more functionality."]
+local s = L["This is a simple loot distribution tool.\nYou might want to use |cFF00BFFFBigDumbLootCouncil|r or |cFF00BFFFRCLootCouncil|r, if you need more functionality."]
 
 local statementText = statementFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
 statementText:SetText(s)
@@ -22,16 +22,16 @@ statementText:SetAllPoints(statementFrame)
 
 statementFrame:SetScript("OnEnter", function(self)
     if statementText:IsTruncated() then
-        gra.tooltip:SetOwner(self, "ANCHOR_NONE")
-        gra.tooltip:AddLine(L["GRA Loot Distribution Tool"])
-        gra.tooltip:AddLine(s, 1, 1, 1, true)
-        gra.tooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", -5, 0)
-        gra.tooltip:Show()
+        GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
+        GRA_Tooltip:AddLine(L["GRA Loot Distribution Tool"])
+        GRA_Tooltip:AddLine(s, 1, 1, 1, true)
+        GRA_Tooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", -5, 0)
+        GRA_Tooltip:Show()
     end
 end)
 
 statementFrame:SetScript("OnLeave", function(self)
-    gra.tooltip:Hide()
+    GRA_Tooltip:Hide()
 end)
 
 -----------------------------------------

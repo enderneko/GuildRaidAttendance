@@ -11,7 +11,12 @@ if not lib then return end
 function lib:GetResolution()
 	-- local res = select(GetCurrentResolution(), GetScreenResolutions())
 	-- local hRes, vRes = string.split("x", res)
-	return string.match(({GetScreenResolutions()})[GetCurrentResolution()], "(%d+)x(%d+)")
+	if GetCurrentResolution() == 0 then
+		-- windowed mode
+		return
+	else
+		return string.match(({GetScreenResolutions()})[GetCurrentResolution()], "(%d+)x(%d+)")
+	end
 end
 
 -- The UI Scale goes from 1 to 0.64. 
@@ -19,7 +24,11 @@ end
 -- and again at 1200y if at 0.64 scale.
 function lib:GetPixelPerfectScale()
 	local hRes, vRes = lib:GetResolution()
-	return 768/vRes
+	if vRes then
+		return 768/vRes
+	else -- windowed mode
+		return 1
+	end
 end
 
 -- scale perfect!

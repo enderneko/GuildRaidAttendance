@@ -90,12 +90,12 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
         row.spec:SetIcon(icon)
         -- tooltip
         row.spec:HookScript("OnEnter", function()
-            gra.tooltip:SetOwner(row.spec, "ANCHOR_NONE")
-            gra.tooltip:AddLine("|c" .. RAID_CLASS_COLORS[class].colorStr .. name)
-            gra.tooltip:SetPoint("RIGHT", row.spec, "LEFT", -1, 0)
-            gra.tooltip:Show()
+            GRA_Tooltip:SetOwner(row.spec, "ANCHOR_NONE")
+            GRA_Tooltip:AddLine("|c" .. RAID_CLASS_COLORS[class].colorStr .. name)
+            GRA_Tooltip:SetPoint("RIGHT", row.spec, "LEFT", -1, 0)
+            GRA_Tooltip:Show()
         end)
-        row.spec:HookScript("OnLeave", function() gra.tooltip:Hide() end)
+        row.spec:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
     end
 
     row.name = row:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
@@ -157,11 +157,11 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
         row.g1:GetFontString():SetPoint("LEFT", row.g1, "RIGHT", 5, 0)
 
         row.g1:HookScript("OnEnter", function()
-            gra.tooltip:SetOwner(row.g1, "ANCHOR_NONE")
-            gra.tooltip:SetHyperlink(link)
-            gra.tooltip:SetPoint("TOPLEFT", row.g1, "BOTTOMLEFT", 0, -1)
+            GRA_Tooltip:SetOwner(row.g1, "ANCHOR_NONE")
+            GRA_Tooltip:SetHyperlink(link)
+            GRA_Tooltip:SetPoint("TOPLEFT", row.g1, "BOTTOMLEFT", 0, -1)
         end)
-        row.g1:HookScript("OnLeave", function() gra.tooltip:Hide() end)
+        row.g1:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
         row.g1:Show()
     end
     
@@ -192,11 +192,11 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
         row.g2:GetFontString():SetPoint("LEFT", row.g2, "RIGHT", 5, 0)
 
         row.g2:HookScript("OnEnter", function()
-            gra.tooltip:SetOwner(row.g2, "ANCHOR_NONE")
-            gra.tooltip:SetHyperlink(link)
-            gra.tooltip:SetPoint("TOPLEFT", row.g2, "BOTTOMLEFT", 0, -1)
+            GRA_Tooltip:SetOwner(row.g2, "ANCHOR_NONE")
+            GRA_Tooltip:SetHyperlink(link)
+            GRA_Tooltip:SetPoint("TOPLEFT", row.g2, "BOTTOMLEFT", 0, -1)
         end)
-        row.g2:HookScript("OnLeave", function() gra.tooltip:Hide() end)
+        row.g2:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
         row.g2:Show()
     end
 
@@ -211,16 +211,16 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
     row.note:SetScript("OnEnter", function()
         row:SetBackdropColor(.5, .5, .5, .3)
         if row.note.text:IsTruncated() then
-            gra.tooltip:SetOwner(row.g2, "ANCHOR_NONE")
-            gra.tooltip:AddLine(L["Note"])
-            gra.tooltip:AddLine(row.note.text:GetText(), 1, 1, 1, true)
-            gra.tooltip:SetPoint("LEFT", row.note, "RIGHT")
-            gra.tooltip:Show()
+            GRA_Tooltip:SetOwner(row.g2, "ANCHOR_NONE")
+            GRA_Tooltip:AddLine(L["Note"])
+            GRA_Tooltip:AddLine(row.note.text:GetText(), 1, 1, 1, true)
+            GRA_Tooltip:SetPoint("LEFT", row.note, "RIGHT")
+            GRA_Tooltip:Show()
         end
     end)
     row.note:SetScript("OnLeave", function()
         row:SetBackdropColor(.5, .5, .5, .1)
-        gra.tooltip:Hide()
+        GRA_Tooltip:Hide()
     end)
     
     row:SetScript("OnEnter", function(self) self:SetBackdropColor(.5, .5, .5, .3) end)
@@ -338,11 +338,11 @@ local function CreateItemFrame(itemSig, itemLink, count)
     -- GRA:CreateIconOverlay(icon, itemLink, itemSig)
 
     icon:SetScript("OnEnter", function(self)
-        gra.tooltip:SetOwner(self, "ANCHOR_NONE")
-        gra.tooltip:SetHyperlink(itemLink)
-        gra.tooltip:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -1)
+        GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
+        GRA_Tooltip:SetHyperlink(itemLink)
+        GRA_Tooltip:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, -1)
     end)
-    icon:SetScript("OnLeave", function() gra.tooltip:Hide() end)
+    icon:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
 
     local nameText = titleFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT2")
     nameText:SetPoint("TOPLEFT", icon, "TOPRIGHT", 8, -4)
@@ -503,13 +503,13 @@ local function ShowDistributionFrame()
 
     if #indices > 0 then
         SendLoots()
+        if not currentIndex then currentIndex = 1 end
+        ShowFrame(indices[currentIndex])
         distributionFrame:Show()
     end
 end
 
 distributionFrame:SetScript("OnShow", function()
-    if not currentIndex then currentIndex = 1 end
-    ShowFrame(indices[currentIndex])
     LPP:PixelPerfectPoint(distributionFrame)
 end)
 

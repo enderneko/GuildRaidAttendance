@@ -91,8 +91,8 @@ testMsg:SetText("Adjust scale (experimental)")
 local about = [[
     <html><body>
     <p></p>
-    <p>]]..L["Run wow in full screen mode, if you want GRA to be pixel perfect."]..[[</p>
-    <p>Click on |cffffd100yellow text|r to copy it.</p>
+    <p>]]..gra.colors.firebrick.s..L["Run wow in full screen mode, if you want GRA to be pixel perfect."]..[[</p>
+    <p>]]..L["Click on |cffffd100yellow text|r to copy it."]..[[</p>
     <h1>]]..L["Author"]..[[</h1>
     <img src="Interface\AddOns\GuildRaidAttendance\Media\author" height="16" align="left"/>
     <p></p>
@@ -105,15 +105,15 @@ local about = [[
     <p></p>
     <p><a href="link">https://www.curseforge.com/wow/addons/guild-raid-attendance</a></p>
     <p></p>
-    <p>Please leave me a pm on curseforge if you want to help with the localization.</p>
+    <p>]]..L["Please leave me a pm on curseforge if you want to help with the localization."]..[[</p>
     <p></p>
-    <p>Submit a ticket here <a href="link">https://github.com/enderneko/GuildRaidAttendance/issues</a>, let me know what you need or what bugs you've found.</p>
+    <p>]]..L["Submit a ticket here %s, let me know what you need or what bugs you've found."]:format([[<a href="link">https://github.com/enderneko/GuildRaidAttendance/issues</a>]])..[[</p>
     <br/>
     <h1>]]..L["Translators"]..[[</h1>
     </body></html>
 ]]
 
-content:SetHeight(400)
+content:SetHeight(390)
 content:SetText(about)
 
 --------------------------------------------------------
@@ -155,7 +155,7 @@ content:SetScript("OnHyperlinkClick", function(self, linkData, link, button)
         copyEB:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x / LPP:GetPixelPerfectScale(), y / LPP:GetPixelPerfectScale())
         copyEB:Show()
     else
-        content:SetHeight(height or 400)
+        content:SetHeight(height or 390)
         contentScroll:ResetScroll()
         contentScroll:ResetHeight()
         content:SetText([[

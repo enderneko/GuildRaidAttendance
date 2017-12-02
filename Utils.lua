@@ -276,20 +276,22 @@ end
 function GRA:GetLockoutsResetDate()
 	local t = GRA:Date()
 	local wday = select(2, GRA:DateToWeekday(t))
+	local offset = 0
 	-- backward search
 	if wday > gra.RAID_LOCKOUTS_RESET  then -- forward
-		t = t + (gra.RAID_LOCKOUTS_RESET - wday)
+		offset = gra.RAID_LOCKOUTS_RESET - wday
 	elseif wday < gra.RAID_LOCKOUTS_RESET then -- backward
-		t = t + (gra.RAID_LOCKOUTS_RESET - wday - 7)
+		offset = gra.RAID_LOCKOUTS_RESET - wday - 7
 	end
-	return tostring(t)
+	return GRA:NextDate(t, offset)
 end
 
--- next valid date string, "20170331"->"20170401"
-function GRA:NextDate(d)
+-- next valid date string, offset = 1 by default, "20170331"->"20170401"
+function GRA:NextDate(d, offset)
+	if not offset then offset = 1 end
 	local year = string.sub(d, 1, 4)
 	local month = string.sub(d, 5, 6)
-	local day = string.sub(d, 7, 8) + 1
+	local day = string.sub(d, 7, 8) + offset
 	local sec = time({["year"]=year, ["month"]=month, ["day"]=day})
 	return date("%Y", sec)..date("%m", sec)..date("%d", sec)
 end

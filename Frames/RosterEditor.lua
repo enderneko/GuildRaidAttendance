@@ -19,13 +19,13 @@ rosterEditorFrame.header.helpBtn:SetPoint("RIGHT", rosterEditorFrame.header.clos
 rosterEditorFrame.header.helpBtn:GetFontString():SetFont(fontName, 12)
 
 rosterEditorFrame.header.helpBtn:HookScript("OnEnter", function()
-    gra.tooltip:SetOwner(rosterEditorFrame.header, "ANCHOR_TOPRIGHT", 0, 1)
-    gra.tooltip:AddLine(L["Edit Name"])
-    gra.tooltip:AddLine(L["Double Click: "] .. "|cffffffff" .. L["Edit fullname (must contain realm name)."])
-    gra.tooltip:Show()
+    GRA_Tooltip:SetOwner(rosterEditorFrame.header, "ANCHOR_TOPRIGHT", 0, 1)
+    GRA_Tooltip:AddLine(L["Edit Name"])
+    GRA_Tooltip:AddLine(L["Double Click: "] .. "|cffffffff" .. L["Edit fullname (must contain realm name)."])
+    GRA_Tooltip:Show()
 end)
 
-rosterEditorFrame.header.helpBtn:HookScript("OnLeave", function() gra.tooltip:Hide() end)
+rosterEditorFrame.header.helpBtn:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
 
 
 local rosterText = rosterEditorFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")

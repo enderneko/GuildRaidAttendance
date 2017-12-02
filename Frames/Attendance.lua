@@ -445,17 +445,17 @@ legendFrame.tex:SetTexture([[Interface\AddOns\GuildRaidAttendance\Media\legend.t
 legendFrame.tex:SetPoint("BOTTOMLEFT")
 
 legendFrame:SetScript("OnEnter", function(self)
-	gra.tooltip:SetOwner(self, "ANCHOR_LEFT", -1, -8)
-	gra.tooltip:AddLine(L["Legend"])
-	gra.tooltip:AddDoubleLine("|cff00FF00" .. L["Green"] .. "|r - |cffFFFFFF" .. L["Present"])
-	gra.tooltip:AddLine("|cffFFFF00" .. L["Yellow"] .. "|r - |cffFFFFFF" .. L["Late"])
-	gra.tooltip:AddLine("|cffFF0000" .. L["Red"] .. "|r - |cffFFFFFF" .. L["Absent"])
-	gra.tooltip:AddLine("|cffFF00FF" .. L["Magenta"] .. "|r - |cffFFFFFF" .. L["On Leave"])
-	gra.tooltip:Show()
+	GRA_Tooltip:SetOwner(self, "ANCHOR_LEFT", -1, -8)
+	GRA_Tooltip:AddLine(L["Legend"])
+	GRA_Tooltip:AddDoubleLine("|cff00FF00" .. L["Green"] .. "|r - |cffFFFFFF" .. L["Present"])
+	GRA_Tooltip:AddLine("|cffFFFF00" .. L["Yellow"] .. "|r - |cffFFFFFF" .. L["Late"])
+	GRA_Tooltip:AddLine("|cffFF0000" .. L["Red"] .. "|r - |cffFFFFFF" .. L["Absent"])
+	GRA_Tooltip:AddLine("|cffFF00FF" .. L["Magenta"] .. "|r - |cffFFFFFF" .. L["On Leave"])
+	GRA_Tooltip:Show()
 end)
 
 legendFrame:SetScript("OnLeave", function(self)
-	gra.tooltip:Hide()
+	GRA_Tooltip:Hide()
 end)
 
 -----------------------------------------
@@ -601,7 +601,7 @@ end
 function GRA:SetColumns()
 	-- set point left, align left
 	LPP:PixelPerfectPoint(gra.mainFrame)
-	-- re-set mainframe width
+	-- re-set mainFrame width
 	-- local width = GRA:Round(dateGrids[#dateGrids]:GetRight() - nameText:GetLeft() + 16)
 	-- local width2 = 75+(45*3)-3+16+(#dateGrids*30)-#dateGrids
 	-- print(width2)
@@ -777,10 +777,10 @@ ShowAR = function()
 		row.ar30Grid:HookScript("OnEnter", function(self)
 			tooltip:SetOwner(self, "ANCHOR_LEFT", 1, -20)
 			tooltip:AddLine(GRA:GetClassColoredName(row.name))
-			tooltip:AddDoubleLine(L["Present: "], "|cffffffff" .. att30[1])
-			tooltip:AddDoubleLine(L["Absent: "], "|cffffffff" .. att30[2])
-			-- tooltip:AddDoubleLine(L["Late: "], "|cffffffff" .. "nil")
-			-- tooltip:AddDoubleLine(L["On Leave: "], "|cffffffff" .. "nil")
+			tooltip:AddDoubleLine(L["Present"] .. ": ", "|cffffffff" .. att30[1])
+			tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffffffff" .. att30[2])
+			-- tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffffff" .. "nil")
+			-- tooltip:AddDoubleLine(L["On Leave"] .. ": ", "|cffffffff" .. "nil")
 			tooltip:Show()
 		end)
 		row.ar30Grid:HookScript("OnLeave", function() tooltip:Hide() end)
@@ -788,10 +788,10 @@ ShowAR = function()
 		row.ar60Grid:HookScript("OnEnter", function(self)
 			tooltip:SetOwner(self, "ANCHOR_LEFT", 1, -20)
 			tooltip:AddLine(GRA:GetClassColoredName(row.name))
-			tooltip:AddDoubleLine(L["Present: "], "|cffffffff" .. att60[1])
-			tooltip:AddDoubleLine(L["Absent: "], "|cffffffff" .. att60[2])
-			-- tooltip:AddDoubleLine(L["Late: "], "|cffffffff" .. "nil")
-			-- tooltip:AddDoubleLine(L["On Leave: "], "|cffffffff" .. "nil")
+			tooltip:AddDoubleLine(L["Present"] .. ": ", "|cffffffff" .. att60[1])
+			tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffffffff" .. att60[2])
+			-- tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffffff" .. "nil")
+			-- tooltip:AddDoubleLine(L["On Leave"] .. ": ", "|cffffffff" .. "nil")
 			tooltip:Show()
 		end)
 		row.ar60Grid:HookScript("OnLeave", function() tooltip:Hide() end)
@@ -799,10 +799,10 @@ ShowAR = function()
 		row.ar90Grid:HookScript("OnEnter", function(self)
 			tooltip:SetOwner(self, "ANCHOR_LEFT", 1, -20)
 			tooltip:AddLine(GRA:GetClassColoredName(row.name))
-			tooltip:AddDoubleLine(L["Present: "], "|cffffffff" .. att90[1])
-			tooltip:AddDoubleLine(L["Absent: "], "|cffffffff" .. att90[2])
-			-- tooltip:AddDoubleLine(L["Late: "], "|cffffffff" .. "nil")
-			-- tooltip:AddDoubleLine(L["On Leave: "], "|cffffffff" .. "nil")
+			tooltip:AddDoubleLine(L["Present"] .. ": ", "|cffffffff" .. att90[1])
+			tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffffffff" .. att90[2])
+			-- tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffffff" .. "nil")
+			-- tooltip:AddDoubleLine(L["On Leave"] .. ": ", "|cffffffff" .. "nil")
 			tooltip:Show()
 		end)
 		row.ar90Grid:HookScript("OnLeave", function() tooltip:Hide() end)
@@ -810,10 +810,10 @@ ShowAR = function()
 		row.arLifetimeGrid:HookScript("OnEnter", function(self)
 			tooltip:SetOwner(self, "ANCHOR_LEFT", 1, -20)
 			tooltip:AddLine(GRA:GetClassColoredName(row.name))
-			tooltip:AddDoubleLine(L["Present: "], "|cffffffff" .. attLifetime[1])
-			tooltip:AddDoubleLine(L["Absent: "], "|cffffffff" .. attLifetime[2])
-			tooltip:AddDoubleLine(L["Late: "], "|cffffffff" .. "nil")
-			tooltip:AddDoubleLine(L["On Leave: "], "|cffffffff" .. "nil")
+			tooltip:AddDoubleLine(L["Present"] .. ": ", "|cffffffff" .. attLifetime[1])
+			tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffffffff" .. attLifetime[2])
+			tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffffff" .. "nil")
+			tooltip:AddDoubleLine(L["On Leave"] .. ": ", "|cffffffff" .. "nil")
 			tooltip:Show()
 		end)
 		row.arLifetimeGrid:HookScript("OnLeave", function() tooltip:Hide() end)
@@ -918,7 +918,7 @@ CalcAR = function()
 		ShowCalcARProgressFrame(GRA:Getn(GRA_RaidLogs))
 		GRA:Debug("|cff1E90FFCalculating attendance rate...")
 	else
-		return
+		GRA:Debug("|cff1E90FFClear attendance rate...")
 	end
 
 	local today = GRA:Date()
@@ -988,9 +988,9 @@ CalcAR = function()
 	ShowAR()
 
 	-- re-sort by attendance rate
-	if string.find(GRA_Config["sortKey"], "ar") then
+	-- if string.find(GRA_Config["sortKey"], "ar") then
 		SortSheet(GRA_Config["sortKey"])
-	end
+	-- end
 end
 
 -----------------------------------------
@@ -1012,8 +1012,8 @@ local function CountByDate(d)
 				local name = detail[4]
 				-- if type(detail[4]) ~= "table" then detail[4] = {detail[4]} end -- convert old format
 				-- for _, name in pairs(detail[4]) do
-					if not gps[d][name] then gps[d][name] = {["loots"] = 0} end
-					gps[d][name]["loots"] = gps[d][name]["loots"] + 1 -- store loot num
+					if not gps[d][name] then gps[d][name] = {} end
+					gps[d][name]["loots"] = (gps[d][name]["loots"] or 0) + 1 -- store loot num
 					table.insert(gps[d][name], "|cffffffff" .. detail[3] .. "|cffffffff: " .. detail[2] .. " GP")
 
 					if not todaysGP[d][name] then todaysGP[d][name] = 0 end
@@ -1029,7 +1029,7 @@ local function CountByDate(d)
 				end
 			else -- PGP
 				for _, name in pairs(detail[4]) do
-					if not gps[d][name] then gps[d][name] = {["loots"] = 0} end
+					if not gps[d][name] then gps[d][name] = {} end
 					table.insert(gps[d][name], "|cffffffff" .. detail[3] .. ": " .. detail[2] .. " GP")
 
 					if not todaysGP[d][name] then todaysGP[d][name] = 0 end
@@ -1310,7 +1310,7 @@ end
 
 function GRA:ShowAttendanceSheet()
 	HideAll()
-	
+
 	if GRA:Getn(GRA_Roster) ~= 0 then
 		GRA:Debug("|cff1E90FFLoading attendance sheet|r")
 		
@@ -1336,7 +1336,7 @@ function GRA:ShowAttendanceSheet()
 		GRA:CreateMask(attendanceFrame.scrollFrame, L["No member"], {1, -1, -1, 1})
 	end
 
-	-- schedule changed (mainframe's width changed) may cause frame not pixel perfect, fix it!
+	-- schedule changed (mainFrame's width changed) may cause frame not pixel perfect, fix it!
 	LPP:PixelPerfectPoint(gra.mainFrame)
 
 	if GRA_Config["useEPGP"] then
@@ -1357,6 +1357,9 @@ local function EnableMiniMode(f)
 		decayText:ClearAllPoints()
 		decayText:SetPoint("TOPLEFT", 0, -38)
 	else
+		-- reset frame width
+		gra.mainFrame:SetWidth(620)
+
 		legendFrame:Show()
 		datePicker:Show()
 		refreshBtn:ClearAllPoints()
@@ -1372,8 +1375,8 @@ local function EnableMiniMode(f)
 end
 
 GRA:RegisterEvent("GRA_MINI", "AttendanceFrame_MiniMode", function(enabled)
-	GRA:ShowAttendanceSheet()
 	EnableMiniMode(enabled)
+	GRA:ShowAttendanceSheet()
 end)
 
 -----------------------------------------

@@ -4,7 +4,7 @@
 	<GameTooltip name="GRATooltipTemplate" frameStrata="TOOLTIP" clampedToScreen="true" hidden="true" virtual="true">
 		<Layers>
 			<Layer level="ARTWORK">
-				<FontString name="$parentTextLeft1" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextLeft1" inherits="GRA_FONT_TOOLTIP_NORMAL" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
@@ -13,7 +13,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextRight1" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextRight1" inherits="GRA_FONT_TOOLTIP_NORMAL" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeTo="$parentTextLeft1" relativePoint="LEFT">
 							<Offset>
@@ -22,7 +22,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextLeft2" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextLeft2" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft1" relativePoint="BOTTOMLEFT">
 							<Offset>
@@ -31,7 +31,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextRight2" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextRight2" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeTo="$parentTextLeft2" relativePoint="LEFT">
 							<Offset>
@@ -40,7 +40,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextLeft3" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextLeft3" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft2" relativePoint="BOTTOMLEFT">
 							<Offset>
@@ -49,7 +49,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextRight3" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextRight3" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeTo="$parentTextLeft3" relativePoint="LEFT">
 							<Offset>
@@ -58,7 +58,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextLeft4" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextLeft4" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft3" relativePoint="BOTTOMLEFT">
 							<Offset>
@@ -67,7 +67,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextRight4" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextRight4" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeTo="$parentTextLeft4" relativePoint="LEFT">
 							<Offset>
@@ -76,7 +76,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextLeft5" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextLeft5" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft4" relativePoint="BOTTOMLEFT">
 							<Offset>
@@ -85,7 +85,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextRight5" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextRight5" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeTo="$parentTextLeft5" relativePoint="LEFT">
 							<Offset>
@@ -94,7 +94,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextLeft6" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextLeft6" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft5" relativePoint="BOTTOMLEFT">
 							<Offset>
@@ -103,7 +103,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextRight6" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextRight6" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeTo="$parentTextLeft6" relativePoint="LEFT">
 							<Offset>
@@ -112,7 +112,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextLeft7" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextLeft7" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft6" relativePoint="BOTTOMLEFT">
 							<Offset>
@@ -121,7 +121,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextRight7" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextRight7" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeTo="$parentTextLeft7" relativePoint="LEFT">
 							<Offset>
@@ -130,7 +130,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextLeft8" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextLeft8" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft7" relativePoint="BOTTOMLEFT">
 							<Offset>
@@ -139,7 +139,7 @@
 						</Anchor>
 					</Anchors>
 				</FontString>
-				<FontString name="$parentTextRight8" inherits="GRA_FONT_TOOLTIP" hidden="true">
+				<FontString name="$parentTextRight8" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
 					<Anchors>
 						<Anchor point="RIGHT" relativeTo="$parentTextLeft8" relativePoint="LEFT">
 							<Offset>
@@ -194,6 +194,99 @@
 					</Size>
 				</Texture>
 				<Texture name="$parentTexture10" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+				</Texture>
+			</Layer>
+		</Layers>
+	</GameTooltip>
+	<GameTooltip name="GRAShoppingTooltipTemplate" frameStrata="TOOLTIP" hidden="true" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentTextLeft1" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="10" y="-10"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentTextRight1" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
+					<Anchors>
+						<Anchor point="RIGHT" relativeTo="$parentTextLeft1" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="40" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentTextLeft2" inherits="GRA_FONT_TOOLTIP_NORMAL" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft1" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentTextRight2" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
+					<Anchors>
+						<Anchor point="RIGHT" relativeTo="$parentTextLeft2" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="40" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentTextLeft3" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft2" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentTextRight3" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
+					<Anchors>
+						<Anchor point="RIGHT" relativeTo="$parentTextLeft3" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="40" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentTextLeft4" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTextLeft3" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentTextRight4" inherits="GRA_FONT_TOOLTIP_SMALL" hidden="true">
+					<Anchors>
+						<Anchor point="RIGHT" relativeTo="$parentTextLeft4" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="40" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<Texture name="$parentTexture1" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+				</Texture>
+				<Texture name="$parentTexture2" hidden="true">
+					<Size>
+						<AbsDimension x="12" y="12"/>
+					</Size>
+				</Texture>
+				<Texture name="$parentTexture3" hidden="true">
 					<Size>
 						<AbsDimension x="12" y="12"/>
 					</Size>

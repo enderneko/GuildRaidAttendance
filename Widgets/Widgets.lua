@@ -78,6 +78,7 @@ function GRA:CreateMovableFrame(title, name, width, height, font, clampedToScree
 	local header = CreateFrame("Frame", nil, f)
 	f.header = header
 	header:EnableMouse(true)
+	header:SetClampedToScreen(clampedToScreen and true)
 	header:RegisterForDrag("LeftButton")
 	header:SetScript("OnDragStart", function() f:StartMoving() end)
 	header:SetScript("OnDragStop", function() f:StopMovingOrSizing() end)
@@ -102,16 +103,16 @@ end
 local function SetTooltip(widget, x, y, tipText1, tipText2, tipText3, tipText4, tipText5)
 	if tipText1 then
 		widget:HookScript("OnEnter", function(self)
-			gra.tooltip:SetOwner(self, "ANCHOR_TOPLEFT", x or 0, y or 0)
-			gra.tooltip:AddLine(tipText1)
-			if tipText2 then gra.tooltip:AddLine("|cffffffff" .. tipText2) end
-			if tipText3 then gra.tooltip:AddLine("|cffffffff" .. tipText3) end
-			if tipText4 then gra.tooltip:AddLine("|cffffffff" .. tipText4) end
-			if tipText5 then gra.tooltip:AddLine("|cffffffff" .. tipText5) end
-			gra.tooltip:Show()
+			GRA_Tooltip:SetOwner(self, "ANCHOR_TOPLEFT", x or 0, y or 0)
+			GRA_Tooltip:AddLine(tipText1)
+			if tipText2 then GRA_Tooltip:AddLine("|cffffffff" .. tipText2) end
+			if tipText3 then GRA_Tooltip:AddLine("|cffffffff" .. tipText3) end
+			if tipText4 then GRA_Tooltip:AddLine("|cffffffff" .. tipText4) end
+			if tipText5 then GRA_Tooltip:AddLine("|cffffffff" .. tipText5) end
+			GRA_Tooltip:Show()
 		end)
 		widget:HookScript("OnLeave", function(self)
-			gra.tooltip:Hide()
+			GRA_Tooltip:Hide()
 		end)
 	end
 end

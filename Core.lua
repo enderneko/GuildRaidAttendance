@@ -20,7 +20,7 @@ function GRA:Debug(arg, ...)
 end
 
 function GRA:Print(msg)
-	print("|cff80FF00GRA|r " .. msg)
+	print("|cff80FF00[GRA]|r " .. msg)
 end
 
 -----------------------------------------
@@ -73,13 +73,21 @@ if GetLocale() == "zhCN" or GetLocale() == "zhTW" or GetLocale() == "koKR" then
 end
 
 -- tooltip
-local font_tooltip = CreateFont("GRA_FONT_TOOLTIP")
-font_tooltip:SetFont(GameTooltipText:GetFont(), 11)
-font_tooltip:SetTextColor(1, 1, 1, 1)
-font_tooltip:SetShadowColor(0, 0, 0)
-font_tooltip:SetShadowOffset(1, -1)
-font_tooltip:SetJustifyH("LEFT")
-font_tooltip:SetJustifyV("MIDDLE")
+local font_tooltip_normal = CreateFont("GRA_FONT_TOOLTIP_NORMAL")
+font_tooltip_normal:SetFont(GameTooltipText:GetFont(), 13)
+font_tooltip_normal:SetTextColor(1, 1, 1, 1)
+font_tooltip_normal:SetShadowColor(0, 0, 0)
+font_tooltip_normal:SetShadowOffset(1, -1)
+font_tooltip_normal:SetJustifyH("LEFT")
+font_tooltip_normal:SetJustifyV("MIDDLE")
+
+local font_tooltip_small = CreateFont("GRA_FONT_TOOLTIP_SMALL")
+font_tooltip_small:SetFont(GameTooltipText:GetFont(), 11)
+font_tooltip_small:SetTextColor(1, 1, 1, 1)
+font_tooltip_small:SetShadowColor(0, 0, 0)
+font_tooltip_small:SetShadowOffset(1, -1)
+font_tooltip_small:SetJustifyH("LEFT")
+font_tooltip_small:SetJustifyV("MIDDLE")
 
 -- text
 local font_text = CreateFont("GRA_FONT_TEXT")
@@ -257,7 +265,7 @@ function frame:ADDON_LOADED(arg1)
 			GRA_FONT_TEXT2:SetFont(GameFontNormal:GetFont(), 12)
 			GRA_FONT_TEXT3:SetFont(GameFontNormal:GetFont(), 13)
 			GRA_FONT_GRID:SetFont(GameFontNormal:GetFont(), 11)
-			GRA_FONT_TOOLTIP:SetFont(GameFontNormal:GetFont(), 11)
+			GRA_FONT_TOOLTIP_SMALL:SetFont(GameFontNormal:GetFont(), 11)
 			GRA_FONT_TITLE:SetFont(GameFontNormal:GetFont(), 13)
 		end
 	end

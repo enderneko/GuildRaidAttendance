@@ -136,7 +136,7 @@ local deleteRaidLogBtn = GRA:CreateButton(statusFrame, L["Delete Raid Log"], "bl
 deleteRaidLogBtn:SetPoint("LEFT", newRaidLogBtn, "RIGHT", 5, 0)
 deleteRaidLogBtn:Hide()
 deleteRaidLogBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmBox(raidLogsFrame, 180, gra.colors.firebrick.s .. L["Delete selected raid logs data?"]
+	local confirm = GRA:CreateConfirmBox(raidLogsFrame, 180, gra.colors.firebrick.s .. L["Delete selected raid logs?"]
 		.. "\n|cffFFFFFF" .. L["This will affect attendance rate!"], function()
 		local selectedDates = {}
 		for d, b in pairs(dates) do
@@ -285,7 +285,7 @@ local function ShowRaidDetails(d)
 
 					-- delete detail entry
 					b.deleteBtn:SetScript("OnClick", function()
-						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this Entry and undo changes to EP/GP?"] .. "|r\n" 
+						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to EP/GP?"] .. "|r\n" 
 						.. detail[3] .. ": " .. detail[2] .. " " .. (string.find(detail[1], "EP") and "EP" or "GP")
 						, function()
 							if string.find(detail[1], "P") == 1 then
@@ -313,7 +313,7 @@ local function ShowRaidDetails(d)
 					b.noteText:SetPoint("RIGHT", -25, 0)
 					-- delete detail entry
 					b.deleteBtn:SetScript("OnClick", function()
-						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this Entry?"] .. "|r\n" 
+						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry?"] .. "|r\n" 
 						.. detail[3] .. " " .. GRA:GetClassColoredName(detail[4])
 						, function()
 							-- delete from logs
@@ -418,7 +418,7 @@ local function LoadDateList()
 
 					titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(GRA_RaidLogs)
 						.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(sortedDates[selected]))
-						.. "    |cff80FF00" .. L["Raid Start Time: "] .. "|r" .. GRA:GetRaidStartTime(d))
+						.. "    |cff80FF00" .. L["Raid Start Time"] .. ":|r " .. GRA:GetRaidStartTime(d))
 				end
 			end)
 		end

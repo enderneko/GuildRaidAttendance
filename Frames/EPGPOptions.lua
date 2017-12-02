@@ -41,7 +41,7 @@ local epgpCB = GRA:CreateCheckButton(epgpOptionsFrame, L["Enable EPGP"], nil, fu
 	if GRA_Config["useEPGP"] then
 		text = gra.colors.firebrick.s .. L["Disable EPGP?"]
 	else
-		text = gra.colors.firebrick.s .. L["Enable EPGP?"] .. "|r\n" .. L["EPGP system stores its data in officer notes.\nYou'd better back up your officer notes before using EPGP."]
+		text = gra.colors.firebrick.s .. L["Enable EPGP?"] .. "|r\n" .. L["EPGP system stores its data in officer notes.\nYou'd better back up your officer notes before using EPGP.\nAnd you should revoke the privilege to edit officer note from most of guild members."]
 	end
 	-- confirm box
 	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, text, function()

@@ -71,11 +71,11 @@ local function CreateItemButton(itemLink, looter)
         b:SetIcon(icon)
 
         b:SetScript("OnEnter", function(self)
-            gra.tooltip:SetOwner(self, "ANCHOR_NONE")
-            gra.tooltip:SetHyperlink(itemLink)
-            gra.tooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 1)
+            GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
+            GRA_Tooltip:SetHyperlink(itemLink)
+            GRA_Tooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, 1)
         end)
-        b:SetScript("OnLeave", function() gra.tooltip:Hide() end)
+        b:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
 
         b:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
