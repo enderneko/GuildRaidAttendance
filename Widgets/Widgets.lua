@@ -82,8 +82,12 @@ function GRA:CreateMovableFrame(title, name, width, height, font, clampedToScree
 	header:RegisterForDrag("LeftButton")
 	header:SetScript("OnDragStart", function() f:StartMoving() end)
 	header:SetScript("OnDragStop", function() f:StopMovingOrSizing() end)
-	header:SetPoint("TOPLEFT", f, 0, 21)
-	header:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", 0, -1)
+	header:SetPoint("LEFT")
+	header:SetPoint("RIGHT")
+	header:SetPoint("BOTTOM", f, "TOP", 0, -1)
+	header:SetHeight(22)
+	-- header:SetPoint("TOPLEFT", f, 0, 21)
+	-- header:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", 0, -1)
 	GRA:StylizeFrame(header, {.1, .1, .1, 1})
 	
 	header.text = header:CreateFontString(nil, "OVERLAY", font or "GRA_FONT_NORMAL")
@@ -208,7 +212,9 @@ function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
 	local s = b:GetFontString()
 	if s then
 		s:SetWordWrap(false)
-		s:SetWidth(size[1])
+		-- s:SetWidth(size[1])
+		s:SetPoint("LEFT")
+		s:SetPoint("RIGHT")
 	end
 	
 	if noBorder then
@@ -397,9 +403,11 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 
 	-- header
 	local last = nil
+	local headers = {}
 	for i = 1, 7 do
 		local w = {L["Sun"], L["Mon"], L["Tue"], L["Wed"], L["Thu"], L["Fri"], L["Sat"]}
 		local s = calendar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+		table.insert(headers, s)
 		s:SetText(w[i])
 		s:SetWidth(28)
 
@@ -423,9 +431,12 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 			if onDateChanged then onDateChanged(d) end
 		end)
 
-		if i % 7 == 1 then
-			local y = -(math.modf(i / 7) * 19) - 40
-			dateBtns[i]:SetPoint("TOPLEFT", 0, y)
+		if i == 1 then
+			dateBtns[i]:SetPoint("TOPLEFT", 0, -40)
+		elseif i % 7 == 1 then
+			-- local y = -(math.modf(i / 7) * 19) - 40
+			-- dateBtns[i]:SetPoint("TOPLEFT", 0, y)
+			dateBtns[i]:SetPoint("TOP", dateBtns[i - 7], "BOTTOM", 0, 1)
 		else
 			dateBtns[i]:SetPoint("LEFT", dateBtns[i - 1], "RIGHT", -1, 0)
 		end
@@ -489,6 +500,20 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 
 	datePicker:SetScript("OnHide", function() calendar:Hide() end)
 
+	function datePicker:Resize(cWidth, cHeight, bWidth, bHeight)
+		calendar:SetSize(cWidth, cHeight)
+		pMonth:SetSize(bWidth, bHeight)
+		nMonth:SetSize(bWidth, bHeight)
+		headers[1]:SetPoint("TOPLEFT", 0, -25-(gra.size.height-20))
+		for _, s in pairs(headers) do
+			s:SetWidth(bWidth)
+		end
+		for _, b in pairs(dateBtns) do
+			b:SetSize(bWidth, bHeight)
+		end
+		dateBtns[1]:SetPoint("TOPLEFT", 0, -40-(gra.size.height-20))
+	end
+
 	return datePicker
 end
 
@@ -497,7 +522,7 @@ end
 -----------------------------------------
 function GRA:CreateGrid(frame, width, text, color, highlight, ...)
 	local grid = CreateFrame("Button", nil, frame)
-	grid:SetSize(width, 20)
+	grid:SetSize(width, gra.size.height)
 	grid:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	if color then
 		grid:SetBackdropColor(unpack(color))
@@ -553,12 +578,12 @@ end
 function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	local row = CreateFrame("Button", nil, frame)
 	row:SetFrameLevel(5)
-	row:SetSize(width, 20)
+	row:SetSize(width, gra.size.height)
 	row:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	row:SetBackdropColor(0, 0, 0, 0) 
     row:SetBackdropBorderColor(0, 0, 0, 1)
 	
-	row.nameGrid = GRA:CreateGrid(row, 75, nameText, {.7,.7,.7,.1})
+	row.nameGrid = GRA:CreateGrid(row, gra.size.grid_name, nameText, {.7,.7,.7,.1})
 	row.nameGrid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.nameGrid:GetFontString():ClearAllPoints()
 	row.nameGrid:GetFontString():SetPoint("LEFT", 5, 0)
@@ -571,37 +596,37 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	end)
 
 	-- ep
-	row.epGrid = GRA:CreateGrid(row, 45, " ", {.7,.7,.7,.1})
+	row.epGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
 	row.epGrid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.epGrid:SetNormalFontObject("GRA_FONT_GRID")
 
 	-- gp
-	row.gpGrid = GRA:CreateGrid(row, 45, " ", {.7,.7,.7,.1})
+	row.gpGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
 	row.gpGrid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.gpGrid:SetNormalFontObject("GRA_FONT_GRID")
 
 	-- pr
-	row.prGrid = GRA:CreateGrid(row, 45, " ", {.7,.7,.7,.1})
+	row.prGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
 	row.prGrid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.prGrid:SetNormalFontObject("GRA_FONT_GRID")
 	
 	-- ar 30
-	row.ar30Grid = GRA:CreateGrid(row, 45, " ", {.7,.7,.7,.1}, true)
+	row.ar30Grid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
 	row.ar30Grid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.ar30Grid:SetNormalFontObject("GRA_FONT_GRID")
 
 	-- ar 60
-	row.ar60Grid = GRA:CreateGrid(row, 45, " ", {.7,.7,.7,.1}, true)
+	row.ar60Grid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
 	row.ar60Grid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.ar60Grid:SetNormalFontObject("GRA_FONT_GRID")
 
 	-- ar 90
-	row.ar90Grid = GRA:CreateGrid(row, 45, " ", {.7,.7,.7,.1}, true)
+	row.ar90Grid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
 	row.ar90Grid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.ar90Grid:SetNormalFontObject("GRA_FONT_GRID")
 
 	-- ar lifetime
-	row.arLifetimeGrid = GRA:CreateGrid(row, 45, " ", {.7,.7,.7,.1}, true)
+	row.arLifetimeGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
 	row.arLifetimeGrid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.arLifetimeGrid:SetNormalFontObject("GRA_FONT_GRID")
 
@@ -664,7 +689,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	row:SetColumns()
 	function row:CreateGrid(n)
 		for i = 1, n do
-			local grid = GRA:CreateGrid(row, 30, " ", {.7,.7,.7,.1}, true)
+			local grid = GRA:CreateGrid(row, gra.size.grid_dates, " ", {.7,.7,.7,.1}, true)
 			if i == 1 then
 				grid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			else
@@ -776,17 +801,17 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 	b:SetBackdropColor(0, 0, 0, 0)
 	b:SetBackdropBorderColor(unpack(borderColor))
 	b:SetPushedTextOffset(0, 0)
-	b:SetSize(20, 20)
+	b:SetSize(gra.size.height, gra.size.height)
 
 	local tex1 = b:CreateTexture()
 	tex1:SetColorTexture(unpack(borderColor))
-	tex1:SetSize(1, 20)
+	tex1:SetSize(1, gra.size.height)
 	local tex2 = b:CreateTexture()
 	tex2:SetColorTexture(unpack(borderColor))
-	tex2:SetSize(1, 20)
+	tex2:SetSize(1, gra.size.height)
 	local tex3 = b:CreateTexture()
 	tex3:SetColorTexture(unpack(borderColor))
-	tex3:SetSize(1, 20)
+	tex3:SetSize(1, gra.size.height)
 
 	b.typeText = b:CreateFontString(nil, "OVERLAY", font)
 	b.typeText:SetTextColor(unpack(textColor))
@@ -856,7 +881,7 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 
 
 	b.deleteBtn = CreateFrame("Button", nil, b)
-	b.deleteBtn:SetSize(20, 20)
+	b.deleteBtn:SetSize(gra.size.height, gra.size.height)
 	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
 	b.deleteBtn:SetBackdropBorderColor(unpack(borderColor))

@@ -31,7 +31,7 @@ GRA_Roster = {
 		["att30"] = {present(number), absent(number)},
 		["att60"] = {present(number), absent(number)},
 		["att90"] = {present(number), absent(number)},
-		["attLifetime"] = {present(number), absent(number)},
+		["attLifetime"] = {present(number), absent(number), late(number), onLeave(number)},
 		["EP"] = (number),
 		["GP"] = (number),
 	},

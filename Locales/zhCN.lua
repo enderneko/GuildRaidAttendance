@@ -196,7 +196,7 @@ L["Help"] = "帮助"
 L["Reset"] = "重置"
 L["Reset all data?"] = "重置所有数据？"
 L["Including roster and logs"] = "包括名单和活动记录"
-L["Reload"] = "重载"
+L["Profile"] = "配置"
 
 -------------------------------------------------------
 -- epgp options

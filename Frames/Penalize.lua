@@ -8,6 +8,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 local pType, pReason, pValue, pSelected, pDate, pIndex = nil, nil, nil, {}, nil, nil
 
 local penalizeFrame = GRA:CreateMovableFrame(L["Penalize"], "GRA_PenalizeFrame", 400, 400, nil, true, "DIALOG")
+penalizeFrame:SetToplevel(true)
 gra.penalizeFrame = penalizeFrame
 
 local dateText = penalizeFrame.header:CreateFontString(nil, "OVERLAY", "GRA_FONT_PIXEL")

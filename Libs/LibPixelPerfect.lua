@@ -1,6 +1,6 @@
 --------------------------------------------
 -- LibPixelPerfect
--- fyhcslb 2017-09-23 11:00:00
+-- fyhcslb 2017-12-03 08:00:41
 -- http://wow.gamepedia.com/UI_Scale
 -- http://www.wowinterface.com/forums/showthread.php?t=31813
 -- FULLSCREEN ONLY!!!

@@ -5,7 +5,7 @@ E[1] = GRA -- functions
 E[2] = gra -- global variables, frames...
 
 --@debug@
-local debugMode = false
+local debugMode = true
 --@end-debug@
 function GRA:Debug(arg, ...)
 	if debugMode then
@@ -54,12 +54,41 @@ gra.colors = {
 gra.sizes = {
 	normal = {
 		fontSize = 11,
+		height = 20,
+		-- button_main = {100, 20},
+		-- button_track = {60, 22},
+		-- button_close = {16, 16},
+		grid_name = 75,
+		grid_others = 45,
+		grid_dates = 30,
+		mainFrame = {620, 400},
 	},
 	large = {
-		fontSize = 12,
-		rowHeight = 25,
+		fontSize = 13,
+		height = 24,
+		button_main = {120, 24},
+		button_track = {80, 26},
+		button_close = {20, 20},
+		button_raidLogs = {84, 24},
+		button_attendanceEditor = {122, 22},
+		button_datePicker = {84, 24},
+		button_datePicker_inner = {34, 24},
+		button_datePicker_outter = {232, 183},
+		button_refresh = {66, 24},
+		grid_name = 90,
+		grid_others = 54,
+		grid_dates = 36,
+		mainFrame = {770, 497},
+		attendanceFrame = {-34, 422}, -- point, height
+		raidLogsFrame = {-34, 429}, -- point, height
+		raidLogsFrame_list = {-20, 28, 87}, -- top, bottom, width
+	},
+	extraLarge = {
+		fontSize = 15,
+		height = 28,
 	}
 }
+gra.size = gra.sizes.normal
 
 -----------------------------------------
 -- font
@@ -202,6 +231,18 @@ function frame:ADDON_LOADED(arg1)
 
 		if type(GRA_Config["firstRun"]) ~= "boolean" then GRA_Config["firstRun"] = true end
 
+		-- size
+		if type(GRA_Config["size"]) ~= "string" then GRA_Config["size"] = "normal" end
+		if GRA_Config["size"] ~= "normal" then
+			gra.size = gra.sizes[GRA_Config["size"]]
+			for name, f in pairs(gra) do
+				if gra.size[name] then
+					f:Resize()
+					GRA:Debug("Resized " .. name)
+				end
+			end
+		end
+
 		if type(GRA_Config["raidInfo"]) ~= "table" then
 			GRA_Config["raidInfo"] = {
 				["EPGP"] = {100, 0, 10},
@@ -256,17 +297,29 @@ function frame:ADDON_LOADED(arg1)
 		
 		gra.version = GetAddOnMetadata(addonName, "version")
 
-		-- GRA_FONT_SMALL:SetFont(GRA_FONT_SMALL:GetFont(), 20)
+		-- update font & fontsize
 		if GRA_Config["useGameFont"] then
-			GRA_FONT_SMALL:SetFont(GameFontNormal:GetFont(), 11)
-			GRA_FONT_SMALL_DISABLED:SetFont(GameFontNormal:GetFont(), 11)
-			GRA_FONT_NORMAL:SetFont(GameFontNormal:GetFont(), 13)
-			GRA_FONT_TEXT:SetFont(GameFontNormal:GetFont(), 11)
-			GRA_FONT_TEXT2:SetFont(GameFontNormal:GetFont(), 12)
-			GRA_FONT_TEXT3:SetFont(GameFontNormal:GetFont(), 13)
-			GRA_FONT_GRID:SetFont(GameFontNormal:GetFont(), 11)
-			GRA_FONT_TOOLTIP_SMALL:SetFont(GameFontNormal:GetFont(), 11)
-			GRA_FONT_TITLE:SetFont(GameFontNormal:GetFont(), 13)
+			GRA_FONT_SMALL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
+			GRA_FONT_SMALL_DISABLED:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
+			GRA_FONT_NORMAL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
+			GRA_FONT_TEXT:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
+			GRA_FONT_TEXT2:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+1)
+			GRA_FONT_TEXT3:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
+			GRA_FONT_TITLE:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
+			GRA_FONT_GRID:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
+		else
+			GRA_FONT_TOOLTIP_NORMAL:SetFont(GRA_FONT_TOOLTIP_NORMAL:GetFont(), gra.size.fontSize+2)
+			GRA_FONT_TOOLTIP_SMALL:SetFont(GRA_FONT_TOOLTIP_SMALL:GetFont(), gra.size.fontSize)
+			GRA_FONT_SMALL:SetFont(GRA_FONT_SMALL:GetFont(), gra.size.fontSize)
+			GRA_FONT_SMALL_DISABLED:SetFont(GRA_FONT_SMALL_DISABLED:GetFont(), gra.size.fontSize)
+			GRA_FONT_NORMAL:SetFont(GRA_FONT_NORMAL:GetFont(), gra.size.fontSize+2)
+			GRA_FONT_TEXT:SetFont(GRA_FONT_TEXT:GetFont(), gra.size.fontSize)
+			GRA_FONT_TEXT2:SetFont(GRA_FONT_TEXT2:GetFont(), gra.size.fontSize+1)
+			GRA_FONT_TEXT3:SetFont(GRA_FONT_TEXT3:GetFont(), gra.size.fontSize+2)
+			GRA_FONT_TITLE:SetFont(GRA_FONT_TITLE:GetFont(), gra.size.fontSize+2)
+			GRA_FONT_BUTTON:SetFont(GRA_FONT_BUTTON:GetFont(), gra.size.fontSize+4)
+			GRA_FONT_GRID:SetFont(GRA_FONT_GRID:GetFont(), gra.size.fontSize)
+			GRA_FONT_PIXEL:SetFont(GRA_FONT_PIXEL:GetFont(), gra.size.fontSize-5, "MONOCHROME")
 		end
 	end
 end
@@ -326,6 +379,8 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		gra.mainFrame:ClearAllPoints()
 		gra.mainFrame:SetPoint("CENTER")
 		gra.mainFrame:Show()
+	elseif command == "loot" then
+		gra.distributionFrame:Show()
 	elseif command == "test" then
 		if rest == "receivePopup" then
 			local class = select(2, UnitClass("player"))
@@ -339,8 +394,9 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		elseif rest == "popup" then
 			GRA:CreatePopup(time())
 		end
-	elseif command == "loot" then
-		gra.distributionFrame:Show()
-	-- elseif command == "fontsize" and rest ~= "" then
+	elseif command == "testL" then
+		GRA_Config["size"] = "large"
+	elseif command == "testN" then
+		GRA_Config["size"] = "normal"
 	end
 end

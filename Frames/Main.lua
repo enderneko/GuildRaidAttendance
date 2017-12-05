@@ -266,9 +266,16 @@ guildMOTDScroll:SetScript("OnEvent", function(self, event, arg)
 	end
 end)
 
-if GRA:Debug() then
-	-- local tex = guildMOTDScroll.content:CreateTexture()
-	-- tex:SetColorTexture(0, .5, 1, .2)
-	-- tex:SetAllPoints(guildMOTDScroll.content)
-	-- GRA:StylizeFrame(guildMOTDScroll, {.5, 0, 0, .2})
+-----------------------------------------
+-- resize
+-----------------------------------------
+function gra.mainFrame:Resize()
+	gra.mainFrame:SetSize(unpack(gra.size.mainFrame))
+	gra.mainFrame.header:SetHeight(gra.size.height+2)
+	gra.mainFrame.header.closeBtn:SetSize(unpack(gra.size.button_close))
+	for _, b in pairs(buttons) do
+		b:SetSize(unpack(gra.size.button_main))
+	end
+	configBtn:SetSize(unpack(gra.size.button_main))
+	trackBtn:SetSize(unpack(gra.size.button_track))
 end

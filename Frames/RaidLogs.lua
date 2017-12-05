@@ -133,11 +133,14 @@ local deleteRaidLogBtn = GRA:CreateButton(statusFrame, L["Delete Raid Log"], "bl
 	L["Delete Raid Log"],
 	L["Delete selected raid logs."],
 	L["Select multiple logs with the Ctrl and Shift keys."])
-deleteRaidLogBtn:SetPoint("LEFT", newRaidLogBtn, "RIGHT", 5, 0)
-deleteRaidLogBtn:Hide()
+-- deleteRaidLogBtn:SetPoint("LEFT", newRaidLogBtn, "RIGHT", 5, 0)
+-- deleteRaidLogBtn:Hide()
 deleteRaidLogBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmBox(raidLogsFrame, 180, gra.colors.firebrick.s .. L["Delete selected raid logs?"]
-		.. "\n|cffFFFFFF" .. L["This will affect attendance rate!"], function()
+	local text = L["Delete selected raid logs?"]
+	if gra.isAdmin then
+		text = text .. "\n|cffFFFFFF" .. L["This will affect attendance rate!"]
+	end
+	local confirm = GRA:CreateConfirmBox(raidLogsFrame, 180, gra.colors.firebrick.s .. text, function()
 		local selectedDates = {}
 		for d, b in pairs(dates) do
 			if b.isSelected then
@@ -370,7 +373,7 @@ local function LoadDateList()
 	for i = 1, #sortedDates do
 		local d = sortedDates[i]
 		if not dates[d] then
-			dates[d] = GRA:CreateListButton(listFrame.scrollFrame.content, date("%x", GRA:DateToTime(d)), "transparent-light", {listFrame.scrollFrame.content:GetWidth(), 16})
+			dates[d] = GRA:CreateListButton(listFrame.scrollFrame.content, date("%x", GRA:DateToTime(d)), "transparent-light", {listFrame.scrollFrame.content:GetWidth(), gra.size.height-4})
 			listFrame.scrollFrame:SetWidgetAutoWidth(dates[d])
 
 			-- highlight selected, dehighlight others
@@ -468,7 +471,7 @@ local function UpdateList(dateToShow)
 		C_Timer.After(.1, function()
 			if not dates[dateToShow]:IsVisible() then
 				if dates[dateToShow].index > 20 then
-					listFrame.scrollFrame:SetVerticalScroll(15 * (dates[dateToShow].index - 20))
+					listFrame.scrollFrame:SetVerticalScroll((gra.size.height-5) * (dates[dateToShow].index - 20))
 				else
 					listFrame.scrollFrame:SetVerticalScroll(0)
 				end
@@ -480,7 +483,7 @@ end
 local init, updateRequired = false, nil
 raidLogsFrame:SetScript("OnShow", function()
 	LPP:PixelPerfectPoint(gra.mainFrame)
-	gra.mainFrame:SetWidth(620)
+	gra.mainFrame:SetWidth(gra.size.mainFrame[1])
 
 	if updateRequired ~= nil then
 		init = true
@@ -549,7 +552,8 @@ GRA:RegisterEvent("GRA_PERMISSION", "RaidLogsFrame_CheckPermissions", function(i
 	if isAdmin then
 		sendToRaidBtn:Show()
 		newRaidLogBtn:Show()
-		deleteRaidLogBtn:Show()
+		-- deleteRaidLogBtn:Show()
+		deleteRaidLogBtn:SetPoint("LEFT", newRaidLogBtn, "RIGHT", 5, 0)
 		attendanceEditorBtn:Show()
 
 		if GRA_Config["useEPGP"] then
@@ -564,6 +568,8 @@ GRA:RegisterEvent("GRA_PERMISSION", "RaidLogsFrame_CheckPermissions", function(i
 		if GRA:Getn(dates) ~= 0 then
 			ShowRaidDetails(sortedDates[selected])
 		end
+	else
+		deleteRaidLogBtn:SetPoint("BOTTOMLEFT")
 	end
 end)
 
@@ -589,5 +595,37 @@ if GRA:Debug() then
 	-- GRA:StylizeFrame(statusFrame, {0, .5, 0, .1}, {0, 0, 0, 1})
 end
 
--- TODO: clear all logs
--- TODO: clear logs before xxxxxxxx
+-----------------------------------------
+-- resize
+-----------------------------------------
+function raidLogsFrame:Resize()
+	raidLogsFrame:ClearAllPoints()
+	raidLogsFrame:SetPoint("TOPLEFT", gra.mainFrame, 8, gra.size.raidLogsFrame[1])
+	raidLogsFrame:SetPoint("TOPRIGHT", gra.mainFrame, -8, gra.size.raidLogsFrame[1])
+	raidLogsFrame:SetHeight(gra.size.raidLogsFrame[2])
+	titleFrame:SetPoint("BOTTOMRIGHT", raidLogsFrame, "TOPRIGHT", 0, 3-gra.size.height)
+	-- buttons
+	attendanceEditorBtn:SetSize(unpack(gra.size.button_attendanceEditor))
+	sendToRaidBtn:SetSize(unpack(gra.size.button_main))
+	newRaidLogBtn:SetSize(unpack(gra.size.button_main))
+	deleteRaidLogBtn:SetSize(unpack(gra.size.button_main))
+	epAwardBtn:SetSize(unpack(gra.size.button_raidLogs))
+	gpCreditBtn:SetSize(unpack(gra.size.button_raidLogs))
+	penalizeBtn:SetSize(unpack(gra.size.button_raidLogs))
+	recordLootBtn:SetSize(unpack(gra.size.button_raidLogs))
+	-- list
+	listFrame:SetPoint("TOPLEFT", 0, gra.size.raidLogsFrame_list[1])
+	listFrame:SetPoint("BOTTOMRIGHT", raidLogsFrame, "BOTTOMLEFT", gra.size.raidLogsFrame_list[3], gra.size.raidLogsFrame_list[2])
+	listFrame.scrollFrame:SetScrollStep(gra.size.height-5)
+	-- for _, b in pairs(dates) do
+	-- 	b:SetHeight(16+gra.size.height-20)
+	-- end
+	-- summary
+	attendeesFrame:SetHeight(gra.size.height+32)
+	absenteesFrame:SetHeight(gra.size.height+31)
+	attendeesText:SetSpacing(4)
+	absenteesText:SetSpacing(4)
+	-- details
+	detailsFrame:SetPoint("BOTTOMRIGHT", 0, gra.size.raidLogsFrame_list[2])
+	detailsFrame.scrollFrame:SetScrollStep(gra.size.height+5)
+end

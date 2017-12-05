@@ -58,13 +58,6 @@ rosterUserLastUpdatedText:SetWordWrap(false)
 local rosterAdminFrame = CreateFrame("Frame", nil, rosterFrame)
 rosterAdminFrame:SetAllPoints(rosterFrame)
 rosterAdminFrame:Hide()
--- rosterAdminFrame:SetScript("OnHide", function() rosterAdminFrame:Hide() end)
-
--- TODO: null button
--- local nullBtn = GRA:CreateButton(rosterAdminFrame, "", nil, {20, 20}, "GRA_FONT_SMALL")
--- nullBtn:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrow]])
--- nullBtn:SetPushedTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrowPushed]])
--- nullBtn:SetDisabledTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrowDisabled]])
 
 local modifyBtn = GRA:CreateButton(rosterAdminFrame, L["Modify"], nil, {61, 18}, "GRA_FONT_SMALL")
 modifyBtn:SetPoint("TOPLEFT")
@@ -80,11 +73,11 @@ importBtn:SetScript("OnClick", function()
 	gra.importFrame:Show()
 end)
 
-local dataBtn = GRA:CreateButton(rosterAdminFrame, L["Data"], nil, {61, 18}, "GRA_FONT_SMALL")
-dataBtn:SetEnabled(false)
-dataBtn:SetPoint("LEFT", importBtn, "RIGHT", -1, 0)
-dataBtn:SetScript("OnClick", function()
-	
+local csvBtn = GRA:CreateButton(rosterAdminFrame, "CSV", nil, {61, 18}, "GRA_FONT_SMALL")
+-- csvBtn:SetEnabled(false)
+csvBtn:SetPoint("LEFT", importBtn, "RIGHT", -1, 0)
+csvBtn:SetScript("OnClick", function()
+	gra.csvFrame:Show()
 end)
 
 local epgpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["EPGP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
@@ -329,14 +322,18 @@ local memUsageTimer
 -----------------------------------------
 -- reload & reset
 -----------------------------------------
-local reloadBtn = GRA:CreateButton(configFrame, L["Reload"], "red", {57, 20}, "GRA_FONT_SMALL")
-reloadBtn:SetPoint("BOTTOMRIGHT", -5, 5)
-reloadBtn:SetScript("OnClick", function()
-	ReloadUI()
+local profileBtn = GRA:CreateButton(configFrame, L["Profile"], "red", {57, 20}, "GRA_FONT_SMALL")
+profileBtn:SetPoint("BOTTOMRIGHT", -5, 5)
+profileBtn:SetScript("OnClick", function()
+	-- 切换至角色配置
+	-- 切换至角色配置并以当前配置覆盖
+
+	-- 切换至全局配置
+	-- 切换至全局配置并以当前配置覆盖
 end)
 
 local resetBtn = GRA:CreateButton(configFrame, L["Reset"], "red", {57, 20}, "GRA_FONT_SMALL")
-resetBtn:SetPoint("RIGHT", reloadBtn, "LEFT", -5, 0)
+resetBtn:SetPoint("RIGHT", profileBtn, "LEFT", -5, 0)
 resetBtn:SetScript("OnClick", function()
 	local confirm = GRA:CreateConfirmBox(configFrame, configFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset all data?"] .. "|r \n" .. L["Including roster and logs"], function()
 		GRA_RaidLogs = nil

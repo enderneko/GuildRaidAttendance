@@ -7,8 +7,16 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 	local scrollFrame = CreateFrame("ScrollFrame", nil, parent)
 	if not top then top = 0 end
 	if not bottom then bottom = 0 end
-	scrollFrame:SetPoint("TOPLEFT", parent, 0, top) 
-	scrollFrame:SetPoint("BOTTOMRIGHT", parent, 0, bottom)
+	scrollFrame:SetPoint("TOPLEFT", 0, top) 
+	scrollFrame:SetPoint("BOTTOMRIGHT", 0, bottom)
+
+	function scrollFrame:Resize(newTop, newBottom)
+		top = newTop
+		bottom = newBottom
+		scrollFrame:SetPoint("TOPLEFT", 0, top) 
+		scrollFrame:SetPoint("BOTTOMRIGHT", 0, bottom)
+	end
+
 	if color then
 		GRA:StylizeFrame(scrollFrame, color, border)
 	end
@@ -23,8 +31,10 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 	
 	-- scrollbar
 	local scrollbar = CreateFrame("Frame", nil, scrollFrame)
-	scrollbar:SetPoint("TOPLEFT", parent, "TOPRIGHT", -5, top) 
-	scrollbar:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, bottom)
+	-- scrollbar:SetPoint("TOPLEFT", parent, "TOPRIGHT", -5, top) 
+	-- scrollbar:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, bottom)
+	scrollbar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 2, 0)
+	scrollbar:SetPoint("BOTTOMRIGHT", scrollFrame, 7, 0)
 	scrollbar:Hide()
 	GRA:StylizeFrame(scrollbar, {.1, .1, .1, .8})
 	scrollFrame.scrollbar = scrollbar
@@ -140,6 +150,7 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 		beforeScroll, afterScroll = nil, 0
 		-- set thumb height (%)
 		local p = scrollFrame:GetHeight() / content:GetHeight()
+		p = tonumber(string.format("%.3f", p))
 		if p < 1 then -- can scroll
 			-- scrollThumb:SetHeight(GRA:Round(scrollbar:GetHeight()*p))
 			scrollThumb:SetHeight(scrollbar:GetHeight()*p)

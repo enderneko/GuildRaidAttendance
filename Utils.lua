@@ -20,8 +20,10 @@ function GRA:IsAdmin()
 				gra.isAdmin = true
 				GRA:FireEvent("GRA_PERMISSION", true)
 				-- force disable minimode
-				GRA:FireEvent("GRA_MINI", false)
-				GRA_Config["minimalMode"] = false
+				if GRA_Config["minimalMode"] then
+					GRA:FireEvent("GRA_MINI", false)
+					GRA_Config["minimalMode"] = false
+				end
 				return true
 			else
 				gra.isAdmin = false
