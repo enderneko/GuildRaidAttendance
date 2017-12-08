@@ -41,7 +41,7 @@ gpReasonEditBox:SetPoint("TOPLEFT", gpReasonText, 10, -15)
 hooksecurefunc("ChatEdit_InsertLink", function(link)
     if gpReasonEditBox:HasFocus() then
         gpReasonEditBox:SetText(link)
-        -- GRA_Config["test"] = link
+        -- _G[GRA_R_Config]["test"] = link
     end
 end)
 
@@ -109,8 +109,8 @@ function GRA:ShowGPCreditFrame(d, link, gp, looter, attendees, index, floatBtn)
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
     for k, v in pairs(attendees) do
-        if GRA_Roster[k] then
-            table.insert(sorted, {k, GRA_Roster[k]["class"]}) -- {"name", "class"}
+        if _G[GRA_R_Roster][k] then
+            table.insert(sorted, {k, _G[GRA_R_Roster][k]["class"]}) -- {"name", "class"}
         end
     end
     SortByClass(sorted)
@@ -185,7 +185,7 @@ end)
 
 gpCreditFrame:SetScript("OnShow", function()
     LPP:PixelPerfectPoint(gpCreditFrame)
-    -- gpReasonEditBox:SetText(GRA_Config["test"])
+    -- gpReasonEditBox:SetText(_G[GRA_R_Config]["test"])
     gra.epAwardFrame:Hide()
     gra.penalizeFrame:Hide()
     -- GRA_Tooltip:SetText("233")

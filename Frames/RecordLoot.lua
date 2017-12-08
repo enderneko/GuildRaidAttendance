@@ -16,10 +16,10 @@ recordBtn:SetPoint("BOTTOM")
 recordBtn:SetScript("OnClick", function()
     local lootTable = {"GP", 0, rlItem, rlLooter, rlNote}
     if rlIndex then -- modify
-        GRA_RaidLogs[rlDate]["details"][rlIndex] = lootTable
+        _G[GRA_R_RaidLogs][rlDate]["details"][rlIndex] = lootTable
         GRA:FireEvent("GRA_EPGP_MODIFY", rlDate)
     else -- create new
-        table.insert(GRA_RaidLogs[rlDate]["details"], lootTable)
+        table.insert(_G[GRA_R_RaidLogs][rlDate]["details"], lootTable)
         GRA:FireEvent("GRA_EPGP", rlDate)
     end
     recordLootFrame:Hide()
@@ -95,8 +95,8 @@ function GRA:ShowRecordLootFrame(d, link, note, looter, attendees, index, floatB
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
     for k, v in pairs(attendees) do
-        if GRA_Roster[k] then
-            table.insert(sorted, {k, GRA_Roster[k]["class"]}) -- {"name", "class"}
+        if _G[GRA_R_Roster][k] then
+            table.insert(sorted, {k, _G[GRA_R_Roster][k]["class"]}) -- {"name", "class"}
         end
     end
     SortByClass(sorted)

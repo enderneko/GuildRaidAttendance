@@ -96,7 +96,7 @@ local function CreateButtons(frame, itemSig, itemEquipLoc, itemLink)
     end
 
     -- reply buttons
-    for k, reply in pairs(GRA_Config["replies"]) do
+    for k, reply in pairs(_G[GRA_R_Config]["replies"]) do
         local b = GRA:CreateButton(frame, reply, nil, {20, 20})
         table.insert(buttons, b)
         b:SetScript("OnClick", function()
@@ -157,11 +157,11 @@ local function CreateButtons(frame, itemSig, itemEquipLoc, itemLink)
     qnFrame:SetPoint("BOTTOMLEFT", eb, "TOPLEFT", 0, 1)
     qnFrame:SetPoint("TOPRIGHT", eb, 0, 20)
     qnFrame:Hide()
-    for i = 1, #GRA_Config["notes"] do
+    for i = 1, #_G[GRA_R_Config]["notes"] do
         qns[i] = GRA:CreateButton(qnFrame, " ", "blue-hover", {35, 20})
-        qns[i]:SetText(GRA_Config["notes"][i])
+        qns[i]:SetText(_G[GRA_R_Config]["notes"][i])
         qns[i]:SetScript("OnClick", function()
-            note = GRA_Config["notes"][i]
+            note = _G[GRA_R_Config]["notes"][i]
             eb:SetText(note)
             C_Timer.NewTimer(.2, function()
                 eb:Hide()
@@ -324,6 +324,6 @@ Comm:RegisterComm("GRA_LOOT", function(prefix, message, channel, sender)
     
     local success, t = Serializer:Deserialize(message)
     if success then
-        GRA_Config["replies"] = t
+        _G[GRA_R_Config]["replies"] = t
     end
 end)

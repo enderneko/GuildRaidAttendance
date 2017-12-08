@@ -35,25 +35,25 @@ end
 
 local epgpCB = GRA:CreateCheckButton(epgpOptionsFrame, L["Enable EPGP"], nil, function(checked, cb)
 	-- restore check stat
-	cb:SetChecked(GRA_Config["useEPGP"])
+	cb:SetChecked(_G[GRA_R_Config]["useEPGP"])
 
 	local text
-	if GRA_Config["useEPGP"] then
+	if _G[GRA_R_Config]["useEPGP"] then
 		text = gra.colors.firebrick.s .. L["Disable EPGP?"]
 	else
 		text = gra.colors.firebrick.s .. L["Enable EPGP?"] .. "|r\n" .. L["EPGP system stores its data in officer notes.\nYou'd better back up your officer notes before using EPGP.\nAnd you should revoke the privilege to edit officer note from most of guild members."]
 	end
 	-- confirm box
 	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, text, function()
-		GRA_Config["useEPGP"] = not GRA_Config["useEPGP"]
-		ShowMask(not GRA_Config["useEPGP"])
-		cb:SetChecked(GRA_Config["useEPGP"])
+		_G[GRA_R_Config]["useEPGP"] = not _G[GRA_R_Config]["useEPGP"]
+		ShowMask(not _G[GRA_R_Config]["useEPGP"])
+		cb:SetChecked(_G[GRA_R_Config]["useEPGP"])
 		-- enable/disable EPGP
-		GRA:SetEPGPEnabled(GRA_Config["useEPGP"])
+		GRA:SetEPGPEnabled(_G[GRA_R_Config]["useEPGP"])
 	end)
 	confirm:SetPoint("TOP", 0, -45)
 end, "GRA_FONT_SMALL", L["Enable EPGP"], L["Check to use EPGP system for your raid team."])
-epgpCB:SetPoint("TOPLEFT", -4, -5)
+epgpCB:SetPoint("TOPLEFT", 5, -14)
 
 -----------------------------------------
 -- baseGP
@@ -72,7 +72,7 @@ baseGPSetBtn:SetScript("OnClick", function()
 	baseGPEditbox:ClearFocus()
 	local baseGP = baseGPEditbox:GetNumber()
 	baseGPEditbox:SetNumber(baseGP)
-	GRA_Config["raidInfo"]["EPGP"][1] = baseGP
+	_G[GRA_R_Config]["raidInfo"]["EPGP"][1] = baseGP
 	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Base GP has been set to "] .. baseGP, "TOPLEFT", baseGPEditbox, "BOTTOMLEFT", 0, -3)
 	GRA:RecalcPR()
 
@@ -104,7 +104,7 @@ minEPSetBtn:SetScript("OnClick", function()
 	minEPEditBox:ClearFocus()
 	local minEP = minEPEditBox:GetNumber()
 	minEPEditBox:SetNumber(minEP)
-	GRA_Config["raidInfo"]["EPGP"][2] = minEP
+	_G[GRA_R_Config]["raidInfo"]["EPGP"][2] = minEP
 	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Min EP has been set to "] .. minEP, "TOPLEFT", minEPEditBox, "BOTTOMLEFT", 0, -3)
 	GRA:RecalcPR()
 
@@ -128,7 +128,7 @@ decaySetBtn:SetScript("OnClick", function()
 	decayEditBox:ClearFocus()
 	local decay = decayEditBox:GetNumber()
 	decayEditBox:SetNumber(decay)
-	GRA_Config["raidInfo"]["EPGP"][3] = decay
+	_G[GRA_R_Config]["raidInfo"]["EPGP"][3] = decay
 	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Decay has been set to "] .. decay, "TOPLEFT", decayEditBox, "BOTTOMLEFT", 0, -3)
 
 	gra.attendanceFrame:UpdateEPGPStrings()
@@ -137,10 +137,10 @@ end)
 local decayBtn = GRA:CreateButton(epgpOptionsFrame, L["Decay"], "red", {45, 20})
 decayBtn:SetPoint("LEFT", decaySetBtn, "RIGHT", -1, 0)
 decayBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. string.format(L["Decay EP and GP by %d%%?"], GRA_Config["raidInfo"]["EPGP"][3]), function()
+	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. string.format(L["Decay EP and GP by %d%%?"], _G[GRA_R_Config]["raidInfo"]["EPGP"][3]), function()
 		GRA:Decay()
 		-- TODO: announce channel
-    	SendChatMessage("GRA: " .. L["Decayed EP and GP by %d%%."]:format(GRA_Config["raidInfo"]["EPGP"][3]), "GUILD")
+    	SendChatMessage("GRA: " .. L["Decayed EP and GP by %d%%."]:format(_G[GRA_R_Config]["raidInfo"]["EPGP"][3]), "GUILD")
 	end, true)
 	confirm:SetPoint("TOPLEFT", decayEditBox, "BOTTOMLEFT", 0, -20)
 end)
@@ -171,11 +171,11 @@ resetBtn:SetScript("OnClick", function()
 end)
 
 epgpOptionsFrame:SetScript("OnShow", function()
-	epgpCB:SetChecked(GRA_Config["useEPGP"])
-	ShowMask(not GRA_Config["useEPGP"])
-	baseGPEditbox:SetText(GRA_Config["raidInfo"]["EPGP"][1])
-	minEPEditBox:SetText(GRA_Config["raidInfo"]["EPGP"][2])
-	decayEditBox:SetText(GRA_Config["raidInfo"]["EPGP"][3])
+	epgpCB:SetChecked(_G[GRA_R_Config]["useEPGP"])
+	ShowMask(not _G[GRA_R_Config]["useEPGP"])
+	baseGPEditbox:SetText(_G[GRA_R_Config]["raidInfo"]["EPGP"][1])
+	minEPEditBox:SetText(_G[GRA_R_Config]["raidInfo"]["EPGP"][2])
+	decayEditBox:SetText(_G[GRA_R_Config]["raidInfo"]["EPGP"][3])
 end)
 
 epgpOptionsFrame:SetScript("OnHide", function()

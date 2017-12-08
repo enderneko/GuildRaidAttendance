@@ -147,7 +147,7 @@ deleteRaidLogBtn:SetScript("OnClick", function()
 				table.insert(selectedDates, d)
 			end
 		end
-		GRA_RaidLogs = GRA:RemoveElementsByKeys(GRA_RaidLogs, selectedDates)
+		_G[GRA_R_RaidLogs] = GRA:RemoveElementsByKeys(_G[GRA_R_RaidLogs], selectedDates)
 		GRA:Print(L["Deleted raid logs: "] .. GRA:TableToString(selectedDates))
 		GRA:FireEvent("GRA_LOGS_DEL", selectedDates)
 	end, true)
@@ -161,7 +161,7 @@ recordLootBtn:Hide()
 recordLootBtn:SetScript("OnClick", function()
 	local d = sortedDates[selected]
 	if not d then return end
-	GRA:ShowRecordLootFrame(d, nil, nil, nil, GRA_RaidLogs[d]["attendees"])
+	GRA:ShowRecordLootFrame(d, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"])
 end)
 
 -- EPGP
@@ -173,7 +173,7 @@ penalizeBtn:SetScript("OnClick", function()
 	else
 		local d = sortedDates[selected]
 		if not d then return end
-		GRA:ShowPenalizeFrame(d, nil, nil, nil, nil, GRA_RaidLogs[d]["attendees"], GRA_RaidLogs[d]["absentees"])
+		GRA:ShowPenalizeFrame(d, nil, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"], _G[GRA_R_RaidLogs][d]["absentees"])
 	end
 end)
 penalizeBtn:Hide()
@@ -186,7 +186,7 @@ gpCreditBtn:SetScript("OnClick", function()
 	else
 		local d = sortedDates[selected]
 		if not d then return end
-		GRA:ShowGPCreditFrame(d, nil, nil, nil, GRA_RaidLogs[d]["attendees"])
+		GRA:ShowGPCreditFrame(d, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"])
 	end
 end)
 gpCreditBtn:Hide()
@@ -199,7 +199,7 @@ epAwardBtn:SetScript("OnClick", function()
 	else
 		local d = sortedDates[selected]
 		if not d then return end
-		GRA:ShowEPAwardFrame(d, nil, nil, nil, GRA_RaidLogs[d]["attendees"], GRA_RaidLogs[d]["absentees"])
+		GRA:ShowEPAwardFrame(d, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"], _G[GRA_R_RaidLogs][d]["absentees"])
 	end
 end)
 epAwardBtn:Hide()
@@ -208,7 +208,7 @@ epAwardBtn:Hide()
 -- show raid info
 -----------------------------------------
 local function ShowRaidSummary(d)
-	local t = GRA_RaidLogs[d]
+	local t = _G[GRA_R_RaidLogs][d]
 	local attendees, absentees = "", ""
 	for n, tbl in pairs(t["attendees"]) do
 		attendees = attendees .. GRA:GetClassColoredName(n) .. " "
@@ -225,13 +225,13 @@ local function ShowRaidDetails(d)
 	detailsFrame.scrollFrame:ClearContent()
 	
 	details = {}
-	local t = GRA_RaidLogs[d]
+	local t = _G[GRA_R_RaidLogs][d]
 
 	local last
 	for k, detail in pairs(t["details"]) do
 		local b
 		
-		if GRA_Config["useEPGP"] then
+		if _G[GRA_R_Config]["useEPGP"] then
 			b = GRA:CreateDetailButton(detailsFrame.scrollFrame.content, detail)
 		elseif detail[1] == "GP" then
 			b = GRA:CreateDetailButton_NonEPGP(detailsFrame.scrollFrame.content, detail)
@@ -283,7 +283,7 @@ local function ShowRaidDetails(d)
 
 			if gra.isAdmin then
 				b.deleteBtn:Show()
-				if GRA_Config["useEPGP"] then
+				if _G[GRA_R_Config]["useEPGP"] then
 					b.playerText:SetPoint("RIGHT", -25, 0)
 
 					-- delete detail entry
@@ -320,7 +320,7 @@ local function ShowRaidDetails(d)
 						.. detail[3] .. " " .. GRA:GetClassColoredName(detail[4])
 						, function()
 							-- delete from logs
-							table.remove(GRA_RaidLogs[d]["details"], k)
+							table.remove(_G[GRA_R_RaidLogs][d]["details"], k)
 							-- fake GRA_EPGP_UNDO event, refresh sheet by date
 							GRA:FireEvent("GRA_EPGP_UNDO", d)
 							ShowRaidDetails(d)
@@ -365,7 +365,7 @@ local function LoadDateList()
 	-- listFrame.scrollFrame:Reset()
 
 	wipe(sortedDates)
-	for d, t in pairs(GRA_RaidLogs) do
+	for d, t in pairs(_G[GRA_R_RaidLogs]) do
 		table.insert(sortedDates, d)
 	end
 	table.sort(sortedDates, function(a, b) return a < b end)
@@ -419,7 +419,7 @@ local function LoadDateList()
 					ShowRaidDetails(d)
 					detailsFrame.scrollFrame:ResetScroll()
 
-					titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(GRA_RaidLogs)
+					titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
 						.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(sortedDates[selected]))
 						.. "    |cff80FF00" .. L["Raid Start Time"] .. ":|r " .. GRA:GetRaidStartTime(d))
 				end
@@ -444,7 +444,7 @@ local function LoadDateList()
 end
 
 local function PrepareRaidLogs()
-	if GRA:Getn(GRA_RaidLogs) == 0 then
+	if GRA:Getn(_G[GRA_R_RaidLogs]) == 0 then
 		GRA:CreateMask(raidLogsFrame, L["No raid log"], {-1, 1, 1, -1})
 		attendeesText:SetText("")
 		absenteesText:SetText("")
@@ -556,7 +556,7 @@ GRA:RegisterEvent("GRA_PERMISSION", "RaidLogsFrame_CheckPermissions", function(i
 		deleteRaidLogBtn:SetPoint("LEFT", newRaidLogBtn, "RIGHT", 5, 0)
 		attendanceEditorBtn:Show()
 
-		if GRA_Config["useEPGP"] then
+		if _G[GRA_R_Config]["useEPGP"] then
 			gpCreditBtn:Show()
 			epAwardBtn:Show()
 			penalizeBtn:Show()
@@ -617,14 +617,11 @@ function raidLogsFrame:Resize()
 	listFrame:SetPoint("TOPLEFT", 0, gra.size.raidLogsFrame_list[1])
 	listFrame:SetPoint("BOTTOMRIGHT", raidLogsFrame, "BOTTOMLEFT", gra.size.raidLogsFrame_list[3], gra.size.raidLogsFrame_list[2])
 	listFrame.scrollFrame:SetScrollStep(gra.size.height-5)
-	-- for _, b in pairs(dates) do
-	-- 	b:SetHeight(16+gra.size.height-20)
-	-- end
 	-- summary
 	attendeesFrame:SetHeight(gra.size.height+32)
 	absenteesFrame:SetHeight(gra.size.height+31)
-	attendeesText:SetSpacing(4)
-	absenteesText:SetSpacing(4)
+	attendeesText:SetSpacing(gra.size.fontSize-9)
+	absenteesText:SetSpacing(gra.size.fontSize-9)
 	-- details
 	detailsFrame:SetPoint("BOTTOMRIGHT", 0, gra.size.raidLogsFrame_list[2])
 	detailsFrame.scrollFrame:SetScrollStep(gra.size.height+5)

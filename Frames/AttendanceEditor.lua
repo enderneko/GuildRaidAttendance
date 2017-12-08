@@ -40,7 +40,7 @@ RSTComfirmBtn:SetScript("OnClick", function()
 	local h, m = string.split(":", raidStartTimeEditBox:GetText())
 	local startTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
 
-	GRA_RaidLogs[dateString]["startTime"] = startTime
+	_G[GRA_R_RaidLogs][dateString]["startTime"] = startTime
     -- update attendance sheet column
     GRA:FireEvent("GRA_ST_UPDATE", dateString)
 
@@ -82,17 +82,17 @@ discardBtn:SetScript("OnClick", function()
     DiscardChanges()
 end)
 
--- attendances: GRA_RaidLogs data
+-- attendances: _G[GRA_R_RaidLogs] data
 -- changes: changed data
 -- rows: row buttons, used for highlighting and discarding changes
 local attendances, changes, rows = {}, {}, {}
 local function CheckAttendances(d)
     attendances = {}
-    for n, _ in pairs(GRA_Roster) do
-        if GRA_RaidLogs[d]["attendees"][n] then -- present
-            attendances[n] = {L["Present"], GRA_RaidLogs[d]["attendees"][n][2]}
-        elseif GRA_RaidLogs[d]["absentees"][n] then -- absent
-            attendances[n] = {L["Absent"], GRA_RaidLogs[d]["absentees"][n]}
+    for n, _ in pairs(_G[GRA_R_Roster]) do
+        if _G[GRA_R_RaidLogs][d]["attendees"][n] then -- present
+            attendances[n] = {L["Present"], _G[GRA_R_RaidLogs][d]["attendees"][n][2]}
+        elseif _G[GRA_R_RaidLogs][d]["absentees"][n] then -- absent
+            attendances[n] = {L["Absent"], _G[GRA_R_RaidLogs][d]["absentees"][n]}
         else -- ignored
             attendances[n] = {L["Ignored"]}
         end
@@ -149,17 +149,17 @@ SaveChanges = function()
     for n, t in pairs(changes) do
         -- delete original data
         if attendances[n][1] == L["Present"] then
-            GRA_RaidLogs[dateString]["attendees"] = GRA:RemoveElementsByKeys(GRA_RaidLogs[dateString]["attendees"], {n})
+            _G[GRA_R_RaidLogs][dateString]["attendees"] = GRA:RemoveElementsByKeys(_G[GRA_R_RaidLogs][dateString]["attendees"], {n})
         elseif attendances[n][1] == L["Absent"] then
-            GRA_RaidLogs[dateString]["absentees"] = GRA:RemoveElementsByKeys(GRA_RaidLogs[dateString]["absentees"], {n})
+            _G[GRA_R_RaidLogs][dateString]["absentees"] = GRA:RemoveElementsByKeys(_G[GRA_R_RaidLogs][dateString]["absentees"], {n})
         end
 
         if changes[n][1] == L["Present"] then
             -- save to attendees
-            GRA_RaidLogs[dateString]["attendees"][n] = {GRA:IsLate(changes[n][2], dateString..GRA_Config["raidInfo"]["startTime"]), changes[n][2]}
+            _G[GRA_R_RaidLogs][dateString]["attendees"][n] = {GRA:IsLate(changes[n][2], dateString.._G[GRA_R_Config]["raidInfo"]["startTime"]), changes[n][2]}
         elseif changes[n][1] == L["Absent"] then
             -- save to absentees
-            GRA_RaidLogs[dateString]["absentees"][n] = changes[n][2] or ""
+            _G[GRA_R_RaidLogs][dateString]["absentees"][n] = changes[n][2] or ""
         end
 
         GRA:StylizeFrame(rows[n].nameGrid, {.7,.7,.7,.1})
@@ -199,12 +199,12 @@ function GRA:ShowAttendanceEditor(d, b)
     dateButton = b
     dateString = d
     raidDateText:SetText("|cff80FF00" .. L["Raid Date: "] .. "|r" .. date("%x", GRA:DateToTime(d)))
-    raidStartTimeEditBox:SetText(GRA_RaidLogs[d]["startTime"] or GRA_Config["raidInfo"]["startTime"])
+    raidStartTimeEditBox:SetText(_G[GRA_R_RaidLogs][d]["startTime"] or _G[GRA_R_Config]["raidInfo"]["startTime"])
 
     scroll:Reset()
     rows = {}
 
-    -- check attendances from GRA_RaidLogs[d]
+    -- check attendances from _G[GRA_R_RaidLogs][d]
     CheckAttendances(d)
     local last
     for n, t in pairs(attendances) do
@@ -223,7 +223,7 @@ function GRA:ShowAttendanceEditor(d, b)
                     ["color"] = "green",
                     ["onClick"] = function()
                         if row.attendanceGrid:GetText() ~= L["Present"] then
-                            row.reasonEditBox:SetText(GRA_Config["raidInfo"]["startTime"])
+                            row.reasonEditBox:SetText(_G[GRA_R_Config]["raidInfo"]["startTime"])
                         end
                         row.attendanceGrid:SetText(L["Present"])
                         SetAttendanceColor(row.attendanceGrid)

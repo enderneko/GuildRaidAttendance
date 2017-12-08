@@ -45,7 +45,7 @@ gra.colors = {
 	yellow = {s = "|cFFFFD100"},
 	firebrick = {s = "|cFFFF3030", t = {1, .19, .19, .7}},
 	skyblue = {s = "|cFF00CCFF"},
-	main = {s = "|cFF80FF00", t = {.5, 1, 0, 1}},
+	chartreuse = {s = "|cFF80FF00", t = {.5, 1, 0, 1}},
 }
 
 -----------------------------------------
@@ -225,16 +225,35 @@ frame:RegisterEvent("ADDON_LOADED")
 function frame:ADDON_LOADED(arg1)
 	if arg1 == addonName then
 		frame:UnregisterEvent("ADDON_LOADED")
+		if type(GRA_Variables) ~= "table" then GRA_Variables = {} end
+		-- global saved variables
+		if type(GRA_A_RaidLogs) ~= "table" then GRA_A_RaidLogs = {} end
+		if type(GRA_A_Roster) ~= "table" then GRA_A_Roster = {} end
+		if type(GRA_A_Config) ~= "table" then GRA_A_Config = {} end
+		-- character saved variables
 		if type(GRA_RaidLogs) ~= "table" then GRA_RaidLogs = {} end
 		if type(GRA_Roster) ~= "table" then GRA_Roster = {} end
 		if type(GRA_Config) ~= "table" then GRA_Config = {} end
 
-		if type(GRA_Config["firstRun"]) ~= "boolean" then GRA_Config["firstRun"] = true end
+		if type(GRA_Variables["useAccountProfile"]) ~= "boolean" then GRA_Variables["useAccountProfile"] = false end
+		-- init RUNTIME tables
+		if GRA_Variables["useAccountProfile"] then
+			GRA_R_RaidLogs = "GRA_A_RaidLogs"
+			GRA_R_Roster = "GRA_A_Roster"
+			GRA_R_Config = "GRA_A_Config"
+		else
+			GRA_R_RaidLogs = "GRA_RaidLogs"
+			GRA_R_Roster = "GRA_Roster"
+			GRA_R_Config = "GRA_Config"
+		end
+
+		-- help viewed
+		if type(GRA_Variables["helpViewed"]) ~= "boolean" then GRA_Variables["helpViewed"] = false end
 
 		-- size
-		if type(GRA_Config["size"]) ~= "string" then GRA_Config["size"] = "normal" end
-		if GRA_Config["size"] ~= "normal" then
-			gra.size = gra.sizes[GRA_Config["size"]]
+		if type(GRA_Variables["size"]) ~= "string" then GRA_Variables["size"] = "normal" end
+		if GRA_Variables["size"] ~= "normal" then
+			gra.size = gra.sizes[GRA_Variables["size"]]
 			for name, f in pairs(gra) do
 				if gra.size[name] then
 					f:Resize()
@@ -243,8 +262,12 @@ function frame:ADDON_LOADED(arg1)
 			end
 		end
 
-		if type(GRA_Config["raidInfo"]) ~= "table" then
-			GRA_Config["raidInfo"] = {
+		-- minimap
+		if type(GRA_Variables["minimap"]) ~= "table" then GRA_Variables["minimap"] = {["hide"] = false} end
+		icon:Register("GuildRaidAttendance", graLDB, GRA_Variables["minimap"])
+
+		if type(_G[GRA_R_Config]["raidInfo"]) ~= "table" then
+			_G[GRA_R_Config]["raidInfo"] = {
 				["EPGP"] = {100, 0, 10},
 				["days"] = {gra.RAID_LOCKOUTS_RESET},
 				["startTime"] = "19:30",
@@ -252,20 +275,20 @@ function frame:ADDON_LOADED(arg1)
 		end
 
 		-- previous version, TODO: delete
-		if type(GRA_Config["raidInfo"]["startTime"]) ~= "string" then
-			GRA_Config["raidInfo"]["startTime"] = GRA_Config["raidInfo"]["deadline"]
-			GRA_Config["raidInfo"] = GRA:RemoveElementsByKeys(GRA_Config["raidInfo"], {"deadline"})
+		if type(_G[GRA_R_Config]["raidInfo"]["startTime"]) ~= "string" then
+			_G[GRA_R_Config]["raidInfo"]["startTime"] = _G[GRA_R_Config]["raidInfo"]["deadline"]
+			_G[GRA_R_Config]["raidInfo"] = GRA:RemoveElementsByKeys(_G[GRA_R_Config]["raidInfo"], {"deadline"})
 		end
 
 		-- disable epgp by default
-		if type(GRA_Config["useEPGP"]) ~= "boolean" then GRA_Config["useEPGP"] = false end
+		if type(_G[GRA_R_Config]["useEPGP"]) ~= "boolean" then _G[GRA_R_Config]["useEPGP"] = false end
 		
 		-- disable minimal mode by default
-		if type(GRA_Config["minimalMode"]) ~= "boolean" then GRA_Config["minimalMode"] = false end
+		if type(_G[GRA_R_Config]["minimalMode"]) ~= "boolean" then _G[GRA_R_Config]["minimalMode"] = false end
 		
 		-- sheet columns
-		if type(GRA_Config["columns"]) ~= "table" then
-			GRA_Config["columns"] = {
+		if type(_G[GRA_R_Config]["columns"]) ~= "table" then
+			_G[GRA_R_Config]["columns"] = {
 				["AR_30"] = false,
 				["AR_60"] = false,
 				["AR_90"] = false,
@@ -274,31 +297,28 @@ function frame:ADDON_LOADED(arg1)
 		end
 
 		-- sort
-		if type(GRA_Config["sortKey"]) ~= "string" then GRA_Config["sortKey"] = "name" end
+		if type(_G[GRA_R_Config]["sortKey"]) ~= "string" then _G[GRA_R_Config]["sortKey"] = "name" end
 		-- class filter
-		if type(GRA_Config["classFilter"]) ~= "table" then GRA_Config["classFilter"] = {["WARRIOR"]=true, ["HUNTER"]=true, ["SHAMAN"]=true, ["MONK"]=true, ["ROGUE"]=true, ["MAGE"]=true, ["DRUID"]=true, ["DEATHKNIGHT"]=true, ["PALADIN"]=true, ["WARLOCK"]=true, ["PRIEST"]=true, ["DEMONHUNTER"]=true} end
+		if type(_G[GRA_R_Config]["classFilter"]) ~= "table" then _G[GRA_R_Config]["classFilter"] = {["WARRIOR"]=true, ["HUNTER"]=true, ["SHAMAN"]=true, ["MONK"]=true, ["ROGUE"]=true, ["MAGE"]=true, ["DRUID"]=true, ["DEATHKNIGHT"]=true, ["PALADIN"]=true, ["WARLOCK"]=true, ["PRIEST"]=true, ["DEMONHUNTER"]=true} end
 
-		if type(GRA_Config["startDate"]) ~= "string" then GRA_Config["startDate"] = GRA:GetLockoutsResetDate() end -- this lockouts reset day
-		-- GRA:Debug("startDate: " .. GRA_Config["startDate"])
+		if type(_G[GRA_R_Config]["startDate"]) ~= "string" then _G[GRA_R_Config]["startDate"] = GRA:GetLockoutsResetDate() end -- this lockouts reset day
+		-- GRA:Debug("startDate: " .. _G[GRA_R_Config]["startDate"])
 
 		-- loot distr tool
-		if type(GRA_Config["enableLootDistr"]) ~= "boolean" then GRA_Config["enableLootDistr"] = false end
+		if type(_G[GRA_R_Config]["enableLootDistr"]) ~= "boolean" then _G[GRA_R_Config]["enableLootDistr"] = false end
 		-- reply buttons
-		if type(GRA_Config["replies"]) ~= "table" then
-			GRA_Config["replies"] = {"configure", "your", "buttons"}
+		if type(_G[GRA_R_Config]["replies"]) ~= "table" then
+			_G[GRA_R_Config]["replies"] = {"configure", "your", "buttons"}
 		end
 		-- quick notes
-		if type(GRA_Config["notes"]) ~= "table" then
-			GRA_Config["notes"] = {"BiS", "4p", "2p"}
+		if type(_G[GRA_R_Config]["notes"]) ~= "table" then
+			_G[GRA_R_Config]["notes"] = {"BiS", "4p", "2p"}
 		end
 
-		if type(GRA_Config["minimap"]) ~= "table" then GRA_Config["minimap"] = {["hide"] = false} end
-		icon:Register("GuildRaidAttendance", graLDB, GRA_Config["minimap"])
-		
 		gra.version = GetAddOnMetadata(addonName, "version")
 
 		-- update font & fontsize
-		if GRA_Config["useGameFont"] then
+		if GRA_Variables["useGameFont"] then
 			GRA_FONT_SMALL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
 			GRA_FONT_SMALL_DISABLED:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
 			GRA_FONT_NORMAL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
@@ -338,8 +358,6 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 	local command, rest = msg:match("^(%S*)%s*(.-)$")
 	if command == "" then
 		gra.mainFrame:Show()
-	elseif command == "table" then
-		texplore(E)
 	elseif command == "anchor" then
 		GRA:ShowHidePopupsAnchor()
 	elseif command == "exportlocale" then
@@ -369,8 +387,8 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		eb:SetText(text)
 		f:Show()
 	elseif command == "minimap" then
-		GRA_Config.minimap.hide = not GRA_Config.minimap.hide
-		if GRA_Config.minimap.hide then
+		GRA_Variables.minimap.hide = not GRA_Variables.minimap.hide
+		if GRA_Variables.minimap.hide then
 			icon:Hide("GuildRaidAttendance")
 		else
 			icon:Show("GuildRaidAttendance")
@@ -381,6 +399,7 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		gra.mainFrame:Show()
 	elseif command == "loot" then
 		gra.distributionFrame:Show()
+	--@debug@
 	elseif command == "test" then
 		if rest == "receivePopup" then
 			local class = select(2, UnitClass("player"))
@@ -394,9 +413,12 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		elseif rest == "popup" then
 			GRA:CreatePopup(time())
 		end
+	elseif command == "t" then
+		texplore(E)
 	elseif command == "testL" then
-		GRA_Config["size"] = "large"
+		GRA_Variables["size"] = "large"
 	elseif command == "testN" then
-		GRA_Config["size"] = "normal"
+		GRA_Variables["size"] = "normal"
+	--@end-debug@
 	end
 end

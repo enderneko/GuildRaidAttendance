@@ -39,14 +39,15 @@ alpha:SetToAlpha(1)
 alpha:SetDuration(.5)
 
 local elapsedTime, delay, scroll, maxHScrollRange, doScroll -- delay: delay before scroll (include time for alpha changing), 5 by default
+local MOTD = ""
 -- init guildMOTDScroll
 guildMOTDScroll:SetScript("OnShow", function()
-	if GRA_Config.MOTD == "" then -- if empty, hide
+	if MOTD == "" then -- if empty, hide
 		guildMOTDScroll:Hide()
 		return
 	end
 	
-	guildMOTDScroll.content.text:SetText("|cff40ff40" .. string.format(GUILD_MOTD_TEMPLATE, GRA_Config.MOTD) .. "|r")
+	guildMOTDScroll.content.text:SetText("|cff40ff40" .. string.format(GUILD_MOTD_TEMPLATE, MOTD) .. "|r")
 	-- init
 	fadeIn:Play()
 	guildMOTDScroll:SetHorizontalScroll(0)
@@ -192,7 +193,7 @@ GRA:RegisterEvent("GRA_MINI", "MiniMode", function(enabled)
 end)
 
 gra.mainFrame:SetScript("OnShow", function(self)
-	EnableMiniMode(GRA_Config["minimalMode"])
+	EnableMiniMode(_G[GRA_R_Config]["minimalMode"])
 	LPP:PixelPerfectPoint(gra.mainFrame)
 
 	if not IsInGuild() then
@@ -227,26 +228,26 @@ guildMOTDScroll:SetScript("OnEvent", function(self, event, arg)
 		local motd = GetGuildRosterMOTD()
 		GRA:Debug("|cff66CD00GUILD_ROSTER_UPDATE:|r " .. (motd=="" and "MOTD empty" or "MOTD non-empty"))
 		if motd ~= "" then	-- ALWAYS can get MOTD (RIGHT AFTER LOGIN), but NOT sure after RELOAD
-			GRA_Config.MOTD = motd
+			MOTD = motd
 			guildMOTDScroll:Show() -- get non-empty motd, show it
 			guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE") -- already get non-empty motd, using GUILD_MOTD instead
 			if trial then -- stop timer
 				trial:Cancel()
 				GRA:Debug("motd_trial cancelled")
 			end
-		elseif not trial then -- get empty motd (maybe not the true motd, try 6 more times)
+		elseif not trial then -- get empty motd (maybe not the true motd, try 10 more times)
 			trial = C_Timer.NewTicker(10, function()
 				securecall("GuildRoster") -- try again
 				count = count + 1
 				GRA:Debug("motd_trial: " .. count)
 				-- trial._remainingIterations
-			end, 6)
+			end, 10)
 		else
-			if count == 6 then
-				-- tried 6 times, still get empty motd, then GRA_Config.MOTD = ""
+			if count == 10 then
+				-- tried 10 times, still get empty motd, then MOTD = ""
 				guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE")
-				GRA_Config.MOTD = ""
-				GRA:Debug("motd_trial ends, GRA_Config.MOTD = \"\"")
+				MOTD = ""
+				GRA:Debug("motd_trial ends, MOTD = \"\"")
 			end
 		end
 	elseif event == "GUILD_MOTD" then
@@ -258,7 +259,7 @@ guildMOTDScroll:SetScript("OnEvent", function(self, event, arg)
 		end
 		
 		GRA:Debug("|cff66CD00GUILD_MOTD:|r " .. arg)
-		GRA_Config.MOTD = arg
+		MOTD = arg
 		
 		-- re-show, whether motd == "" or not (judgement in guildMOTDScroll_OnShow)
 		guildMOTDScroll:Hide()

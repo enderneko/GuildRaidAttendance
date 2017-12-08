@@ -20,9 +20,9 @@ function GRA:IsAdmin()
 				gra.isAdmin = true
 				GRA:FireEvent("GRA_PERMISSION", true)
 				-- force disable minimode
-				if GRA_Config["minimalMode"] then
+				if _G[GRA_R_Config]["minimalMode"] then
 					GRA:FireEvent("GRA_MINI", false)
-					GRA_Config["minimalMode"] = false
+					_G[GRA_R_Config]["minimalMode"] = false
 				end
 				return true
 			else
@@ -177,7 +177,7 @@ end
 
 function GRA:GetPlayers()
 	local players = {}
-	for pName, pTable in pairs(GRA_Roster) do
+	for pName, pTable in pairs(_G[GRA_R_Roster]) do
 		table.insert(players, pName)
 	end
 	return players
@@ -220,10 +220,10 @@ function GRA:GetClassColoredName(fullName, class)
 	local name = GRA:GetShortName(fullName)
 
 	if not class then
-		if not GRA_Roster[fullName] then -- grey (deleted players)
+		if not _G[GRA_R_Roster][fullName] then -- grey (deleted players)
 			return "|cff909090" .. name .. "|r"
 		end
-		class = GRA_Roster[fullName]["class"]
+		class = _G[GRA_R_Roster][fullName]["class"]
 	end
 	
 	if not RAID_CLASS_COLORS[class] then -- wrong class
@@ -274,7 +274,7 @@ function GRA:Date()
 	return year..month..day, hour..":"..minute
 end
 
--- get lockout reset day of this "week", init GRA_Config["startDate"]
+-- get lockout reset day of this "week", init _G[GRA_R_Config]["startDate"]
 function GRA:GetLockoutsResetDate()
 	local t = GRA:Date()
 	local wday = select(2, GRA:DateToWeekday(t))
@@ -319,10 +319,10 @@ function GRA:SecondsToTime(s)
 end
 
 function GRA:GetRaidStartTime(d)
-	if GRA_RaidLogs[d]["startTime"] then
-		return GRA_RaidLogs[d]["startTime"]
+	if _G[GRA_R_RaidLogs][d]["startTime"] then
+		return _G[GRA_R_RaidLogs][d]["startTime"]
 	else
-		return GRA_Config["raidInfo"]["startTime"]
+		return _G[GRA_R_Config]["raidInfo"]["startTime"]
 	end
 end
 
@@ -341,12 +341,12 @@ end
 function GRA:UpdateAttendance(d)
 	if d then
 		-- start time changed for this day
-		for n, t in pairs(GRA_RaidLogs[d]["attendees"]) do
-			t[1] = GRA:IsLate(t[2], d .. (GRA_RaidLogs[d]["startTime"] or GRA_Config["raidInfo"]["startTime"]))
+		for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendees"]) do
+			t[1] = GRA:IsLate(t[2], d .. (_G[GRA_R_RaidLogs][d]["startTime"] or _G[GRA_R_Config]["raidInfo"]["startTime"]))
 		end
 	else
 		-- global start time changed, only check date without start time
-		for dateString, logTable in pairs(GRA_RaidLogs) do
+		for dateString, logTable in pairs(_G[GRA_R_RaidLogs]) do
 			if not logTable["startTime"] then
 				GRA:UpdateAttendance(dateString)
 			end

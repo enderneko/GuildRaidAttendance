@@ -298,21 +298,21 @@ function GRA:CreateCheckButton(parent, label, color, onClick, font, ...)
 		cb.label = cb:CreateFontString(nil, "ARTWORK", "GRA_FONT_TEXT")
 	end
 	cb.label:SetText(label)
-	cb.label:SetPoint("LEFT", cb, "RIGHT", -5, 0)
+	cb.label:SetPoint("LEFT", cb, "RIGHT", 2, 0)
 	if color then
 		cb.label:SetTextColor(color.r, color.g, color.b)
 	end
 	
-	cb:SetSize(32, 32)
-	cb:SetHitRectInsets(10, -cb.label:GetStringWidth()+7, 10, 10)
+	cb:SetSize(16, 16)
+	cb:SetHitRectInsets(0, -cb.label:GetStringWidth(), 0, 0)
 	
-	cb:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox-Normal]])
-	-- cb:SetPushedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox-Pushed]])
-	cb:SetHighlightTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox-Highlight]], "ADD")
-	cb:SetCheckedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox-Checked]])
-	cb:SetDisabledCheckedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox-DisabledChecked]])
+	cb:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-Normal-16x16]])
+	-- cb:SetPushedTexture()
+	cb:SetHighlightTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-Highlight-16x16]], "ADD")
+	cb:SetCheckedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-Checked-16x16]])
+	cb:SetDisabledCheckedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-DisabledChecked-16x16]])
 	
-	SetTooltip(cb, 0, -8, ...)
+	SetTooltip(cb, 0, 0, ...)
 
 	return cb
 end
@@ -634,7 +634,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	local lastColumn
 	function row:SetColumns()
 		lastColumn = row.nameGrid
-		if GRA_Config["useEPGP"] then
+		if _G[GRA_R_Config]["useEPGP"] then
 			row.epGrid:SetPoint("LEFT", row.nameGrid, "RIGHT", -1, 0)
 			row.epGrid:Show()
 			row.gpGrid:SetPoint("LEFT", row.epGrid, "RIGHT", -1, 0)
@@ -648,7 +648,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.prGrid:Hide()
 		end
 
-		if GRA_Config["columns"]["AR_30"] then
+		if _G[GRA_R_Config]["columns"]["AR_30"] then
 			row.ar30Grid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			row.ar30Grid:Show()
 			lastColumn = row.ar30Grid
@@ -656,7 +656,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.ar30Grid:Hide()
 		end
 
-		if GRA_Config["columns"]["AR_60"] then
+		if _G[GRA_R_Config]["columns"]["AR_60"] then
 			row.ar60Grid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			row.ar60Grid:Show()
 			lastColumn = row.ar60Grid
@@ -664,7 +664,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.ar60Grid:Hide()
 		end
 
-		if GRA_Config["columns"]["AR_90"] then
+		if _G[GRA_R_Config]["columns"]["AR_90"] then
 			row.ar90Grid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			row.ar90Grid:Show()
 			lastColumn = row.ar90Grid
@@ -672,7 +672,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.ar90Grid:Hide()
 		end
 
-		if GRA_Config["columns"]["AR_Lifetime"] then
+		if _G[GRA_R_Config]["columns"]["AR_Lifetime"] then
 			row.arLifetimeGrid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			row.arLifetimeGrid:Show()
 			lastColumn = row.arLifetimeGrid

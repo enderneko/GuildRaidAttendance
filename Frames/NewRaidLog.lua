@@ -5,7 +5,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 local newRaidLogFrame, datePicker, newBtn, cancelBtn, newLogDate
 
 local function ValidateDate()
-    if GRA_RaidLogs[newLogDate] then -- exists
+    if _G[GRA_R_RaidLogs][newLogDate] then -- exists
         newBtn:SetEnabled(false)
     else
         newBtn:SetEnabled(true)
@@ -33,7 +33,7 @@ function GRA:NewRaidLog(parent)
         newBtn = GRA:CreateButton(newRaidLogFrame, L["Create"], "green", {45, 20})
         newBtn:SetPoint("LEFT", datePicker, "RIGHT", -1, 0)
         newBtn:SetScript("OnClick", function()
-            GRA_RaidLogs[newLogDate] = {["attendees"]={}, ["absentees"]={}, ["details"]={}}
+            _G[GRA_R_RaidLogs][newLogDate] = {["attendees"]={}, ["absentees"]={}, ["details"]={}}
             -- manually edit attendance later
             GRA:FireEvent("GRA_RAIDLOGS", newLogDate)
             newRaidLogFrame:Hide()

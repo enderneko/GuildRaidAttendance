@@ -33,7 +33,7 @@ end
 -----------------------------------------
 local receiveRosterPopup
 -- send roster data and raidInfo to a raid member
--- GRA_Roster, GRA_Config["raidInfo"]
+-- _G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"]
 function GRA:SendRoster(sheetTable, targetName)
     local encoded = TableToString(sheetTable)
     -- send roster
@@ -64,22 +64,22 @@ Comm:RegisterComm("GRA_R_ASK", function(prefix, message, channel, sender)
     end)
 end)
 
--- send sheet data to player who accepted
+-- send roster to player who accepted
 Comm:RegisterComm("GRA_R_ACCEPT", function(prefix, message, channel, sender)
-    GRA:SendRoster({GRA_Roster, GRA_Config["raidInfo"], GRA_Config["useEPGP"]}, sender)
+    GRA:SendRoster({_G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"], _G[GRA_R_Config]["useEPGP"]}, sender)
 end)
 
--- "recieve sheet data" finished
+-- recieve roster finished
 Comm:RegisterComm("GRA_R_SEND", function(prefix, message, channel, sender)
     local t = StringToTable(message)
-    GRA_Roster = t[1]
-    GRA_Config["raidInfo"] = t[2]
-    GRA_Config["useEPGP"] = t[3]
+    _G[GRA_R_Roster] = t[1]
+    _G[GRA_R_Config]["raidInfo"] = t[2]
+    _G[GRA_R_Config]["useEPGP"] = t[3]
 
     GRA:FireEvent("GRA_R_DONE")
 end)
 
--- "recieve roster data" progress
+-- recieve roster progress
 Comm:RegisterComm("GRA_R_PROG", function(prefix, message, channel, sender)
     local done, total = strsplit("|", message)
     done, total = tonumber(done), tonumber(total)
@@ -115,7 +115,7 @@ end
 
 -- whether to revieve
 Comm:RegisterComm("GRA_LOGS_ASK", function(prefix, message, channel, sender)
-    if sender == UnitName("player") or GRA_Config["minimalMode"] then return end
+    if sender == UnitName("player") or _G[GRA_R_Config]["minimalMode"] then return end
     dates = StringToTable(message)
     GRA:CreateStaticPopup(L["Receive Raid Logs"], L["Receive raid logs data from %s?"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))) .. "\n" ..
     GRA:TableToString(dates), -- TODO: text format
@@ -134,20 +134,20 @@ end)
 Comm:RegisterComm("GRA_LOGS_ACCEPT", function(prefix, message, channel, sender)
     local t = {}
     for _, d in pairs(dates) do
-        t[d] = GRA_RaidLogs[d]
+        t[d] = _G[GRA_R_RaidLogs][d]
     end
-    -- TODO: send AR only, not all GRA_Roster
-    GRA:SendLogs({t, GRA_Roster}, sender)
+    -- TODO: send AR only, not all _G[GRA_R_Roster]
+    GRA:SendLogs({t, _G[GRA_R_Roster]}, sender)
 end)
 
 -- "recieve logs data" finished
 Comm:RegisterComm("GRA_LOGS_SEND", function(prefix, message, channel, sender)
     local t = StringToTable(message)
     for d, tbl in pairs(t[1]) do
-        GRA_RaidLogs[d] = tbl
+        _G[GRA_R_RaidLogs][d] = tbl
     end
-    -- TODO: send AR only, not all GRA_Roster
-    GRA_Roster = t[2]
+    -- TODO: send AR only, not all _G[GRA_R_Roster]
+    _G[GRA_R_Roster] = t[2]
     -- tell addon to show logs
     GRA:FireEvent("GRA_LOGS_DONE", GRA:Getn(t[1]), dates)
 end)

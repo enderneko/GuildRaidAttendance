@@ -1,6 +1,6 @@
 --------------------------------------------
 -- LibGuildNotes
--- fyhcslb 2017-08-20 05:04:51
+-- fyhcslb 2017-12-08 12:24:15
 -- simply guild note get/set
 --------------------------------------------
 local lib = LibStub:NewLibrary("LibGuildNotes", "1.0")
@@ -22,7 +22,7 @@ end
 
 local cache = {}
 local updating = false
-local initialized, forceRefresh = false, false
+local enabled, initialized, forceRefresh = false, false, false
 local trial
 
 function lib:GetPublicNote(name)
@@ -115,7 +115,6 @@ function lib:SetOfficerNote(name, note)
 end
 
 function lib:IsInGuild(fullname)
-	Print(fullname)
 	if cache[fullname] then
 		return true
 	else
@@ -133,15 +132,18 @@ function lib:ForceRefresh()
 	Print("Starting ForceRefresh")
 end
 
-function lib:SetEnabled(enabled)
-	if enabled then
+function lib:SetEnabled(e)
+	Print(e and "enabled" or "disabled")
+	if e then
+		enabled = true
 		initialized = false
 		f:RegisterEvent("GUILD_ROSTER_UPDATE")
 		securecall("GuildRoster")
 		trial = C_Timer.NewTicker(5, function() securecall("GuildRoster") end, 2)
 	else
-		f:UnregisterEvent("GUILD_ROSTER_UPDATE")
-		wipe(cache)
+		enabled = false
+		-- f:UnregisterEvent("GUILD_ROSTER_UPDATE")
+		-- wipe(cache)
 	end
 end
 
@@ -170,11 +172,13 @@ f:SetScript("OnEvent", function(self, event)
 				-- fullName, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName, achievementPoints, achievementRank, isMobile, canSoR, reputation = GetGuildRosterInfo(index)
 				local fullName, _, _, _, _, _, pnote, onote = GetGuildRosterInfo(i)
 				if fullName ~= nil then
-					if cache[fullName] and pnote ~= cache[fullName][1] then
-						lib.callbacks:Fire("GUILD_PUBLIC_NOTE_CHANGED", fullName, pnote)
-					end
-					if cache[fullName] and onote ~= cache[fullName][2] then
-						lib.callbacks:Fire("GUILD_OFFICER_NOTE_CHANGED", fullName, onote)
+					if enabled then
+						if cache[fullName] and pnote ~= cache[fullName][1] then
+							lib.callbacks:Fire("GUILD_PUBLIC_NOTE_CHANGED", fullName, pnote)
+						end
+						if cache[fullName] and onote ~= cache[fullName][2] then
+							lib.callbacks:Fire("GUILD_OFFICER_NOTE_CHANGED", fullName, onote)
+						end
 					end
 					cache[fullName] = {pnote, onote, i}
 				end

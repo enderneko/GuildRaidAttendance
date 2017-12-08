@@ -1,6 +1,5 @@
 local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
-local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
 local lootDistrConfigFrame = GRA:CreateFrame(L["Loot Distribution"], "GRA_LootDistrConfigFrame", gra.configFrame, 191, 300)
 gra.lootDistrConfigFrame = lootDistrConfigFrame
@@ -45,8 +44,8 @@ GRA:CreateSeperator(lootDistrConfigFrame, qnSection)
 local qns = {}
 local function LoadQuickNotes()
     for i = 1, 5 do
-        if GRA_Config["notes"][i] then
-            qns[i]:SetText(GRA_Config["notes"][i])
+        if _G[GRA_R_Config]["notes"][i] then
+            qns[i]:SetText(_G[GRA_R_Config]["notes"][i])
             qns[i]:SetAlpha(1)
         else
             qns[i]:SetText(" ")
@@ -68,14 +67,14 @@ local qnIndex
 qnEB:HookScript("OnEnterPressed", function()
     local note = strtrim(qnEB:GetText())
     if note ~= "" then
-        if GRA_Config["notes"][qnIndex] then -- exists, changed
-            GRA_Config["notes"][qnIndex] = note
+        if _G[GRA_R_Config]["notes"][qnIndex] then -- exists, changed
+            _G[GRA_R_Config]["notes"][qnIndex] = note
         else
-            table.insert(GRA_Config["notes"], note) -- create new
+            table.insert(_G[GRA_R_Config]["notes"], note) -- create new
         end
     else
-        if GRA_Config["notes"][qnIndex] then -- exists, deleted
-            table.remove(GRA_Config["notes"], qnIndex)
+        if _G[GRA_R_Config]["notes"][qnIndex] then -- exists, deleted
+            table.remove(_G[GRA_R_Config]["notes"], qnIndex)
         end
     end
     qnEB:Hide()
@@ -84,6 +83,7 @@ end)
 
 qnEB:SetScript("OnHide", function()
     qnEB:SetText("")
+    qnEB:Hide()
 end)
 
 for i = 1, 5 do
@@ -137,25 +137,25 @@ end
 -----------------------------------------
 local lootDistrCB = GRA:CreateCheckButton(lootDistrConfigFrame, L["Enable loot distribution tool"], nil, function(checked, cb)
     -- restore check stat
-	cb:SetChecked(GRA_Config["enableLootDistr"])
+	cb:SetChecked(_G[GRA_R_Config]["enableLootDistr"])
     
     local text
-    if GRA_Config["enableLootDistr"] then
+    if _G[GRA_R_Config]["enableLootDistr"] then
         text = gra.colors.firebrick.s .. L["Disable loot distribution tool?"]
     else
         text = gra.colors.firebrick.s .. L["Enable loot distribution tool"] .. "?"
     end
     -- confirm box
     local confirm = GRA:CreateConfirmBox(lootDistrConfigFrame, lootDistrConfigFrame:GetWidth()-10, text, function()
-        GRA_Config["enableLootDistr"] = not GRA_Config["enableLootDistr"]
-        ShowMask(not GRA_Config["enableLootDistr"])
-        cb:SetChecked(GRA_Config["enableLootDistr"])
+        _G[GRA_R_Config]["enableLootDistr"] = not _G[GRA_R_Config]["enableLootDistr"]
+        ShowMask(not _G[GRA_R_Config]["enableLootDistr"])
+        cb:SetChecked(_G[GRA_R_Config]["enableLootDistr"])
         -- enable/disable loot distr tool
-        GRA:SetLootDistributionEnabled(GRA_Config["enableLootDistr"])
+        GRA:SetLootDistributionEnabled(_G[GRA_R_Config]["enableLootDistr"])
     end)
     confirm:SetPoint("TOP", 0, -190)
 end)
-lootDistrCB:SetPoint("TOPLEFT", masterSection, "BOTTOMLEFT", -9, -50)
+lootDistrCB:SetPoint("TOPLEFT", masterSection, "BOTTOMLEFT", 0, -59)
 
 -----------------------------------------
 -- reply buttons
@@ -219,9 +219,9 @@ end)
 
 local function LoadReplyButtons()
     for i = 1, 7 do
-        if GRA_Config["replies"][i] then
+        if _G[GRA_R_Config]["replies"][i] then
             ebs[i]:Show()
-            ebs[i]:SetText(GRA_Config["replies"][i])
+            ebs[i]:SetText(_G[GRA_R_Config]["replies"][i])
         else
             ebs[i]:Hide()
         end
@@ -229,9 +229,9 @@ local function LoadReplyButtons()
     end
 
     addBtn:Show()
-    addBtn:SetPoint("LEFT", ebs[#GRA_Config["replies"]], "RIGHT", -1, 0)
+    addBtn:SetPoint("LEFT", ebs[#_G[GRA_R_Config]["replies"]], "RIGHT", -1, 0)
     
-    if #GRA_Config["replies"] > 1 then
+    if #_G[GRA_R_Config]["replies"] > 1 then
         removeBtn:Show()
         removeBtn:SetPoint("LEFT", addBtn, "RIGHT", -1, 0)
     end
@@ -252,7 +252,7 @@ saveBtn:SetScript("OnClick", function()
             table.insert(replies, text)
         end
     end
-    GRA_Config["replies"] = replies
+    _G[GRA_R_Config]["replies"] = replies
     num = #replies
     LoadReplyButtons()
     GRA:Print(L["Reply buttons saved."])
@@ -262,9 +262,9 @@ end)
 -- script
 -----------------------------------------
 lootDistrConfigFrame:SetScript("OnShow", function()
-    ShowMask(not GRA_Config["enableLootDistr"])
-    lootDistrCB:SetChecked(GRA_Config["enableLootDistr"])
-    num = #GRA_Config["replies"]
+    ShowMask(not _G[GRA_R_Config]["enableLootDistr"])
+    lootDistrCB:SetChecked(_G[GRA_R_Config]["enableLootDistr"])
+    num = #_G[GRA_R_Config]["replies"]
     LoadReplyButtons()
     LoadQuickNotes()
 end)

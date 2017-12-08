@@ -66,7 +66,7 @@ local function Delete()
     for n, g in pairs(deleted) do
         table.insert(names, n)
     end
-    for d, t in pairs(GRA_RaidLogs) do
+    for d, t in pairs(_G[GRA_R_RaidLogs]) do
         -- delete
         t["attendees"] = GRA:RemoveElementsByKeys(t["attendees"], names)
         t["absentees"] = GRA:RemoveElementsByKeys(t["absentees"], names)
@@ -97,7 +97,7 @@ local function Delete()
             end
         end
     end
-    GRA_Roster = GRA:RemoveElementsByKeys(GRA_Roster, names)
+    _G[GRA_R_Roster] = GRA:RemoveElementsByKeys(_G[GRA_R_Roster], names)
 end
 
 local function Rename()
@@ -107,8 +107,8 @@ local function Rename()
         table.insert(names, n)
         -- GRA:Debug(n .. " --> " .. t[2])
     end
-    -- rename in GRA_RaidLogs
-    for _, t in pairs(GRA_RaidLogs) do
+    -- rename in _G[GRA_R_RaidLogs]
+    for _, t in pairs(_G[GRA_R_RaidLogs]) do
         for oldName, newName in pairs(renamed) do
             -- attendees
             if t["attendees"][oldName] then
@@ -138,11 +138,11 @@ local function Rename()
         t["attendees"] = GRA:RemoveElementsByKeys(t["attendees"], names)
         t["absentees"] = GRA:RemoveElementsByKeys(t["absentees"], names)
     end
-    -- rename in GRA_Roster
+    -- rename in _G[GRA_R_Roster]
     for oldName, newName in pairs(renamed) do
-        GRA_Roster[newName[2]] = GRA_Roster[oldName]
+        _G[GRA_R_Roster][newName[2]] = _G[GRA_R_Roster][oldName]
     end
-    GRA_Roster = GRA:RemoveElementsByKeys(GRA_Roster, names)
+    _G[GRA_R_Roster] = GRA:RemoveElementsByKeys(_G[GRA_R_Roster], names)
 end
 
 local function SaveChanges()
@@ -170,7 +170,7 @@ local function SaveChanges()
         Rename()
         -- load and show
         LoadRoster()
-        rosterText:SetText("|cff80FF00" .. GRA:Getn(GRA_Roster) .. " " .. L["members"])
+        rosterText:SetText("|cff80FF00" .. GRA:Getn(_G[GRA_R_Roster]) .. " " .. L["members"])
         -- deleted = {}
         -- renamed = {}
         if GRA:Getn(deleted) ~= 0 then
@@ -223,7 +223,7 @@ local function CreatePlayerGrid(name)
     g:SetScript("OnDoubleClick", function(self, button)
         if g:GetAlpha() ~= 1 then return end
         local p = GRA:CreatePopupEditBox(g, g:GetWidth(), g:GetHeight(), function(text)
-            -- print(GRA_Roster[name]["class"])
+            -- print(_G[GRA_R_Roster][name]["class"])
             -- if name changed
             if text ~= name then
                 -- FSObject, new fullname
@@ -234,7 +234,7 @@ local function CreatePlayerGrid(name)
                     renamed = GRA:RemoveElementsByKeys(renamed, {name})
                 end
             end
-            g.s:SetText("|c" .. RAID_CLASS_COLORS[GRA_Roster[name]["class"]].colorStr .. GRA:GetShortName(text))
+            g.s:SetText("|c" .. RAID_CLASS_COLORS[_G[GRA_R_Roster][name]["class"]].colorStr .. GRA:GetShortName(text))
         end)
         p:SetText(name)
         p:SetPoint("LEFT")
@@ -248,7 +248,7 @@ LoadRoster = function()
     scroll:Reset()
     
     local last
-    for n, t in pairs(GRA_Roster) do
+    for n, t in pairs(_G[GRA_R_Roster]) do
         local g = CreatePlayerGrid(n)
         -- scroll:SetWidgetAutoWidth(g)
 
@@ -264,6 +264,6 @@ end
 rosterEditorFrame:SetScript("OnShow", function()
     wipe(deleted)
     wipe(renamed)
-    rosterText:SetText("|cff80FF00" .. GRA:Getn(GRA_Roster) .. " " .. L["members"])
+    rosterText:SetText("|cff80FF00" .. GRA:Getn(_G[GRA_R_Roster]) .. " " .. L["members"])
     LoadRoster()
 end)

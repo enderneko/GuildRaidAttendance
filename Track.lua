@@ -8,7 +8,7 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 local raidDate = nil
 local function RaidRosterUpdate()
 	-- 处于意外删除了刚刚创建的记录，再次询问
-	if not GRA_RaidLogs[raidDate] then GRA:StartTracking() end
+	if not _G[GRA_R_RaidLogs][raidDate] then GRA:StartTracking() end
 	local n = GetNumGroupMembers("LE_PARTY_CATEGORY_HOME")
 	for i = 1, n do
 		-- name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(index)
@@ -17,14 +17,14 @@ local function RaidRosterUpdate()
 			if not string.find(playerName, "-") then playerName = playerName .. "-" .. GetRealmName() end
 			
 			-- only log players in raid team, and "ONCE"
-			if GRA_Roster[playerName] and not GRA_RaidLogs[raidDate]["attendees"][playerName] then
+			if _G[GRA_R_Roster][playerName] and not _G[GRA_R_RaidLogs][raidDate]["attendees"][playerName] then
 				-- check attendance (PRESENT or LATE)
 				local joinTime = time()
-				local att = GRA:IsLate(joinTime, raidDate..GRA_Config["raidInfo"]["startTime"])
+				local att = GRA:IsLate(joinTime, raidDate.._G[GRA_R_Config]["raidInfo"]["startTime"])
 				-- keep it logged
-				GRA_RaidLogs[raidDate]["attendees"][playerName] = {att, joinTime}
+				_G[GRA_R_RaidLogs][raidDate]["attendees"][playerName] = {att, joinTime}
 				-- remove from absentees
-				GRA_RaidLogs[raidDate]["absentees"] = GRA:RemoveElementsByKeys(GRA_RaidLogs[raidDate]["absentees"], {playerName})
+				_G[GRA_R_RaidLogs][raidDate]["absentees"] = GRA:RemoveElementsByKeys(_G[GRA_R_RaidLogs][raidDate]["absentees"], {playerName})
 				-- refresh sheet and logs
 				GRA:FireEvent("GRA_RAIDLOGS", raidDate)
 			end
@@ -45,25 +45,25 @@ function GRA:StartTracking(instanceName, difficultyName)
 	end
 
 	GRA:CreateStaticPopup(L["Track This Raid"], text, function()
-		if GRA:Getn(GRA_Roster) == 0 then -- no member
+		if GRA:Getn(_G[GRA_R_Roster]) == 0 then -- no member
 			GRA:Print(L["In order to start tracking, you have to import members in Config."])
 			return
 		end
 		if not cb or not cb:GetChecked() then -- new raid (no raid log before)
 			GRA:Print(L["Raid tracking has started."])
-			GRA_Config["lastRaidDate"] = raidDate
+			_G[GRA_R_Config]["lastRaidDate"] = raidDate
 		else
 			-- resume last raid
-			raidDate = GRA_Config["lastRaidDate"]
+			raidDate = _G[GRA_R_Config]["lastRaidDate"]
 			GRA:Print(L["Resumed last raid (%s)."]:format(date("%x", GRA:DateToTime(raidDate))))
 		end
 		
 		-- init date
-		if not GRA_RaidLogs[raidDate] then
-			GRA_RaidLogs[raidDate] = {["attendees"]={}, ["absentees"]={}, ["details"]={}}
+		if not _G[GRA_R_RaidLogs][raidDate] then
+			_G[GRA_R_RaidLogs][raidDate] = {["attendees"]={}, ["absentees"]={}, ["details"]={}}
 			-- fill absent with all members
-			for n, t in pairs(GRA_Roster) do
-				GRA_RaidLogs[raidDate]["absentees"][n] = ""
+			for n, t in pairs(_G[GRA_R_Roster]) do
+				_G[GRA_R_RaidLogs][raidDate]["absentees"][n] = ""
 			end
 		end
 
@@ -80,10 +80,10 @@ function GRA:StartTracking(instanceName, difficultyName)
 		gra.isTracking = false
 	end)
 	
-	if GRA_Config["lastRaidDate"] and GRA_Config["lastRaidDate"] ~= raidDate then
+	if _G[GRA_R_Config]["lastRaidDate"] and _G[GRA_R_Config]["lastRaidDate"] ~= raidDate then
 		cb = GRA:CreateCheckButton(gra.staticPopup, L["Resume last raid"], nil, function()
 		end, "GRA_FONT_SMALL")
-		cb:SetPoint("BOTTOMLEFT", -7, -7)
+		cb:SetPoint("BOTTOMLEFT", 2, 2)
 	end
 end
 

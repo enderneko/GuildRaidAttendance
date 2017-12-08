@@ -126,8 +126,8 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
     for k, _ in pairs(playerTbl) do
-        if GRA_Roster[k] then -- ignore deleted
-            table.insert(sorted, {k, GRA_Roster[k]["class"], GRA:GetShortName(k)}) -- {"fullName", "class", "shortName"}
+        if _G[GRA_R_Roster][k] then -- ignore deleted
+            table.insert(sorted, {k, _G[GRA_R_Roster][k]["class"], GRA:GetShortName(k)}) -- {"fullName", "class", "shortName"}
         end
     end
     SortByClass(sorted)
@@ -156,12 +156,12 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
         count = count + 1
         if lastCB then
             if count % 4 == 1 then
-                cbTbl[t[1]]:SetPoint("TOPLEFT", point, 0, -10-26*floor(count/4))
+                cbTbl[t[1]]:SetPoint("TOPLEFT", point, 9, -19-26*floor(count/4))
             else
-                cbTbl[t[1]]:SetPoint("LEFT", lastCB, "RIGHT", 60, 0)
+                cbTbl[t[1]]:SetPoint("LEFT", lastCB, "RIGHT", 72, 0)
             end
         else
-            cbTbl[t[1]]:SetPoint("TOPLEFT", point, 0, -10)
+            cbTbl[t[1]]:SetPoint("TOPLEFT", point, 9, -19)
         end
         lastCB = cbTbl[t[1]]
         cbTbl[t[1]]:Show()

@@ -113,7 +113,7 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
     row.response:SetWordWrap(false)
     row.response:SetPoint("LEFT", row.name, "RIGHT", 5, 0)
 
-    if GRA_Config["useEPGP"] then
+    if _G[GRA_R_Config]["useEPGP"] then
         row.pr = row:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
         row.prValue = GRA:GetPR(playerName) -- sort key
         if row.prValue == 0 then
@@ -128,7 +128,7 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
     
     row.g1 = GRA:CreateIconButton(row, 16, 16)
     row.g1:Hide()
-    if GRA_Config["useEPGP"] then
+    if _G[GRA_R_Config]["useEPGP"] then
         row.g1:SetPoint("LEFT", row.pr, "RIGHT", 5, 0)
     else
         row.g1:SetPoint("LEFT", row.response, "RIGHT", 5, 0)
@@ -239,7 +239,7 @@ local function Sort(itemSig)
         table.insert(sorted, row)
     end
 
-    if GRA_Config["useEPGP"] then
+    if _G[GRA_R_Config]["useEPGP"] then
         table.sort(sorted, function(a, b)
             if a.responseIndex ~= b.responseIndex then
                 return a.responseIndex < b.responseIndex
@@ -284,7 +284,7 @@ local function SetMemberResponse(playerName, playerClassID, playerSpecID, itemSi
         row:ClearAllPoints()
         row:Hide()
     else
-        row.response:SetText((replyColors[responseIndex] or gra.colors.grey.s) .. (GRA_Config["replies"][responseIndex] or "Unkonw Reply"))
+        row.response:SetText((replyColors[responseIndex] or gra.colors.grey.s) .. (_G[GRA_R_Config]["replies"][responseIndex] or "Unkonw Reply"))
         -- if g1 and string.find(g1, "|Hitem") then row.g1:SetItem(g1) end
         -- if g2 and string.find(g2, "|Hitem") then row.g2:SetItem(g2) end
         if g1 then
@@ -427,7 +427,7 @@ local function CreateItemFrame(itemSig, itemLink, count)
     -- hCurrentGear:SetPoint("BOTTOMLEFT", f.scrollFrame, "TOPLEFT", 216, 4)
     -- hNotes:SetPoint("BOTTOMLEFT", f.scrollFrame, "TOPLEFT", 354, 4)
     hResponse:SetPoint("LEFT", hName, 85, 0)
-    if GRA_Config["useEPGP"] then
+    if _G[GRA_R_Config]["useEPGP"] then
         distributionFrame:SetWidth(528)
         hPR:SetPoint("LEFT", hResponse, 105, 0)
         hCurrentGear:SetPoint("LEFT", hPR, 50, 0)
@@ -469,7 +469,7 @@ end
 --------------------------------------------------------
 local function SendLoots()
     -- send replies
-    Comm:SendCommMessage("GRA_LOOT", Serializer:Serialize(GRA_Config["replies"]), "RAID", nil, "ALERT")
+    Comm:SendCommMessage("GRA_LOOT", Serializer:Serialize(_G[GRA_R_Config]["replies"]), "RAID", nil, "ALERT")
 
     -- send items to loot frame
     -- texplore(lootsToSend)
@@ -491,26 +491,23 @@ local function ShowDistributionFrame()
             lootsToSend[itemSig] = {t[1], t[2]}
             table.insert(indices, itemSig)
             CreateItemButton(itemSig, t[1], t[2])
-            
-            -- if GetItemInfo(t[1]) then
-            --     CreateItemButton(itemSig, t[1], t[2])
-            --     SendLoot(itemSig)
-            -- else
-            --     
-            -- end
         end
     end
 
     if #indices > 0 then
         SendLoots()
-        if not currentIndex then currentIndex = 1 end
-        ShowFrame(indices[currentIndex])
+        -- if not currentIndex then currentIndex = 1 end
+        -- ShowFrame(indices[currentIndex])
         distributionFrame:Show()
     end
 end
 
 distributionFrame:SetScript("OnShow", function()
     LPP:PixelPerfectPoint(distributionFrame)
+    if #indices > 0 then
+        if not currentIndex then currentIndex = 1 end
+        ShowFrame(indices[currentIndex])
+    end
 end)
 
 --------------------------------------------------------
@@ -551,7 +548,7 @@ end
 distributionFrame:SetScript("OnEvent", function(self, event, arg1)
     if event == "ADDON_LOADED" and arg1 == addonName then
         distributionFrame:UnregisterEvent("ADDON_LOADED")
-        GRA:SetLootDistributionEnabled(GRA_Config["enableLootDistr"])
+        GRA:SetLootDistributionEnabled(_G[GRA_R_Config]["enableLootDistr"])
         
     elseif event == "PLAYER_ENTERING_WORLD" or event == "PARTY_LOOT_METHOD_CHANGED" then
         UpdateLootMaster()
@@ -655,6 +652,7 @@ end
 --------------------------------------------------------
 -- loot distr test
 --------------------------------------------------------
+--@debug@
 SLASH_LOOTDISTRTEST1 = "/ldtest"
 function SlashCmdList.LOOTDISTRTEST(msg, editbox)
     if not gra.isLootMaster then return end
@@ -678,7 +676,7 @@ function SlashCmdList.LOOTDISTRTEST(msg, editbox)
     ShowDistributionFrame()
 
     local replies = {}
-    for i in ipairs(GRA_Config["replies"]) do
+    for i in ipairs(_G[GRA_R_Config]["replies"]) do
         table.insert(replies, i)
     end
     table.insert(replies, 8)
@@ -689,3 +687,4 @@ function SlashCmdList.LOOTDISTRTEST(msg, editbox)
         end
     end
 end
+--@end-debug@
