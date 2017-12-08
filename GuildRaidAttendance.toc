@@ -4,8 +4,8 @@
 ## Notes-zhCN: 记录公会活动出勤与拾取。内置简单装备分配工具，支持CL与EPGP。
 ## Version: r73-release
 ## Author: fyhcslb
-## SavedVariables: GRA_A_RaidLogs, GRA_A_Roster, GRA_A_Config, GRA_Variables
-## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Roster, GRA_Config
+## SavedVariables: GRA_A_RaidLogs, GRA_A_Roster, GRA_A_Config, GRA_A_Variables
+## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Roster, GRA_Config, GRA_Variables
 
 embeds.xml
 

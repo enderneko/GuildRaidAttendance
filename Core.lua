@@ -225,6 +225,7 @@ frame:RegisterEvent("ADDON_LOADED")
 function frame:ADDON_LOADED(arg1)
 	if arg1 == addonName then
 		frame:UnregisterEvent("ADDON_LOADED")
+		if type(GRA_A_Variables) ~= "table" then GRA_A_Variables = {} end
 		if type(GRA_Variables) ~= "table" then GRA_Variables = {} end
 		-- global saved variables
 		if type(GRA_A_RaidLogs) ~= "table" then GRA_A_RaidLogs = {} end
@@ -248,12 +249,12 @@ function frame:ADDON_LOADED(arg1)
 		end
 
 		-- help viewed
-		if type(GRA_Variables["helpViewed"]) ~= "boolean" then GRA_Variables["helpViewed"] = false end
+		if type(GRA_A_Variables["helpViewed"]) ~= "boolean" then GRA_A_Variables["helpViewed"] = false end
 
 		-- size
-		if type(GRA_Variables["size"]) ~= "string" then GRA_Variables["size"] = "normal" end
-		if GRA_Variables["size"] ~= "normal" then
-			gra.size = gra.sizes[GRA_Variables["size"]]
+		if type(GRA_A_Variables["size"]) ~= "string" then GRA_A_Variables["size"] = "normal" end
+		if GRA_A_Variables["size"] ~= "normal" then
+			gra.size = gra.sizes[GRA_A_Variables["size"]]
 			for name, f in pairs(gra) do
 				if gra.size[name] then
 					f:Resize()
@@ -263,8 +264,8 @@ function frame:ADDON_LOADED(arg1)
 		end
 
 		-- minimap
-		if type(GRA_Variables["minimap"]) ~= "table" then GRA_Variables["minimap"] = {["hide"] = false} end
-		icon:Register("GuildRaidAttendance", graLDB, GRA_Variables["minimap"])
+		if type(GRA_A_Variables["minimap"]) ~= "table" then GRA_A_Variables["minimap"] = {["hide"] = false} end
+		icon:Register("GuildRaidAttendance", graLDB, GRA_A_Variables["minimap"])
 
 		if type(_G[GRA_R_Config]["raidInfo"]) ~= "table" then
 			_G[GRA_R_Config]["raidInfo"] = {
@@ -318,7 +319,7 @@ function frame:ADDON_LOADED(arg1)
 		gra.version = GetAddOnMetadata(addonName, "version")
 
 		-- update font & fontsize
-		if GRA_Variables["useGameFont"] then
+		if GRA_A_Variables["useGameFont"] then
 			GRA_FONT_SMALL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
 			GRA_FONT_SMALL_DISABLED:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
 			GRA_FONT_NORMAL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
@@ -387,8 +388,8 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		eb:SetText(text)
 		f:Show()
 	elseif command == "minimap" then
-		GRA_Variables.minimap.hide = not GRA_Variables.minimap.hide
-		if GRA_Variables.minimap.hide then
+		GRA_A_Variables.minimap.hide = not GRA_A_Variables.minimap.hide
+		if GRA_A_Variables.minimap.hide then
 			icon:Hide("GuildRaidAttendance")
 		else
 			icon:Show("GuildRaidAttendance")
@@ -416,9 +417,9 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 	elseif command == "t" then
 		texplore(E)
 	elseif command == "testL" then
-		GRA_Variables["size"] = "large"
+		GRA_A_Variables["size"] = "large"
 	elseif command == "testN" then
-		GRA_Variables["size"] = "normal"
+		GRA_A_Variables["size"] = "normal"
 	--@end-debug@
 	end
 end

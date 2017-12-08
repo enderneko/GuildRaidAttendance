@@ -313,7 +313,7 @@ end)
 
 -- CheckButton: use game font
 local fontCB = GRA:CreateCheckButton(configFrame, L["Use Game Font"], nil, function(checked)
-	GRA_Variables["useGameFont"] = checked
+	GRA_A_Variables["useGameFont"] = checked
 end, "GRA_FONT_SMALL", L["Require a UI reload."])
 fontCB:SetPoint("TOPLEFT", miscSection, 0, -45)
 
@@ -338,13 +338,6 @@ profilesBtn:SetScript("OnClick", function()
 	else
 		gra.profilesFrame:Show()
 	end
-	-- 切换至角色配置
-	-- 切换至角色配置并以当前配置覆盖
-
-	-- 切换至全局配置
-	-- 切换至全局配置并以当前配置覆盖
-	-- GRA_Variables["useAccountProfile"] = not GRA_Variables["useAccountProfile"]
-	-- print([[GRA_Variables["useAccountProfile"] = ]] .. tostring(GRA_Variables["useAccountProfile"]))
 end)
 
 local resizeBtn = GRA:CreateButton(configFrame, L["Resize"], "red", {57, 20}, "GRA_FONT_SMALL")
@@ -360,7 +353,7 @@ helpBtn:SetScript("OnClick", function()
 	-- configFrame:Hide()
 	gra.helpFrame:Show()
 	ActionButton_HideOverlayGlow(helpBtn)
-	GRA_Variables["helpViewed"] = true
+	GRA_A_Variables["helpViewed"] = true
 end)
 
 -----------------------------------------
@@ -440,7 +433,7 @@ GRA:RegisterEvent("GRA_MINI", "ConfigFrame_MiniMode", function(enabled)
 end)
 
 configFrame:SetScript("OnShow", function(self)
-	if not GRA_Variables["helpViewed"] then
+	if not GRA_A_Variables["helpViewed"] then
 		ActionButton_ShowOverlayGlow(helpBtn)
 	end
 	EnableMiniMode(_G[GRA_R_Config]["minimalMode"])
@@ -455,7 +448,7 @@ configFrame:SetScript("OnShow", function(self)
 	arCB:SetChecked(_G[GRA_R_Config]["columns"]["AR_Lifetime"])
 
 	-- misc
-	fontCB:SetChecked(GRA_Variables["useGameFont"])
+	fontCB:SetChecked(GRA_A_Variables["useGameFont"])
 	version:SetText(L["Version"] .. ": |cff0080FF" .. gra.version)
 
 	UpdateAddOnMemoryUsage()
