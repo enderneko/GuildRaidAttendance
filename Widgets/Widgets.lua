@@ -648,7 +648,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.prGrid:Hide()
 		end
 
-		if _G[GRA_R_Config]["columns"]["AR_30"] then
+		if GRA_Variables["columns"]["AR_30"] then
 			row.ar30Grid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			row.ar30Grid:Show()
 			lastColumn = row.ar30Grid
@@ -656,7 +656,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.ar30Grid:Hide()
 		end
 
-		if _G[GRA_R_Config]["columns"]["AR_60"] then
+		if GRA_Variables["columns"]["AR_60"] then
 			row.ar60Grid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			row.ar60Grid:Show()
 			lastColumn = row.ar60Grid
@@ -664,7 +664,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.ar60Grid:Hide()
 		end
 
-		if _G[GRA_R_Config]["columns"]["AR_90"] then
+		if GRA_Variables["columns"]["AR_90"] then
 			row.ar90Grid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			row.ar90Grid:Show()
 			lastColumn = row.ar90Grid
@@ -672,7 +672,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.ar90Grid:Hide()
 		end
 
-		if _G[GRA_R_Config]["columns"]["AR_Lifetime"] then
+		if GRA_Variables["columns"]["AR_Lifetime"] then
 			row.arLifetimeGrid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 			row.arLifetimeGrid:Show()
 			lastColumn = row.arLifetimeGrid

@@ -254,7 +254,7 @@ L["This is a simple loot distribution tool.\nYou might want to use |cFF00BFFFBig
 L["iLevel: "] = "物品等级："
 L["Loot Distribution"] = "物品分配"
 L["Quick Notes"] = "快速备注"
-L["Loot Master Only"] = "仅限物品分配者"
+L["Reply Buttons"] = "回复按钮"
 L["Only when you're the loot master and in a raid instance will these take effect."] = "仅当你是物品分配者并且位于副本中时，这些设置才会生效。"
 L["Enable loot distribution tool"] = "启用物品分配工具"
 L["Disable loot distribution tool?"] = "禁用物品分配工具？"

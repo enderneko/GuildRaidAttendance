@@ -193,7 +193,7 @@ GRA:RegisterEvent("GRA_MINI", "MiniMode", function(enabled)
 end)
 
 gra.mainFrame:SetScript("OnShow", function(self)
-	EnableMiniMode(_G[GRA_R_Config]["minimalMode"])
+	EnableMiniMode(GRA_Variables["minimalMode"])
 	LPP:PixelPerfectPoint(gra.mainFrame)
 
 	if not IsInGuild() then

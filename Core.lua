@@ -285,11 +285,11 @@ function frame:ADDON_LOADED(arg1)
 		if type(_G[GRA_R_Config]["useEPGP"]) ~= "boolean" then _G[GRA_R_Config]["useEPGP"] = false end
 		
 		-- disable minimal mode by default
-		if type(_G[GRA_R_Config]["minimalMode"]) ~= "boolean" then _G[GRA_R_Config]["minimalMode"] = false end
+		if type(GRA_Variables["minimalMode"]) ~= "boolean" then GRA_Variables["minimalMode"] = false end
 		
 		-- sheet columns
-		if type(_G[GRA_R_Config]["columns"]) ~= "table" then
-			_G[GRA_R_Config]["columns"] = {
+		if type(GRA_Variables["columns"]) ~= "table" then
+			GRA_Variables["columns"] = {
 				["AR_30"] = false,
 				["AR_60"] = false,
 				["AR_90"] = false,
@@ -298,9 +298,9 @@ function frame:ADDON_LOADED(arg1)
 		end
 
 		-- sort
-		if type(_G[GRA_R_Config]["sortKey"]) ~= "string" then _G[GRA_R_Config]["sortKey"] = "name" end
+		if type(GRA_Variables["sortKey"]) ~= "string" then GRA_Variables["sortKey"] = "name" end
 		-- class filter
-		if type(_G[GRA_R_Config]["classFilter"]) ~= "table" then _G[GRA_R_Config]["classFilter"] = {["WARRIOR"]=true, ["HUNTER"]=true, ["SHAMAN"]=true, ["MONK"]=true, ["ROGUE"]=true, ["MAGE"]=true, ["DRUID"]=true, ["DEATHKNIGHT"]=true, ["PALADIN"]=true, ["WARLOCK"]=true, ["PRIEST"]=true, ["DEMONHUNTER"]=true} end
+		if type(GRA_Variables["classFilter"]) ~= "table" then GRA_Variables["classFilter"] = {["WARRIOR"]=true, ["HUNTER"]=true, ["SHAMAN"]=true, ["MONK"]=true, ["ROGUE"]=true, ["MAGE"]=true, ["DRUID"]=true, ["DEATHKNIGHT"]=true, ["PALADIN"]=true, ["WARLOCK"]=true, ["PRIEST"]=true, ["DEMONHUNTER"]=true} end
 
 		if type(_G[GRA_R_Config]["startDate"]) ~= "string" then _G[GRA_R_Config]["startDate"] = GRA:GetLockoutsResetDate() end -- this lockouts reset day
 		-- GRA:Debug("startDate: " .. _G[GRA_R_Config]["startDate"])

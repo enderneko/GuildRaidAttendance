@@ -23,7 +23,7 @@ local tips2 = tips2Frame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 tips2:SetWordWrap(false)
 tips2:SetPoint("LEFT")
 tips2:SetPoint("RIGHT")
-local tips2Text = "World of Warcraft/WTF/Account/" .. gra.colors.firebrick.s .. L["ACCOUNTNAME"] .. "|r/SavedVariables/" .. gra.colors.firebrick.s .. "GuildRaidAttendance.lua"
+local tips2Text = "WoW/WTF/Account/" .. gra.colors.firebrick.s .. L["ACCOUNTNAME"] .. "|r/SavedVariables/" .. gra.colors.firebrick.s .. "GuildRaidAttendance.lua"
 tips2:SetText(L["Account Profile: "] .. gra.colors.grey.s .. tips2Text)
 tips2Frame:SetScript("OnEnter", function()
     GRA_Tooltip:SetOwner(tips2Frame, "ANCHOR_NONE")
@@ -44,7 +44,7 @@ local tips3 = tips3Frame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 tips3:SetWordWrap(false)
 tips3:SetPoint("LEFT")
 tips3:SetPoint("RIGHT")
-local tips3Text = "World of Warcraft/WTF/Account/" .. gra.colors.firebrick.s .. L["ACCOUNTNAME"] .. "|r/" .. gra.colors.firebrick.s .. L["REALMNAME"] .. "|r/" .. gra.colors.firebrick.s .. L["CHARNAME"] .. "|r/SavedVariables/" .. gra.colors.firebrick.s .. "GuildRaidAttendance.lua"
+local tips3Text = "WoW/WTF/Account/" .. gra.colors.firebrick.s .. L["ACCOUNTNAME"] .. "|r/" .. gra.colors.firebrick.s .. L["REALMNAME"] .. "|r/" .. gra.colors.firebrick.s .. L["CHARNAME"] .. "|r/SavedVariables/" .. gra.colors.firebrick.s .. "GuildRaidAttendance.lua"
 tips3:SetText(L["Character Profile: "] .. gra.colors.grey.s .. tips3Text)
 tips3Frame:SetScript("OnEnter", function()
     GRA_Tooltip:SetOwner(tips3Frame, "ANCHOR_NONE")

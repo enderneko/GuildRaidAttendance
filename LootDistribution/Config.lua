@@ -112,7 +112,7 @@ end
 -- loot master
 -----------------------------------------
 local masterSection = lootDistrConfigFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-masterSection:SetText("|cff80FF00"..L["Loot Master Only"].."|r")
+masterSection:SetText("|cff80FF00"..L["Reply Buttons"].."|r")
 masterSection:SetPoint("TOPLEFT", 5, -95)
 GRA:CreateSeperator(lootDistrConfigFrame, masterSection)
 

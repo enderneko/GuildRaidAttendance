@@ -41,18 +41,57 @@ GRA_Roster = {
 ‖       GRA_Config       ‖
 ╚========================╝
 GRA_Config = {
-	["MOTD"] = (string),
 	["raidInfo"] = {
 		["name"] = (string),
 		["EPGP"] = {baseGP, minEP, decay},
 		["startTime"] = "19:30",
 		["days"]={4,5,1,2},
 	},
-	["raidLeader"] = (string),
 	["lastRaidDate"] = (string),
+	["startDate"] = (string),
+	["enableLootDistr"] = (boolean),
+	["replies"] = {reply1, reply2, reply3, ...},
+	["notes"] = {note1, note2, note3, ...},
 }
 
 ╔========================╗
-‖       Guild Info       ‖
+‖      GRA_Variables     ‖
 ╚========================╝
-#GRA:admin1,admin2...
+GRA_Variables = {
+	["useAccountProfile"] = (boolean),
+	["minimalMode"] = (boolean),
+	["classFilter"] = {
+		["HUNTER"] = (boolean),
+		["WARRIOR"] = (boolean),
+		["SHAMAN"] = (boolean),
+		["MAGE"] = (boolean),
+		["PRIEST"] = (boolean),
+		["ROGUE"] = (boolean),
+		["WARLOCK"] = (boolean),
+		["DEMONHUNTER"] = (boolean),
+		["DEATHKNIGHT"] = (boolean),
+		["DRUID"] = (boolean),
+		["MONK"] = (boolean),
+		["PALADIN"] = (boolean),
+	},
+	["sortKey"] = (string),
+	["columns"] = {
+		["AR_60"] = (boolean),
+		["AR_90"] = (boolean),
+		["AR_30"] = (boolean),
+		["AR_Lifetime"] = (boolean),
+	},
+}
+
+╔========================╗
+‖     GRA_A_Variables    ‖
+╚========================╝
+GRA_A_Variables = {
+	["minimap"] = {
+		["minimapPos"] = (number),
+		["hide"] = (boolean),
+	},
+	["size"] = (string),
+	["helpViewed"] = (boolean),
+	["useGameFont"] = (boolean),
+}

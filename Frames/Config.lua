@@ -28,18 +28,18 @@ rosterUserFrame:SetAllPoints(rosterFrame)
 rosterUserFrame:Hide()
 
 local rosterUserMinimalModeCB = GRA:CreateCheckButton(rosterUserFrame, L["Minimal Mode"], nil, function(checked, cb)
-	cb:SetChecked(_G[GRA_R_Config]["minimalMode"])
+	cb:SetChecked(GRA_Variables["minimalMode"])
 	local text 
-	if _G[GRA_R_Config]["minimalMode"] then
+	if GRA_Variables["minimalMode"] then
 		text = L["Switch to full mode?"]
 	else
 		text = L["Switch to minimal mode?\nYou cannot receive raid logs in this mode."]
 	end
 	
 	local confirm = GRA:CreateConfirmBox(configFrame, configFrame:GetWidth()-10, text, function()
-		_G[GRA_R_Config]["minimalMode"] = not _G[GRA_R_Config]["minimalMode"]
-		cb:SetChecked(_G[GRA_R_Config]["minimalMode"])
-		GRA:FireEvent("GRA_MINI", _G[GRA_R_Config]["minimalMode"])
+		GRA_Variables["minimalMode"] = not GRA_Variables["minimalMode"]
+		cb:SetChecked(GRA_Variables["minimalMode"])
+		GRA:FireEvent("GRA_MINI", GRA_Variables["minimalMode"])
 	end, true)
 	confirm:SetPoint("TOP", 0, -45)
 end, "GRA_FONT_SMALL")
@@ -164,19 +164,19 @@ columnText:SetText(L["Attendance Rate Columns"])
 columnText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -4)
 
 local ar30CB = GRA:CreateCheckButton(daysFrame, L["30 days"], nil, function(checked)
-	_G[GRA_R_Config]["columns"]["AR_30"] = checked
+	GRA_Variables["columns"]["AR_30"] = checked
 	GRA:SetColumns()
 end, "GRA_FONT_SMALL")
 local ar60CB = GRA:CreateCheckButton(daysFrame, L["60 days"], nil, function(checked)
-	_G[GRA_R_Config]["columns"]["AR_60"] = checked
+	GRA_Variables["columns"]["AR_60"] = checked
 	GRA:SetColumns()
 end, "GRA_FONT_SMALL")
 local ar90CB = GRA:CreateCheckButton(daysFrame, L["90 days"], nil, function(checked)
-	_G[GRA_R_Config]["columns"]["AR_90"] = checked
+	GRA_Variables["columns"]["AR_90"] = checked
 	GRA:SetColumns()
 end, "GRA_FONT_SMALL")
 local arCB = GRA:CreateCheckButton(daysFrame, L["Lifetime"], nil, function(checked)
-	_G[GRA_R_Config]["columns"]["AR_Lifetime"] = checked
+	GRA_Variables["columns"]["AR_Lifetime"] = checked
 	GRA:SetColumns()
 end, "GRA_FONT_SMALL")
 ar30CB:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -19)
@@ -419,10 +419,10 @@ local function EnableMiniMode(f)
 			ar60CB:SetChecked(true)
 			ar90CB:SetChecked(true)
 			arCB:SetChecked(true)
-			_G[GRA_R_Config]["columns"]["AR_30"] = true
-			_G[GRA_R_Config]["columns"]["AR_60"] = true
-			_G[GRA_R_Config]["columns"]["AR_90"] = true
-			_G[GRA_R_Config]["columns"]["AR_Lifetime"] = true
+			GRA_Variables["columns"]["AR_30"] = true
+			GRA_Variables["columns"]["AR_60"] = true
+			GRA_Variables["columns"]["AR_90"] = true
+			GRA_Variables["columns"]["AR_Lifetime"] = true
 			GRA:SetColumns()
 		end
 	end
@@ -436,16 +436,16 @@ configFrame:SetScript("OnShow", function(self)
 	if not GRA_A_Variables["helpViewed"] then
 		ActionButton_ShowOverlayGlow(helpBtn)
 	end
-	EnableMiniMode(_G[GRA_R_Config]["minimalMode"])
+	EnableMiniMode(GRA_Variables["minimalMode"])
 	rosterUserLastUpdatedText:SetText(L["Last updated time: "] .. "|cff0080FF" .. (_G[GRA_R_Config]["lastUpdatedTime"] or L["never"]))
-	rosterUserMinimalModeCB:SetChecked(_G[GRA_R_Config]["minimalMode"])
+	rosterUserMinimalModeCB:SetChecked(GRA_Variables["minimalMode"])
 
 	RefreshRaidSchedule()
 
-	ar30CB:SetChecked(_G[GRA_R_Config]["columns"]["AR_30"])
-	ar60CB:SetChecked(_G[GRA_R_Config]["columns"]["AR_60"])
-	ar90CB:SetChecked(_G[GRA_R_Config]["columns"]["AR_90"])
-	arCB:SetChecked(_G[GRA_R_Config]["columns"]["AR_Lifetime"])
+	ar30CB:SetChecked(GRA_Variables["columns"]["AR_30"])
+	ar60CB:SetChecked(GRA_Variables["columns"]["AR_60"])
+	ar90CB:SetChecked(GRA_Variables["columns"]["AR_90"])
+	arCB:SetChecked(GRA_Variables["columns"]["AR_Lifetime"])
 
 	-- misc
 	fontCB:SetChecked(GRA_A_Variables["useGameFont"])

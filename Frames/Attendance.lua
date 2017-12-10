@@ -74,7 +74,7 @@ local SortSheetByName, SortSheetByClass, SortSheetByAR, SortSheetByAR30, SortShe
 SortSheetByName = function()
 	table.sort(loaded, function(a, b) return a.name < b.name end)
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "name"
+	GRA_Variables["sortKey"] = "name"
 end
 
 SortSheetByClass = function()
@@ -108,7 +108,7 @@ SortSheetByClass = function()
 		end)
 	end
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "class"
+	GRA_Variables["sortKey"] = "class"
 end
 
 SortSheetByAR = function()
@@ -144,7 +144,7 @@ SortSheetByAR = function()
 		end)
 	end
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "ar"
+	GRA_Variables["sortKey"] = "ar"
 end
 
 SortSheetByAR30 = function()
@@ -180,7 +180,7 @@ SortSheetByAR30 = function()
 		end)
 	end
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "ar30"
+	GRA_Variables["sortKey"] = "ar30"
 end
 
 SortSheetByAR60 = function()
@@ -216,7 +216,7 @@ SortSheetByAR60 = function()
 		end)
 	end
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "ar60"
+	GRA_Variables["sortKey"] = "ar60"
 end
 
 SortSheetByAR90 = function()
@@ -252,7 +252,7 @@ SortSheetByAR90 = function()
 		end)
 	end
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "ar90"
+	GRA_Variables["sortKey"] = "ar90"
 end
 
 SortSheetByPR = function()
@@ -271,7 +271,7 @@ SortSheetByPR = function()
 		end
 	end)
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "pr"
+	GRA_Variables["sortKey"] = "pr"
 end
 
 SortSheetByEP = function()
@@ -288,7 +288,7 @@ SortSheetByEP = function()
 		end
 	end)
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "ep"
+	GRA_Variables["sortKey"] = "ep"
 end
 
 SortSheetByGP = function()
@@ -305,7 +305,7 @@ SortSheetByGP = function()
 		end
 	end)
 	SetRowPoints()
-	_G[GRA_R_Config]["sortKey"] = "gp"
+	GRA_Variables["sortKey"] = "gp"
 end
 
 local function SortSheet(key)
@@ -343,7 +343,7 @@ classFilterCBs["ALL"]:SetScript("OnClick", function(self)
 	self:SetChecked(true) -- force check
 	for i = 1, 12 do
 		classFilterCBs[gra.CLASS_ORDER[i]]:SetChecked(true)
-		_G[GRA_R_Config]["classFilter"][gra.CLASS_ORDER[i]] = true
+		GRA_Variables["classFilter"][gra.CLASS_ORDER[i]] = true
 	end
 	-- reload sheet
 	GRA:ShowAttendanceSheet()
@@ -366,7 +366,7 @@ for i = 1, 12 do
 	local class = gra.CLASS_ORDER[i]
 	-- create 12 CBs
 	classFilterCBs[class] = GRA:CreateCheckButton(statusFrame, "", nil, function(checked)
-		_G[GRA_R_Config]["classFilter"][class] = checked
+		GRA_Variables["classFilter"][class] = checked
 		refreshCB_ALL()
 		-- reload sheet
 		GRA:ShowAttendanceSheet()
@@ -636,7 +636,7 @@ function GRA:SetColumns()
 		decayText:Hide()
 	end
 
-	if _G[GRA_R_Config]["columns"]["AR_30"] then
+	if GRA_Variables["columns"]["AR_30"] then
 		ar30Text:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 		ar30Text:Show()
 		newWidth = newWidth + gra.size.grid_others - 1
@@ -645,7 +645,7 @@ function GRA:SetColumns()
 		ar30Text:Hide()
 	end
 
-	if _G[GRA_R_Config]["columns"]["AR_60"] then
+	if GRA_Variables["columns"]["AR_60"] then
 		ar60Text:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 		ar60Text:Show()
 		newWidth = newWidth + gra.size.grid_others - 1
@@ -654,7 +654,7 @@ function GRA:SetColumns()
 		ar60Text:Hide()
 	end
 
-	if _G[GRA_R_Config]["columns"]["AR_90"] then
+	if GRA_Variables["columns"]["AR_90"] then
 		ar90Text:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 		ar90Text:Show()
 		newWidth = newWidth + gra.size.grid_others - 1
@@ -663,7 +663,7 @@ function GRA:SetColumns()
 		ar90Text:Hide()
 	end
 
-	if _G[GRA_R_Config]["columns"]["AR_Lifetime"] then
+	if GRA_Variables["columns"]["AR_Lifetime"] then
 		arLifetimeText:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 		arLifetimeText:Show()
 		newWidth = newWidth + gra.size.grid_others - 1
@@ -697,7 +697,7 @@ function GRA:RecalcPR()
 		GRA:UpdatePlayerData(row.name, ep, gp, true)
 	end
 	-- sort after recalc
-	SortSheet(_G[GRA_R_Config]["sortKey"])
+	SortSheet(GRA_Variables["sortKey"])
 end
 
 function GRA:UpdatePlayerData(name, ep, gp, noSort)
@@ -740,7 +740,7 @@ function GRA:UpdatePlayerData(name, ep, gp, noSort)
 
 	if not noSort then
 		-- auto sort after data updated
-		SortSheet(_G[GRA_R_Config]["sortKey"])
+		SortSheet(GRA_Variables["sortKey"])
 	end
 end
 
@@ -997,8 +997,8 @@ CalcAR = function()
 	ShowAR()
 
 	-- re-sort by attendance rate
-	-- if string.find(_G[GRA_R_Config]["sortKey"], "ar") then
-		SortSheet(_G[GRA_R_Config]["sortKey"])
+	-- if string.find(GRA_Variables["sortKey"], "ar") then
+		SortSheet(GRA_Variables["sortKey"])
 	-- end
 end
 
@@ -1229,7 +1229,7 @@ GRA:RegisterEvent("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
 		refreshTimer = nil
 
 		-- attendance rate may changed, re-sort
-		SortSheet(_G[GRA_R_Config]["sortKey"])
+		SortSheet(GRA_Variables["sortKey"])
 	end)
 end)
 
@@ -1237,7 +1237,7 @@ end)
 GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", function(dates)
 	GRA:RefreshSheetByDates(dates)
 	CalcAR()
-	SortSheet(_G[GRA_R_Config]["sortKey"])
+	SortSheet(GRA_Variables["sortKey"])
 end)
 
 -- raid start time update
@@ -1277,7 +1277,7 @@ local function LoadSheet()
 	CountAll()
 	for pName, pTable in pairs(_G[GRA_R_Roster]) do
 		-- filter class
-		if _G[GRA_R_Config]["classFilter"][pTable["class"]] then
+		if GRA_Variables["classFilter"][pTable["class"]] then
 			local shortName = GRA:GetShortName(pName)
 			local color = RAID_CLASS_COLORS[pTable["class"]].colorStr
 			local row = GRA:CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), "|c" .. color .. shortName .. "|r",
@@ -1291,7 +1291,7 @@ local function LoadSheet()
 			row.pr = row.ep / (row.gp + _G[GRA_R_Config]["raidInfo"]["EPGP"][1])
 			
 			-- disabled in minimal mode
-			if not _G[GRA_R_Config]["minimalMode"] then
+			if not GRA_Variables["minimalMode"] then
 				row:CreateGrid(#dateGrids)
 				LoadRowDetail(row)
 			end
@@ -1324,7 +1324,7 @@ function GRA:ShowAttendanceSheet()
 	if GRA:Getn(_G[GRA_R_Roster]) ~= 0 then
 		GRA:Debug("|cff1E90FFLoading attendance sheet|r")
 		
-		if not _G[GRA_R_Config]["minimalMode"] then CreateDateHeader() end
+		if not GRA_Variables["minimalMode"] then CreateDateHeader() end
 		LoadSheet()
 		-- after sheet row loaded set columns and WIDTH!!!
 		GRA:SetColumns()
@@ -1335,7 +1335,7 @@ function GRA:ShowAttendanceSheet()
 		statusFrame:Show()
 
 		-- sort
-		SortSheet(_G[GRA_R_Config]["sortKey"])
+		SortSheet(GRA_Variables["sortKey"])
 
 		membersText:SetText("|cff80FF00" .. L["Members: "] .. "|r" .. GRA:Getn(_G[GRA_R_Roster]))
 		attendanceFrame:UpdateEPGPStrings()
@@ -1393,12 +1393,12 @@ end)
 -- script
 -----------------------------------------
 attendanceFrame:SetScript("OnShow", function()
-	EnableMiniMode(_G[GRA_R_Config]["minimalMode"])
+	EnableMiniMode(GRA_Variables["minimalMode"])
 	LPP:PixelPerfectPoint(gra.mainFrame)
 	if newWidth then gra.mainFrame:SetWidth(newWidth) end
 
 	-- class filter
-	for class,checked in pairs(_G[GRA_R_Config]["classFilter"]) do
+	for class,checked in pairs(GRA_Variables["classFilter"]) do
 		classFilterCBs[class]:SetChecked(checked)
 		-- print(class .. (checked and "√" or "×"))
 	end
@@ -1409,7 +1409,7 @@ attendanceFrame:SetScript("OnShow", function()
 	-- TODO: don't sort every time
 	if #loaded ~= 0 then -- already loaded
 		-- sort on show!
-		SortSheet(_G[GRA_R_Config]["sortKey"])
+		SortSheet(GRA_Variables["sortKey"])
 		return
 	end
 

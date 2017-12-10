@@ -115,7 +115,7 @@ end
 
 -- whether to revieve
 Comm:RegisterComm("GRA_LOGS_ASK", function(prefix, message, channel, sender)
-    if sender == UnitName("player") or _G[GRA_R_Config]["minimalMode"] then return end
+    if sender == UnitName("player") or GRA_Variables["minimalMode"] then return end
     dates = StringToTable(message)
     GRA:CreateStaticPopup(L["Receive Raid Logs"], L["Receive raid logs data from %s?"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))) .. "\n" ..
     GRA:TableToString(dates), -- TODO: text format
