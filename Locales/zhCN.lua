@@ -248,7 +248,7 @@ L["Decay EP and GP by %d%%?"] = "将 EP 与 GP 衰减 %d%%？"
 L["Decayed EP and GP by %d%%."] = "EP 与 GP 已衰减 %d%%。"
 L["Decay Now!"] = "立即衰减！"
 L["Decay EPGP"] = "衰减 EPGP"
-L["Yes - Decay EPEP now.\nNo - Don't ask again this week."] = "是 - 立即衰减 EPGP。\n否 - 本周不再询问。"
+L["Yes - Decay EPGP now.\nNo - Don't ask again this week."] = "是 - 立即衰减 EPGP。\n否 - 本周不再询问。"
 L["Reset EP and GP?"] = "重置 EP 与 GP？"
 L["Reset EPGP"] = "重置 EPGP"
 

@@ -231,7 +231,7 @@ local function ShowRaidDetails(d)
 	for k, detail in pairs(t["details"]) do
 		local b
 		
-		if _G[GRA_R_Config]["useEPGP"] then
+		if _G[GRA_R_Config]["system"] == "EPGP" then
 			b = GRA:CreateDetailButton(detailsFrame.scrollFrame.content, detail)
 		elseif detail[1] == "GP" then
 			b = GRA:CreateDetailButton_NonEPGP(detailsFrame.scrollFrame.content, detail)
@@ -283,7 +283,7 @@ local function ShowRaidDetails(d)
 
 			if gra.isAdmin then
 				b.deleteBtn:Show()
-				if _G[GRA_R_Config]["useEPGP"] then
+				if _G[GRA_R_Config]["system"] == "EPGP" then
 					b.playerText:SetPoint("RIGHT", -25, 0)
 
 					-- delete detail entry
@@ -556,7 +556,7 @@ GRA:RegisterEvent("GRA_PERMISSION", "RaidLogsFrame_CheckPermissions", function(i
 		deleteRaidLogBtn:SetPoint("LEFT", newRaidLogBtn, "RIGHT", 5, 0)
 		attendanceEditorBtn:Show()
 
-		if _G[GRA_R_Config]["useEPGP"] then
+		if _G[GRA_R_Config]["system"] == "EPGP" then
 			gpCreditBtn:Show()
 			epAwardBtn:Show()
 			penalizeBtn:Show()

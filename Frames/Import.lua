@@ -234,7 +234,7 @@ importBtn:SetScript("OnClick", function()
 		if t.checked then  -- show this player
 			if LGN:IsInGuild(n) then
 				-- create new
-				if _G[GRA_R_Config]["useEPGP"] then
+				if _G[GRA_R_Config]["system"] == "EPGP" then
 					-- read EPGP
 					local note = LGN:GetOfficerNote(n)
 					if note then

@@ -66,7 +66,7 @@ end)
 
 -- send roster to player who accepted
 Comm:RegisterComm("GRA_R_ACCEPT", function(prefix, message, channel, sender)
-    GRA:SendRoster({_G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"], _G[GRA_R_Config]["useEPGP"]}, sender)
+    GRA:SendRoster({_G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"], _G[GRA_R_Config]["system"]}, sender)
 end)
 
 -- recieve roster finished
@@ -74,7 +74,7 @@ Comm:RegisterComm("GRA_R_SEND", function(prefix, message, channel, sender)
     local t = StringToTable(message)
     _G[GRA_R_Roster] = t[1]
     _G[GRA_R_Config]["raidInfo"] = t[2]
-    _G[GRA_R_Config]["useEPGP"] = t[3]
+    _G[GRA_R_Config]["system"] = t[3]
 
     GRA:FireEvent("GRA_R_DONE")
 end)

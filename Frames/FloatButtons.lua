@@ -79,7 +79,7 @@ local function CreateItemButton(itemLink, looter)
 
         b:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
-                if _G[GRA_R_Config]["useEPGP"] then
+                if _G[GRA_R_Config]["system"] == "EPGP" then
                     GRA:ShowGPCreditFrame(raidDate, itemLink, nil, looter, _G[GRA_R_RaidLogs][raidDate]["attendees"], nil, b)
                 else
                     GRA:ShowRecordLootFrame(raidDate, itemLink, nil, looter, _G[GRA_R_RaidLogs][raidDate]["attendees"], nil, b)

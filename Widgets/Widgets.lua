@@ -634,7 +634,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	local lastColumn
 	function row:SetColumns()
 		lastColumn = row.nameGrid
-		if _G[GRA_R_Config]["useEPGP"] then
+		if _G[GRA_R_Config]["system"] == "EPGP" then
 			row.epGrid:SetPoint("LEFT", row.nameGrid, "RIGHT", -1, 0)
 			row.epGrid:Show()
 			row.gpGrid:SetPoint("LEFT", row.epGrid, "RIGHT", -1, 0)

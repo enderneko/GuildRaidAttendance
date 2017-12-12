@@ -309,7 +309,7 @@ end
 f:RegisterEvent("ADDON_LOADED")
 f:SetScript("OnEvent", function(self, event, arg)
     if arg == addonName then
-        if _G[GRA_R_Config]["useEPGP"] then
+        if _G[GRA_R_Config]["system"] == "EPGP" then
             LGN.RegisterCallback(f, "GUILD_NOTE_INITIALIZED", GRA.UpdateRosterEPGP)
             GRA:Debug("ADDON_LOADED EPGP enabled.")
         else

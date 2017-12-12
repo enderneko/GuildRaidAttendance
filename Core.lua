@@ -282,8 +282,13 @@ function frame:ADDON_LOADED(arg1)
 			_G[GRA_R_Config]["raidInfo"] = GRA:RemoveElementsByKeys(_G[GRA_R_Config]["raidInfo"], {"deadline"})
 		end
 
-		-- disable epgp by default
-		if type(_G[GRA_R_Config]["useEPGP"]) ~= "boolean" then _G[GRA_R_Config]["useEPGP"] = false end
+		-- if type(_G[GRA_R_Config]["useEPGP"]) ~= "boolean" then _G[GRA_R_Config]["useEPGP"] = false end
+		if type(_G[GRA_R_Config]["system"]) ~= "string" then _G[GRA_R_Config]["system"] = "" end
+		-- previous version
+		if _G[GRA_R_Config]["useEPGP"] then
+			_G[GRA_R_Config]["system"] = "EPGP"
+			_G[GRA_R_Config] = GRA:RemoveElementsByKeys(_G[GRA_R_Config], {"useEPGP"})
+		end
 		
 		-- disable minimal mode by default
 		if type(GRA_Variables["minimalMode"]) ~= "boolean" then GRA_Variables["minimalMode"] = false end

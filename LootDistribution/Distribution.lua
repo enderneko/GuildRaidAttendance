@@ -113,7 +113,7 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
     row.response:SetWordWrap(false)
     row.response:SetPoint("LEFT", row.name, "RIGHT", 5, 0)
 
-    if _G[GRA_R_Config]["useEPGP"] then
+    if _G[GRA_R_Config]["system"] == "EPGP" then
         row.pr = row:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
         row.prValue = GRA:GetPR(playerName) -- sort key
         if row.prValue == 0 then
@@ -128,7 +128,7 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
     
     row.g1 = GRA:CreateIconButton(row, 16, 16)
     row.g1:Hide()
-    if _G[GRA_R_Config]["useEPGP"] then
+    if _G[GRA_R_Config]["system"] == "EPGP" then
         row.g1:SetPoint("LEFT", row.pr, "RIGHT", 5, 0)
     else
         row.g1:SetPoint("LEFT", row.response, "RIGHT", 5, 0)
@@ -239,7 +239,7 @@ local function Sort(itemSig)
         table.insert(sorted, row)
     end
 
-    if _G[GRA_R_Config]["useEPGP"] then
+    if _G[GRA_R_Config]["system"] == "EPGP" then
         table.sort(sorted, function(a, b)
             if a.responseIndex ~= b.responseIndex then
                 return a.responseIndex < b.responseIndex
@@ -427,7 +427,7 @@ local function CreateItemFrame(itemSig, itemLink, count)
     -- hCurrentGear:SetPoint("BOTTOMLEFT", f.scrollFrame, "TOPLEFT", 216, 4)
     -- hNotes:SetPoint("BOTTOMLEFT", f.scrollFrame, "TOPLEFT", 354, 4)
     hResponse:SetPoint("LEFT", hName, 85, 0)
-    if _G[GRA_R_Config]["useEPGP"] then
+    if _G[GRA_R_Config]["system"] == "EPGP" then
         distributionFrame:SetWidth(528)
         hPR:SetPoint("LEFT", hResponse, 105, 0)
         hCurrentGear:SetPoint("LEFT", hPR, 50, 0)
