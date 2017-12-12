@@ -460,7 +460,7 @@ end
 -----------------------------------------
 -- static popup dialog
 -----------------------------------------
-function GRA:CreateStaticPopup(title, text, onAccept, onDecline)
+function GRA:CreateStaticPopup(title, text, onAccept, onDecline) -- button1Text, button2Text
 	if not gra.staticPopup then
 		gra.staticPopup = CreateFrame("Frame", "GRA_StaticPopup")
 		gra.staticPopup:Hide()

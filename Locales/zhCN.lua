@@ -75,6 +75,7 @@ L["Select multiple logs with the Ctrl and Shift keys."] = "通过Ctrl和Shift可
 L["Attendance rate data will be sent ATST."] = "出勤率数据将同时发送。"
 -- new
 L["New Raid Log"] = "新建活动记录"
+L["New raid log"] = "新建活动记录"
 L["Create a new raid log"] = "创建新的活动记录"
 L["After creating it, you can manually edit attendance."] = "创建后，你可以手动修改出勤。"
 L["Create"] = "创建"
@@ -118,6 +119,7 @@ L["Double-click on the second column: "] = "双击第二列："
 L["Select attendance status."] = "选择出勤状态。"
 L["Click on the third column: "] = "单击第三列："
 L["Set join time (Present) / note (Absent)."] = "设置入团时间（出勤） / 备注（缺勤）。"
+L["Saved all attendance changes on %s."] = "%s 的所有出勤改动已保存。"
 
 -------------------------------------------------------
 -- comm
@@ -244,6 +246,9 @@ L["Decay"] = "衰减"
 L["Decay has been set to "] = "衰减已被设置为 "
 L["Decay EP and GP by %d%%?"] = "将 EP 与 GP 衰减 %d%%？"
 L["Decayed EP and GP by %d%%."] = "EP 与 GP 已衰减 %d%%。"
+L["Decay Now!"] = "立即衰减！"
+L["Decay EPGP"] = "衰减 EPGP"
+L["Yes - Decay EPEP now.\nNo - Don't ask again this week."] = "是 - 立即衰减 EPGP。\n否 - 本周不再询问。"
 L["Reset EP and GP?"] = "重置 EP 与 GP？"
 L["Reset EPGP"] = "重置 EPGP"
 

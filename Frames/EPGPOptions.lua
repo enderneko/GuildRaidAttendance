@@ -119,7 +119,7 @@ decayText:SetText("|cff80FF00"..L["Decay"].."|r")
 decayText:SetPoint("TOPLEFT", 5, -167)
 GRA:CreateSeperator(epgpOptionsFrame, decayText)
 
-local decayEditBox = GRA:CreateEditBox(epgpOptionsFrame, 76, 20, true, "GRA_FONT_SMALL")
+local decayEditBox = GRA:CreateEditBox(epgpOptionsFrame, 120, 20, true, "GRA_FONT_SMALL")
 decayEditBox:SetPoint("TOPLEFT", decayText, 0, -20)
 
 local decaySetBtn = GRA:CreateButton(epgpOptionsFrame, L["Set"], nil, {35, 20})
@@ -129,20 +129,9 @@ decaySetBtn:SetScript("OnClick", function()
 	local decay = decayEditBox:GetNumber()
 	decayEditBox:SetNumber(decay)
 	_G[GRA_R_Config]["raidInfo"]["EPGP"][3] = decay
-	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Decay has been set to "] .. decay, "TOPLEFT", decayEditBox, "BOTTOMLEFT", 0, -3)
+	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Decay has been set to "] .. decay .. "%", "TOPLEFT", decayEditBox, "BOTTOMLEFT", 0, -3)
 
 	gra.attendanceFrame:UpdateEPGPStrings()
-end)
-
-local decayBtn = GRA:CreateButton(epgpOptionsFrame, L["Decay"], "red", {45, 20})
-decayBtn:SetPoint("LEFT", decaySetBtn, "RIGHT", -1, 0)
-decayBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. string.format(L["Decay EP and GP by %d%%?"], _G[GRA_R_Config]["raidInfo"]["EPGP"][3]), function()
-		GRA:Decay()
-		-- TODO: announce channel
-    	SendChatMessage("GRA: " .. L["Decayed EP and GP by %d%%."]:format(_G[GRA_R_Config]["raidInfo"]["EPGP"][3]), "GUILD")
-	end, true)
-	confirm:SetPoint("TOPLEFT", decayEditBox, "BOTTOMLEFT", 0, -20)
 end)
 
 decayEditBox:SetScript("OnTextChanged", function()
@@ -153,10 +142,47 @@ decayEditBox:SetScript("OnTextChanged", function()
 	end
 end)
 
+local decayNowEditBox = GRA:CreateEditBox(epgpOptionsFrame, 75, 20, true, "GRA_FONT_SMALL")
+decayNowEditBox:SetPoint("TOPLEFT", decayText, 0, -60)
+
+local decayNowBtn = GRA:CreateButton(epgpOptionsFrame, L["Decay Now!"], "red", {80, 20})
+decayNowBtn:SetPoint("LEFT", decayNowEditBox, "RIGHT", -1, 0)
+decayNowBtn:SetScript("OnClick", function()
+	decayNowEditBox:ClearFocus()
+	local decayP = (decayNowEditBox:GetNumber() >= 100) and 100 or decayNowEditBox:GetNumber()
+	if decayP == 0 then return end
+
+	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. string.format(L["Decay EP and GP by %d%%?"], decayP), function()
+		GRA:Decay(decayP)
+    	SendChatMessage("GRA: " .. L["Decayed EP and GP by %d%%."]:format(decayP), "GUILD")
+	end, true)
+	confirm:SetPoint("TOPLEFT", decayNowEditBox)
+end)
+
 -----------------------------------------
--- announce
+-- decay static popup
 -----------------------------------------
--- TODO: announce channel
+GRA:RegisterEvent("GRA_PERMISSION", "DecayEPGP_CheckPermissions", function(isAdmin)
+	-- _G[GRA_R_Config]["raidInfo"]["lastDecayed"] = "20171130"
+	if not isAdmin then return end
+	local current = GRA:GetLockoutsResetDate()
+	-- init
+	_G[GRA_R_Config]["raidInfo"]["lastDecayed"] = _G[GRA_R_Config]["raidInfo"]["lastDecayed"] or current
+	
+	if _G[GRA_R_Config]["raidInfo"]["lastDecayed"] < current then
+		C_Timer.After(2, function()
+			local decayP = _G[GRA_R_Config]["raidInfo"]["EPGP"][3]
+			GRA:CreateStaticPopup(L["Decay EPGP"], L["Decay EP and GP by %d%%?"]:format(decayP)
+			.. "\n" .. gra.colors.grey.s .. L["Yes - Decay EPEP now.\nNo - Don't ask again this week."], function()
+				_G[GRA_R_Config]["raidInfo"]["lastDecayed"] = current
+				GRA:Decay(decayP)
+				SendChatMessage("GRA: " .. L["Decayed EP and GP by %d%%."]:format(decayP), "GUILD")
+			end, function()
+				_G[GRA_R_Config]["raidInfo"]["lastDecayed"] = current
+			end)
+		end)
+	end
+end)
 
 -----------------------------------------
 -- reset

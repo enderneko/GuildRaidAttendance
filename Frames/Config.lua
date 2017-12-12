@@ -382,8 +382,6 @@ configFrame:SetScript("OnUpdate", function(self, elapsed)
 	modifyBtn:SetEnabled(f)
 	-- disabled while sending
 	sendRosterBtn:SetEnabled(f and GRA:CheckSendFinished())
-
-	importBtn:SetEnabled(not InCombatLockdown())
 end)
 
 -----------------------------------------

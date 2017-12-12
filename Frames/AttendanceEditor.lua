@@ -170,7 +170,7 @@ SaveChanges = function()
     changes = {}
     -- refresh date detail
     dateButton:Click()
-    GRA:Print(L["Saved all member changes on %s."]:format(date("%x", GRA:DateToTime(dateString))))
+    GRA:Print(L["Saved all attendance changes on %s."]:format(date("%x", GRA:DateToTime(dateString))))
     -- re-check attendances
     CheckAttendances(dateString)
     -- update attendance sheet & raid logs

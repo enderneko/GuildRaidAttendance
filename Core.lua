@@ -26,12 +26,12 @@ end
 -----------------------------------------
 -- constants & variables
 -----------------------------------------
-local region = GetCVar("portal")
-if region == "CN" then
+local region = string.lower(GetCVar("portal"))
+if region == "cn" or region == "tw" or region == "kr" then
 	gra.RAID_LOCKOUTS_RESET = 5 -- Thursday
-elseif region == "EU" then
+elseif region == "eu" then
 	gra.RAID_LOCKOUTS_RESET = 4 -- Wednesday
-else
+else -- us
 	gra.RAID_LOCKOUTS_RESET = 3 -- Tuesday
 end
 -- gra.CLASS_ORDER = {"WARRIOR", "HUNTER", "SHAMAN", "MONK", "ROGUE", "MAGE", "DRUID", "DEATHKNIGHT", "PALADIN", "PRIEST", "WARLOCK", "DEMONHUNTER"}
@@ -272,6 +272,7 @@ function frame:ADDON_LOADED(arg1)
 				["EPGP"] = {100, 0, 10},
 				["days"] = {gra.RAID_LOCKOUTS_RESET},
 				["startTime"] = "19:30",
+				["lastDecayed"] = GRA:GetLockoutsResetDate(),
 			}
 		end
 
@@ -420,6 +421,9 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		GRA_A_Variables["size"] = "large"
 	elseif command == "testN" then
 		GRA_A_Variables["size"] = "normal"
+	elseif command == "font" then
+		rest = tonumber(rest)
+		GRA_FONT_TEXT:SetFont(GRA_FONT_TEXT:GetFont(), rest or 11)
 	--@end-debug@
 	end
 end

@@ -48,8 +48,9 @@ end
 -----------------------------------------
 -- decay
 -----------------------------------------
-function GRA:Decay()
-    local decay = _G[GRA_R_Config]["raidInfo"]["EPGP"][3] / 100
+function GRA:Decay(p)
+    -- local decay = _G[GRA_R_Config]["raidInfo"]["EPGP"][3] / 100
+    local decay = p / 100
     local baseGP = _G[GRA_R_Config]["raidInfo"]["EPGP"][1]
     local ep, gp
     for name, _ in pairs(_G[GRA_R_Roster]) do
@@ -310,10 +311,9 @@ f:SetScript("OnEvent", function(self, event, arg)
     if arg == addonName then
         if _G[GRA_R_Config]["useEPGP"] then
             LGN.RegisterCallback(f, "GUILD_NOTE_INITIALIZED", GRA.UpdateRosterEPGP)
-            GRA:Debug("EPGP enabled.")
+            GRA:Debug("ADDON_LOADED EPGP enabled.")
         else
-            GRA:Debug("EPGP disabled.")
-            LGN:SetEnabled(false)
+            GRA:Debug("ADDON_LOADED EPGP enabled.")
         end
     end
 end)
@@ -323,11 +323,10 @@ function GRA:SetEPGPEnabled(enabled)
         GRA:Print(L["EPGP enabled."])
         LGN.RegisterCallback(f, "GUILD_NOTE_INITIALIZED", GRA.UpdateRosterEPGP)
         -- init
-        LGN:SetEnabled(true)
+        LGN:Reinitialize()
         GRA:FireEvent("GRA_SYSTEM", "EPGP")
     else
         GRA:Print(L["EPGP disabled."])
-        LGN:SetEnabled(false)
         GRA:FireEvent("GRA_SYSTEM", "NONE")
     end
 end
