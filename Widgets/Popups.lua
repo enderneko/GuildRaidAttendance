@@ -190,9 +190,9 @@ end
 -- end
 
 -----------------------------------------
--- data transfer popup (receiver-side)
+-- data transfer popup
 -----------------------------------------
-function GRA:CreateDataTransferReceivePopup(text, total, onHide)
+function GRA:CreateDataTransferPopup(text, total, onHide)
 	if not total then total = 0 end
 
 	local frame = CreateFrame("Frame")
@@ -313,6 +313,7 @@ end
 -----------------------------------------
 -- data transfer popup (sender-side)
 -----------------------------------------
+--[===[
 local sendPopups, sendPopupsIndex = {}, {}
 local function ShowSendPopups()
 	for k, n in pairs(sendPopupsIndex) do
@@ -456,6 +457,7 @@ function GRA:CreateDataTransferSendPopup(name, total, onHide)
 
 	return frame
 end
+]===]
 
 -----------------------------------------
 -- static popup dialog

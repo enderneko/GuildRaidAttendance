@@ -9,7 +9,8 @@ TODO:
 
 version r74-release
 ------------------------
-    * Fixed profile bugs
+    * Fixed profile bugs.
+    * Fixed attendance frame bugs (auto refresh EPGP).
     * Increased the speed of sending roster and logs.
 
 version r73-release

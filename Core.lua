@@ -198,6 +198,34 @@ font_pixel:SetJustifyH("CENTER")
 -- font_loot:SetFont(font, 10, "OUTLINE")
 -- font_loot:SetJustifyH("CENTER")
 
+-- force update font!!!
+function GRA:UpdateFont()
+	-- update font & fontsize
+	if GRA_A_Variables["useGameFont"] then
+		GRA_FONT_SMALL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
+		GRA_FONT_SMALL_DISABLED:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
+		GRA_FONT_NORMAL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
+		GRA_FONT_TEXT:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
+		GRA_FONT_TEXT2:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+1)
+		GRA_FONT_TEXT3:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
+		GRA_FONT_TITLE:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
+		GRA_FONT_GRID:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
+	else
+		GRA_FONT_TOOLTIP_NORMAL:SetFont(GRA_FONT_TOOLTIP_NORMAL:GetFont(), gra.size.fontSize+2)
+		GRA_FONT_TOOLTIP_SMALL:SetFont(GRA_FONT_TOOLTIP_SMALL:GetFont(), gra.size.fontSize)
+		GRA_FONT_SMALL:SetFont(GRA_FONT_SMALL:GetFont(), gra.size.fontSize)
+		GRA_FONT_SMALL_DISABLED:SetFont(GRA_FONT_SMALL_DISABLED:GetFont(), gra.size.fontSize)
+		GRA_FONT_NORMAL:SetFont(GRA_FONT_NORMAL:GetFont(), gra.size.fontSize+2)
+		GRA_FONT_TEXT:SetFont(GRA_FONT_TEXT:GetFont(), gra.size.fontSize)
+		GRA_FONT_TEXT2:SetFont(GRA_FONT_TEXT2:GetFont(), gra.size.fontSize+1)
+		GRA_FONT_TEXT3:SetFont(GRA_FONT_TEXT3:GetFont(), gra.size.fontSize+2)
+		GRA_FONT_TITLE:SetFont(GRA_FONT_TITLE:GetFont(), gra.size.fontSize+2)
+		GRA_FONT_BUTTON:SetFont(GRA_FONT_BUTTON:GetFont(), gra.size.fontSize+4)
+		GRA_FONT_GRID:SetFont(GRA_FONT_GRID:GetFont(), gra.size.fontSize)
+		GRA_FONT_PIXEL:SetFont(GRA_FONT_PIXEL:GetFont(), gra.size.fontSize-5, "MONOCHROME")
+	end
+end
+
 -----------------------------------------
 -- LDB
 -----------------------------------------
@@ -324,30 +352,7 @@ function frame:ADDON_LOADED(arg1)
 
 		gra.version = GetAddOnMetadata(addonName, "version")
 
-		-- update font & fontsize
-		if GRA_A_Variables["useGameFont"] then
-			GRA_FONT_SMALL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
-			GRA_FONT_SMALL_DISABLED:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
-			GRA_FONT_NORMAL:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
-			GRA_FONT_TEXT:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
-			GRA_FONT_TEXT2:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+1)
-			GRA_FONT_TEXT3:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
-			GRA_FONT_TITLE:SetFont(GameFontNormal:GetFont(), gra.size.fontSize+2)
-			GRA_FONT_GRID:SetFont(GameFontNormal:GetFont(), gra.size.fontSize)
-		else
-			GRA_FONT_TOOLTIP_NORMAL:SetFont(GRA_FONT_TOOLTIP_NORMAL:GetFont(), gra.size.fontSize+2)
-			GRA_FONT_TOOLTIP_SMALL:SetFont(GRA_FONT_TOOLTIP_SMALL:GetFont(), gra.size.fontSize)
-			GRA_FONT_SMALL:SetFont(GRA_FONT_SMALL:GetFont(), gra.size.fontSize)
-			GRA_FONT_SMALL_DISABLED:SetFont(GRA_FONT_SMALL_DISABLED:GetFont(), gra.size.fontSize)
-			GRA_FONT_NORMAL:SetFont(GRA_FONT_NORMAL:GetFont(), gra.size.fontSize+2)
-			GRA_FONT_TEXT:SetFont(GRA_FONT_TEXT:GetFont(), gra.size.fontSize)
-			GRA_FONT_TEXT2:SetFont(GRA_FONT_TEXT2:GetFont(), gra.size.fontSize+1)
-			GRA_FONT_TEXT3:SetFont(GRA_FONT_TEXT3:GetFont(), gra.size.fontSize+2)
-			GRA_FONT_TITLE:SetFont(GRA_FONT_TITLE:GetFont(), gra.size.fontSize+2)
-			GRA_FONT_BUTTON:SetFont(GRA_FONT_BUTTON:GetFont(), gra.size.fontSize+4)
-			GRA_FONT_GRID:SetFont(GRA_FONT_GRID:GetFont(), gra.size.fontSize)
-			GRA_FONT_PIXEL:SetFont(GRA_FONT_PIXEL:GetFont(), gra.size.fontSize-5, "MONOCHROME")
-		end
+		GRA:UpdateFont()
 	end
 end
 
@@ -411,10 +416,10 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		if rest == "receivePopup" then
 			local class = select(2, UnitClass("player"))
 			local name = GRA:GetClassColoredName(strjoin("-",UnitFullName("player")), class)
-			local p = GRA:CreateDataTransferReceivePopup(format("Receiving roster data from %s", name), 300)
+			local p = GRA:CreateDataTransferPopup(format("Receiving roster data from %s", name), 300)
 			p:Test(true)
 		elseif rest == "sendPopup" then
-			local p = GRA:CreateDataTransferSendPopup("player" .. num, 100)
+			local p = GRA:CreateDataTransferSendPopup2("player" .. num, 100)
 			p:Test(true)
 			num = num + 1
 		elseif rest == "popup" then

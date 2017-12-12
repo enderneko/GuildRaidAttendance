@@ -118,7 +118,7 @@ sendToRaidBtn:SetScript("OnClick", function()
 end)
 -- disabled while sending
 sendToRaidBtn:SetScript("OnUpdate", function()
-	sendToRaidBtn:SetEnabled(GRA:CheckSendFinished())
+	sendToRaidBtn:SetEnabled(IsInGroup("LE_PARTY_CATEGORY_HOME") and not gra.sending)
 end)
 
 local newRaidLogBtn = GRA:CreateButton(statusFrame, L["New Raid Log"], "blue", {100, 20}, nil, false,

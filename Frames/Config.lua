@@ -378,10 +378,9 @@ end)
 
 configFrame:SetScript("OnUpdate", function(self, elapsed)
 	local f = GRA:Getn(_G[GRA_R_Roster]) ~= 0
-	-- nullBtn:SetEnabled(f)
 	modifyBtn:SetEnabled(f)
 	-- disabled while sending
-	sendRosterBtn:SetEnabled(f and GRA:CheckSendFinished())
+	sendRosterBtn:SetEnabled(f and IsInGroup("LE_PARTY_CATEGORY_HOME") and not gra.sending)
 end)
 
 -----------------------------------------

@@ -28,156 +28,216 @@ local function StringToTable(inString)
     return deserialized
 end
 
+local eventFrame = CreateFrame("Frame")
+eventFrame:SetScript("OnEvent", function(self, event, ...)
+	self[event](self, ...)
+end)
+
+local sendChannel
+local function UpdateSendChannel()
+    if IsInRaid() then
+        sendChannel = "RAID"
+    else
+        sendChannel = "PARTY"
+    end
+end
+
 -----------------------------------------
 -- send roster
 -----------------------------------------
-local receiveRosterPopup
--- send roster data and raidInfo to a raid member
--- _G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"]
-function GRA:SendRoster(sheetTable, targetName)
-    local encoded = TableToString(sheetTable)
-    -- send roster
-    Comm:SendCommMessage("GRA_R_SEND", encoded, "WHISPER", targetName, "BULK", function(arg, done, total)
-        local popup = GRA:CreateDataTransferSendPopup(targetName, total)
-        popup:SetValue(done)
-        -- send progress
-        Comm:SendCommMessage("GRA_R_PROG", done.."|"..total, "WHISPER", targetName, "ALERT")
-    end)
+local receiveRosterPopup, sendRosterPopup, rosterAccepted, rosterReceived, receivedRoster
+local function OnRosterReceived()
+    if rosterAccepted and rosterReceived and receivedRoster then
+        _G[GRA_R_Roster] = receivedRoster[1]
+        _G[GRA_R_Config]["raidInfo"] = receivedRoster[2]
+        _G[GRA_R_Config]["system"] = receivedRoster[3]
+
+        GRA:FireEvent("GRA_R_DONE")
+        wipe(receivedRoster)
+    end
 end
 
+-- send roster data and raidInfo to raid members
 function GRA:SendRosterToRaid()
-    Comm:SendCommMessage("GRA_R_ASK", "", "RAID", nil, "BULK")
+    Comm:SendCommMessage("GRA_R_ASK", "", "RAID", nil, "ALERT")
+    sendRosterPopup = nil
+    gra.sending = true
+
+    local encoded = TableToString({_G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"], _G[GRA_R_Config]["system"]})
+    UpdateSendChannel()
+    -- send roster
+    Comm:SendCommMessage("GRA_R_SEND", encoded, sendChannel, nil, "BULK", function(arg, done, total)
+        if not sendRosterPopup then
+            sendRosterPopup = GRA:CreateDataTransferPopup(gra.colors.chartreuse.s..L["Sending roster data"], total, function()
+                gra.sending = false
+            end)
+        end
+        sendRosterPopup:SetValue(done)
+        -- send progress
+        Comm:SendCommMessage("GRA_R_PROG", done.."|"..total, sendChannel, nil, "ALERT")
+    end)
 end
 
 -- whether to revieve
 Comm:RegisterComm("GRA_R_ASK", function(prefix, message, channel, sender)
     if sender == UnitName("player") then return end
+
+    rosterAccepted = false
+    rosterReceived = false
+
     GRA:CreateStaticPopup(L["Receive Raid Roster"], L["Receive roster data from %s?"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))),
     function()
-        -- on accept, members send a message to RL
-        Comm:SendCommMessage("GRA_R_ACCEPT", "", "WHISPER", sender, "BULK")
+        rosterAccepted = true
+        OnRosterReceived() -- maybe already received
 
         -- if receving then hide it immediately
         if receiveRosterPopup then receiveRosterPopup:Hide() end
         -- init
         receiveRosterPopup = nil
+    end, function()
+        rosterAccepted = false
     end)
-end)
-
--- send roster to player who accepted
-Comm:RegisterComm("GRA_R_ACCEPT", function(prefix, message, channel, sender)
-    GRA:SendRoster({_G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"], _G[GRA_R_Config]["system"]}, sender)
 end)
 
 -- recieve roster finished
 Comm:RegisterComm("GRA_R_SEND", function(prefix, message, channel, sender)
-    local t = StringToTable(message)
-    _G[GRA_R_Roster] = t[1]
-    _G[GRA_R_Config]["raidInfo"] = t[2]
-    _G[GRA_R_Config]["system"] = t[3]
-
-    GRA:FireEvent("GRA_R_DONE")
+    if sender == UnitName("player") then return end
+    
+    receivedRoster = StringToTable(message)
+    rosterReceived = true
+    OnRosterReceived()
 end)
 
 -- recieve roster progress
 Comm:RegisterComm("GRA_R_PROG", function(prefix, message, channel, sender)
+    if sender == UnitName("player") then return end
+    
+    if not rosterAccepted then return end
+
     local done, total = strsplit("|", message)
     done, total = tonumber(done), tonumber(total)
     if not receiveRosterPopup then
-        receiveRosterPopup = GRA:CreateDataTransferReceivePopup(L["Receiving roster data from %s"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))), total)
+        receiveRosterPopup = GRA:CreateDataTransferPopup(L["Receiving roster data from %s"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))), total)
     end
     -- progress bar
     receiveRosterPopup:SetValue(done)
-    -- GRA:Debug("GRA_R_PROG: " .. message)
 end)
 
 -----------------------------------------
 -- send logs
 -----------------------------------------
-local receiveLogsPopup
+local receiveLogsPopup, sendLogsPopup, logsAccepted, logsReceived, receivedLogs
 local dates
-function GRA:SendLogs(logsTable, targetName)
-    local encoded = TableToString(logsTable)
-    -- send logs
-    Comm:SendCommMessage("GRA_LOGS_SEND", encoded, "WHISPER", targetName, "BULK", function(arg, done, total)
-        local popup = GRA:CreateDataTransferSendPopup(targetName, total)
-        popup:SetValue(done)
-        -- send progress
-        Comm:SendCommMessage("GRA_LOGS_PROG", done.."|"..total, "WHISPER", targetName, "ALERT")
-    end)
+local function OnLogsReceived()
+    if logsAccepted and logsReceived and receivedLogs then
+        for d, tbl in pairs(receivedLogs[1]) do
+            _G[GRA_R_RaidLogs][d] = tbl
+        end
+        -- TODO: send AR only, not all _G[GRA_R_Roster]
+        _G[GRA_R_Roster] = receivedLogs[2]
+        -- tell addon to show logs
+        GRA:FireEvent("GRA_LOGS_DONE", GRA:Getn(receivedLogs[1]), dates)
+        wipe(receivedLogs)
+    end
 end
 
 function GRA:SendLogsToRaid(selectedDates)
     dates = selectedDates
     local encoded = TableToString(selectedDates)
-    Comm:SendCommMessage("GRA_LOGS_ASK", encoded, "RAID", nil, "BULK")
+    Comm:SendCommMessage("GRA_LOGS_ASK", encoded, "RAID", nil, "ALERT")
+    sendLogsPopup = nil
+    gra.sending = true
+
+    local t = {}
+    for _, d in pairs(selectedDates) do
+        t[d] = _G[GRA_R_RaidLogs][d]
+    end
+    -- TODO: send AR only, not all _G[GRA_R_Roster]
+    encoded = TableToString({t, _G[GRA_R_Roster]})
+    UpdateSendChannel()
+    -- send logs
+    Comm:SendCommMessage("GRA_LOGS_SEND", encoded, sendChannel, nil, "BULK", function(arg, done, total)
+        if not sendLogsPopup then
+            sendLogsPopup = GRA:CreateDataTransferPopup(gra.colors.chartreuse.s..L["Sending raid logs data"], total, function()
+                gra.sending = false
+            end)
+        end
+        sendLogsPopup:SetValue(done)
+        -- send progress
+        Comm:SendCommMessage("GRA_LOGS_PROG", done.."|"..total, sendChannel, nil, "ALERT")
+    end)
 end
 
 -- whether to revieve
 Comm:RegisterComm("GRA_LOGS_ASK", function(prefix, message, channel, sender)
     if sender == UnitName("player") or GRA_Variables["minimalMode"] then return end
+
+    logsAccepted = false
+    logsReceived = false
+
     dates = StringToTable(message)
     GRA:CreateStaticPopup(L["Receive Raid Logs"], L["Receive raid logs data from %s?"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))) .. "\n" ..
     GRA:TableToString(dates), -- TODO: text format
     function()
-        -- on accept, members send a message to RL
-        Comm:SendCommMessage("GRA_LOGS_ACCEPT", "", "WHISPER", sender, "BULK")
+        logsAccepted = true
+        OnLogsReceived()
 
         -- if receving then hide it immediately
         if receiveLogsPopup then receiveLogsPopup:Hide() end
         -- init
         receiveLogsPopup = nil
+    end, function()
+        logsAccepted = false
     end)
-end)
-
--- send logs data to player who accepted
-Comm:RegisterComm("GRA_LOGS_ACCEPT", function(prefix, message, channel, sender)
-    local t = {}
-    for _, d in pairs(dates) do
-        t[d] = _G[GRA_R_RaidLogs][d]
-    end
-    -- TODO: send AR only, not all _G[GRA_R_Roster]
-    GRA:SendLogs({t, _G[GRA_R_Roster]}, sender)
 end)
 
 -- "recieve logs data" finished
 Comm:RegisterComm("GRA_LOGS_SEND", function(prefix, message, channel, sender)
-    local t = StringToTable(message)
-    for d, tbl in pairs(t[1]) do
-        _G[GRA_R_RaidLogs][d] = tbl
-    end
-    -- TODO: send AR only, not all _G[GRA_R_Roster]
-    _G[GRA_R_Roster] = t[2]
-    -- tell addon to show logs
-    GRA:FireEvent("GRA_LOGS_DONE", GRA:Getn(t[1]), dates)
+    if sender == UnitName("player") then return end
+
+    receivedLogs = StringToTable(message)
+    logsReceived = true
+    OnLogsReceived()
 end)
 
 -- "recieve logs data" progress
 Comm:RegisterComm("GRA_LOGS_PROG", function(prefix, message, channel, sender)
+    if sender == UnitName("player") then return end
+
+    if not logsAccepted then return end
+
     local done, total = strsplit("|", message)
     done, total = tonumber(done), tonumber(total)
     if not receiveLogsPopup then
         -- UnitClass(name) is available for raid/party members
-        receiveLogsPopup = GRA:CreateDataTransferReceivePopup(L["Receiving raid logs data from %s"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))), total)
+        receiveLogsPopup = GRA:CreateDataTransferPopup(L["Receiving raid logs data from %s"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))), total)
     end
     -- progress bar
     receiveLogsPopup:SetValue(done)
-    -- GRA:Debug("GRA_LOGS_PROG: " .. message)
 end)
 
+-----------------------------------------
+-- hide data transfer popup when leave group
+-----------------------------------------
+eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+function eventFrame:GROUP_ROSTER_UPDATE()
+    if not IsInGroup("LE_PARTY_CATEGORY_HOME") then
+        if receiveRosterPopup then receiveRosterPopup.fadeOut:Play() end
+        if receiveLogsPopup then receiveLogsPopup.fadeOut:Play() end
+    end
+end
 
 -----------------------------------------
 -- Check Version
 -----------------------------------------
-local f = CreateFrame("Frame")
 local versionChecked = false
-f:RegisterEvent("PLAYER_ENTERING_WORLD")
-f:SetScript("OnEvent", function()
-    f:UnregisterEvent("PLAYER_ENTERING_WORLD")
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+function eventFrame:PLAYER_ENTERING_WORLD()
+    eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
     if IsInGuild() then
         Comm:SendCommMessage("GRA_VERSION", gra.version, "GUILD", nil, "BULK")
     end
-end)
+end
 
 Comm:RegisterComm("GRA_VERSION", function(prefix, message, channel, sender)
     if sender == UnitName("player") then return end
