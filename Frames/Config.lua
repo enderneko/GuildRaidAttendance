@@ -391,7 +391,7 @@ GRA:RegisterEvent("GRA_R_DONE", "ConfigFrame_RosterReceived", function()
 	_G[GRA_R_Config]["lastUpdatedTime"] = date("%x")
 	rosterUserLastUpdatedText:SetText(L["Last updated time: "] .. "|cff0080FF" .. _G[GRA_R_Config]["lastUpdatedTime"])
 	-- enable/disable EPGP
-	GRA:SetEPGPEnabled(_G[GRA_R_Config]["system"] == "EPGP")
+	GRA:SetEPGPEnabled(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP")
 	RefreshRaidSchedule()
 	GRA:ShowAttendanceSheet()
 end)
@@ -405,7 +405,7 @@ local function EnableMiniMode(f)
 	end
 	setBtn:SetEnabled(not f)
 
-	if _G[GRA_R_Config]["system"] == "" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "" then
 		ar30CB:SetEnabled(not f)
 		ar60CB:SetEnabled(not f)
 		ar90CB:SetEnabled(not f)

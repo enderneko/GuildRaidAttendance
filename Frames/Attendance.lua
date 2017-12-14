@@ -78,7 +78,7 @@ SortSheetByName = function()
 end
 
 SortSheetByClass = function()
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		-- class pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.class ~= b.class then
@@ -112,7 +112,7 @@ SortSheetByClass = function()
 end
 
 SortSheetByAR = function()
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		-- ar pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.arLifetime ~= b.arLifetime then
@@ -148,7 +148,7 @@ SortSheetByAR = function()
 end
 
 SortSheetByAR30 = function()
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		-- ar30 pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.ar30 ~= b.ar30 then
@@ -184,7 +184,7 @@ SortSheetByAR30 = function()
 end
 
 SortSheetByAR60 = function()
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		-- ar60 pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.ar60 ~= b.ar60 then
@@ -220,7 +220,7 @@ SortSheetByAR60 = function()
 end
 
 SortSheetByAR90 = function()
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		-- ar90 pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.ar90 ~= b.ar90 then
@@ -396,7 +396,7 @@ local refreshBtn = GRA:CreateButton(statusFrame, L["Refresh"], nil, {55, 20}, "G
 -- refreshBtn:SetPoint("BOTTOMRIGHT", 0, 1)
 refreshBtn:SetFrameLevel(8)
 refreshBtn:SetScript("OnClick", function()
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		GRA:RefreshEPGP()
 	end
 	GRA:ShowAttendanceSheet()
@@ -612,7 +612,7 @@ function GRA:SetColumns()
 
 	local lastColumn = nameText
 
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		epText:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 		epText:Show()
 		gpText:SetPoint("LEFT", epText, "RIGHT", -1, 0)
@@ -1074,7 +1074,7 @@ local function CountAll()
 	-- count each day in sheet
 	for k, dateGrid in pairs(dateGrids) do
 		local d = dateGrid.date
-		if _G[GRA_R_Config]["system"] == "EPGP" then
+		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 			CountByDate(d)
 		else
 			CountByDate_NonEPGP(d)
@@ -1192,7 +1192,7 @@ local function RefreshDetailsByDate(d)
 	end
 
 	-- count on this day
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		CountByDate(d)
 	else
 		CountByDate_NonEPGP(d)
@@ -1349,7 +1349,7 @@ function GRA:ShowAttendanceSheet()
 	-- schedule changed (mainFrame's width changed) may cause frame not pixel perfect, fix it!
 	LPP:PixelPerfectPoint(gra.mainFrame)
 
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		-- register/unregister GUILD_OFFICER_NOTE_CHANGED
 		GRA:UpdateRosterEPGP()
 	end

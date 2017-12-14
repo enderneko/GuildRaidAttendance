@@ -269,9 +269,10 @@ end
 function GRA:Date()
 	local sec = time()
 	-- local t = date("*t", sec)
-	local year, month, day =  date("%Y", sec), date("%m", sec), date("%d", sec)
-	local hour, minute = date("%H", sec), date("%M", sec)
-	return year..month..day, hour..":"..minute
+	-- local year, month, day =  date("%Y", sec), date("%m", sec), date("%d", sec)
+	-- local hour, minute = date("%H", sec), date("%M", sec)
+	-- return year..month..day, hour..":"..minute
+	return date("%Y%m%d", sec), date("%H:%M", sec)
 end
 
 -- get lockout reset day of this "week", init _G[GRA_R_Config]["startDate"]
@@ -295,7 +296,7 @@ function GRA:NextDate(d, offset)
 	local month = string.sub(d, 5, 6)
 	local day = string.sub(d, 7, 8) + offset
 	local sec = time({["year"]=year, ["month"]=month, ["day"]=day})
-	return date("%Y", sec)..date("%m", sec)..date("%d", sec)
+	return date("%Y%m%d", sec)
 end
 
 -- 2017033112:30
@@ -314,8 +315,7 @@ end
 
 function GRA:SecondsToTime(s)
 	s = tonumber(s)
-	local hour, minute = date("%H", s), date("%M", s)
-	return hour..":"..minute
+	return date("%H:%M", s)
 end
 
 function GRA:GetRaidStartTime(d)

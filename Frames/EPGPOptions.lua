@@ -35,21 +35,21 @@ end
 
 local epgpCB = GRA:CreateCheckButton(epgpOptionsFrame, L["Enable EPGP"], nil, function(checked, cb)
 	-- restore check stat
-	cb:SetChecked(_G[GRA_R_Config]["system"] == "EPGP")
+	cb:SetChecked(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP")
 
 	local text
-	if _G[GRA_R_Config]["system"] == "EPGP" then
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		text = gra.colors.firebrick.s .. L["Disable EPGP?"]
 	else
 		text = gra.colors.firebrick.s .. L["Enable EPGP?"] .. "|r\n" .. L["EPGP system stores its data in officer notes.\nYou'd better back up your officer notes before using EPGP.\nAnd you should revoke the privilege to edit officer note from most of guild members."]
 	end
 	-- confirm box
 	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, text, function()
-		_G[GRA_R_Config]["system"] = (_G[GRA_R_Config]["system"] == "EPGP") and "" or "EPGP"
-		ShowMask(_G[GRA_R_Config]["system"] ~= "EPGP")
-		cb:SetChecked(_G[GRA_R_Config]["system"] == "EPGP")
+		_G[GRA_R_Config]["raidInfo"]["system"] = (_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP") and "" or "EPGP"
+		ShowMask(_G[GRA_R_Config]["raidInfo"]["system"] ~= "EPGP")
+		cb:SetChecked(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP")
 		-- enable/disable EPGP
-		GRA:SetEPGPEnabled(_G[GRA_R_Config]["system"] == "EPGP")
+		GRA:SetEPGPEnabled(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP")
 	end)
 	confirm:SetPoint("TOP", 0, -45)
 end, "GRA_FONT_SMALL", L["Enable EPGP"], L["Check to use EPGP system for your raid team."])
@@ -163,22 +163,28 @@ end)
 -- decay static popup
 -----------------------------------------
 GRA:RegisterEvent("GRA_PERMISSION", "DecayEPGP_CheckPermissions", function(isAdmin)
-	-- _G[GRA_R_Config]["raidInfo"]["lastDecayed"] = "20171130"
-	if not isAdmin then return end
+	-- _G[GRA_R_Config]["lastDecayed"] = "20171130"
+	if (not isAdmin) or (_G[GRA_R_Config]["raidInfo"]["system"] ~= "EPGP") then return end
+
 	local current = GRA:GetLockoutsResetDate()
 	-- init
-	_G[GRA_R_Config]["raidInfo"]["lastDecayed"] = _G[GRA_R_Config]["raidInfo"]["lastDecayed"] or current
+	_G[GRA_R_Config]["lastDecayed"] = _G[GRA_R_Config]["lastDecayed"] or current
 	
-	if _G[GRA_R_Config]["raidInfo"]["lastDecayed"] < current then
+	if _G[GRA_R_Config]["lastDecayed"] < current then
+		if current == GRA:Date() then -- reset day, but may not reset yet
+			local resetDay = date("%Y%m%d", time() + GetQuestResetTime())
+			if resetDay == current then return end -- not reset yet
+		end
+
 		C_Timer.After(2, function()
 			local decayP = _G[GRA_R_Config]["raidInfo"]["EPGP"][3]
 			GRA:CreateStaticPopup(L["Decay EPGP"], L["Decay EP and GP by %d%%?"]:format(decayP)
 			.. "\n" .. gra.colors.grey.s .. L["Yes - Decay EPGP now.\nNo - Don't ask again this week."], function()
-				_G[GRA_R_Config]["raidInfo"]["lastDecayed"] = current
+				_G[GRA_R_Config]["lastDecayed"] = current
 				GRA:Decay(decayP)
 				SendChatMessage("GRA: " .. L["Decayed EP and GP by %d%%."]:format(decayP), "GUILD")
 			end, function()
-				_G[GRA_R_Config]["raidInfo"]["lastDecayed"] = current
+				_G[GRA_R_Config]["lastDecayed"] = current
 			end)
 		end)
 	end
@@ -197,8 +203,8 @@ resetBtn:SetScript("OnClick", function()
 end)
 
 epgpOptionsFrame:SetScript("OnShow", function()
-	epgpCB:SetChecked(_G[GRA_R_Config]["system"] == "EPGP")
-	ShowMask(not (_G[GRA_R_Config]["system"] == "EPGP"))
+	epgpCB:SetChecked(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP")
+	ShowMask(not (_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP"))
 	baseGPEditbox:SetText(_G[GRA_R_Config]["raidInfo"]["EPGP"][1])
 	minEPEditBox:SetText(_G[GRA_R_Config]["raidInfo"]["EPGP"][2])
 	decayEditBox:SetText(_G[GRA_R_Config]["raidInfo"]["EPGP"][3])

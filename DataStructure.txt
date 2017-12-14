@@ -42,12 +42,13 @@ GRA_Roster = {
 ╚========================╝
 GRA_Config = {
 	["raidInfo"] = {
-		["name"] = (string),
 		["EPGP"] = {baseGP, minEP, decay},
 		["startTime"] = "19:30",
 		["days"]={4,5,1,2},
+		["system"] = (string),
 	},
 	["lastRaidDate"] = (string),
+	["lastDecayed"] = (string),
 	["startDate"] = (string),
 	["enableLootDistr"] = (boolean),
 	["replies"] = {reply1, reply2, reply3, ...},

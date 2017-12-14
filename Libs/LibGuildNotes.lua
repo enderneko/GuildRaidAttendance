@@ -43,7 +43,7 @@ function lib:GetOfficerNote(name)
 	return nil
 end
 
-local function SetNote(type, name, note, isRetry)
+local function SetNote(noteType, name, note, isRetry)
 	if not cache[name] then
 		Print(name .. " is not in your guild.")
 		return
@@ -64,16 +64,16 @@ local function SetNote(type, name, note, isRetry)
 		-- Print("    Name(should be):" .. name, true)
 		-- Print("    Name(current index): " .. nameCurrentIndex, true)
 		-- Print("|cffFF3030-------------------------------------|r", true)
-		Print("Set " .. name .. "'s note failed, retry in 5 sec.")
-		trial = C_Timer.NewTimer(5, function() securecall("GuildRoster") end)
-		C_Timer.NewTimer(7, function() SetNote(type, name, note, true) end)
+		Print("Set " .. name .. "'s note failed, retry in 3 sec.")
+		trial = C_Timer.NewTimer(1.5, function() securecall("GuildRoster") end)
+		C_Timer.NewTimer(3, function() SetNote(noteType, name, note, true) end)
 		return
 	end
 
 	
-	if type == "public" then
+	if noteType == "public" then
 		GuildRosterSetPublicNote(index, note)
-	elseif type == "officer" then
+	elseif noteType == "officer" then
 		GuildRosterSetOfficerNote(index, note)
 	end
 
@@ -88,8 +88,8 @@ function lib:SetPublicNote(name, note)
 	if not updating then
 		SetNote("public", name, note)
 	else
-		-- retry after 2sec
-		local ticker = C_Timer.NewTicker(2, function(ticker)
+		-- retry after 1sec
+		local ticker = C_Timer.NewTicker(1, function(ticker)
 			if not updating then
 				SetNote("public", name, note)
 				ticker:Cancel()
@@ -104,8 +104,8 @@ function lib:SetOfficerNote(name, note)
 	if not updating then
 		SetNote("officer", name, note)
 	else
-		-- retry after 2sec
-		local ticker = C_Timer.NewTicker(2, function(ticker)
+		-- retry after 1sec
+		local ticker = C_Timer.NewTicker(1, function(ticker)
 			if not updating then
 				SetNote("officer", name, note)
 				ticker:Cancel()
@@ -130,27 +130,25 @@ function lib:ForceRefresh()
 	Print("Starting ForceRefresh")
 	forceRefresh = true
 	securecall("GuildRoster")
-	trial = C_Timer.NewTicker(5, function() securecall("GuildRoster") end, 2)
+	trial = C_Timer.NewTicker(5, function() securecall("GuildRoster") end)
 end
 
 function lib:Reinitialize()
 	Print("Reinitializing...")
 	initialized = false
 	securecall("GuildRoster")
-	trial = C_Timer.NewTicker(5, function() securecall("GuildRoster") end, 2)
+	trial = C_Timer.NewTicker(5, function() securecall("GuildRoster") end)
 end
 
 f:SetScript("OnEvent", function(self, event)
 	if event == "GUILD_ROSTER_UPDATE" then
-		-- if InCombatLockdown() then return end
-
 		-- make sure to get all guild members correctly
 		if not GuildRosterFrame then
 			SetGuildRosterShowOffline(true)
 		elseif not GuildRosterFrame:IsVisible() then
 			SetGuildRosterShowOffline(true)
 		end
-		
+
 		local n = GetNumGuildMembers()
 		if n ~= 0 then -- get guild roster successful
 			if trial then
@@ -160,7 +158,6 @@ f:SetScript("OnEvent", function(self, event)
 
 			updating = true
 
-			-- SetGuildRosterShowOffline(true)
 			for i = 1, n do
 				-- fullName, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName, achievementPoints, achievementRank, isMobile, canSoR, reputation = GetGuildRosterInfo(index)
 				local fullName, _, _, _, _, _, pnote, onote = GetGuildRosterInfo(i)
@@ -196,8 +193,17 @@ f:SetScript("OnEvent", function(self, event)
 	end
 end)
 
--- hooksecurefunc("GuildFrame_LoadUI", function()
--- 	GuildRosterFrame:HookScript("OnShow", function()
--- 		Print("show GuildRosterFrame")
--- 	end)
--- end)
+local showOffline = false
+hooksecurefunc("GuildFrame_LoadUI", function()
+	GuildRosterFrame:HookScript("OnShow", function()
+		SetGuildRosterShowOffline(showOffline)
+		GuildRosterShowOfflineButton:SetChecked(showOffline)
+		GuildRoster_Update()
+	end)
+	GuildRosterFrame:HookScript("OnHide", function()
+		SetGuildRosterShowOffline(true)
+	end)
+	GuildRosterShowOfflineButton:HookScript("OnClick", function()
+		showOffline = GuildRosterShowOfflineButton:GetChecked()
+	end)
+end)
