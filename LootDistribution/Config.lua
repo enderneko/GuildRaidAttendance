@@ -151,7 +151,7 @@ local lootDistrCB = GRA:CreateCheckButton(lootDistrConfigFrame, L["Enable loot d
         ShowMask(not _G[GRA_R_Config]["enableLootDistr"])
         cb:SetChecked(_G[GRA_R_Config]["enableLootDistr"])
         -- enable/disable loot distr tool
-        GRA:SetLootDistributionEnabled(_G[GRA_R_Config]["enableLootDistr"])
+        GRA:UpdateLootMaster()
     end)
     confirm:SetPoint("TOP", 0, -190)
 end)

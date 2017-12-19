@@ -513,18 +513,18 @@ end)
 --------------------------------------------------------
 -- event
 --------------------------------------------------------
-distributionFrame:RegisterEvent("ADDON_LOADED")
+-- distributionFrame:RegisterEvent("ADDON_LOADED")
 distributionFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")
--- distributionFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
--- distributionFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
+distributionFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+distributionFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 -- distributionFrame:RegisterEvent("LOOT_OPENED")
 -- distributionFrame:RegisterEvent("LOOT_SLOT_CLEARED")
-
-local function UpdateLootMaster()
+function GRA:UpdateLootMaster()
     local method, partyMaster, raidMaster = GetLootMethod()
     -- master looter and player is loot master
     gra.isLootMaster = (method == "master") and (raidMaster == UnitInRaid("player")) and IsInInstance()
-    if gra.isLootMaster then 
+
+    if gra.isLootMaster and _G[GRA_R_Config]["enableLootDistr"] then 
         distributionFrame:RegisterEvent("LOOT_OPENED")
         GRA:Print(L["Loot distribution tool enabled."])
     else
@@ -532,26 +532,9 @@ local function UpdateLootMaster()
     end
 end
 
-function GRA:SetLootDistributionEnabled(enabled)
-    if enabled then
-        distributionFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-        distributionFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
-        UpdateLootMaster()
-    else
-        distributionFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-        distributionFrame:UnregisterEvent("PARTY_LOOT_METHOD_CHANGED")
-        distributionFrame:UnregisterEvent("LOOT_OPENED")
-    end
-
-end
-
 distributionFrame:SetScript("OnEvent", function(self, event, arg1)
-    if event == "ADDON_LOADED" and arg1 == addonName then
-        distributionFrame:UnregisterEvent("ADDON_LOADED")
-        GRA:SetLootDistributionEnabled(_G[GRA_R_Config]["enableLootDistr"])
-        
-    elseif event == "PLAYER_ENTERING_WORLD" or event == "PARTY_LOOT_METHOD_CHANGED" then
-        UpdateLootMaster()
+    if event == "PLAYER_ENTERING_WORLD" or event == "PARTY_LOOT_METHOD_CHANGED" then
+        GRA:UpdateLootMaster()
 
     elseif event == "LOOT_OPENED" then
         wipe(loots) -- clear loots

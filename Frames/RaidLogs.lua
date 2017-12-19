@@ -220,7 +220,6 @@ local function ShowRaidSummary(d)
 	absenteesText:SetText("|cff80FF00" .. L["Absentees"] .. "(" .. GRA:Getn(t["absentees"]) .. "): " .. absentees)
 end
 
-local tooltip = GRA:CreateTooltip("GRA_RaidLogsTooltip")
 local function ShowRaidDetails(d)
 	detailsFrame.scrollFrame:ClearContent()
 	
@@ -248,37 +247,36 @@ local function ShowRaidDetails(d)
 			last = b
 			table.insert(details, b)
 
-			-- tooltip
+			-- GRA_Tooltip
 			b:HookScript("OnEnter", function()
 				if detail[1] == "GP" then
 					if string.find(detail[3], "|Hitem") then
-						tooltip:SetOwner(b, "ANCHOR_NONE")
-						tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
-						tooltip:SetHyperlink(detail[3])
-						-- tooltip:SetPoint("TOPLEFT", header, "TOPRIGHT", 5, 0)
+						GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
+						GRA_Tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
+						GRA_Tooltip:SetHyperlink(detail[3])
 					else
-						tooltip:Hide()
+						GRA_Tooltip:Hide()
 					end
 				else -- EP or Penalize
 					if b.playerText:IsTruncated() then
-						tooltip:SetOwner(b, "ANCHOR_NONE")
-						tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
+						GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
+						GRA_Tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
 						if detail[1] == "EP" then
-							tooltip:AddLine(L["EP Award"])
+							GRA_Tooltip:AddLine(L["EP Award"] .. " (" .. #detail[4] .. ")")
 						else
-							tooltip:AddLine(L["Penalize"])
+							GRA_Tooltip:AddLine(L["Penalize"] .. " (" .. #detail[4] .. ")")
 						end
 						-- for _, name in pairs(detail[4]) do
 						for i = 1, #detail[4], 2 do
-							tooltip:AddDoubleLine(GRA:GetClassColoredName(detail[4][i]), GRA:GetClassColoredName(detail[4][i+1]))
+							GRA_Tooltip:AddDoubleLine(GRA:GetClassColoredName(detail[4][i]), GRA:GetClassColoredName(detail[4][i+1]))
 						end
-						tooltip:Show()
+						GRA_Tooltip:Show()
 					end
 				end
 			end)
 
 			b:HookScript("OnLeave", function()
-				tooltip:Hide()
+				GRA_Tooltip:Hide()
 			end)
 
 			if gra.isAdmin then

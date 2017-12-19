@@ -16,9 +16,6 @@ LPP:PixelPerfectScale(floatButtonsAnchor)
 floatButtonsAnchor:SetScript("OnDragStart", function() floatButtonsAnchor:StartMoving() end)
 floatButtonsAnchor:SetScript("OnDragStop", function() floatButtonsAnchor:StopMovingOrSizing() end)
 floatButtonsAnchor:RegisterEvent("VARIABLES_LOADED")
-floatButtonsAnchor:SetScript("OnEvent", function()
-	LPP:PixelPerfectPoint(floatButtonsAnchor)
-end)
 
 floatButtonsAnchor.text = floatButtonsAnchor:CreateFontString(nil, "OVERLAY", "GRA_FONT_TITLE")
 floatButtonsAnchor.text:SetPoint("TOPLEFT")
@@ -147,15 +144,19 @@ hooksecurefunc("GiveMasterLoot", function(slot, index)
 end)
 
 floatButtonsAnchor:SetScript("OnEvent", function(self, event, ...)
+    if event == "VARIABLES_LOADED" then
+        LPP:PixelPerfectPoint(floatButtonsAnchor)
+    end
+
     if not gra.isLootMaster then return end
 
     if event == "CHAT_MSG_LOOT" then
-        local msg, _, _, _, looter = ...
-        if looter and looter ~= "" then
-            local itemLink = msg:match("|c.+|Hitem:.+|h")
-            -- if GetItemInfo(itemLink)
-            CreateItemButton(itemLink, looter)
-        end
+        -- local msg, _, _, _, looter = ...
+        -- if looter and looter ~= "" then
+        --     local itemLink = msg:match("|c.+|Hitem:.+|h")
+        --     -- if GetItemInfo(itemLink)
+        --     CreateItemButton(itemLink, looter)
+        -- end
     
     elseif event == "LOOT_SLOT_CLEARED" then
         local slot = ...
@@ -173,14 +174,15 @@ end)
 GRA:RegisterEvent("GRA_TRACK", "FloatButtons_TrackStatus", function(d)
     if d then
         -- floatButtonsAnchor:RegisterEvent("CHAT_MSG_LOOT")
-        floatButtonsAnchor:RegisterEvent("BOSS_KILL")
+        if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+            floatButtonsAnchor:RegisterEvent("BOSS_KILL")
+        end
         floatButtonsAnchor:RegisterEvent("LOOT_SLOT_CLEARED")
         -- floatButtonsAnchor:RegisterEvent("ENCOUNTER_END")
-        -- floatButtonsAnchor:RegisterEvent("ENCOUNTER_LOOT_RECEIVED")
         raidDate = d
     else
-        floatButtonsAnchor:UnregisterEvent("CHAT_MSG_LOOT")
         floatButtonsAnchor:UnregisterEvent("BOSS_KILL")
+        floatButtonsAnchor:UnregisterEvent("LOOT_SLOT_CLEARED")
     end
 end)
 

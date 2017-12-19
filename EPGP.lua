@@ -327,7 +327,7 @@ function GRA:SetEPGPEnabled(enabled)
         GRA:FireEvent("GRA_SYSTEM", "EPGP")
     else
         GRA:Print(L["EPGP disabled."])
-        GRA:FireEvent("GRA_SYSTEM", "NONE")
+        GRA:FireEvent("GRA_SYSTEM", "")
     end
 end
 
