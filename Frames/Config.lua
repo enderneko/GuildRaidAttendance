@@ -293,15 +293,15 @@ miscSection:SetText("|cff80FF00"..L["Misc"].."|r")
 miscSection:SetPoint("TOPLEFT", 5, -265)
 GRA:CreateSeperator(configFrame, miscSection)
 
-local toggleAnchorBtn = GRA:CreateButton(configFrame, L["Toggle Anchor"], "red", {91, 20}, "GRA_FONT_SMALL")
-toggleAnchorBtn:SetPoint("TOPLEFT", miscSection, 0, -20)
-toggleAnchorBtn:SetScript("OnClick", function()
-	GRA:ShowHidePopupsAnchor()
-	GRA:ShowHideFloatButtonsAnchor()
+local appearanceBtn = GRA:CreateButton(configFrame, L["Appearance"], "red", {91, 20}, "GRA_FONT_SMALL")
+appearanceBtn:SetPoint("TOPLEFT", miscSection, 0, -20)
+appearanceBtn:SetScript("OnClick", function()
+	configFrame:Hide()
+	gra.appearanceFrame:Show()
 end)
 
 local lootDistrBtn = GRA:CreateButton(configFrame, L["Loot Distr"], "red", {91, 20}, "GRA_FONT_SMALL")
-lootDistrBtn:SetPoint("LEFT", toggleAnchorBtn, "RIGHT", -1, 0)
+lootDistrBtn:SetPoint("LEFT", appearanceBtn, "RIGHT", -1, 0)
 lootDistrBtn:SetScript("OnClick", function()
 	gra.profilesFrame:Hide()
 	if gra.lootDistrConfigFrame:IsVisible() then
@@ -311,19 +311,13 @@ lootDistrBtn:SetScript("OnClick", function()
 	end
 end)
 
--- CheckButton: use game font
-local fontCB = GRA:CreateCheckButton(configFrame, L["Use Game Font"], nil, function(checked)
-	GRA_A_Variables["useGameFont"] = checked
-end, "GRA_FONT_SMALL", L["Require a UI reload."])
-fontCB:SetPoint("TOPLEFT", miscSection, 0, -45)
-
 -- String: version
 local version = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-version:SetPoint("TOPLEFT", miscSection, 0, -64)
+version:SetPoint("TOPLEFT", miscSection, 0, -50)
 
 -- String: memUsage
 local memUsage = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-memUsage:SetPoint("TOPLEFT", miscSection, 0, -79)
+memUsage:SetPoint("TOPLEFT", miscSection, 0, -65)
 local memUsageTimer
 
 -----------------------------------------
@@ -340,15 +334,15 @@ profilesBtn:SetScript("OnClick", function()
 	end
 end)
 
-local resizeBtn = GRA:CreateButton(configFrame, L["Resize"], "red", {57, 20}, "GRA_FONT_SMALL")
-resizeBtn:SetEnabled(false)
-resizeBtn:SetPoint("RIGHT", profilesBtn, "LEFT", -5, 0)
-resizeBtn:SetScript("OnClick", function()
-
+local anchorBtn = GRA:CreateButton(configFrame, L["Anchor"], "red", {57, 20}, "GRA_FONT_SMALL")
+anchorBtn:SetPoint("RIGHT", profilesBtn, "LEFT", -5, 0)
+anchorBtn:SetScript("OnClick", function()
+	GRA:ShowHidePopupsAnchor()
+	GRA:ShowHideFloatButtonsAnchor()
 end)
 
 local helpBtn = GRA:CreateButton(configFrame, L["Help"], "red", {57, 20}, "GRA_FONT_SMALL")
-helpBtn:SetPoint("RIGHT", resizeBtn, "LEFT", -5, 0)
+helpBtn:SetPoint("RIGHT", anchorBtn, "LEFT", -5, 0)
 helpBtn:SetScript("OnClick", function()
 	-- configFrame:Hide()
 	gra.helpFrame:Show()
@@ -445,7 +439,6 @@ configFrame:SetScript("OnShow", function(self)
 	arCB:SetChecked(GRA_Variables["columns"]["AR_Lifetime"])
 
 	-- misc
-	fontCB:SetChecked(GRA_A_Variables["useGameFont"])
 	version:SetText(L["Version"] .. ": |cff0080FF" .. gra.version)
 
 	UpdateAddOnMemoryUsage()

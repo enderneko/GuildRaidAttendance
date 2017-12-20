@@ -279,6 +279,12 @@ function frame:ADDON_LOADED(arg1)
 		-- help viewed
 		if type(GRA_A_Variables["helpViewed"]) ~= "boolean" then GRA_A_Variables["helpViewed"] = false end
 
+		-- scale
+		if type(GRA_A_Variables["scaleFactor"]) ~= "number" then GRA_A_Variables["scaleFactor"] = 1 end
+		if GRA_A_Variables["scaleFactor"] ~= 1 then
+			GRA:SetScale(GRA_A_Variables["scaleFactor"])
+		end
+
 		-- size
 		if type(GRA_A_Variables["size"]) ~= "string" then GRA_A_Variables["size"] = "normal" end
 		if GRA_A_Variables["size"] ~= "normal" then
@@ -412,9 +418,19 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 			icon:Show("GuildRaidAttendance")
 		end
 	elseif command == "resetposition" then
+		gra.mainFrame:Hide()
 		gra.mainFrame:ClearAllPoints()
 		gra.mainFrame:SetPoint("CENTER")
 		gra.mainFrame:Show()
+	elseif command == "resetscale" then
+		GRA_A_Variables["scaleFactor"] = 1
+		GRA:SetScale(1)
+		gra.mainFrame:Hide()
+		gra.mainFrame:ClearAllPoints()
+		gra.mainFrame:SetPoint("CENTER")
+		gra.mainFrame:Show()
+	elseif command == "resetsize" then
+		-- TODO:
 	elseif command == "loot" then
 		gra.distributionFrame:Show()
 	--@debug@

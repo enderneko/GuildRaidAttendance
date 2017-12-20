@@ -88,6 +88,7 @@ configBtn:SetScript("OnClick", function()
 	gra.epgpOptionsFrame:Hide()
 	gra.attendanceEditor:Hide()
 	gra.rosterEditorFrame:Hide()
+	gra.appearanceFrame:Hide()
 	if gra.configFrame:IsShown() then
 		gra.configFrame:Hide()
 	else

@@ -41,7 +41,7 @@ function GRA:StartTracking(instanceName, difficultyName)
 
 	local text = L["Keep track of loots and attendances during this raid session?"]
 	if instanceName and difficultyName then
-		text = text.."\n|cff909090"..L["Raid: "]..instanceName.."("..difficultyName..")"
+		text = text.."\n|cff909090"..L["Raid: "]..instanceName.." "..difficultyName
 	end
 
 	GRA:CreateStaticPopup(L["Track This Raid"], text, function()

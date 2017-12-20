@@ -198,14 +198,22 @@ L["Raid Start Time"] = "活动开始时间"
 L["Join after \"Raid Start Time\" means the member is late.\n\nIt's used as default raid start time for each day, you can set a different time in attendance editor."] = "在“活动开始时间”之后入团意味着该成员迟到。\n\n此时间作为每天活动的默认开始时间，你也可以在出勤编辑里指定不同的时间。"
 L["Raid start time has been set to "] = "活动开始时间已被设置为 "
 L["Misc"] = "杂项"
-L["Toggle Anchor"] = "开关锚点"
+L["Appearance"] = "外观调整"
 L["Loot Distr"] = "物品分配"
-L["Use Game Font"] = "使用游戏字体"
-L["Require a UI reload."] = "需要重载界面。"
 L["Version"] = "版本"
 L["Memory usage"] = "内存占用"
 L["Help"] = "帮助"
-L["Resize"] = "缩放"
+L["Anchor"] = "锚点"
+
+-------------------------------------------------------
+-- appearance
+-------------------------------------------------------
+L["Font"] = "字体"
+L["Frame Size"] = "窗口大小"
+L["Frame Scale"] = "窗口缩放"
+L["Use Game Font"] = "使用游戏字体"
+L["Most of the settings above require a UI reload."] = "上面的大部分设置需要重载界面才能生效。"
+L["Reload UI"] = "重载界面"
 
 -------------------------------------------------------
 -- profiles
@@ -295,7 +303,7 @@ L["About"] = "关于"
 L["Author"] = "作者"
 L["Websites"] = "发布网站"
 L["Translators"] = "翻译人员"
-L["Run wow in full screen mode, if you want GRA to be pixel perfect."] = "如果你想要GRA显示为像素精确，应以全屏方式运行魔兽世界。"
+L["Run WoW in full screen mode, if you want GRA to be pixel perfect."] = "如果你想要GRA显示为像素精确，应以全屏方式运行魔兽世界。"
 L["Click on |cffffd100yellow text|r to copy it."] = "点击|cffffd100黄色文本|r来复制它。"
 L["Please leave me a pm on curseforge if you want to help with the localization."] = "如果你想要帮忙翻译GRA，请在curseforge上给我发私信。"
 L["Submit a ticket here %s, let me know what you need or what bugs you've found."] = "在这里 %s 提交表单，让我知道你需要什么功能或遇到了何种bug。"

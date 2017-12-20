@@ -2,7 +2,7 @@
 ## Title: |cff80FF00Guild|r Raid Attendance
 ## Notes: Keeps track of raid loot and attendance for guild. Built-in simple loot distribution tool, support Loot Council and EPGP. 
 ## Notes-zhCN: 记录公会活动出勤与拾取。内置简单装备分配工具，支持CL与EPGP。
-## Version: r75-release
+## Version: r76-release
 ## Author: fyhcslb
 ## SavedVariables: GRA_A_RaidLogs, GRA_A_Roster, GRA_A_Config, GRA_A_Variables
 ## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Roster, GRA_Config, GRA_Variables
@@ -28,6 +28,7 @@ Widgets\Popups.lua
 Widgets\DropDownMenu.lua
 
 Frames\Main.lua
+Frames\Appearance.lua
 Frames\GetStarted.lua
 Frames\Attendance.lua
 Frames\Announcements.lua
@@ -46,7 +47,7 @@ Frames\MemberDetails.lua
 Frames\Import.lua
 Frames\Export.lua
 Frames\Profiles.lua
-Frames\About.lua
+Frames\Help.lua
 
 LootDistribution\Common.lua
 LootDistribution\Token.lua
@@ -54,5 +55,3 @@ LootDistribution\Artifact.lua
 LootDistribution\Distribution.lua
 LootDistribution\Loot.lua
 LootDistribution\Config.lua
-
-Help.lua

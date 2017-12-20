@@ -3,6 +3,7 @@ local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
 local floatButtonsAnchor = CreateFrame("Frame", "GRA_FloatButtonsAnchor")
+gra.floatButtonsAnchor = floatButtonsAnchor
 GRA:StylizeFrame(floatButtonsAnchor, {.1, .1, .1, .5}, {0, 0, 0, .5})
 floatButtonsAnchor:SetSize(335, 40)
 floatButtonsAnchor:Hide()
@@ -58,7 +59,7 @@ local function CreateItemButton(itemLink, looter)
     if not string.find(looter, "-") then looter = looter .. "-" .. GetRealmName() end
 
     local b = GRA:CreateIconButton(nil, 29, 29)
-    LPP:PixelPerfectScale(b)
+    b:SetScale(GRA:GetScale())
     table.insert(buttons, b)
     b.index = #buttons
     b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -101,7 +102,7 @@ end
 
 local function CreateBossButton(bossName)
     local b = GRA:CreateButton(nil, "BOSS\nKILL", "green", {29, 29}, "GRA_FONT_PIXEL", false, bossName)
-    LPP:PixelPerfectScale(b)
+    b:SetScale(GRA:GetScale())
     table.insert(buttons, b)
     b.index = #buttons
     b:GetFontString():SetWordWrap(true)
@@ -189,10 +190,15 @@ end)
 -----------------------------------------
 -- test
 -----------------------------------------
--- for i = 1, 3 do
---     CreateItemButton(GetInventoryItemLink("player", i), UnitName("player"))
---     CreateItemButton(GetInventoryItemLink("player", i+1), UnitName("player"))
---     CreateItemButton(GetInventoryItemLink("player", i+2), UnitName("player"))
---     CreateBossButton(i)
---     CreateBossButton(i)
--- end
+--@debug@
+SLASH_FLOATBTNTEST1 = "/fbtest"
+function SlashCmdList.FLOATBTNTEST(msg, editbox)
+    for i = 1, 3 do
+        CreateItemButton(GetInventoryItemLink("player", i), UnitName("player"))
+        CreateItemButton(GetInventoryItemLink("player", i+1), UnitName("player"))
+        CreateItemButton(GetInventoryItemLink("player", i+2), UnitName("player"))
+        CreateBossButton(i)
+        CreateBossButton(i)
+    end
+end
+--@end-debug@

@@ -121,6 +121,7 @@ select(2, ...).L = setmetatable({
 		<p>|cFF00CCFF/gra minimap|r: show/hide GRA minimap icon.</p>
 		<p>|cFF00CCFF/gra loot|r: show GRA distribution frame.</p>
 		<p>|cFF00CCFF/gra resetposition|r: reset the position of GRA main frame to center.</p>
+		<p>|cFF00CCFF/gra resetscale|r: reset the scale of GRA frames to their defaults.</p>
 	]],
 }, {
 	__index = function(self, Key)

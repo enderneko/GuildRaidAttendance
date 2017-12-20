@@ -71,7 +71,7 @@ function GRA:CreateMovableFrame(title, name, width, height, font, clampedToScree
 	f:SetPoint("CENTER")
 	f:Hide()
 	LPP:PixelPerfectScale(f)
-	GRA:StylizeFrame(f, nil, nil, {32, -11, -11, 11})
+	GRA:StylizeFrame(f, nil, nil, {31, -10, -10, 10})
 	-- table.insert(UISpecialFrames, name) -- make it closable with the Escape key
 	
 	-- header

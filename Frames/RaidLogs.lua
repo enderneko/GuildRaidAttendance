@@ -19,7 +19,7 @@ gra.raidLogsFrame = raidLogsFrame
 -----------------------------------------
 local titleFrame = CreateFrame("Frame", nil, raidLogsFrame)
 titleFrame:SetPoint("TOPLEFT")
-titleFrame:SetPoint("BOTTOMRIGHT", raidLogsFrame, "TOPRIGHT", 0, -17)
+titleFrame:SetPoint("BOTTOMRIGHT", raidLogsFrame, "TOPRIGHT", 0, -16)
 
 local titleText = titleFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 titleText:SetPoint("LEFT", 5, 0)
@@ -32,6 +32,7 @@ attendanceEditorBtn:SetScript("OnClick", function()
 	gra.importFrame:Hide()
 	gra.epgpOptionsFrame:Hide()
 	gra.rosterEditorFrame:Hide()
+	gra.appearanceFrame:Hide()
 	GRA:ShowAttendanceEditor(sortedDates[selected], dates[sortedDates[selected]])
 end)
 

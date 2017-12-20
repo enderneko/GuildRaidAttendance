@@ -223,11 +223,11 @@ local function CreateItemFrame(itemSig, itemLink, count)
         if IsAddOnLoaded("RelicInspector") and GRA:IsRelic(itemLink) then
             GameTooltip:SetOwner(self, "ANCHOR_NONE")
             GameTooltip:SetHyperlink(itemLink)
-            GameTooltip:SetPoint("RIGHT", self, "LEFT", -9, 0)
+            GameTooltip:SetPoint("RIGHT", self, "LEFT", -6, 0)
         else
             GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
             GRA_Tooltip:SetHyperlink(itemLink)
-            GRA_Tooltip:SetPoint("RIGHT", self, "LEFT", -9, 0)
+            GRA_Tooltip:SetPoint("RIGHT", self, "LEFT", -6, 0)
             GameTooltip_ShowCompareItem(GRA_Tooltip, GRA_Tooltip)
         end
     end)

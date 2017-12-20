@@ -67,16 +67,6 @@ content:SetFontObject("p", "GRA_FONT_TEXT")
 -- content:SetHyperlinkFormat("|H%s|h|cffffa0b4%s|r|h")
 content:SetHyperlinkFormat("|H%s|h"..gra.colors.yellow.s.."%s|r|h")
 
-local slider = GRA:CreateSlider(listRegion, nil, LPP:GetPixelPerfectScale(), 1.5, 100, .1, nil, function(value)
-    -- content:ClearAllPoints()
-    -- content:SetPoint("TOPLEFT", 15 + value, 0)
-    helpFrame:SetScale(value)
-end)
-slider:SetPoint("BOTTOM", 0, 10)
-local testMsg = slider:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
-testMsg:SetPoint("BOTTOM", slider, "TOP", 0, 10)
-testMsg:SetText("Adjust scale (experimental)")
-
 -- content:SetText([[
 --     <html><body>
 --     <h1>SimpleHTML Demo: Ambush</h1>
@@ -91,7 +81,7 @@ testMsg:SetText("Adjust scale (experimental)")
 local about = [[
     <html><body>
     <p></p>
-    <p>]]..gra.colors.firebrick.s..L["Run wow in full screen mode, if you want GRA to be pixel perfect."]..[[</p>
+    <p>]]..gra.colors.firebrick.s..L["Run WoW in full screen mode, if you want GRA to be pixel perfect."]..[[</p>
     <p>]]..L["Click on |cffffd100yellow text|r to copy it."]..[[</p>
     <h1>]]..L["Author"]..[[</h1>
     <img src="Interface\AddOns\GuildRaidAttendance\Media\author" height="16" align="left"/>
@@ -152,7 +142,7 @@ content:SetScript("OnHyperlinkClick", function(self, linkData, link, button)
         copyEB:HighlightText()
         copyEB:ClearAllPoints()
         local x, y = GetCursorPosition()
-        copyEB:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x / LPP:GetPixelPerfectScale(), y / LPP:GetPixelPerfectScale())
+        copyEB:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x / GRA:GetScale(), y / GRA:GetScale())
         copyEB:Show()
     else
         content:SetHeight(height or 390)
