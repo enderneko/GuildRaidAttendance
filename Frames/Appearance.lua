@@ -98,6 +98,13 @@ GRA:CreateSeperator(appearanceFrame, scaleSection)
 local scaleDropDown = GRA:CreateDropDownMenu(appearanceFrame, appearanceFrame:GetWidth()-10)
 scaleDropDown:SetPoint("TOPLEFT", scaleSection, "BOTTOMLEFT", 0, -10)
 
+local scaleTip = appearanceFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+scaleTip:SetJustifyH("LEFT")
+scaleTip:SetSpacing(3)
+scaleTip:SetPoint("TOPLEFT", scaleDropDown, "BOTTOMLEFT", 0, -5)
+scaleTip:SetPoint("TOPRIGHT", scaleDropDown, "BOTTOMRIGHT", 0, -5)
+scaleTip:SetText(L["Use %s to reset scale."]:format(gra.colors.firebrick.s .. "/gra resetscale|r"))
+
 local indices = {1, 1.5, 2, 2.5, 3, 4}
 local scaleFactors = {
     [1] = "100% " .. L["(Pixel Perfect)"],

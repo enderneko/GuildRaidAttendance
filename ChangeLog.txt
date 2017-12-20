@@ -10,6 +10,7 @@ version r76-release
 ------------------------
     + Added "Scale", GRA frame scale can be changed in Config > Appearance.
     * Fixed float buttons bugs
+    * Fixed AttendanceEditor RST bugs
 
 version r75-release
 ------------------------

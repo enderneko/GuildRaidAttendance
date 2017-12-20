@@ -457,5 +457,7 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		rest = tonumber(rest)
 		GRA_FONT_TEXT:SetFont(GRA_FONT_TEXT:GetFont(), rest or 11)
 	--@end-debug@
+	else
+		GRA:Print(gra.colors.firebrick.s .. "Unknown command.")
 	end
 end

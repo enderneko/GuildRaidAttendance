@@ -209,9 +209,11 @@ L["Anchor"] = "锚点"
 -- appearance
 -------------------------------------------------------
 L["Font"] = "字体"
+L["Use Game Font"] = "使用游戏字体"
 L["Frame Size"] = "窗口大小"
 L["Frame Scale"] = "窗口缩放"
-L["Use Game Font"] = "使用游戏字体"
+L["(Pixel Perfect)"] = "（像素精确）"
+L["Use %s to reset scale."] = "用 %s 来重置缩放。"
 L["Most of the settings above require a UI reload."] = "上面的大部分设置需要重载界面才能生效。"
 L["Reload UI"] = "重载界面"
 
