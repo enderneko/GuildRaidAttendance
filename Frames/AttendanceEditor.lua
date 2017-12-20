@@ -63,6 +63,12 @@ raidStartTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
 		GRA:StylizeFrame(raidStartTimeEditBox, {.1, .1, .1, .9}, {1, 0, 0, 1})
 	end
 end)
+
+-- next OnShow, its data MUST be valid
+raidStartTimeEditBox:SetScript("OnHide", function()
+	RSTComfirmBtn:Hide()
+	GRA:StylizeFrame(raidStartTimeEditBox, {.1, .1, .1, .9})
+end)
  
 local scroll = GRA:CreateScrollFrame(attendanceEditor, -28, 29)
 GRA:StylizeFrame(scroll, {0, 0, 0, 0})

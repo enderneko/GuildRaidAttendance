@@ -443,7 +443,7 @@ configFrame:SetScript("OnShow", function(self)
 
 	UpdateAddOnMemoryUsage()
 	memUsage:SetText(string.format(L["Memory usage"] .. ": |cff0080FF%.2f KB", GetAddOnMemoryUsage("GuildRaidAttendance")))
-	memUsageTimer = C_Timer.NewTicker(5, function()
+	memUsageTimer = C_Timer.NewTicker(10, function()
 		UpdateAddOnMemoryUsage()
 		memUsage:SetText(string.format(L["Memory usage"] .. ": |cff0080FF%.2f KB", GetAddOnMemoryUsage("GuildRaidAttendance")))
 	end)
