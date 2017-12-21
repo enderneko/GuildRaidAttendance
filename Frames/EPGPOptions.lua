@@ -20,6 +20,7 @@ local function ResetEPGP()
 	end
 end
 
+local baseGPEditbox, minEPEditBox, decayEditBox
 -----------------------------------------
 -- enable epgp
 -----------------------------------------
@@ -46,10 +47,13 @@ local epgpCB = GRA:CreateCheckButton(epgpOptionsFrame, L["Enable EPGP"], nil, fu
 	-- confirm box
 	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, text, function()
 		_G[GRA_R_Config]["raidInfo"]["system"] = (_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP") and "" or "EPGP"
-		ShowMask(_G[GRA_R_Config]["raidInfo"]["system"] ~= "EPGP")
-		cb:SetChecked(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP")
+		
+		local enabled = _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP"
+		ShowMask(not enabled)
+		cb:SetChecked(enabled)
+
 		-- enable/disable EPGP
-		GRA:SetEPGPEnabled(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP")
+		GRA:SetEPGPEnabled(enabled)
 	end)
 	confirm:SetPoint("TOP", 0, -45)
 end, "GRA_FONT_SMALL", L["Enable EPGP"], L["Check to use EPGP system for your raid team."])
@@ -63,7 +67,7 @@ baseGPText:SetText("|cff80FF00"..L["Base GP"].."|r")
 baseGPText:SetPoint("TOPLEFT", 5, -47)
 GRA:CreateSeperator(epgpOptionsFrame, baseGPText)
 
-local baseGPEditbox = GRA:CreateEditBox(epgpOptionsFrame, 120, 20, true, "GRA_FONT_SMALL")
+baseGPEditbox = GRA:CreateEditBox(epgpOptionsFrame, 120, 20, true, "GRA_FONT_SMALL")
 baseGPEditbox:SetPoint("TOPLEFT", baseGPText, 0, -20)
 
 local baseGPSetBtn = GRA:CreateButton(epgpOptionsFrame, L["Set"], nil, {35, 20})
@@ -76,7 +80,7 @@ baseGPSetBtn:SetScript("OnClick", function()
 	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Base GP has been set to "] .. baseGP, "TOPLEFT", baseGPEditbox, "BOTTOMLEFT", 0, -3)
 	GRA:RecalcPR()
 
-	gra.attendanceFrame:UpdateEPGPStrings()
+	gra.attendanceFrame:UpdateRaidInfoStrings()
 end)
 
 baseGPEditbox:SetScript("OnTextChanged", function()
@@ -95,7 +99,7 @@ minEPText:SetText("|cff80FF00"..L["Min EP"].."|r")
 minEPText:SetPoint("TOPLEFT", 5, -107)
 GRA:CreateSeperator(epgpOptionsFrame, minEPText)
 
-local minEPEditBox = GRA:CreateEditBox(epgpOptionsFrame, 120, 20, true, "GRA_FONT_SMALL")
+minEPEditBox = GRA:CreateEditBox(epgpOptionsFrame, 120, 20, true, "GRA_FONT_SMALL")
 minEPEditBox:SetPoint("TOPLEFT", minEPText, 0, -20)
 
 local minEPSetBtn = GRA:CreateButton(epgpOptionsFrame, L["Set"], nil, {35, 20})
@@ -108,7 +112,7 @@ minEPSetBtn:SetScript("OnClick", function()
 	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Min EP has been set to "] .. minEP, "TOPLEFT", minEPEditBox, "BOTTOMLEFT", 0, -3)
 	GRA:RecalcPR()
 
-	gra.attendanceFrame:UpdateEPGPStrings()
+	gra.attendanceFrame:UpdateRaidInfoStrings()
 end)
 
 -----------------------------------------
@@ -119,7 +123,7 @@ decayText:SetText("|cff80FF00"..L["Decay"].."|r")
 decayText:SetPoint("TOPLEFT", 5, -167)
 GRA:CreateSeperator(epgpOptionsFrame, decayText)
 
-local decayEditBox = GRA:CreateEditBox(epgpOptionsFrame, 120, 20, true, "GRA_FONT_SMALL")
+decayEditBox = GRA:CreateEditBox(epgpOptionsFrame, 120, 20, true, "GRA_FONT_SMALL")
 decayEditBox:SetPoint("TOPLEFT", decayText, 0, -20)
 
 local decaySetBtn = GRA:CreateButton(epgpOptionsFrame, L["Set"], nil, {35, 20})
@@ -131,7 +135,7 @@ decaySetBtn:SetScript("OnClick", function()
 	_G[GRA_R_Config]["raidInfo"]["EPGP"][3] = decay
 	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Decay has been set to "] .. decay .. "%", "TOPLEFT", decayEditBox, "BOTTOMLEFT", 0, -3)
 
-	gra.attendanceFrame:UpdateEPGPStrings()
+	gra.attendanceFrame:UpdateRaidInfoStrings()
 end)
 
 decayEditBox:SetScript("OnTextChanged", function()
@@ -164,7 +168,7 @@ end)
 -----------------------------------------
 GRA:RegisterEvent("GRA_PERMISSION", "DecayEPGP_CheckPermissions", function(isAdmin)
 	-- _G[GRA_R_Config]["lastDecayed"] = "20171130"
-	if (not isAdmin) or (_G[GRA_R_Config]["raidInfo"]["system"] ~= "EPGP") then return end
+	if (not isAdmin) or (_G[GRA_R_Config]["raidInfo"]["system"] ~= "EPGP") or (_G[GRA_R_Config]["raidInfo"]["EPGP"][3] == 0) then return end
 
 	local current = GRA:GetLockoutsResetDate()
 	-- init

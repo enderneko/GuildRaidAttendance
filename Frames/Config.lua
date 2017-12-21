@@ -102,10 +102,10 @@ epgpOptionsBtn:SetScript("OnClick", function()
 end)
 
 local dkpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["DKP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
-dkpOptionsBtn:SetEnabled(false)
 dkpOptionsBtn:SetPoint("LEFT", epgpOptionsBtn, "RIGHT", -1, 0)
 dkpOptionsBtn:SetScript("OnClick", function()
-
+	configFrame:Hide()
+	gra.dkpOptionsFrame:Show()
 end)
 
 -----------------------------------------

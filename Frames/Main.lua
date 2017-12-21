@@ -7,7 +7,7 @@ local lastFrame = nil
 -----------------------------------------
 -- main frame
 -----------------------------------------
-gra.mainFrame = GRA:CreateMovableFrame("Guild Raid Attendance", "GRA_MainFrame", 620, 400, "GRA_FONT_TITLE", false)
+gra.mainFrame = GRA:CreateMovableFrame("Guild Raid Attendance", "GRA_MainFrame", 620, 400, "GRA_FONT_TITLE")
 
 -----------------------------------------
 -- Guild Message of the Day
@@ -86,6 +86,7 @@ configBtn:SetPoint("BOTTOMRIGHT", -8, 5)
 configBtn:SetScript("OnClick", function()
 	gra.importFrame:Hide()
 	gra.epgpOptionsFrame:Hide()
+	gra.dkpOptionsFrame:Hide()
 	gra.attendanceEditor:Hide()
 	gra.rosterEditorFrame:Hide()
 	gra.appearanceFrame:Hide()

@@ -34,6 +34,7 @@ GRA_Roster = {
 		["attLifetime"] = {present(number), absent(number), late(number), onLeave(number)},
 		["EP"] = (number),
 		["GP"] = (number),
+		["DKP"] = (number),
 	},
 }
 

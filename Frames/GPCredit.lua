@@ -7,7 +7,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 -----------------------------------------
 local gpReason, gpValue, gpLooter, gpDate, gpIndex, gpFloatBtn
 
-local gpCreditFrame = GRA:CreateMovableFrame(L["GP Credit"], "GRA_GPCreditFrame", 200, 300, nil, true, "DIALOG")
+local gpCreditFrame = GRA:CreateMovableFrame(L["GP Credit"], "GRA_GPCreditFrame", 200, 300, nil, "DIALOG")
 gpCreditFrame:SetToplevel(true)
 gra.gpCreditFrame = gpCreditFrame
 

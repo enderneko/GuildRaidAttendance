@@ -8,7 +8,7 @@ if not lib then return end
 
 lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
 --@debug@
-local debug = false
+local debug = true
 --@end-debug@
 local function Print(msg, f)
 	if debug then

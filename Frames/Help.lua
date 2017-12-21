@@ -2,7 +2,7 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
-local helpFrame = GRA:CreateMovableFrame("GRA " .. L["Help"], "GRA_HelpFrame", 550, 400, "GRA_FONT_NORMAL", true, "HIGH")
+local helpFrame = GRA:CreateMovableFrame("GRA " .. L["Help"], "GRA_HelpFrame", 550, 400, "GRA_FONT_NORMAL", "HIGH")
 gra.helpFrame = helpFrame
 helpFrame:SetToplevel(true)
 helpFrame:SetScript("OnShow", function()

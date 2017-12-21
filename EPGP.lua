@@ -279,7 +279,7 @@ local function UpdateRosterEPGP(event, name, note)
     _G[GRA_R_Roster][name]["GP"] = gp
 
     -- update attendance sheet
-    GRA:UpdatePlayerData(name, ep, gp)
+    GRA:UpdatePlayerData_EPGP(name, ep, gp)
 
     if event then -- not from InitRosterEPGP()
         -- GRA:Debug("|cff66CD00GUILD_OFFICER_NOTE_CHANGED:|r " .. name .. " " .. note)

@@ -7,7 +7,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 -----------------------------------------
 local epReason, epValue, epSelected, epDate, epIndex, epFloatBtn = nil, nil, {}, nil, nil, nil
 
-local epAwardFrame = GRA:CreateMovableFrame(L["EP Award"], "GRA_EPAwardFrame", 400, 400, nil, true, "DIALOG")
+local epAwardFrame = GRA:CreateMovableFrame(L["EP Award"], "GRA_EPAwardFrame", 400, 400, nil, "DIALOG")
 epAwardFrame:SetToplevel(true)
 gra.epAwardFrame = epAwardFrame
 

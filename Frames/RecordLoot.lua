@@ -7,7 +7,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 -----------------------------------------
 local rlItem, rlNote, rlLooter, rlDate, rlIndex, rlFloatBtn
 
-local recordLootFrame = GRA:CreateMovableFrame(L["Record Loot"], "GRA_RecordLootFrame", 200, 300, nil, true, "DIALOG")
+local recordLootFrame = GRA:CreateMovableFrame(L["Record Loot"], "GRA_RecordLootFrame", 200, 300, nil, "DIALOG")
 recordLootFrame:SetToplevel(true)
 gra.recordLootFrame = recordLootFrame
 

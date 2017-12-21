@@ -41,6 +41,7 @@ Frames\RecordLoot.lua
 Frames\Penalize.lua
 Frames\FloatButtons.lua
 Frames\EPGPOptions.lua
+Frames\DKPOptions.lua
 Frames\Config.lua
 Frames\RosterEditor.lua
 Frames\MemberDetails.lua

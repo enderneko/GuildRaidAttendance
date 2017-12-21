@@ -41,7 +41,7 @@ baseGPText:SetPoint("LEFT", minEPText, "RIGHT", 10, 0)
 local decayText = statusFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 -- decayText:SetPoint("LEFT", baseGPText, "RIGHT", 10, 0)
 
-function attendanceFrame:UpdateEPGPStrings()
+function attendanceFrame:UpdateRaidInfoStrings()
 	baseGPText:SetText("|cff80FF00" .. L["Base GP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][1])
 	minEPText:SetText("|cff80FF00" .. L["Min EP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][2])
 	decayText:SetText("|cff80FF00" .. L["Decay"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][3] .. "%")
@@ -50,7 +50,7 @@ end
 -- roster received
 GRA:RegisterEvent("GRA_R_DONE", "AttendanceFrame_RosterReceived", function()
 	membersText:SetText("|cff80FF00" .. L["Members: "] .. "|r" .. GRA:Getn(_G[GRA_R_Roster]))
-	attendanceFrame:UpdateEPGPStrings()
+	attendanceFrame:UpdateRaidInfoStrings()
 end)
 
 -----------------------------------------
@@ -694,13 +694,13 @@ function GRA:RecalcPR()
 	for _, row in pairs(loaded) do
 		local ep = _G[GRA_R_Roster][row.name]["EP"]
 		local gp = _G[GRA_R_Roster][row.name]["GP"]
-		GRA:UpdatePlayerData(row.name, ep, gp, true)
+		GRA:UpdatePlayerData_EPGP(row.name, ep, gp, true)
 	end
 	-- sort after recalc
 	SortSheet(GRA_Variables["sortKey"])
 end
 
-function GRA:UpdatePlayerData(name, ep, gp, noSort)
+function GRA:UpdatePlayerData_EPGP(name, ep, gp, noSort)
 	local baseGP = _G[GRA_R_Config]["raidInfo"]["EPGP"][1]
 	local minEP = _G[GRA_R_Config]["raidInfo"]["EPGP"][2]
 	for _, row in pairs(loaded) do
@@ -1338,7 +1338,7 @@ function GRA:ShowAttendanceSheet()
 		SortSheet(GRA_Variables["sortKey"])
 
 		membersText:SetText("|cff80FF00" .. L["Members: "] .. "|r" .. GRA:Getn(_G[GRA_R_Roster]))
-		attendanceFrame:UpdateEPGPStrings()
+		attendanceFrame:UpdateRaidInfoStrings()
 
 		if attendanceFrame.scrollFrame.mask then attendanceFrame.scrollFrame.mask:Hide() end
 	else

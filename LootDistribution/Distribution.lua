@@ -7,7 +7,7 @@ local Comm = LibStub:GetLibrary("AceComm-3.0")
 local I = LibStub("LibItemUpgradeInfo-1.0")
 
 -- 262, 15 rows
-local distributionFrame = GRA:CreateMovableFrame("GRA Distribution Frame", "GRA_DistributionFrame", 478, 357, "GRA_FONT_TITLE", true, "DIALOG")
+local distributionFrame = GRA:CreateMovableFrame("GRA Distribution Frame", "GRA_DistributionFrame", 478, 357, "GRA_FONT_TITLE", "DIALOG")
 gra.distributionFrame = distributionFrame
 
 --------------------------------------------------------

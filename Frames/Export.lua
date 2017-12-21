@@ -2,7 +2,7 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
-local exportFrame = GRA:CreateMovableFrame(L["Export"], "GRA_ExportFrame", 400, 400, nil, true, "DIALOG")
+local exportFrame = GRA:CreateMovableFrame(L["Export"], "GRA_ExportFrame", 400, 400, nil, "DIALOG")
 exportFrame:SetToplevel(true)
 gra.exportFrame = exportFrame
 
