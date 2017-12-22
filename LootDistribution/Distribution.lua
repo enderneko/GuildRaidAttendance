@@ -437,6 +437,21 @@ local function CreateItemFrame(itemSig, itemLink, count)
     end
     hNotes:SetPoint("LEFT", hCurrentGear, 138, 0)
 
+    -- update epgp
+    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+        f:SetScript("OnShow", function()
+            for playerName, row in pairs(f["rows"]) do
+                row.prValue = GRA:GetPR(playerName)
+                if row.prValue == 0 then
+                    row.pr:SetText(gra.colors.grey.s .. row.prValue)
+                else
+                    row.pr:SetText(row.prValue)
+                end
+            end
+            -- re-sort
+            Sort(itemSig)
+        end)
+    end
 
     return f
 end
