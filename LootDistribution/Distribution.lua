@@ -489,7 +489,8 @@ local function SendLoots()
     -- send items to loot frame
     -- texplore(lootsToSend)
     for _, itemSig in pairs(indices) do
-        if not lootsToSend[itemSig].sent then
+        -- 从非物品分配者变为物品分配者时，lootsToSend里边没有之前的物品
+        if lootsToSend[itemSig] and (not lootsToSend[itemSig].sent) then
             Comm:SendCommMessage("GRA_LOOT_S", Serializer:Serialize(lootsToSend[itemSig]), "RAID", nil, "ALERT")
             lootsToSend[itemSig].sent = true -- mark as "sent"
         end
@@ -511,8 +512,6 @@ local function ShowDistributionFrame()
 
     if #indices > 0 then
         SendLoots()
-        -- if not currentIndex then currentIndex = 1 end
-        -- ShowFrame(indices[currentIndex])
         distributionFrame:Show()
     end
 end

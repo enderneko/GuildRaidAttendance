@@ -82,7 +82,9 @@ function GRA:IsRelic(itemLink)
     -- texplore(GetItemStats(itemLink))
 	--或者使用 GetItemStats(itemLink) --> RELIC_ITEM_LEVEL_INCREASE
 	local itemSubType = select(7, GetItemInfo(itemLink))
-	return EJ_LOOT_SLOT_FILTER_ARTIFACT_RELIC:lower() == itemSubType:lower()
+	if itemSubType then
+		return EJ_LOOT_SLOT_FILTER_ARTIFACT_RELIC:lower() == itemSubType:lower()
+	end
 end
 
 function GRA:GetRelicType(itemLink)
