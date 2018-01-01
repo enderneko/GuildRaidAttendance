@@ -86,11 +86,12 @@ end
 function GRA:ShowRecordLootFrame(d, link, note, looter, attendees, index, floatBtn)
     rlDate = d
     rlIndex = index
+    if type(looter) ~= "string" then looter = nil end
     rlLooter = looter
     rlFloatBtn = floatBtn
 
-    lootEditBox:SetText(link and link or "")
-    noteEditBox:SetText(note and note or "")
+    lootEditBox:SetText(link or "")
+    noteEditBox:SetText(note or "")
 
     -- sort gra.attendees k1:class k2:name
     local sorted = {}

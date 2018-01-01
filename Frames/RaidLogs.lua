@@ -190,7 +190,7 @@ creditBtn:SetScript("OnClick", function()
 	else
 		local d = sortedDates[selected]
 		if not d then return end
-		GRA:ShowCreditFrame(d, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"])
+		GRA:ShowCreditFrame(d, nil, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"])
 	end
 end)
 creditBtn:Hide()
@@ -288,35 +288,22 @@ local function ShowRaidDetails(d)
 
 			if gra.isAdmin then
 				b.deleteBtn:Show()
-				if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" or _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-					b.playerText:SetPoint("RIGHT", -25, 0)
+				if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+					if detail[1] == "GP" then
+						b.noteText:SetPoint("RIGHT", -25, 0)
+					else
+						b.playerText:SetPoint("RIGHT", -25, 0)
+					end
 
 					-- delete detail entry
 					b.deleteBtn:SetScript("OnClick", function()
-						local system, text
-						if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-							system = string.find(detail[1], "EP") and "EP" or "GP"
-							text = "EP/GP"
-						else -- dkp
-							system = "DKP"
-							text = "DKP"
-						end
-
-						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format(text) .. "|r\n" 
-						.. detail[3] .. ": " .. detail[2] .. " " .. system
+						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("EP/GP") .. "|r\n" 
+						.. detail[3] .. ": " .. detail[2] .. " " .. (string.find(detail[1], "EP") and "EP" or "GP")
 						, function()
-							if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-								if string.find(detail[1], "P") == 1 then
-									GRA:UndoPenalizeEPGP(d, k)
-								else
-									GRA:UndoEPGP(d, k)
-								end
-							else -- dkp
-								if detail[1] == "DKP_P" then
-									GRA:UndoPenalizeDKP(d, k)
-								else
-									GRA:UndoDKP(d, k)
-								end
+							if string.find(detail[1], "P") == 1 then
+								GRA:UndoPenalize(d, k)
+							else
+								GRA:UndoEPGP(d, k)
 							end
 							ShowRaidDetails(d)
 							detailsFrame.scrollFrame:ResetScroll()
@@ -326,13 +313,44 @@ local function ShowRaidDetails(d)
 
 					-- modify detail entry
 					b:SetScript("OnClick", function()
-						if detail[1] == "EP" or detail[1] == "DKP_A" then
+						if detail[1] == "EP" then
 							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], t["attendees"], t["absentees"], k)
 						elseif detail[1] == "GP" then
-							GRA:ShowCreditFrame(d, detail[3], detail[2], detail[4], t["attendees"], k)
+							GRA:ShowCreditFrame(d, detail[3], detail[2], detail[4], detail[5], t["attendees"], k)
+						else -- PGP/PEP
+							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], t["attendees"], t["absentees"], k)
+						end
+					end)
+				elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+					if detail[1] == "DKP_C" then
+						b.noteText:SetPoint("RIGHT", -25, 0)
+					else
+						b.playerText:SetPoint("RIGHT", -25, 0)
+					end
+
+					-- delete detail entry
+					b.deleteBtn:SetScript("OnClick", function()
+						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("DKP") .. "|r\n" 
+						.. detail[3] .. ": " .. detail[2] .. " " .. DKP
+						, function()
+							if detail[1] == "DKP_P" then
+								GRA:UndoPenalizeDKP(d, k)
+							else
+								GRA:UndoDKP(d, k)
+							end
+							ShowRaidDetails(d)
+							detailsFrame.scrollFrame:ResetScroll()
+						end, true)
+						confirm:SetPoint("CENTER")
+					end)
+
+					-- modify detail entry
+					b:SetScript("OnClick", function()
+						if detail[1] == "DKP_A" then
+							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], t["attendees"], t["absentees"], k)
 						elseif detail[1] == "DKP_C" then
-							GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], t["attendees"], k)
-						else -- PGP/PEP/DKP_P
+							GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], t["attendees"], k)
+						else -- DKP_P
 							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], t["attendees"], t["absentees"], k)
 						end
 					end)

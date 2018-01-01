@@ -186,8 +186,8 @@ function GRA:ShowAwardFrame(d, reason, value, selected, attendees, absentees, in
     aIndex = index
     aFloatBtn = floatBtn
 
-    aReasonEditBox:SetText(reason and reason or "")
-    aValueEditBox:SetText(value and value or "")
+    aReasonEditBox:SetText(reason or "")
+    aValueEditBox:SetText(value or "")
     -- selected == {} --> unselect all
     if not selected then selected = {} end
 

@@ -121,7 +121,7 @@ end
 -----------------------------------------
 -- dkp credit/modify
 -----------------------------------------
-function GRA:CreditDKP(dkpDate, dkp, reason, looter)
+function GRA:CreditDKP(dkpDate, dkp, reason, looter, note)
     dkp = -dkp
     -- set officer note
     local current, spent, total = GRA:GetDKP(looter)
@@ -129,13 +129,13 @@ function GRA:CreditDKP(dkpDate, dkp, reason, looter)
     GRA:SendEntryMsg(L["DKP Credit"], looter, dkp, reason)
 
     -- add to _G[GRA_R_RaidLogs]
-    local dkpTable = {"DKP_C", dkp, reason, looter}
+    local dkpTable = {"DKP_C", dkp, reason, looter, note}
     table.insert(_G[GRA_R_RaidLogs][dkpDate]["details"], dkpTable)
 
     GRA:FireEvent("GRA_ENTRY", dkpDate)
 end
 
-function GRA:ModifyDKP_C(dkpDate, dkp, reason, looter, index)
+function GRA:ModifyDKP_C(dkpDate, dkp, reason, looter, note, index)
     dkp = -dkp
     local t = _G[GRA_R_RaidLogs][dkpDate]["details"][index]
     
@@ -155,7 +155,7 @@ function GRA:ModifyDKP_C(dkpDate, dkp, reason, looter, index)
         GRA:SendEntryMsg(L["DKP Credit"], looter, dkp, reason)
     end
 
-    _G[GRA_R_RaidLogs][dkpDate]["details"][index] = {"DKP_C", dkp, reason, looter}
+    _G[GRA_R_RaidLogs][dkpDate]["details"][index] = {"DKP_C", dkp, reason, looter, note}
     GRA:FireEvent("GRA_ENTRY_MODIFY", dkpDate)
 end
 

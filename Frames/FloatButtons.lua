@@ -77,8 +77,8 @@ local function CreateItemButton(itemLink, looter)
 
         b:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
-                if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-                    GRA:ShowCreditFrame(raidDate, itemLink, nil, looter, _G[GRA_R_RaidLogs][raidDate]["attendees"], nil, b)
+                if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" or _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+                    GRA:ShowCreditFrame(raidDate, itemLink, nil, looter, nil, _G[GRA_R_RaidLogs][raidDate]["attendees"], nil, b)
                 else
                     GRA:ShowRecordLootFrame(raidDate, itemLink, nil, looter, _G[GRA_R_RaidLogs][raidDate]["attendees"], nil, b)
                 end
@@ -175,7 +175,7 @@ end)
 GRA:RegisterEvent("GRA_TRACK", "FloatButtons_TrackStatus", function(d)
     if d then
         -- floatButtonsAnchor:RegisterEvent("CHAT_MSG_LOOT")
-        if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+        if _G[GRA_R_Config]["raidInfo"]["system"] ~= "" then
             floatButtonsAnchor:RegisterEvent("BOSS_KILL")
         end
         floatButtonsAnchor:RegisterEvent("LOOT_SLOT_CLEARED")

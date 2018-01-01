@@ -5,7 +5,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 -----------------------------------------
 -- Credit Frame
 -----------------------------------------
-local cReason, cValue, cLooter, cDate, cIndex, cFloatBtn
+local cReason, cValue, cLooter, cNote, cDate, cIndex, cFloatBtn
 
 local creditFrame = GRA:CreateMovableFrame("XX Credit", "GRA_CreditFrame", 200, 300, nil, "DIALOG")
 creditFrame:SetToplevel(true)
@@ -20,15 +20,15 @@ creditBtn:SetScript("OnClick", function()
     -- change officer note
     if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
         if cIndex then
-            GRA:ModifyGP(cDate, cValue, cReason, cLooter, cIndex)
+            GRA:ModifyGP(cDate, cValue, cReason, cLooter, cNote, cIndex)
         else
-            GRA:CreditGP(cDate, cValue, cReason, cLooter)
+            GRA:CreditGP(cDate, cValue, cReason, cLooter, cNote)
         end
     else -- dkp
         if cIndex then
-            GRA:ModifyDKP_C(cDate, cValue, cReason, cLooter, cIndex)
+            GRA:ModifyDKP_C(cDate, cValue, cReason, cLooter, cNote, cIndex)
         else
-            GRA:CreditDKP(cDate, cValue, cReason, cLooter)
+            GRA:CreditDKP(cDate, cValue, cReason, cLooter, cNote)
         end
     end
     creditFrame:Hide()
@@ -76,12 +76,22 @@ cValueEditBox:SetScript("OnEnterPressed", function()
     end
 end)
 
+-- looter text
 local looterText = creditFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 looterText:SetText("|cff80FF00" .. L["Looter"])
 looterText:SetPoint("TOPLEFT", cValueText, 0, -45)
 
 local looterDropDown = GRA:CreateScrollDropDownMenu(creditFrame, 160, 100)
 looterDropDown:SetPoint("TOPLEFT", looterText, 10, -15)
+
+-- note text
+local cNoteText = creditFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+cNoteText:SetText("|cff80FF00" .. L["Note"])
+cNoteText:SetPoint("TOPLEFT", looterText, 0, -45)
+
+-- note editbox
+local cNoteEditBox = GRA:CreateEditBox(creditFrame, 160, 20)
+cNoteEditBox:SetPoint("TOPLEFT", cNoteText, 10, -15)
 
 -- test ------------------------------------------
 -- local attendees = {}
@@ -105,14 +115,16 @@ local function SortByClass(t)
 	end)
 end
 
-function GRA:ShowCreditFrame(d, link, value, looter, attendees, index, floatBtn)
+function GRA:ShowCreditFrame(d, link, value, looter, note, attendees, index, floatBtn)
     cDate = d
     cIndex = index
     cLooter = looter
+    cNote = note
     cFloatBtn = floatBtn
 
-    cReasonEditBox:SetText(link and link or "")
-    cValueEditBox:SetText(value and value or "")
+    cReasonEditBox:SetText(link or "")
+    cValueEditBox:SetText(value or "")
+    cNoteEditBox:SetText(note or "")
 
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
@@ -165,6 +177,7 @@ creditFrame:SetScript("OnUpdate", function()
     cReason = cReasonEditBox:GetText()
     cValue = tonumber(cValueEditBox:GetText())
     -- cLooter = looterDropDown.selected
+    cNote = cNoteEditBox:GetText()
 
     if cValue and cValue >= 0 and cReason ~= "" and looterDropDown.selected and looterDropDown.selected ~= "" then
         creditBtn:SetEnabled(true)

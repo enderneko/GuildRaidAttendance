@@ -124,12 +124,25 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
         row.pr:SetWidth(45)
         row.pr:SetWordWrap(false)
         row.pr:SetPoint("LEFT", row.response, "RIGHT", 5, 0)
+    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+        row.dkp = row:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
+        row.dkpValue = GRA:GetDKP(playerName) -- sort key
+        if row.dkpValue == 0 then
+            row.dkp:SetText(gra.colors.grey.s .. row.dkpValue)
+        else
+            row.dkp:SetText(row.dkpValue)
+        end
+        row.dkp:SetWidth(45)
+        row.dkp:SetWordWrap(false)
+        row.dkp:SetPoint("LEFT", row.response, "RIGHT", 5, 0)
     end
     
     row.g1 = GRA:CreateIconButton(row, 16, 16)
     row.g1:Hide()
     if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
         row.g1:SetPoint("LEFT", row.pr, "RIGHT", 5, 0)
+    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+        row.g1:SetPoint("LEFT", row.dkp, "RIGHT", 5, 0)
     else
         row.g1:SetPoint("LEFT", row.response, "RIGHT", 5, 0)
     end
@@ -245,6 +258,14 @@ local function Sort(itemSig)
                 return a.responseIndex < b.responseIndex
             else
                 return a.prValue > b.prValue
+            end
+        end)
+    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+        table.sort(sorted, function(a, b)
+            if a.responseIndex ~= b.responseIndex then
+                return a.responseIndex < b.responseIndex
+            else
+                return a.dkpValue > b.dkpValue
             end
         end)
     else
@@ -413,12 +434,14 @@ local function CreateItemFrame(itemSig, itemLink, count)
     local hName = f:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
     local hResponse = f:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
     local hPR = f:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
+    local hDKP = f:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
     local hCurrentGear = f:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
     local hNotes = f:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
 
     hName:SetText(L["Name"])
     hResponse:SetText(L["Response"])
     hPR:SetText("PR")
+    hDKP:SetText("DKP")
     hCurrentGear:SetText(L["Current Gear"])
     hNotes:SetText(L["Notes"])
 
@@ -431,14 +454,17 @@ local function CreateItemFrame(itemSig, itemLink, count)
         distributionFrame:SetWidth(528)
         hPR:SetPoint("LEFT", hResponse, 105, 0)
         hCurrentGear:SetPoint("LEFT", hPR, 50, 0)
+    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+        distributionFrame:SetWidth(528)
+        hDKP:SetPoint("LEFT", hResponse, 105, 0)
+        hCurrentGear:SetPoint("LEFT", hDKP, 50, 0)
     else
         distributionFrame:SetWidth(478)
         hCurrentGear:SetPoint("LEFT", hResponse, 105, 0)
     end
     hNotes:SetPoint("LEFT", hCurrentGear, 138, 0)
 
-    -- update epgp
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then -- update epgp
         f:SetScript("OnShow", function()
             for playerName, row in pairs(f["rows"]) do
                 row.prValue = GRA:GetPR(playerName)
@@ -446,6 +472,19 @@ local function CreateItemFrame(itemSig, itemLink, count)
                     row.pr:SetText(gra.colors.grey.s .. row.prValue)
                 else
                     row.pr:SetText(row.prValue)
+                end
+            end
+            -- re-sort
+            Sort(itemSig)
+        end)
+    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then -- update dkp
+        f:SetScript("OnShow", function()
+            for playerName, row in pairs(f["rows"]) do
+                row.dkpValue = GRA:GetDKP(playerName)
+                if row.dkpValue == 0 then
+                    row.dkp:SetText(gra.colors.grey.s .. row.dkpValue)
+                else
+                    row.dkp:SetText(row.dkpValue)
                 end
             end
             -- re-sort

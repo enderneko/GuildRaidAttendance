@@ -161,7 +161,7 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, attendees, abse
         pValueEditBox:SetWidth(160)
     end
 
-    pReasonEditBox:SetText(reason and reason or "")
+    pReasonEditBox:SetText(reason or "")
     pValueEditBox:SetText(value and abs(value) or "")
     -- selected == {} --> unselect all
     if not selected then selected = {} end

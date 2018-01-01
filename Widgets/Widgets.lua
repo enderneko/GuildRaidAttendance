@@ -813,6 +813,7 @@ end
 -- detail button (raid logs frame)
 -----------------------------------------
 function GRA:CreateDetailButton(parent, detailTable, font)
+	if string.find(detailTable[1], "DKP") then return end
 	-- {"EP"/"GP", ep/gp, reason(string)/itemLink, {playerName...}},
 	if not font then font = "GRA_FONT_SMALL" end
 	local hoverColor, borderColor, textColor
@@ -846,6 +847,9 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 	local tex3 = b:CreateTexture()
 	tex3:SetColorTexture(unpack(borderColor))
 	tex3:SetSize(1, gra.size.height)
+	local tex4 = b:CreateTexture() -- for GP
+	tex4:SetColorTexture(unpack(borderColor))
+	tex4:SetSize(1, gra.size.height)
 
 	b.typeText = b:CreateFontString(nil, "OVERLAY", font)
 	b.typeText:SetTextColor(unpack(textColor))
@@ -867,7 +871,7 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 	b.reasonText = b:CreateFontString(nil, "OVERLAY", font)
 	b.reasonText:SetTextColor(unpack(textColor))
 	b.reasonText:SetPoint("LEFT", b.valueText, "RIGHT", 5, 0)
-	b.reasonText:SetWidth(120)
+	b.reasonText:SetWidth(130)
 	b.reasonText:SetJustifyH("LEFT")
 	b.reasonText:SetWordWrap(false)
 	tex3:SetPoint("RIGHT", b.reasonText, 3, 0)
@@ -875,9 +879,13 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 	b.playerText = b:CreateFontString(nil, "OVERLAY", font)
 	b.playerText:SetTextColor(unpack(textColor))
 	b.playerText:SetPoint("LEFT", b.reasonText, "RIGHT", 5, 0)
-	b.playerText:SetPoint("RIGHT", -5, 0)
 	b.playerText:SetJustifyH("LEFT")
 	b.playerText:SetWordWrap(false)
+
+	b.noteText = b:CreateFontString(nil, "OVERLAY", font)
+	b.noteText:SetTextColor(unpack(textColor))
+	b.noteText:SetJustifyH("LEFT")
+	b.noteText:SetWordWrap(false)
 
 	if string.find(detailTable[1], "P") == 1 then
 		b.typeText:SetText(string.sub(detailTable[1], 2, 3))
@@ -886,6 +894,20 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 	end
 	b.valueText:SetText(detailTable[2])
 	b.reasonText:SetText(detailTable[3])
+
+	if detailTable[1] == "GP" then
+		b.playerText:SetWidth(80)
+		tex4:SetPoint("RIGHT", b.playerText, 3, 0)
+		b.noteText:SetPoint("LEFT", b.playerText, "RIGHT", 5, 0)
+		b.noteText:SetPoint("RIGHT", -5, 0)
+		if detailTable[5] and detailTable[5] ~= "" then
+			b.noteText:SetText(detailTable[5])
+		else
+			tex4:Hide()
+		end
+	else
+		b.playerText:SetPoint("RIGHT", -5, 0)
+	end
 
 	local playerText = ""
 	if type(detailTable[4]) == "string" then -- gp name
@@ -902,6 +924,7 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 		b.valueText:SetTextColor(1, 1, 1, 1)
 		b.reasonText:SetTextColor(1, 1, 1, 1)
 		b.playerText:SetTextColor(1, 1, 1, 1)
+		b.noteText:SetTextColor(1, 1, 1, 1)
 		b:SetBackdropColor(unpack(hoverColor))
 	end)
 
@@ -910,6 +933,7 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 		b.valueText:SetTextColor(unpack(textColor))
 		b.reasonText:SetTextColor(unpack(textColor))
 		b.playerText:SetTextColor(unpack(textColor))
+		b.noteText:SetTextColor(unpack(textColor))
 		b:SetBackdropColor(0, 0, 0, 0)
 	end)
 
@@ -928,6 +952,7 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 		b.valueText:SetTextColor(1, 1, 1, 1)
 		b.reasonText:SetTextColor(1, 1, 1, 1)
 		b.playerText:SetTextColor(1, 1, 1, 1)
+		b.noteText:SetTextColor(1, 1, 1, 1)
 		b:SetBackdropColor(unpack(hoverColor))
 	end)
 	b.deleteBtn:SetScript("OnLeave", function()
@@ -935,6 +960,7 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 		b.valueText:SetTextColor(unpack(textColor))
 		b.reasonText:SetTextColor(unpack(textColor))
 		b.playerText:SetTextColor(unpack(textColor))
+		b.noteText:SetTextColor(unpack(textColor))
 		b:SetBackdropColor(0, 0, 0, 0)
 	end)
 	
@@ -978,6 +1004,9 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 	local tex3 = b:CreateTexture()
 	tex3:SetColorTexture(unpack(borderColor))
 	tex3:SetSize(1, gra.size.height)
+	local tex4 = b:CreateTexture() -- for DKP_C
+	tex4:SetColorTexture(unpack(borderColor))
+	tex4:SetSize(1, gra.size.height)
 
 	b.typeText = b:CreateFontString(nil, "OVERLAY", font)
 	b.typeText:SetTextColor(unpack(textColor))
@@ -999,7 +1028,7 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 	b.reasonText = b:CreateFontString(nil, "OVERLAY", font)
 	b.reasonText:SetTextColor(unpack(textColor))
 	b.reasonText:SetPoint("LEFT", b.valueText, "RIGHT", 5, 0)
-	b.reasonText:SetWidth(120)
+	b.reasonText:SetWidth(130)
 	b.reasonText:SetJustifyH("LEFT")
 	b.reasonText:SetWordWrap(false)
 	tex3:SetPoint("RIGHT", b.reasonText, 3, 0)
@@ -1007,15 +1036,29 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 	b.playerText = b:CreateFontString(nil, "OVERLAY", font)
 	b.playerText:SetTextColor(unpack(textColor))
 	b.playerText:SetPoint("LEFT", b.reasonText, "RIGHT", 5, 0)
-	b.playerText:SetPoint("RIGHT", -5, 0)
 	b.playerText:SetJustifyH("LEFT")
 	b.playerText:SetWordWrap(false)
-
+	
+	b.noteText = b:CreateFontString(nil, "OVERLAY", font)
+	b.noteText:SetTextColor(unpack(textColor))
+	b.noteText:SetJustifyH("LEFT")
+	b.noteText:SetWordWrap(false)
+	
 	b.typeText:SetText("DKP")
 	if detailTable[1] == "DKP_C" then
 		b.valueText:SetText(-detailTable[2])
+		b.playerText:SetWidth(80)
+		tex4:SetPoint("RIGHT", b.playerText, 3, 0)
+		b.noteText:SetPoint("LEFT", b.playerText, "RIGHT", 5, 0)
+		b.noteText:SetPoint("RIGHT", -5, 0)
+		if detailTable[5] and detailTable[5] ~= "" then
+			b.noteText:SetText(detailTable[5])
+		else
+			tex4:Hide()
+		end
 	else
 		b.valueText:SetText(detailTable[2])
+		b.playerText:SetPoint("RIGHT", -5, 0)
 	end
 	b.reasonText:SetText(detailTable[3])
 
@@ -1034,6 +1077,7 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 		b.valueText:SetTextColor(1, 1, 1, 1)
 		b.reasonText:SetTextColor(1, 1, 1, 1)
 		b.playerText:SetTextColor(1, 1, 1, 1)
+		b.noteText:SetTextColor(1, 1, 1, 1)
 		b:SetBackdropColor(unpack(hoverColor))
 	end)
 
@@ -1042,6 +1086,7 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 		b.valueText:SetTextColor(unpack(textColor))
 		b.reasonText:SetTextColor(unpack(textColor))
 		b.playerText:SetTextColor(unpack(textColor))
+		b.noteText:SetTextColor(unpack(textColor))
 		b:SetBackdropColor(0, 0, 0, 0)
 	end)
 
@@ -1060,6 +1105,7 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 		b.valueText:SetTextColor(1, 1, 1, 1)
 		b.reasonText:SetTextColor(1, 1, 1, 1)
 		b.playerText:SetTextColor(1, 1, 1, 1)
+		b.noteText:SetTextColor(1, 1, 1, 1)
 		b:SetBackdropColor(unpack(hoverColor))
 	end)
 	b.deleteBtn:SetScript("OnLeave", function()
@@ -1067,6 +1113,7 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 		b.valueText:SetTextColor(unpack(textColor))
 		b.reasonText:SetTextColor(unpack(textColor))
 		b.playerText:SetTextColor(unpack(textColor))
+		b.noteText:SetTextColor(unpack(textColor))
 		b:SetBackdropColor(0, 0, 0, 0)
 	end)
 	
@@ -1078,6 +1125,7 @@ end
 function GRA:CreateDetailButton_LC(parent, detailTable, font)
 	-- 为了兼容性，假装为GP
 	-- {"GP", 0, itemLink, playerName, note},
+	if detailTable[1] ~= "GP" then return end
 	if not font then font = "GRA_FONT_SMALL" end
 	local hoverColor, borderColor, textColor
 	hoverColor = {.1, .6, .95, .3}
@@ -1102,7 +1150,7 @@ function GRA:CreateDetailButton_LC(parent, detailTable, font)
 	b.itemText = b:CreateFontString(nil, "OVERLAY", font)
 	b.itemText:SetTextColor(unpack(textColor))
 	b.itemText:SetPoint("LEFT", 5, 0)
-	b.itemText:SetWidth(150)
+	b.itemText:SetWidth(160)
 	b.itemText:SetJustifyH("LEFT")
 	b.itemText:SetWordWrap(false)
 	tex1:SetPoint("RIGHT", b.itemText, 3, 0)
@@ -1110,7 +1158,7 @@ function GRA:CreateDetailButton_LC(parent, detailTable, font)
 	b.playerText = b:CreateFontString(nil, "OVERLAY", font)
 	b.playerText:SetTextColor(unpack(textColor))
 	b.playerText:SetPoint("LEFT", b.itemText, "RIGHT", 5, 0)
-	b.playerText:SetWidth(100)
+	b.playerText:SetWidth(80)
 	b.playerText:SetJustifyH("LEFT")
 	b.playerText:SetWordWrap(false)
 	tex2:SetPoint("RIGHT", b.playerText, 3, 0)
@@ -1119,19 +1167,21 @@ function GRA:CreateDetailButton_LC(parent, detailTable, font)
 	b.noteText:SetTextColor(unpack(textColor))
 	b.noteText:SetPoint("LEFT", b.playerText, "RIGHT", 5, 0)
 	b.noteText:SetPoint("RIGHT", -5, 0)
-	b.noteText:SetWidth(120)
 	b.noteText:SetJustifyH("LEFT")
 	b.noteText:SetWordWrap(false)
 
-	local itemText, playerText, noteText
-	
 	b.itemText:SetText(detailTable[3])
-	if type(detailTable[4]) == "table" then -- EPGP mass GP credit
-		b.playerText:SetText(L["EPGP data"])
+	if type(detailTable[4]) == "table" then -- EPGP/DKP mass award credit
+		b.playerText:SetText("EPGP/DKP data")
 	else -- string
 		b.playerText:SetText(GRA:GetShortName(detailTable[4]))
 	end
-	b.noteText:SetText(detailTable[5] or "")
+
+	if detailTable[5] and detailTable[5] ~= "" then
+		b.noteText:SetText(detailTable[5])
+	else
+		tex2:Hide()
+	end
 
 	b:SetScript("OnEnter", function()
 		b.itemText:SetTextColor(1, 1, 1, 1)

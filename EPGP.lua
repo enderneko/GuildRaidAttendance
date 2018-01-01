@@ -146,20 +146,20 @@ end
 -----------------------------------------
 -- gp credit/modify
 -----------------------------------------
-function GRA:CreditGP(gpDate, gp, reason, looter)
+function GRA:CreditGP(gpDate, gp, reason, looter, note)
     -- set officer note
     local ep, gpOld = GRA:GetEPGP(looter)
     LGN:SetOfficerNote(looter, ep .. "," .. (gp + gpOld))
     GRA:SendEntryMsg(L["GP Credit"], looter, gp, reason)
 
     -- add to _G[GRA_R_RaidLogs]
-    local gpTable = {"GP", gp, reason, looter}
+    local gpTable = {"GP", gp, reason, looter, note}
     table.insert(_G[GRA_R_RaidLogs][gpDate]["details"], gpTable)
 
     GRA:FireEvent("GRA_ENTRY", gpDate)
 end
 
-function GRA:ModifyGP(gpDate, gp, reason, looter, index)
+function GRA:ModifyGP(gpDate, gp, reason, looter, note, index)
     local t = _G[GRA_R_RaidLogs][gpDate]["details"][index]
     
     if t[4] == looter then -- same looter, modify gp only
@@ -177,7 +177,7 @@ function GRA:ModifyGP(gpDate, gp, reason, looter, index)
         GRA:SendEntryMsg(L["GP Credit"], looter, gp, reason)
     end
 
-    _G[GRA_R_RaidLogs][gpDate]["details"][index] = {"GP", gp, reason, looter}
+    _G[GRA_R_RaidLogs][gpDate]["details"][index] = {"GP", gp, reason, looter, note}
     GRA:FireEvent("GRA_ENTRY_MODIFY", gpDate)
 end
 
