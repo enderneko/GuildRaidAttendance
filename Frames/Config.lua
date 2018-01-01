@@ -77,8 +77,8 @@ local sendRosterBtn = GRA:CreateButton(rosterAdminFrame, L["Send"], nil, {61, 18
 	L["Send roster data to raid members"],
 	L["GRA must be installed to receive data."],
 	L["Raid members data (including attendance rate)."],
-	L["Raid schedule settings."],
-	L["EPGP settings (if enabled)."])
+	gra.colors.firebrick.s .. L["Raid schedule settings."],
+	gra.colors.firebrick.s .. L["Loot system settings (important)."])
 sendRosterBtn:SetPoint("LEFT", importBtn, "RIGHT", -1, 0)
 sendRosterBtn:SetScript("OnClick", function()
 	local confirm = GRA:CreateConfirmBox(configFrame, configFrame:GetWidth()-10, L["Send raid roster data to raid/party members?"], function()
@@ -290,7 +290,7 @@ end)
 -----------------------------------------
 local miscSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 miscSection:SetText("|cff80FF00"..L["Misc"].."|r")
-miscSection:SetPoint("TOPLEFT", 5, -265)
+miscSection:SetPoint("TOPLEFT", 5, -280)
 GRA:CreateSeperator(configFrame, miscSection)
 
 local appearanceBtn = GRA:CreateButton(configFrame, L["Appearance"], "red", {91, 20}, "GRA_FONT_SMALL")
@@ -384,8 +384,14 @@ GRA:RegisterEvent("GRA_R_DONE", "ConfigFrame_RosterReceived", function()
 	GRA:Print(L["Raid roster has been received."])
 	_G[GRA_R_Config]["lastUpdatedTime"] = date("%x")
 	rosterUserLastUpdatedText:SetText(L["Last updated time: "] .. "|cff0080FF" .. _G[GRA_R_Config]["lastUpdatedTime"])
-	-- enable/disable EPGP
-	GRA:SetEPGPEnabled(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP")
+	-- set loot system
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "" then
+		GRA:FireEvent("GRA_SYSTEM", "")
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+		GRA:SetEPGPEnabled(true)
+	else -- dkp
+		GRA:SetDKPEnabled(true)
+	end
 	RefreshRaidSchedule()
 	GRA:ShowAttendanceSheet()
 end)

@@ -191,10 +191,10 @@ function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
 	elseif buttonColor == "transparent-light" then -- list button
 		color = {0, 0, 0, 0}
 		hoverColor = {.5, 1, 0, .5}
-	elseif buttonColor == "GP" then
+	elseif buttonColor == "Credit" then
 		color = {.1, .6, .95, .4}
 		hoverColor = {.1, .6, .95, .65}
-	elseif buttonColor == "EP" then
+	elseif buttonColor == "Award" then
 		color = {.1, .95, .2, .4}
 		hoverColor = {.1, .95, .2, .65}
 	elseif buttonColor == "Penalize" then
@@ -609,6 +609,21 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	row.prGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
 	row.prGrid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.prGrid:SetNormalFontObject("GRA_FONT_GRID")
+
+	-- current
+	row.currentGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
+	row.currentGrid:SetBackdropBorderColor(0, 0, 0, 1)
+	row.currentGrid:SetNormalFontObject("GRA_FONT_GRID")
+
+	-- spent
+	row.spentGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
+	row.spentGrid:SetBackdropBorderColor(0, 0, 0, 1)
+	row.spentGrid:SetNormalFontObject("GRA_FONT_GRID")
+
+	-- total
+	row.totalGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
+	row.totalGrid:SetBackdropBorderColor(0, 0, 0, 1)
+	row.totalGrid:SetNormalFontObject("GRA_FONT_GRID")
 	
 	-- ar 30
 	row.ar30Grid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
@@ -642,10 +657,29 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			row.prGrid:SetPoint("LEFT", row.gpGrid, "RIGHT", -1, 0)
 			row.prGrid:Show()
 			lastColumn = row.prGrid
+
+			row.currentGrid:Hide()
+			row.spentGrid:Hide()
+			row.totalGrid:Hide()
+		elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+			row.currentGrid:SetPoint("LEFT", row.nameGrid, "RIGHT", -1, 0)
+			row.currentGrid:Show()
+			row.spentGrid:SetPoint("LEFT", row.currentGrid, "RIGHT", -1, 0)
+			row.spentGrid:Show()
+			row.totalGrid:SetPoint("LEFT", row.spentGrid, "RIGHT", -1, 0)
+			row.totalGrid:Show()
+			lastColumn = row.totalGrid
+
+			row.epGrid:Hide()
+			row.gpGrid:Hide()
+			row.prGrid:Hide()
 		else
 			row.epGrid:Hide()
 			row.gpGrid:Hide()
 			row.prGrid:Hide()
+			row.currentGrid:Hide()
+			row.spentGrid:Hide()
+			row.totalGrid:Hide()
 		end
 
 		if GRA_Variables["columns"]["AR_30"] then
@@ -909,7 +943,139 @@ function GRA:CreateDetailButton(parent, detailTable, font)
 	return b
 end
 
-function GRA:CreateDetailButton_NonEPGP(parent, detailTable, font)
+function GRA:CreateDetailButton_DKP(parent, detailTable, font)
+	if not string.find(detailTable[1], "DKP") then return end
+	-- {"DKP_A"/"DKP_C"/"DKP_P", value, reason(string)/itemLink/reason(string), {playerName...}},
+	if not font then font = "GRA_FONT_SMALL" end
+	local hoverColor, borderColor, textColor
+	if detailTable[1] == "DKP_C" then
+		hoverColor = {.1, .6, .95, .3}
+		borderColor = {.1, .6, .95, .6}
+		textColor = {.16, .56, .95, 1}
+	elseif detailTable[1] == "DKP_A" then
+		hoverColor = {.1, .95, .2, .3}
+		borderColor = {.1, .95, .2, .6}
+		textColor = {.1, .95, .2, 1}
+	else -- DKP_P
+		hoverColor = {.95, .17, .2, .3}
+		borderColor = {.95, .17, .2, .6}
+		textColor = {.95, .2, .2, 1}
+	end
+
+	local b = CreateFrame("Button", nil, parent)
+	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
+	b:SetBackdropColor(0, 0, 0, 0)
+	b:SetBackdropBorderColor(unpack(borderColor))
+	b:SetPushedTextOffset(0, 0)
+	b:SetSize(gra.size.height, gra.size.height)
+
+	local tex1 = b:CreateTexture()
+	tex1:SetColorTexture(unpack(borderColor))
+	tex1:SetSize(1, gra.size.height)
+	local tex2 = b:CreateTexture()
+	tex2:SetColorTexture(unpack(borderColor))
+	tex2:SetSize(1, gra.size.height)
+	local tex3 = b:CreateTexture()
+	tex3:SetColorTexture(unpack(borderColor))
+	tex3:SetSize(1, gra.size.height)
+
+	b.typeText = b:CreateFontString(nil, "OVERLAY", font)
+	b.typeText:SetTextColor(unpack(textColor))
+	b.typeText:SetPoint("LEFT", 5, 0)
+	-- b.typeText:SetPoint("RIGHT", b, "LEFT", 50, 0)
+	b.typeText:SetWidth(25)
+	b.typeText:SetJustifyH("LEFT")
+	b.typeText:SetWordWrap(false)
+	tex1:SetPoint("RIGHT", b.typeText, 3, 0)
+
+	b.valueText = b:CreateFontString(nil, "OVERLAY", font)
+	b.valueText:SetTextColor(unpack(textColor))
+	b.valueText:SetPoint("LEFT", b.typeText, "RIGHT", 5, 0)
+	b.valueText:SetWidth(45)
+	b.valueText:SetJustifyH("LEFT")
+	b.valueText:SetWordWrap(false)
+	tex2:SetPoint("RIGHT", b.valueText, 3, 0)
+
+	b.reasonText = b:CreateFontString(nil, "OVERLAY", font)
+	b.reasonText:SetTextColor(unpack(textColor))
+	b.reasonText:SetPoint("LEFT", b.valueText, "RIGHT", 5, 0)
+	b.reasonText:SetWidth(120)
+	b.reasonText:SetJustifyH("LEFT")
+	b.reasonText:SetWordWrap(false)
+	tex3:SetPoint("RIGHT", b.reasonText, 3, 0)
+
+	b.playerText = b:CreateFontString(nil, "OVERLAY", font)
+	b.playerText:SetTextColor(unpack(textColor))
+	b.playerText:SetPoint("LEFT", b.reasonText, "RIGHT", 5, 0)
+	b.playerText:SetPoint("RIGHT", -5, 0)
+	b.playerText:SetJustifyH("LEFT")
+	b.playerText:SetWordWrap(false)
+
+	b.typeText:SetText("DKP")
+	if detailTable[1] == "DKP_C" then
+		b.valueText:SetText(-detailTable[2])
+	else
+		b.valueText:SetText(detailTable[2])
+	end
+	b.reasonText:SetText(detailTable[3])
+
+	local playerText = ""
+	if type(detailTable[4]) == "string" then -- looter name
+		playerText = GRA:GetShortName(detailTable[4])
+	else -- names
+		for _, name in pairs(detailTable[4]) do
+			playerText = playerText .. GRA:GetShortName(name) .. " "
+		end
+	end
+	b.playerText:SetText(playerText)
+
+	b:SetScript("OnEnter", function()
+		b.typeText:SetTextColor(1, 1, 1, 1)
+		b.valueText:SetTextColor(1, 1, 1, 1)
+		b.reasonText:SetTextColor(1, 1, 1, 1)
+		b.playerText:SetTextColor(1, 1, 1, 1)
+		b:SetBackdropColor(unpack(hoverColor))
+	end)
+
+	b:SetScript("OnLeave", function()
+		b.typeText:SetTextColor(unpack(textColor))
+		b.valueText:SetTextColor(unpack(textColor))
+		b.reasonText:SetTextColor(unpack(textColor))
+		b.playerText:SetTextColor(unpack(textColor))
+		b:SetBackdropColor(0, 0, 0, 0)
+	end)
+
+
+	b.deleteBtn = CreateFrame("Button", nil, b)
+	b.deleteBtn:SetSize(gra.size.height, gra.size.height)
+	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
+	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
+	b.deleteBtn:SetBackdropBorderColor(unpack(borderColor))
+	b.deleteBtn:SetText("×")
+	b.deleteBtn:SetNormalFontObject("GRA_FONT_BUTTON")
+	b.deleteBtn:SetPushedTextOffset(0, -1)
+	b.deleteBtn:SetPoint("RIGHT")
+	b.deleteBtn:SetScript("OnEnter", function()
+		b.typeText:SetTextColor(1, 1, 1, 1)
+		b.valueText:SetTextColor(1, 1, 1, 1)
+		b.reasonText:SetTextColor(1, 1, 1, 1)
+		b.playerText:SetTextColor(1, 1, 1, 1)
+		b:SetBackdropColor(unpack(hoverColor))
+	end)
+	b.deleteBtn:SetScript("OnLeave", function()
+		b.typeText:SetTextColor(unpack(textColor))
+		b.valueText:SetTextColor(unpack(textColor))
+		b.reasonText:SetTextColor(unpack(textColor))
+		b.playerText:SetTextColor(unpack(textColor))
+		b:SetBackdropColor(0, 0, 0, 0)
+	end)
+	
+	b.deleteBtn:Hide()
+
+	return b
+end
+
+function GRA:CreateDetailButton_LC(parent, detailTable, font)
 	-- 为了兼容性，假装为GP
 	-- {"GP", 0, itemLink, playerName, note},
 	if not font then font = "GRA_FONT_SMALL" end

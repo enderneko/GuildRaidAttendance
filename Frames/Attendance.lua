@@ -42,9 +42,15 @@ local decayText = statusFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 -- decayText:SetPoint("LEFT", baseGPText, "RIGHT", 10, 0)
 
 function attendanceFrame:UpdateRaidInfoStrings()
-	baseGPText:SetText("|cff80FF00" .. L["Base GP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][1])
-	minEPText:SetText("|cff80FF00" .. L["Min EP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][2])
-	decayText:SetText("|cff80FF00" .. L["Decay"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][3] .. "%")
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+		baseGPText:SetText("|cff80FF00" .. L["Base GP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][1])
+		minEPText:SetText("|cff80FF00" .. L["Min EP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][2])
+		decayText:SetText("|cff80FF00" .. L["Decay"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][3] .. "%")
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		baseGPText:SetText("")
+		minEPText:SetText("")
+		decayText:SetText("|cff80FF00" .. L["Decay"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["DKP"] .. "%")
+	end
 end
 
 -- roster received
@@ -69,7 +75,7 @@ local function SetRowPoints()
 	attendanceFrame.scrollFrame:ResetScroll()
 end
 
-local SortSheetByName, SortSheetByClass, SortSheetByAR, SortSheetByAR30, SortSheetByAR60, SortSheetByAR90, SortSheetByPR, SortSheetByEP, SortSheetByGP
+local SortSheetByName, SortSheetByClass, SortSheetByATT, SortSheetByAR, SortSheetByAR30, SortSheetByAR60, SortSheetByAR90, SortSheetByPR, SortSheetByEP, SortSheetByGP, SortSheetByCurrentDKP, SortSheetBySpentDKP, SortSheetByTotalDKP
 
 SortSheetByName = function()
 	table.sort(loaded, function(a, b) return a.name < b.name end)
@@ -93,6 +99,21 @@ SortSheetByClass = function()
 				return a.name < b.name
 			end
 		end)
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		-- class current total spent name
+		table.sort(loaded, function(a, b)
+			if a.class ~= b.class then
+				return GRA:GetIndex(gra.CLASS_ORDER, a.class) < GRA:GetIndex(gra.CLASS_ORDER, b.class)
+			elseif a.current ~= b.current then
+				return a.current > b.current
+			elseif a.total ~= b.total then
+				return a.total > b.total
+			elseif a.spent ~= b.spent then
+				return a.spent < b.spent
+			else
+				return a.name < b.name
+			end
+		end)
 	else
 		-- class ar ar30 name
 		table.sort(loaded, function(a, b)
@@ -111,6 +132,59 @@ SortSheetByClass = function()
 	GRA_Variables["sortKey"] = "class"
 end
 
+SortSheetByATT = function()
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+		-- att ar pr ep gp name
+		table.sort(loaded, function(a, b)
+			if a.attLifetime ~= b.attLifetime then
+				return a.attLifetime > b.attLifetime
+			elseif a.arLifetime ~= b.arLifetime then
+				return a.arLifetime > b.arLifetime
+			elseif a.pr ~= b.pr then
+				return a.pr > b.pr
+			elseif a.ep ~= b.ep then
+				return a.ep > b.ep
+			elseif a.gp ~= b.gp then
+				return a.gp < b.gp
+			else
+				return a.name < b.name
+			end
+		end)
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		-- att ar current total spent name
+		table.sort(loaded, function(a, b)
+			if a.attLifetime ~= b.attLifetime then
+				return a.attLifetime > b.attLifetime
+			elseif a.arLifetime ~= b.arLifetime then
+				return a.arLifetime > b.arLifetime
+			elseif a.current ~= b.current then
+				return a.current > b.current
+			elseif a.total ~= b.total then
+				return a.total > b.total
+			elseif a.spent ~= b.spent then
+				return a.spent < b.spent
+			else
+				return a.name < b.name
+			end
+		end)
+	else
+		-- att ar ar30 name
+		table.sort(loaded, function(a, b)
+			if a.attLifetime ~= b.attLifetime then
+				return a.attLifetime > b.attLifetime
+			elseif a.arLifetime ~= b.arLifetime then
+				return a.arLifetime > b.arLifetime
+			elseif a.ar30 ~= b.ar30 then
+				return a.ar30 > b.ar30
+			else
+				return a.name < b.name
+			end
+		end)
+	end
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "att"
+end
+
 SortSheetByAR = function()
 	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		-- ar pr ep gp name
@@ -125,6 +199,23 @@ SortSheetByAR = function()
 				return a.ep > b.ep
 			elseif a.gp ~= b.gp then
 				return a.gp < b.gp
+			else
+				return a.name < b.name
+			end
+		end)
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		-- ar current total spent name
+		table.sort(loaded, function(a, b)
+			if a.arLifetime ~= b.arLifetime then
+				return a.arLifetime > b.arLifetime
+			elseif a.attLifetime ~= b.attLifetime then
+				return a.attLifetime > b.attLifetime
+			elseif a.current ~= b.current then
+				return a.current > b.current
+			elseif a.total ~= b.total then
+				return a.total > b.total
+			elseif a.spent ~= b.spent then
+				return a.spent < b.spent
 			else
 				return a.name < b.name
 			end
@@ -165,6 +256,23 @@ SortSheetByAR30 = function()
 				return a.name < b.name
 			end
 		end)
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		-- ar30 current total spent name
+		table.sort(loaded, function(a, b)
+			if a.ar30 ~= b.ar30 then
+				return a.ar30 > b.ar30
+			elseif a.att30 ~= b.att30 then
+				return a.att30 > b.att30
+			elseif a.current ~= b.current then
+				return a.current > b.current
+			elseif a.total ~= b.total then
+				return a.total > b.total
+			elseif a.spent ~= b.spent then
+				return a.spent < b.spent
+			else
+				return a.name < b.name
+			end
+		end)
 	else
 		-- ar30 ar name
 		table.sort(loaded, function(a, b)
@@ -201,6 +309,23 @@ SortSheetByAR60 = function()
 				return a.name < b.name
 			end
 		end)
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		-- ar60 current total spent name
+		table.sort(loaded, function(a, b)
+			if a.ar60 ~= b.ar60 then
+				return a.ar60 > b.ar60
+			elseif a.att60 ~= b.att60 then
+				return a.att60 > b.att60
+			elseif a.current ~= b.current then
+				return a.current > b.current
+			elseif a.total ~= b.total then
+				return a.total > b.total
+			elseif a.spent ~= b.spent then
+				return a.spent < b.spent
+			else
+				return a.name < b.name
+			end
+		end)
 	else
 		-- ar60 ar name
 		table.sort(loaded, function(a, b)
@@ -233,6 +358,23 @@ SortSheetByAR90 = function()
 				return a.ep > b.ep
 			elseif a.gp ~= b.gp then
 				return a.gp < b.gp
+			else
+				return a.name < b.name
+			end
+		end)
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		-- ar90 current total spent name
+		table.sort(loaded, function(a, b)
+			if a.ar90 ~= b.ar90 then
+				return a.ar90 > b.ar90
+			elseif a.att90 ~= b.att90 then
+				return a.att90 > b.att90
+			elseif a.current ~= b.current then
+				return a.current > b.current
+			elseif a.total ~= b.total then
+				return a.total > b.total
+			elseif a.spent ~= b.spent then
+				return a.spent < b.spent
 			else
 				return a.name < b.name
 			end
@@ -308,6 +450,59 @@ SortSheetByGP = function()
 	GRA_Variables["sortKey"] = "gp"
 end
 
+SortSheetByCurrentDKP = function()
+	-- current ar total spent name
+	table.sort(loaded, function(a, b)
+		if a.current ~= b.current then
+			return a.current > b.current
+		elseif a.arLifetime ~= b.arLifetime then
+			return a.arLifetime > b.arLifetime
+		elseif a.total ~= b.total then
+			return a.total > b.total
+		elseif a.spent ~= b.spent then
+			return a.spent < b.spent
+		else
+			return a.name < b.name
+		end
+	end)
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "current"
+end
+
+SortSheetBySpentDKP = function()
+	-- spent current total name
+	table.sort(loaded, function(a, b)
+		if a.spent ~= b.spent then
+			return a.spent > b.spent
+		elseif a.current ~= b.current then
+			return a.current > b.current
+		elseif a.total ~= b.total then
+			return a.total > b.total
+		else
+			return a.name < b.name
+		end
+	end)
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "spent"
+end
+
+SortSheetByTotalDKP = function()
+	-- total current spent name
+	table.sort(loaded, function(a, b)
+		if a.total ~= b.total then
+			return a.total > b.total
+		elseif a.current ~= b.current then
+			return a.current > b.current
+		elseif a.spent ~= b.spent then
+			return a.spent < b.spent
+		else
+			return a.name < b.name
+		end
+	end)
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "total"
+end
+
 local function SortSheet(key)
 	if key == "pr" then
 		SortSheetByPR()
@@ -315,10 +510,18 @@ local function SortSheet(key)
 		SortSheetByEP()
 	elseif key == "gp" then
 		SortSheetByGP()
+	elseif key == "current" then
+		SortSheetByCurrentDKP()
+	elseif key == "spent" then
+		SortSheetBySpentDKP()
+	elseif key == "total" then
+		SortSheetByTotalDKP()
 	elseif key == "class" then
 		SortSheetByClass()
 	elseif key == "name" then
 		SortSheetByName()
+	elseif key == "att" then
+		SortSheetByATT()
 	elseif key == "ar" then
 		SortSheetByAR()
 	elseif key == "ar30" then
@@ -398,6 +601,8 @@ refreshBtn:SetFrameLevel(8)
 refreshBtn:SetScript("OnClick", function()
 	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		GRA:RefreshEPGP()
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		GRA:RefreshDKP()
 	end
 	GRA:ShowAttendanceSheet()
 	-- re-calc attendance rate
@@ -485,6 +690,7 @@ nameText:SetScript("OnClick", function(self, button)
 	end
 end)
 
+-- epgp
 local epText = GRA:CreateGrid(headerFrame, 45, "EP", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by EP."])
 epText:GetFontString():ClearAllPoints()
 epText:GetFontString():SetPoint("BOTTOM", 0, 1)
@@ -509,6 +715,32 @@ prText:SetScript("OnClick", function()
 	GRA:Print(L["Sort attendance sheet by PR."])
 end)
 
+-- dkp
+local currentText = GRA:CreateGrid(headerFrame, 45, L["Current"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by DKP (current)."])
+currentText:GetFontString():ClearAllPoints()
+currentText:GetFontString():SetPoint("BOTTOM", 0, 1)
+currentText:SetScript("OnClick", function()
+	SortSheetByCurrentDKP()
+	GRA:Print(L["Sort attendance sheet by DKP (current)."])
+end)
+
+local spentText = GRA:CreateGrid(headerFrame, 45, L["Spent"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by DKP (spent)."])
+spentText:GetFontString():ClearAllPoints()
+spentText:GetFontString():SetPoint("BOTTOM", 0, 1)
+spentText:SetScript("OnClick", function()
+	SortSheetBySpentDKP()
+	GRA:Print(L["Sort attendance sheet by DKP (spent)."])
+end)
+
+local totalText = GRA:CreateGrid(headerFrame, 45, L["Total"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by DKP (total)."])
+totalText:GetFontString():ClearAllPoints()
+totalText:GetFontString():SetPoint("BOTTOM", 0, 1)
+totalText:SetScript("OnClick", function()
+	SortSheetByTotalDKP()
+	GRA:Print(L["Sort attendance sheet by DKP (total)."])
+end)
+
+-- attendance rate
 local ar30Text = GRA:CreateGrid(headerFrame, 45, "AR 30", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by attendance rate (30 days)."])
 ar30Text:GetFontString():ClearAllPoints()
 ar30Text:GetFontString():SetPoint("BOTTOM", 0, 1)
@@ -533,12 +765,18 @@ ar90Text:SetScript("OnClick", function()
 	GRA:Print(L["Sort attendance sheet by attendance rate (90 days)."])
 end)
 
-local arLifetimeText = GRA:CreateGrid(headerFrame, 45, "AR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by attendance rate (lifetime)."])
+local arLifetimeText = GRA:CreateGrid(headerFrame, 45, "AR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (lifetime)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (lifetime)."])
 arLifetimeText:GetFontString():ClearAllPoints()
 arLifetimeText:GetFontString():SetPoint("BOTTOM", 0, 1)
-arLifetimeText:SetScript("OnClick", function()
-	SortSheetByAR()
-	GRA:Print(L["Sort attendance sheet by attendance rate (lifetime)."])
+arLifetimeText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+arLifetimeText:SetScript("OnClick", function(self, button)
+	if button == "LeftButton" then
+		SortSheetByAR()
+		GRA:Print(L["Sort attendance sheet by attendance rate (lifetime)."])
+	elseif button == "RightButton" then
+		SortSheetByATT()
+		GRA:Print(L["Sort attendance sheet by attendance (lifetime)."])
+	end
 end)
 
 -- dates
@@ -622,13 +860,39 @@ function GRA:SetColumns()
 		newWidth = newWidth + gra.size.grid_others * 3 - 3
 		lastColumn = prText
 
+		-- hide dkp columns
+		currentText:Hide()
+		spentText:Hide()
+		totalText:Hide()
+		
 		minEPText:Show()
 		baseGPText:Show()
+		decayText:Show()
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		currentText:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
+		currentText:Show()
+		spentText:SetPoint("LEFT", currentText, "RIGHT", -1, 0)
+		spentText:Show()
+		totalText:SetPoint("LEFT", spentText, "RIGHT", -1, 0)
+		totalText:Show()
+		newWidth = newWidth + gra.size.grid_others * 3 - 3
+		lastColumn = totalText
+
+		-- hide epgp columns
+		epText:Hide()
+		gpText:Hide()
+		prText:Hide()
+
+		minEPText:Hide()
+		baseGPText:Hide()
 		decayText:Show()
 	else
 		epText:Hide()
 		gpText:Hide()
 		prText:Hide()
+		currentText:Hide()
+		spentText:Hide()
+		totalText:Hide()
 
 		-- hide MinEP BaseGP Decay
 		minEPText:Hide()
@@ -742,6 +1006,23 @@ function GRA:UpdatePlayerData_EPGP(name, ep, gp, noSort)
 		-- auto sort after data updated
 		SortSheet(GRA_Variables["sortKey"])
 	end
+end
+
+function GRA:UpdatePlayerData_DKP(name, current, spent, total)
+	for _, row in pairs(loaded) do
+		if row.name == name then
+			row.current = current
+			row.spent = spent
+			row.total = total
+			row.currentGrid:SetText(current)
+			row.spentGrid:SetText(spent)
+			row.totalGrid:SetText(total)
+			break
+		end
+	end
+
+	-- auto sort after data updated
+	SortSheet(GRA_Variables["sortKey"])
 end
 
 -----------------------------------------
@@ -1036,7 +1317,7 @@ local function CountByDate(d)
 					if not todaysEP[d][name] then todaysEP[d][name] = 0 end
 					todaysEP[d][name] = todaysEP[d][name] + detail[2]
 				end
-			else -- PGP
+			elseif detail[1] == "PGP" then
 				for _, name in pairs(detail[4]) do
 					if not gps[d][name] then gps[d][name] = {} end
 					table.insert(gps[d][name], "|cffffffff" .. detail[3] .. ": " .. detail[2] .. " GP")
@@ -1049,7 +1330,43 @@ local function CountByDate(d)
 	end
 end
 
-local function CountByDate_NonEPGP(d)
+local function CountByDate_DKP(d)
+	if _G[GRA_R_RaidLogs][d] then
+		gps[d] = {}
+		eps[d] = {}
+		todaysGP[d] = {}
+		todaysEP[d] = {}
+
+		local details = _G[GRA_R_RaidLogs][d]["details"]
+		-- scan each dkp
+		for _, detail in pairs(details) do
+			if detail[1] == "DKP_C" then
+				local name = detail[4]
+				if not gps[d][name] then gps[d][name] = {} end
+				gps[d][name]["loots"] = (gps[d][name]["loots"] or 0) + 1 -- store loot num
+				table.insert(gps[d][name], "|cffffffff" .. detail[3] .. "|cffffffff: " .. detail[2] .. " DKP")
+
+				todaysGP[d][name] = (todaysGP[d][name] or 0) + detail[2]
+			elseif detail[1] == "DKP_A" then
+				for _, name in pairs(detail[4]) do
+					if not eps[d][name] then eps[d][name] = {} end
+					table.insert(eps[d][name], "|cffffffff" .. detail[3] .. ": " .. detail[2] .. " DKP")
+
+					todaysEP[d][name] = (todaysEP[d][name] or 0) + detail[2]
+				end
+			elseif detail[1] == "DKP_P" then
+				for _, name in pairs(detail[4]) do
+					if not gps[d][name] then gps[d][name] = {} end
+					table.insert(gps[d][name], "|cffffffff" .. detail[3] .. ": " .. detail[2] .. " DKP")
+
+					todaysGP[d][name] = (todaysGP[d][name] or 0) + detail[2]
+				end
+			end
+		end
+	end
+end
+
+local function CountByDate_LC(d)
 	if _G[GRA_R_RaidLogs][d] then
 		gps[d] = {}
 		eps[d] = {}
@@ -1076,8 +1393,10 @@ local function CountAll()
 		local d = dateGrid.date
 		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 			CountByDate(d)
+		elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+			CountByDate_DKP(d)
 		else
-			CountByDate_NonEPGP(d)
+			CountByDate_LC(d)
 		end
 	end
 	-- texplore(gps)
@@ -1124,7 +1443,11 @@ local function UpdateGrid(g, d, name)
 
 		if todaysEP[d][name] then
 			if blankLine then GRA_Tooltip:AddLine(" ") blankLine = false end
-			GRA_Tooltip:AddLine(L["Today's EP: "] .. todaysEP[d][name])
+			if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+				GRA_Tooltip:AddLine(L["Today's EP: "] .. todaysEP[d][name])
+			elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+				GRA_Tooltip:AddLine(L["Today's DKP (awarded): "] .. todaysEP[d][name])
+			end
 		end
 
 		if ep then
@@ -1137,7 +1460,11 @@ local function UpdateGrid(g, d, name)
 
 		if todaysGP[d][name] then
 			if blankLine then GRA_Tooltip:AddLine(" ") blankLine = false end
-			GRA_Tooltip:AddLine(L["Today's GP: "] .. todaysGP[d][name])
+			if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+				GRA_Tooltip:AddLine(L["Today's GP: "] .. todaysGP[d][name])
+			elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+				GRA_Tooltip:AddLine(L["Today's DKP (spent/penalized): "] .. todaysGP[d][name])
+			end
 		end
 
 		if gp then
@@ -1194,8 +1521,10 @@ local function RefreshDetailsByDate(d)
 	-- count on this day
 	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		CountByDate(d)
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		CountByDate_DKP(d)
 	else
-		CountByDate_NonEPGP(d)
+		CountByDate_LC(d)
 	end
 
 	for _, row in pairs(loaded) do
@@ -1210,9 +1539,9 @@ function GRA:RefreshSheetByDates(dates)
 	end
 end
 
-GRA:RegisterEvent("GRA_EPGP", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
-GRA:RegisterEvent("GRA_EPGP_MODIFY", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
-GRA:RegisterEvent("GRA_EPGP_UNDO", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
+GRA:RegisterEvent("GRA_ENTRY", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
+GRA:RegisterEvent("GRA_ENTRY_MODIFY", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
+GRA:RegisterEvent("GRA_ENTRY_UNDO", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
 
 -- raid logs (attendance) changed
 local refreshTimer
@@ -1254,10 +1583,12 @@ end)
 -- system changed
 GRA:RegisterEvent("GRA_SYSTEM", "AttendanceSheet_SystemChanged", function(system)
 	if GRA:Getn(_G[GRA_R_Roster]) == 0 then return end
+	attendanceFrame:UpdateRaidInfoStrings()
 	-- show columns
 	GRA:SetColumns()
 	-- refresh tooltip
 	gps, eps = {}, {}
+	todaysGP, todaysEP = {}, {}
 	for _, dateGrid in pairs(dateGrids) do
 		RefreshDetailsByDate(dateGrid.date)
 	end
@@ -1282,13 +1613,17 @@ local function LoadSheet()
 			local color = RAID_CLASS_COLORS[pTable["class"]].colorStr
 			local row = GRA:CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), "|c" .. color .. shortName .. "|r",
 				function() print("Show details (WIP): " .. pName) end)
-			row["name"] = pName -- sort key
-			row["class"] = pTable["class"] -- sort key
+			row.name = pName -- sort key
+			row.class = pTable["class"] -- sort key
 			
 			-- prepare for sorting (or it may be nil)
 			row.ep = pTable["EP"] or 0
 			row.gp = pTable["GP"] or 0
 			row.pr = row.ep / (row.gp + _G[GRA_R_Config]["raidInfo"]["EPGP"][1])
+			-- dkp
+			row.current = pTable["DKP_Current"] or 0
+			row.spent = pTable["DKP_Spent"] or 0
+			row.total = pTable["DKP_Total"] or 0
 			
 			-- disabled in minimal mode
 			if not GRA_Variables["minimalMode"] then
@@ -1348,10 +1683,13 @@ function GRA:ShowAttendanceSheet()
 
 	-- schedule changed (mainFrame's width changed) may cause frame not pixel perfect, fix it!
 	LPP:PixelPerfectPoint(gra.mainFrame)
-
+	
+	-- update!
 	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		-- register/unregister GUILD_OFFICER_NOTE_CHANGED
 		GRA:UpdateRosterEPGP()
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		GRA:UpdateRosterDKP()
 	end
 end
 

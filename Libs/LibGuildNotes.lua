@@ -130,14 +130,14 @@ function lib:ForceRefresh()
 	Print("Starting ForceRefresh")
 	forceRefresh = true
 	securecall("GuildRoster")
-	trial = C_Timer.NewTicker(5, function() securecall("GuildRoster") end)
+	trial = C_Timer.NewTicker(3, function() securecall("GuildRoster") end)
 end
 
 function lib:Reinitialize()
 	Print("Reinitializing...")
 	initialized = false
 	securecall("GuildRoster")
-	trial = C_Timer.NewTicker(5, function() securecall("GuildRoster") end)
+	trial = C_Timer.NewTicker(3, function() securecall("GuildRoster") end)
 end
 
 f:SetScript("OnEvent", function(self, event)

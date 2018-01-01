@@ -17,6 +17,7 @@ Locales\zhCN.lua
 Utils.lua
 CustomEvents.lua
 EPGP.lua
+DKP.lua
 Comm.lua
 Track.lua
 
@@ -35,13 +36,13 @@ Frames\Announcements.lua
 Frames\AttendanceEditor.lua
 Frames\RaidLogs.lua
 Frames\NewRaidLog.lua
-Frames\EPAward.lua
-Frames\GPCredit.lua
-Frames\RecordLoot.lua
-Frames\Penalize.lua
+Frames\LootSystem\Award.lua
+Frames\LootSystem\Credit.lua
+Frames\LootSystem\Penalize.lua
+Frames\LootSystem\RecordLoot.lua
+Frames\LootSystem\EPGPOptions.lua
+Frames\LootSystem\DKPOptions.lua
 Frames\FloatButtons.lua
-Frames\EPGPOptions.lua
-Frames\DKPOptions.lua
 Frames\Config.lua
 Frames\RosterEditor.lua
 Frames\MemberDetails.lua
@@ -50,9 +51,9 @@ Frames\Export.lua
 Frames\Profiles.lua
 Frames\Help.lua
 
-LootDistribution\Common.lua
-LootDistribution\Token.lua
-LootDistribution\Artifact.lua
-LootDistribution\Distribution.lua
-LootDistribution\Loot.lua
-LootDistribution\Config.lua
+Frames\LootDistribution\Common.lua
+Frames\LootDistribution\Token.lua
+Frames\LootDistribution\Artifact.lua
+Frames\LootDistribution\Distribution.lua
+Frames\LootDistribution\Loot.lua
+Frames\LootDistribution\Config.lua

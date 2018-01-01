@@ -17,10 +17,10 @@ recordBtn:SetScript("OnClick", function()
     local lootTable = {"GP", 0, rlItem, rlLooter, rlNote}
     if rlIndex then -- modify
         _G[GRA_R_RaidLogs][rlDate]["details"][rlIndex] = lootTable
-        GRA:FireEvent("GRA_EPGP_MODIFY", rlDate)
+        GRA:FireEvent("GRA_ENTRY_MODIFY", rlDate)
     else -- create new
         table.insert(_G[GRA_R_RaidLogs][rlDate]["details"], lootTable)
-        GRA:FireEvent("GRA_EPGP", rlDate)
+        GRA:FireEvent("GRA_ENTRY", rlDate)
     end
     recordLootFrame:Hide()
 

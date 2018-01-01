@@ -3,100 +3,113 @@ local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
 -----------------------------------------
--- EP Award Frame
+-- Award Frame
 -----------------------------------------
-local epReason, epValue, epSelected, epDate, epIndex, epFloatBtn = nil, nil, {}, nil, nil, nil
+local aReason, aValue, aSelected, aDate, aIndex, aFloatBtn = nil, nil, {}, nil, nil, nil
 
-local epAwardFrame = GRA:CreateMovableFrame(L["EP Award"], "GRA_EPAwardFrame", 400, 400, nil, "DIALOG")
-epAwardFrame:SetToplevel(true)
-gra.epAwardFrame = epAwardFrame
+local awardFrame = GRA:CreateMovableFrame("XX Award", "GRA_AwardFrame", 400, 400, nil, "DIALOG")
+awardFrame:SetToplevel(true)
+gra.awardFrame = awardFrame
 
-local dateText = epAwardFrame.header:CreateFontString(nil, "OVERLAY", "GRA_FONT_PIXEL")
+local dateText = awardFrame.header:CreateFontString(nil, "OVERLAY", "GRA_FONT_PIXEL")
 dateText:SetPoint("LEFT", 10, 0)
 
--- ep reason text
-local epReasonText = epAwardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-epReasonText:SetText("|cff80FF00" .. L["Reason"])
-epReasonText:SetPoint("TOPLEFT", 10, -10)
+-- reason text
+local aReasonText = awardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+aReasonText:SetText("|cff80FF00" .. L["Reason"])
+aReasonText:SetPoint("TOPLEFT", 10, -10)
 
--- ep reason editbox
-local epReasonEditBox = GRA:CreateEditBox(epAwardFrame, 160, 20)
-epReasonEditBox:SetPoint("TOPLEFT", epReasonText, 10, -15)
+-- reason editbox
+local aReasonEditBox = GRA:CreateEditBox(awardFrame, 160, 20)
+aReasonEditBox:SetPoint("TOPLEFT", aReasonText, 10, -15)
 
--- ep value text
-local epValueText = epAwardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-epValueText:SetText("|cff80FF00" .. L["Value"])
-epValueText:SetPoint("LEFT", epReasonText, 200, 0)
+-- value text
+local aValueText = awardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+aValueText:SetText("|cff80FF00" .. L["Value"])
+aValueText:SetPoint("LEFT", aReasonText, 200, 0)
 
-local epValueEditBox = GRA:CreateEditBox(epAwardFrame, 160, 20)
-epValueEditBox:SetPoint("TOPLEFT", epValueText, 10, -15)
-epValueEditBox:SetScript("OnEnterPressed", function()
-    local ex = epValueEditBox:GetText()
+local aValueEditBox = GRA:CreateEditBox(awardFrame, 160, 20)
+aValueEditBox:SetPoint("TOPLEFT", aValueText, 10, -15)
+aValueEditBox:SetScript("OnEnterPressed", function()
+    local ex = aValueEditBox:GetText()
     if string.find(ex,"=") == 1 then
         ex = string.sub(ex, 2)
         local status, result = GRA:Calc(ex)
         if status then
-            epValueEditBox:SetText(result)
-            epValueEditBox:ClearFocus()
+            aValueEditBox:SetText(result)
+            aValueEditBox:ClearFocus()
         else
-            GRA:ShowNotificationString(gra.colors.firebrick.s .. result, "TOPLEFT", epValueEditBox, "BOTTOMLEFT", 0, -3)
+            GRA:ShowNotificationString(gra.colors.firebrick.s .. result, "TOPLEFT", aValueEditBox, "BOTTOMLEFT", 0, -3)
         end
     else
-        epValueEditBox:ClearFocus()
+        aValueEditBox:ClearFocus()
     end
 end)
 
-local attendeesText = epAwardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+local attendeesText = awardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 attendeesText:SetText("|cff80FF00" .. L["Attendees"])
-attendeesText:SetPoint("TOPLEFT", epReasonText, 0, -50)
+attendeesText:SetPoint("TOPLEFT", aReasonText, 0, -50)
 
-local absenteesText = epAwardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+local absenteesText = awardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 absenteesText:SetText("|cff80FF00" .. L["Absentees"])
--- absenteesText:SetPoint("TOPLEFT", epValueText, 0, -45)
+-- absenteesText:SetPoint("TOPLEFT", aValueText, 0, -45)
 
 local attendeeCBs, absenteeCBs = {}, {}
 
-local awardBtn = GRA:CreateButton(epAwardFrame, L["Award EP"] .. "(0)", "red", {epAwardFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
+local awardBtn = GRA:CreateButton(awardFrame, "Award XX" .. "(0)", "red", {awardFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
 awardBtn:SetPoint("BOTTOM")
 awardBtn:SetScript("OnClick", function()
     -- change officer note
-    if epIndex then
-        GRA:ModifyEP(epDate, epValue, epReason, epSelected, epIndex)
-    else
-        GRA:AwardEP(epDate, epValue, epReason, epSelected)
+    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+        if aIndex then
+            GRA:ModifyEP(aDate, aValue, aReason, aSelected, aIndex)
+        else
+            GRA:AwardEP(aDate, aValue, aReason, aSelected)
+        end
+    else -- dkp
+        if aIndex then
+            GRA:ModifyDKP_A(aDate, aValue, aReason, aSelected, aIndex)
+        else
+            GRA:AwardDKP(aDate, aValue, aReason, aSelected)
+        end
     end
-    epAwardFrame:Hide()
+    awardFrame:Hide()
 
-    if epFloatBtn then epFloatBtn:Hide() end
+    if aFloatBtn then aFloatBtn:Hide() end
 end)
 
-local unSelectAllAttendees = GRA:CreateButton(epAwardFrame, L["Unselect All"], nil, {70, 16}, "GRA_FONT_SMALL")
+local system
+local function UpdateAwardBtnText()
+    awardBtn:SetText((aIndex and L["Modify " .. system] or L["Award " .. system]) .. " (" .. #aSelected .. ")")
+end
+
+local unSelectAllAttendees = GRA:CreateButton(awardFrame, L["Unselect All"], nil, {70, 16}, "GRA_FONT_SMALL")
 unSelectAllAttendees:SetPoint("LEFT", attendeesText, 140, 0)
 unSelectAllAttendees:SetScript("OnClick", function()
-    -- epSelected = {}
+    -- aSelected = {}
     for name, cb in pairs(attendeeCBs) do
         if cb:IsShown() then -- only select shown cbs
             cb:SetChecked(false)
-            GRA:Remove(epSelected, name)
+            GRA:Remove(aSelected, name)
         end
     end
-    awardBtn:SetText((epIndex and L["Modify EP"] or L["Award EP"]) .. " (" .. #epSelected .. ")")
+    UpdateAwardBtnText()
 end)
 
-local selectAllAttendees = GRA:CreateButton(epAwardFrame, L["Select All"], nil, {70, 16}, "GRA_FONT_SMALL")
+local selectAllAttendees = GRA:CreateButton(awardFrame, L["Select All"], nil, {70, 16}, "GRA_FONT_SMALL")
 selectAllAttendees:SetPoint("RIGHT", unSelectAllAttendees, "LEFT", -5, 0)
 selectAllAttendees:SetScript("OnClick", function()
-    -- print(GRA:TableToString(epSelected))
-    -- epSelected = {}
+    -- print(GRA:TableToString(aSelected))
+    -- aSelected = {}
     for name, cb in pairs(attendeeCBs) do
         if cb:IsShown() then -- only select shown cbs
             cb:SetChecked(true)
-            if tContains(epSelected, name) ~= 1 then
-                table.insert(epSelected, name)
+            if tContains(aSelected, name) ~= 1 then
+                table.insert(aSelected, name)
             end
         end
     end
-    awardBtn:SetText((epIndex and L["Modify EP"] or L["Award EP"]) .. " (" .. #epSelected .. ")")
+    UpdateAwardBtnText()
 end)
 
 -- test ------------------------------------------
@@ -135,13 +148,13 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     for _, t in pairs(sorted) do
         -- create cbs
         if not cbTbl[t[1]] then
-            cbTbl[t[1]] = GRA:CreateCheckButton(epAwardFrame, t[3], RAID_CLASS_COLORS[t[2]], function(checked)
+            cbTbl[t[1]] = GRA:CreateCheckButton(awardFrame, t[3], RAID_CLASS_COLORS[t[2]], function(checked)
                 if checked then
-                    table.insert(epSelected, t[1])
+                    table.insert(aSelected, t[1])
                 else
-                    GRA:Remove(epSelected, t[1])
+                    GRA:Remove(aSelected, t[1])
                 end
-                awardBtn:SetText((epIndex and L["Modify EP"] or L["Award EP"]) .. " (" .. #epSelected .. ")")
+                UpdateAwardBtnText()
             end)
             cbTbl[t[1]].label:SetWidth(70)
             cbTbl[t[1]].label:SetWordWrap(false)
@@ -168,15 +181,13 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     end
 end
 
-function GRA:ShowEPAwardFrame(d, reason, ep, selected, attendees, absentees, index, floatBtn)
-    if epAwardFrame:IsShown() then epAwardFrame:Hide() end
+function GRA:ShowAwardFrame(d, reason, value, selected, attendees, absentees, index, floatBtn)
+    aDate = d
+    aIndex = index
+    aFloatBtn = floatBtn
 
-    epDate = d
-    epIndex = index
-    epFloatBtn = floatBtn
-
-    epReasonEditBox:SetText(reason and reason or "")
-    epValueEditBox:SetText(ep and ep or "")
+    aReasonEditBox:SetText(reason and reason or "")
+    aValueEditBox:SetText(value and value or "")
     -- selected == {} --> unselect all
     if not selected then selected = {} end
 
@@ -185,10 +196,8 @@ function GRA:ShowEPAwardFrame(d, reason, ep, selected, attendees, absentees, ind
     absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendees)/4)*26-20)
     CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)
 
-    -- epAwardFrame:SetHeight(120 + ceil(GRA:Getn(attendeeCBs)/4)*26 + ceil(GRA:Getn(absenteeCBs)/4)*26)
-    epAwardFrame:SetHeight(120 + ceil(GRA:Getn(attendees)/4)*26 + ceil(GRA:Getn(absentees)/4)*26)
-
-    epAwardFrame:Show()
+    -- awardFrame:SetHeight(120 + ceil(GRA:Getn(attendeeCBs)/4)*26 + ceil(GRA:Getn(absenteeCBs)/4)*26)
+    awardFrame:SetHeight(120 + ceil(GRA:Getn(attendees)/4)*26 + ceil(GRA:Getn(absentees)/4)*26)
 
     -- update cb state
     for name, cb in pairs(attendeeCBs) do
@@ -207,26 +216,34 @@ function GRA:ShowEPAwardFrame(d, reason, ep, selected, attendees, absentees, ind
         end
     end
 
-    epSelected = GRA:Copy(selected)
+    aSelected = GRA:Copy(selected)
 
-    awardBtn:SetText((epIndex and L["Modify EP"] or L["Award EP"]) .. " (" .. #epSelected .. ")")
+    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+        system = "EP"
+    else -- dkp
+        system = "DKP"
+    end
+    awardFrame.header.text:SetText(L[system .. " Award"])
+    UpdateAwardBtnText()
 
     dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToTime(d)))
+
+    awardFrame:Show()
 end
 
 -- validation
-epAwardFrame:SetScript("OnUpdate", function()
-    epReason = epReasonEditBox:GetText()
-    epValue = tonumber(epValueEditBox:GetText())
-    if epValue ~= nil and epValue ~= 0 and epReason ~= "" and #epSelected ~= 0 then
+awardFrame:SetScript("OnUpdate", function()
+    aReason = aReasonEditBox:GetText()
+    aValue = tonumber(aValueEditBox:GetText())
+    if aValue ~= nil and aValue ~= 0 and aReason ~= "" and #aSelected ~= 0 then
         awardBtn:SetEnabled(true)
     else
         awardBtn:SetEnabled(false)
     end
 end)
 
-epAwardFrame:SetScript("OnShow", function()
-    LPP:PixelPerfectPoint(epAwardFrame)
-    gra.gpCreditFrame:Hide()
+awardFrame:SetScript("OnShow", function()
+    LPP:PixelPerfectPoint(awardFrame)
+    gra.creditFrame:Hide()
     gra.penalizeFrame:Hide()
 end)

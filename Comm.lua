@@ -249,7 +249,7 @@ end)
 -----------------------------------------
 -- popup message
 -----------------------------------------
-function GRA:SendEPGPMsg(msgType, name, value, reason)
+function GRA:SendEntryMsg(msgType, name, value, reason)
     if UnitIsConnected(GRA:GetShortName(name)) then
         Comm:SendCommMessage("GRA_MSG", "|cff80FF00" .. msgType .. ":|r " .. value
         .. "  |cff80FF00" .. L["Reason"] .. ":|r " .. reason, "WHISPER", name, "ALERT")

@@ -73,10 +73,18 @@ local penalizeBtn = GRA:CreateButton(penalizeFrame, L["Guilty!"] .. "(0)", "red"
 penalizeBtn:SetPoint("BOTTOM")
 penalizeBtn:SetScript("OnClick", function()
     -- change officer note
-    if pIndex then
-        GRA:ModifyPenalize(pDate, pType, pValue, pReason, pSelected, pIndex)
-    else
-        GRA:Penalize(pDate, pType, pValue, pReason, pSelected)
+    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+        if pIndex then
+            GRA:ModifyPenalizeEPGP(pDate, pType, pValue, pReason, pSelected, pIndex)
+        else
+            GRA:PenalizeEPGP(pDate, pType, pValue, pReason, pSelected)
+        end
+    else -- dkp
+        if pIndex then
+            GRA:ModifyPenalizeDKP(pDate, pValue, pReason, pSelected, pIndex)
+        else
+            GRA:PenalizeDKP(pDate, pValue, pReason, pSelected)
+        end
     end
     penalizeFrame:Hide()
 end)
@@ -139,12 +147,19 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
 end
 
 function GRA:ShowPenalizeFrame(d, type, reason, value, selected, attendees, absentees, index)
-    if penalizeFrame:IsShown() then penalizeFrame:Hide() end
-
-    pType = type or "PGP"
-    if pType == "PGP" then gpButton:Click() else epButton:Click() end
     pDate = d
     pIndex = index
+    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+        epButton:Show()
+        gpButton:Show()
+        pValueEditBox:SetWidth(122)
+        pType = type or "PGP"
+        if pType == "PGP" then gpButton:Click() else epButton:Click() end
+    else -- dkp
+        epButton:Hide()
+        gpButton:Hide()
+        pValueEditBox:SetWidth(160)
+    end
 
     pReasonEditBox:SetText(reason and reason or "")
     pValueEditBox:SetText(value and abs(value) or "")
@@ -156,8 +171,6 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, attendees, abse
     CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)
 
     penalizeFrame:SetHeight(120 + ceil(GRA:Getn(attendees)/4)*26 + ceil(GRA:Getn(absentees)/4)*26)
-
-    penalizeFrame:Show()
 
     -- update cb state
     for name, cb in pairs(attendeeCBs) do
@@ -181,6 +194,8 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, attendees, abse
     penalizeBtn:SetText(L["Guilty!"] .. " (" .. #pSelected .. ")")
 
     dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToTime(d)))
+
+    penalizeFrame:Show()
 end
 
 -- validation
@@ -196,6 +211,6 @@ end)
 
 penalizeFrame:SetScript("OnShow", function()
     LPP:PixelPerfectPoint(penalizeFrame)
-    gra.gpCreditFrame:Hide()
-    gra.epAwardFrame:Hide()
+    gra.creditFrame:Hide()
+    gra.awardFrame:Hide()
 end)

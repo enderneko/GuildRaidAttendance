@@ -12,14 +12,6 @@ local fontName = epgpOptionsFrame.header.closeBtn:GetFontString():GetFont()
 epgpOptionsFrame.header.closeBtn:GetFontString():SetFont(fontName, 11)
 epgpOptionsFrame.header.closeBtn:SetScript("OnClick", function() epgpOptionsFrame:Hide() gra.configFrame:Show() end)
 
-local LGN = LibStub:GetLibrary("LibGuildNotes")
-local function ResetEPGP()
-	local players = GRA:GetPlayers()
-	for _, player in pairs(players) do
-		LGN:SetOfficerNote(player, "0,0")
-	end
-end
-
 local baseGPEditbox, minEPEditBox, decayEditBox
 -----------------------------------------
 -- enable epgp
@@ -157,7 +149,7 @@ decayNowBtn:SetScript("OnClick", function()
 	if decayP == 0 then return end
 
 	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. string.format(L["Decay EP and GP by %d%%?"], decayP), function()
-		GRA:Decay(decayP)
+		GRA:DecayEPGP(decayP)
     	SendChatMessage("GRA: " .. L["Decayed EP and GP by %d%%."]:format(decayP), "GUILD")
 	end, true)
 	confirm:SetPoint("TOPLEFT", decayNowEditBox)
@@ -185,7 +177,7 @@ GRA:RegisterEvent("GRA_PERMISSION", "DecayEPGP_CheckPermissions", function(isAdm
 			GRA:CreateStaticPopup(L["Decay EPGP"], L["Decay EP and GP by %d%%?"]:format(decayP)
 			.. "\n" .. gra.colors.grey.s .. L["Yes - Decay EPGP now.\nNo - Don't ask again this week."], function()
 				_G[GRA_R_Config]["lastDecayed"] = current
-				GRA:Decay(decayP)
+				GRA:DecayEPGP(decayP)
 				SendChatMessage("GRA: " .. L["Decayed EP and GP by %d%%."]:format(decayP), "GUILD")
 			end, function()
 				_G[GRA_R_Config]["lastDecayed"] = current
@@ -201,7 +193,7 @@ local resetBtn = GRA:CreateButton(epgpOptionsFrame, L["Reset EPGP"], "red", {epg
 resetBtn:SetPoint("BOTTOMLEFT", 5, 5)
 resetBtn:SetScript("OnClick", function()
 	local confirm = GRA:CreateConfirmBox(epgpOptionsFrame, epgpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset EP and GP?"], function()
-		ResetEPGP()
+		GRA:ResetEPGP()
 	end, true)
 	confirm:SetPoint("BOTTOM", resetBtn, "TOP", 0, 10)
 end)
