@@ -200,6 +200,8 @@ function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
 	elseif buttonColor == "Penalize" then
 		color = {.95, .17, .2, .4}
 		hoverColor = {.95, .17, .2, .65}
+	elseif buttonColor == "none" then
+		color = {0, 0, 0, 0}
 	else
 		color = {.1, .1, .1, .7}
 		hoverColor = {.5, 1, 0, .6}
@@ -243,8 +245,10 @@ function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
     b:SetNormalFontObject(font)
 	b:SetHighlightFontObject(font)
 	
-	b:SetScript("OnEnter", function(self) self:SetBackdropColor(unpack(hoverColor)) end)
-	b:SetScript("OnLeave", function(self) self:SetBackdropColor(unpack(color)) end)
+	if buttonColor ~= "none" then
+		b:SetScript("OnEnter", function(self) self:SetBackdropColor(unpack(hoverColor)) end)
+		b:SetScript("OnLeave", function(self) self:SetBackdropColor(unpack(color)) end)
+	end
 	
 	-- click sound
 	b:SetScript("PostClick", function() PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON) end)
@@ -586,7 +590,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	row.nameGrid = GRA:CreateGrid(row, gra.size.grid_name, nameText, {.7,.7,.7,.1})
 	row.nameGrid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.nameGrid:GetFontString():ClearAllPoints()
-	row.nameGrid:GetFontString():SetPoint("LEFT", 5, 0)
+	row.nameGrid:GetFontString():SetPoint("LEFT", 20, 0)
 	row.nameGrid:SetNormalFontObject("GRA_FONT_TEXT")
 	row.nameGrid:SetPoint("LEFT")
 	row.nameGrid:SetScript("OnDoubleClick", function(self, button)
@@ -594,6 +598,10 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 			onDoubleClick()
 		end
 	end)
+
+	row.primaryRole = GRA:CreateButton(row.nameGrid, "", "none", {16, 16})
+	row.primaryRole:SetAlpha(.7)
+	row.primaryRole:SetPoint("LEFT", 2, 0)
 
 	-- ep
 	row.epGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})

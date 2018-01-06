@@ -168,7 +168,7 @@ L["Raid roster has been received."] = "团队名单已接收。"
 -------------------------------------------------------
 L["Config"] = "设置"
 L["Roster"] = "名单"
-L["Modify"] = "修改"
+L["Edit"] = "编辑"
 L["Import"] = "导入"
 L["Guild"] = "公会"
 L["Group"] = "队伍"
@@ -191,7 +191,6 @@ L["Switch to minimal mode?\nYou cannot receive raid logs in this mode."] = "切�
 L["Last updated time: "] = "最后更新时间："
 L["never"] = "从不"
 -- roster editor
-L["Roster Editor"] = "名单编辑"
 L["members"] = "成员"
 L["Edit Name"] = "修改名字"
 L["Edit fullname (must contain realm name)."] = "编辑全名（必须包含服务器名）。"

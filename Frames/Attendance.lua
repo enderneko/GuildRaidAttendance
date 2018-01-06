@@ -673,10 +673,10 @@ headerFrame:SetPoint("BOTTOMRIGHT", attendanceFrame.scrollFrame, "TOPRIGHT")
 headerFrame:EnableMouse(true)
 headerFrame:SetFrameLevel(7)
 
-local nameText = GRA:CreateGrid(headerFrame, 80, L["Name"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by name."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by class."])
+local nameText = GRA:CreateGrid(headerFrame, 95, L["Name"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by name."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by class."])
 nameText:GetFontString():ClearAllPoints()
-nameText:GetFontString():SetWidth(75)
-nameText:GetFontString():SetPoint("BOTTOMLEFT", 5, 1)
+nameText:GetFontString():SetWidth(90)
+nameText:GetFontString():SetPoint("BOTTOMLEFT", 20, 1)
 nameText:GetFontString():SetJustifyH("LEFT")
 nameText:SetPoint("BOTTOMLEFT", headerFrame)
 nameText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1613,6 +1613,7 @@ local function LoadSheet()
 			local color = RAID_CLASS_COLORS[pTable["class"]].colorStr
 			local row = GRA:CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), "|c" .. color .. shortName .. "|r",
 				function() print("Show details (WIP): " .. pName) end)
+			row.primaryRole:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\Roles\]] .. (pTable["role"] or "DPS"))
 			row.name = pName -- sort key
 			row.class = pTable["class"] -- sort key
 			

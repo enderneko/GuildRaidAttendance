@@ -4,22 +4,25 @@
 ╚========================╝
 GRA_RaidLogs = {
 	date(string) = {
+		["desc"] = (string),
 		["startTime"] = (string),
 		["attendees"] = {
-			playerName(string) = {attendance("PRESENT", "LATE"), joinTime(number)},
+			playerName(string) = {attendance("PRESENT", "LATE"), joinTime(number), note(string)},
 		},
 		["absentees"] = {
-			playerName(string) = reason(string),
+			playerName(string) = {("ABSENT/ONLEAVE"), note(string)},
 		},
 		["details"] = {
-			-- EPGP/DKP
-			{"EP"/"GP", ep/gp, reason(string)/itemLink, {playerName...}, note},
+			-- EPGP
+			{"EP", ep, reason(string), {playerName...}},
+			{"GP", gp, itemLink, playerName, note},
 			{"PEP"/"PGP", value, reason(string), {playerName...}},
 			-- DKP
-			{"DKP_A"/"DKP_C", dkp, reason(string)/itemLink, {playerName...}, note},
+			{"DKP_A", dkp, reason(string), {playerName...}},
+			{"DKP_C", dkp, itemLink, playerName, note},
 			{"DKP_P", value, reason(string), {playerName...}},
 			-- LC
-			{"GP", 0, reason(string)/itemLink, {playerName}, note},
+			{"GP", 0, reason(string)/itemLink, playerName, note},
 		},
 	},
 }
@@ -29,15 +32,17 @@ GRA_RaidLogs = {
 ╚========================╝
 GRA_Roster = {
 	["playerName"] = {
-		["ilvl"] = {equipped, average},
 		["class"] = (string),
+		["role"] = (string),
 		["att30"] = {present(number), absent(number)},
 		["att60"] = {present(number), absent(number)},
 		["att90"] = {present(number), absent(number)},
 		["attLifetime"] = {present(number), absent(number), late(number), onLeave(number)},
 		["EP"] = (number),
 		["GP"] = (number),
-		["DKP"] = (number),
+		["DKP_Current"] = (number),
+		["DKP_Spent"] = (number),
+		["DKP_Total"] = (number),
 	},
 }
 

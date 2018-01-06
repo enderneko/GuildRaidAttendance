@@ -246,7 +246,7 @@ importBtn:SetScript("OnClick", function()
 							gp = 0
 							LGN:SetOfficerNote(n, "0,0")
 						end
-						_G[GRA_R_Roster][n] = {["class"]=t.class, ["EP"]=ep, ["GP"]=gp}
+						_G[GRA_R_Roster][n] = {["class"]=t.class, ["role"]="DPS", ["EP"]=ep, ["GP"]=gp}
 					end
 				elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
 					-- retrieve DKP
@@ -261,10 +261,10 @@ importBtn:SetScript("OnClick", function()
 							total = 0
 							LGN:SetOfficerNote(n, "0,0,0")
 						end
-						_G[GRA_R_Roster][n] = {["class"]=t.class, ["DKP_Current"]=current, ["DKP_Spent"]=spent, ["DKP_Total"]=total}
+						_G[GRA_R_Roster][n] = {["class"]=t.class, ["role"]="DPS", ["DKP_Current"]=current, ["DKP_Spent"]=spent, ["DKP_Total"]=total}
 					end
 				else -- loot council
-					_G[GRA_R_Roster][n] = {["class"]=t.class}
+					_G[GRA_R_Roster][n] = {["class"]=t.class, ["role"]="DPS"}
 				end
 			else
 				GRA:Print(L["Failed to import player %s, it's not in your guild."]:format(GRA:GetClassColoredName(n, t.class)))

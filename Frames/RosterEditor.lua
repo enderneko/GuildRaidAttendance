@@ -2,10 +2,25 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LGN = LibStub:GetLibrary("LibGuildNotes")
 
+local class_roles = {
+    ["DEATHKNIGHT"] = {"TANK", "DPS"},
+    ["DEMONHUNTER"] = {"TANK", "DPS"},
+    ["DRUID"] = {"TANK", "HEALER", "DPS"},
+    ["HUNTER"] = {"DPS"},
+    ["MAGE"] = {"DPS"},
+    ["MONK"] = {"TANK", "HEALER", "DPS"},
+    ["PALADIN"] = {"TANK", "HEALER", "DPS"},
+    ["PRIEST"] = {"HEALER", "DPS"},
+    ["ROGUE"] = {"DPS"},
+    ["SHAMAN"] = {"HEALER", "DPS"},
+    ["WARLOCK"] = {"DPS"},
+    ["WARRIOR"] = {"TANK", "DPS"},
+}
+
 ----------------------------------------------------------------------------------
 -- roster editor: change player name, delete player from roster
 ----------------------------------------------------------------------------------
-local rosterEditorFrame = GRA:CreateFrame(L["Roster Editor"], "GRA_RosterEditorFrame", gra.mainFrame, 150, gra.mainFrame:GetHeight())
+local rosterEditorFrame = GRA:CreateFrame(L["Edit"], "GRA_RosterEditorFrame", gra.mainFrame, 190, gra.mainFrame:GetHeight())
 gra.rosterEditorFrame = rosterEditorFrame
 rosterEditorFrame:SetPoint("TOPLEFT", gra.mainFrame, "TOPRIGHT", 2, 0)
 rosterEditorFrame.header.closeBtn:SetText("←")
@@ -31,7 +46,7 @@ rosterEditorFrame.header.helpBtn:HookScript("OnLeave", function() GRA_Tooltip:Hi
 local rosterText = rosterEditorFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 rosterText:SetPoint("TOPLEFT", 5, -8)
 
-local deleted, renamed = {}, {}
+local deleted, renamed, roleSet = {}, {}, {}
 local scroll = GRA:CreateScrollFrame(rosterEditorFrame, -25, 55)
 local LoadRoster
 
@@ -52,6 +67,20 @@ local function DiscardChanges()
             t[1]:SetText(GRA:GetClassColoredName(n))
         end
         wipe(renamed)
+    end
+
+    if GRA:Getn(roleSet) ~= 0 then
+        -- undo roleSet
+        for n, t in pairs(roleSet) do
+            for roleName, roleBtn in pairs(t[2]) do
+                if roleName == _G[GRA_R_Roster][n]["role"] then
+                    roleBtn:SetAlpha(1)
+                else
+                    roleBtn:SetAlpha(.2)
+                end
+            end
+        end
+        wipe(roleSet)
     end
 end
 
@@ -145,9 +174,15 @@ local function Rename()
     _G[GRA_R_Roster] = GRA:RemoveElementsByKeys(_G[GRA_R_Roster], names)
 end
 
+local function SetRole()
+    for n, t in pairs(roleSet) do
+        _G[GRA_R_Roster][n]["role"] = t[1]
+    end
+end
+
 local function SaveChanges()
     if gra.popupEditBox then gra.popupEditBox:Hide() end
-    if GRA:Getn(deleted) == 0 and GRA:Getn(renamed) == 0 then return end
+    if GRA:Getn(deleted) == 0 and GRA:Getn(renamed) == 0 and GRA:Getn(roleSet) == 0 then return end
     local deletedShortNames, renamedDetails = {}, {}, {}
 
     -- deleted names
@@ -168,6 +203,8 @@ local function SaveChanges()
         Delete()
         -- rename!
         Rename()
+        -- set role!
+        SetRole()
         -- load and show
         LoadRoster()
         rosterText:SetText("|cff80FF00" .. GRA:Getn(_G[GRA_R_Roster]) .. " " .. L["members"])
@@ -181,6 +218,7 @@ local function SaveChanges()
         end
         wipe(deleted)
         wipe(renamed)
+        wipe(roleSet)
 
         -- update sheet
         GRA:ShowAttendanceSheet()
@@ -215,10 +253,49 @@ local function CreatePlayerGrid(name)
     g.b = b
     b:SetPoint("RIGHT")
     b:SetScript("OnClick", function()
-        deleted[name] = g
-        g:SetAlpha(.35)
-        b:SetEnabled(false)
+        if not deleted[name] then
+            deleted[name] = g
+            g:SetAlpha(.35)
+        else
+            deleted = GRA:RemoveElementsByKeys(deleted, {name})
+            g:SetAlpha(1)
+        end
     end)
+
+    g.roles = {}
+    local roles = class_roles[_G[GRA_R_Roster][name]["class"]]
+    for i = #roles, 1, -1 do
+        g.roles[roles[i]] = GRA:CreateButton(g, "", "none", {16, 16})
+        g.roles[roles[i]]:SetAlpha(.2)
+        g.roles[roles[i]]:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\Roles\]] .. roles[i])
+        g.roles[roles[i]]:SetScript("OnClick", function()
+            for roleName, roleBtn in pairs(g.roles) do
+                if roleName ~= roles[i] then
+                    roleBtn:SetAlpha(.2)
+                else
+                    roleBtn:SetAlpha(1)
+                    if _G[GRA_R_Roster][name]["role"] == roleName then
+                        roleSet = GRA:RemoveElementsByKeys(roleSet, {name})
+                    else
+                        roleSet[name] = {roleName, g.roles}
+                    end
+                end
+            end
+        end)
+        
+        if roles[i + 1] then
+            g.roles[roles[i]]:SetPoint("RIGHT", g.roles[roles[i + 1]], "LEFT", 1, 0)
+        else
+            g.roles[roles[i]]:SetPoint("RIGHT", b, "LEFT", -1, 0)
+        end
+    end
+
+    if not _G[GRA_R_Roster][name]["role"] then -- no role, set to "DPS"
+        _G[GRA_R_Roster][name]["role"] = "DPS"
+        g.roles["DPS"]:SetAlpha(1)
+    else
+        g.roles[_G[GRA_R_Roster][name]["role"]]:SetAlpha(1)
+    end
 
     g:SetScript("OnDoubleClick", function(self, button)
         if g:GetAlpha() ~= 1 then return end
