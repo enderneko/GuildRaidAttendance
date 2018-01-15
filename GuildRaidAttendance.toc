@@ -10,6 +10,7 @@
 embeds.xml
 
 Core.lua
+Revise.lua
 
 Locales\enUS.lua
 Locales\zhCN.lua
@@ -27,6 +28,7 @@ Widgets\Widgets.lua
 Widgets\ScrollFrame.lua
 Widgets\Popups.lua
 Widgets\DropDownMenu.lua
+Widgets\ContextMenu.lua
 
 Frames\Main.lua
 Frames\Appearance.lua

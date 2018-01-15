@@ -1,5 +1,4 @@
 local GRA, gra = unpack(select(2, ...))
-local L = select(2, ...).L
 
 ------------------------------------------------
 -- drop down menu 2017-07-28 06:23:35

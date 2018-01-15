@@ -34,6 +34,7 @@ GRA_Roster = {
 	["playerName"] = {
 		["class"] = (string),
 		["role"] = (string),
+		["altOf"] = (string),
 		["att30"] = {present(number), absent(number)},
 		["att60"] = {present(number), absent(number)},
 		["att90"] = {present(number), absent(number)},

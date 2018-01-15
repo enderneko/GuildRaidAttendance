@@ -311,30 +311,6 @@ function frame:ADDON_LOADED(arg1)
 			}
 		end
 
-		-- for previous version, TODO: delete
-		if type(_G[GRA_R_Config]["raidInfo"]["DKP"]) ~= "number" then
-			_G[GRA_R_Config]["raidInfo"]["DKP"] = 0
-		end
-		-- for previous version, TODO: delete
-		if type(_G[GRA_R_Config]["raidInfo"]["startTime"]) ~= "string" then
-			_G[GRA_R_Config]["raidInfo"]["startTime"] = _G[GRA_R_Config]["raidInfo"]["deadline"]
-			_G[GRA_R_Config]["raidInfo"] = GRA:RemoveElementsByKeys(_G[GRA_R_Config]["raidInfo"], {"deadline"})
-		end
-		-- for previous version, TODO: delete
-		if _G[GRA_R_Config]["raidInfo"]["lastDecayed"] then
-			_G[GRA_R_Config]["raidInfo"] = GRA:RemoveElementsByKeys(_G[GRA_R_Config]["raidInfo"], {"lastDecayed"})
-		end
-		-- for previous version, TODO: delete
-		if _G[GRA_R_Config]["useEPGP"] then
-			_G[GRA_R_Config]["raidInfo"]["system"] = "EPGP"
-			_G[GRA_R_Config] = GRA:RemoveElementsByKeys(_G[GRA_R_Config], {"useEPGP"})
-		end
-		-- for previous version, TODO: delete
-		if _G[GRA_R_Config]["system"] then
-			_G[GRA_R_Config]["raidInfo"]["system"] = _G[GRA_R_Config]["system"]
-			_G[GRA_R_Config] = GRA:RemoveElementsByKeys(_G[GRA_R_Config], {"system"})
-		end
-		
 		-- disable minimal mode by default
 		if type(GRA_Variables["minimalMode"]) ~= "boolean" then GRA_Variables["minimalMode"] = false end
 		
@@ -350,8 +326,6 @@ function frame:ADDON_LOADED(arg1)
 
 		-- sort
 		if type(GRA_Variables["sortKey"]) ~= "string" then GRA_Variables["sortKey"] = "name" end
-		-- class filter
-		if type(GRA_Variables["classFilter"]) ~= "table" then GRA_Variables["classFilter"] = {["WARRIOR"]=true, ["HUNTER"]=true, ["SHAMAN"]=true, ["MONK"]=true, ["ROGUE"]=true, ["MAGE"]=true, ["DRUID"]=true, ["DEATHKNIGHT"]=true, ["PALADIN"]=true, ["WARLOCK"]=true, ["PRIEST"]=true, ["DEMONHUNTER"]=true} end
 
 		if type(_G[GRA_R_Config]["startDate"]) ~= "string" then _G[GRA_R_Config]["startDate"] = GRA:GetLockoutsResetDate() end -- this lockouts reset day
 		-- GRA:Debug("startDate: " .. _G[GRA_R_Config]["startDate"])

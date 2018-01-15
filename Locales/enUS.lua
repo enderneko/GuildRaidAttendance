@@ -8,7 +8,7 @@ select(2, ...).L = setmetatable({
 	["GET_STARTED"] = [[
 		<h1>Get Started</h1>
 		<p>|cFFFF3030Assign admin:|r In order to use GRA, your guild must have a GRA admin.</p>
-		<p>Add a newline for example: |cFF00CCFF#GRA:Archimonde|r to guild information (no spaces). Require a UI reload.</p>
+		<p>Add a newline for example: |cFF00CCFF#GRA:Admin|r or |cFF00CCFF#GRA:Admin1,Admin2,...|r to guild information (no spaces). Require a UI reload.</p>
 		<img src="Interface\AddOns\GuildRaidAttendance\Media\Help\getting_started_1.tga" height="128" align="center"/>
 		<p></p>
 		<p>|cFFFF3030Import members:|r |cFF00CCFFConfig > Import|r to select your raid members.</p>

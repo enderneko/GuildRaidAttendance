@@ -63,6 +63,11 @@ function GRA:GetScale()
     return LPP:GetPixelPerfectScale() * GRA_A_Variables["scaleFactor"]
 end
 
+function GRA:GetCursorPosition()
+    local x, y = GetCursorPosition()
+    return x / GRA:GetScale(), y / GRA:GetScale()
+end
+
 function GRA:SetScale(factor)
     GRA_A_Variables["scaleFactor"] = factor
     local scale = LPP:GetPixelPerfectScale() * factor

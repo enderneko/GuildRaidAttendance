@@ -301,7 +301,7 @@ local function ShowRaidDetails(d)
 						.. detail[3] .. ": " .. detail[2] .. " " .. (string.find(detail[1], "EP") and "EP" or "GP")
 						, function()
 							if string.find(detail[1], "P") == 1 then
-								GRA:UndoPenalize(d, k)
+								GRA:UndoPenalizeEPGP(d, k)
 							else
 								GRA:UndoEPGP(d, k)
 							end

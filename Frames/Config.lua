@@ -354,7 +354,7 @@ end)
 -- permission control
 -----------------------------------------
 -- permission check mask
-GRA:CreateMask(rosterFrame, "Checking Permissions...")
+GRA:CreateMask(rosterFrame, L["Checking Permissions..."])
 GRA:RegisterEvent("GRA_PERMISSION", "ConfigFrame_CheckPermissions", function(isAdmin)
 	rosterFrame.mask:Hide()
 	if isAdmin then

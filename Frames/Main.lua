@@ -139,6 +139,7 @@ buttons["announcementsBtn"]:SetScript("OnClick", function()
 end)
 -- TODO: announcements
 buttons["announcementsBtn"]:SetEnabled(false)
+buttons["announcementsBtn"]:Hide()
 
 -- track button, change text and color OnClick
 local trackBtn = GRA:CreateButton(gra.mainFrame.header, "TRACK", nil, {60, 22}, "GRA_FONT_PIXEL")
@@ -179,13 +180,13 @@ local function EnableMiniMode(f)
 	if f then
 		buttons["attendanceSheetBtn"]:Hide()
 		buttons["raidLogsBtn"]:Hide()
-		buttons["announcementsBtn"]:Hide()
+		-- buttons["announcementsBtn"]:Hide()
 		buttons["attendanceSheetBtn"]:Click()
 		-- gra.mainFrame:SetHeight(420)
 	else
 		buttons["attendanceSheetBtn"]:Show()
 		buttons["raidLogsBtn"]:Show()
-		buttons["announcementsBtn"]:Show()
+		-- buttons["announcementsBtn"]:Show()
 		-- gra.mainFrame:SetHeight(400)
 	end
 end

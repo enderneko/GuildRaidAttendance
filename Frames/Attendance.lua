@@ -34,6 +34,7 @@ statusFrame:EnableMouse(true)
 statusFrame:SetFrameLevel(7)
 
 local membersText = statusFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+membersText:SetPoint("LEFT", 2, 0)
 local minEPText = statusFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 minEPText:SetPoint("LEFT", membersText, "RIGHT", 10, 0)
 local baseGPText = statusFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
@@ -536,10 +537,7 @@ end
 -----------------------------------------
 -- class filter
 -----------------------------------------
--- local function FilterClass()
--- 	TODO: find a better way to filter class, not to create row again and again
--- end
-
+--[=[
 local classFilterCBs = {}
 classFilterCBs["ALL"] = GRA:CreateCheckButton(statusFrame, L["All"], nil, nil, "GRA_FONT_SMALL")
 classFilterCBs["ALL"]:SetScript("OnClick", function(self)
@@ -589,6 +587,7 @@ for i = 1, 12 do
 end
 
 classFilterCBs["ALL"]:SetPoint("LEFT", lastCB, "RIGHT", 10, 0)
+]=]
 
 -----------------------------------------
 -- refresh button & date picker
@@ -1606,12 +1605,11 @@ end)
 -----------------------------------------
 local function LoadSheet()
 	CountAll()
+	-- process mains
 	for pName, pTable in pairs(_G[GRA_R_Roster]) do
-		-- filter class
-		if GRA_Variables["classFilter"][pTable["class"]] then
-			local shortName = GRA:GetShortName(pName)
-			local color = RAID_CLASS_COLORS[pTable["class"]].colorStr
-			local row = GRA:CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), "|c" .. color .. shortName .. "|r",
+		-- if GRA_Variables["classFilter"][pTable["class"]] then
+		if not pTable["altOf"] then
+			local row = GRA:CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), pName,
 				function() print("Show details (WIP): " .. pName) end)
 			row.primaryRole:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\Roles\]] .. (pTable["role"] or "DPS"))
 			row.name = pName -- sort key
@@ -1635,6 +1633,13 @@ local function LoadSheet()
 			table.insert(loaded, row)
 			attendanceFrame.scrollFrame:SetWidgetAutoWidth(row)
 			-- attendanceFrame.loaded = attendanceFrame.loaded + 1
+		end
+		-- end
+	end
+	-- process alts
+	for pName, pTable in pairs(_G[GRA_R_Roster]) do
+		if pTable["altOf"] then
+
 		end
 	end
 end
@@ -1701,10 +1706,10 @@ local function EnableMiniMode(f)
 		refreshBtn:ClearAllPoints()
 		refreshBtn:SetPoint("BOTTOMRIGHT", gra.mainFrame, -62, 5)
 		
-		membersText:ClearAllPoints()
-		membersText:SetPoint("TOPLEFT", 0, -20)
+		-- membersText:ClearAllPoints()
+		-- membersText:SetPoint("TOPLEFT", 0, -20)
 		decayText:ClearAllPoints()
-		decayText:SetPoint("TOPLEFT", 0, -38)
+		decayText:SetPoint("TOPLEFT", 2, -20)
 	else
 		-- reset frame width
 		gra.mainFrame:SetWidth(gra.size.mainFrame[1])
@@ -1714,12 +1719,10 @@ local function EnableMiniMode(f)
 		refreshBtn:ClearAllPoints()
 		refreshBtn:SetPoint("BOTTOMRIGHT", 0, 1)
 		
-		membersText:ClearAllPoints()
-		membersText:SetPoint("LEFT", 245, 0)
+		-- membersText:ClearAllPoints()
+		-- membersText:SetPoint("LEFT", 245, 0)
 		decayText:ClearAllPoints()
 		decayText:SetPoint("LEFT", baseGPText, "RIGHT", 10, 0)
-		-- decayText:ClearAllPoints()
-		-- decayText:SetPoint("LEFT", baseGPText, "RIGHT", 10, 0)
 	end
 end
 
@@ -1736,12 +1739,13 @@ attendanceFrame:SetScript("OnShow", function()
 	LPP:PixelPerfectPoint(gra.mainFrame)
 	if newWidth then gra.mainFrame:SetWidth(newWidth) end
 
-	-- class filter
+	--[=[ class filter
 	for class,checked in pairs(GRA_Variables["classFilter"]) do
 		classFilterCBs[class]:SetChecked(checked)
 		-- print(class .. (checked and "√" or "×"))
 	end
 	refreshCB_ALL()
+	]=]
 
 	datePicker:SetDate(_G[GRA_R_Config]["startDate"])
 	
@@ -1763,7 +1767,7 @@ end)
 
 if GRA:Debug() then
 	-- GRA:StylizeFrame(attendanceFrame, {.5, 0, 0, 0})
-	GRA:StylizeFrame(headerFrame, {0, .7, 0, .1}, {0, 0, 0, 0})
+	-- GRA:StylizeFrame(headerFrame, {0, .7, 0, .1}, {0, 0, 0, 0})
 	-- GRA:StylizeFrame(statusFrame, {1, 0, 0, .1}, {0, 0, 0, 0})
 end
 

@@ -579,7 +579,7 @@ function GRA:CreateGrid(frame, width, text, color, highlight, ...)
 	return grid
 end
 
-function GRA:CreateRow(frame, width, nameText, onDoubleClick)
+function GRA:CreateRow(frame, width, mainName, onDoubleClick)
 	local row = CreateFrame("Button", nil, frame)
 	row:SetFrameLevel(5)
 	row:SetSize(width, gra.size.height)
@@ -587,7 +587,7 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	row:SetBackdropColor(0, 0, 0, 0) 
     row:SetBackdropBorderColor(0, 0, 0, 1)
 	
-	row.nameGrid = GRA:CreateGrid(row, gra.size.grid_name, nameText, {.7,.7,.7,.1})
+	row.nameGrid = GRA:CreateGrid(row, gra.size.grid_name, GRA:GetClassColoredName(mainName), {.7,.7,.7,.1})
 	row.nameGrid:SetBackdropBorderColor(0, 0, 0, 1)
 	row.nameGrid:GetFontString():ClearAllPoints()
 	row.nameGrid:GetFontString():SetPoint("LEFT", 20, 0)
@@ -602,6 +602,9 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	row.primaryRole = GRA:CreateButton(row.nameGrid, "", "none", {16, 16})
 	row.primaryRole:SetAlpha(.7)
 	row.primaryRole:SetPoint("LEFT", 2, 0)
+	row.primaryRole:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .1) end)
+	row.primaryRole:SetScript("OnLeave", function() row:SetBackdropColor(0, 0, 0, 0) end)
+
 
 	-- ep
 	row.epGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
@@ -745,6 +748,18 @@ function GRA:CreateRow(frame, width, nameText, onDoubleClick)
 	
 	row:SetScript("OnEnter", function(self) self:SetBackdropColor(.5, .5, .5, .1) end)
 	row:SetScript("OnLeave", function(self) self:SetBackdropColor(0, 0, 0, 0) end)
+
+	row.alts = {}
+	function row:AddAlt(altName)
+		row.alts[altName] = {}
+		row:SetHeight((GRA:Getn(row.alts) + 1) * gra.size.height)
+		row.alts[altName].nameGrid = GRA:CreateGrid(row, gra.size.grid_name, GRA:GetClassColoredName(altName), {.7,.7,.7,.1})
+		row.alts[altName].nameGrid:SetBackdropBorderColor(0, 0, 0, 1)
+		row.alts[altName].nameGrid:GetFontString():ClearAllPoints()
+		row.alts[altName].nameGrid:GetFontString():SetPoint("LEFT", 20, 0)
+		row.alts[altName].nameGrid:SetNormalFontObject("GRA_FONT_TEXT")
+		-- row.alts[altName].nameGrid:SetPoint("TOP", row.nameGrid, "BOTTOM", 0, 1)
+	end
 	
 	return row
 end
