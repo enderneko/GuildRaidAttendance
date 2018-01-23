@@ -241,6 +241,7 @@ end
 
 gra.mainAlt = {}
 function GRA:UpdateMainAlt()
+	wipe(gra.mainAlt)
 	for n, t in pairs(_G[GRA_R_Roster]) do
 		if t["altOf"] then
 			if not gra.mainAlt[t["altOf"]] then gra.mainAlt[t["altOf"]] = {} end

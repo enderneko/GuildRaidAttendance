@@ -1197,7 +1197,7 @@ local function ShowCalcARProgressFrame(maxValue)
 end
 
 -- admin only, calculate AR
-CalcAR = function()
+CalcAR = function() -- TODO: 大小号！
 	if gra.isAdmin == nil then -- wait for GRA_PERMISSION
 		GRA:RegisterEvent("GRA_PERMISSION", "CalcAR_CheckPermission", function()
 			CalcAR()
@@ -1231,10 +1231,9 @@ CalcAR = function()
 	for d, l in pairs(_G[GRA_R_RaidLogs]) do
 		for name, t in pairs(l["attendances"]) do
 			if playerAtts[name] then -- exists in roster
-				if t[1] == "PRESENT" or t[1] == "LATE" then
-					if t[1] == "PRESENT" then
-						playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
-					elseif t[1] == "LATE" then
+				if t[3] then -- PRESENT or LATE
+					playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
+					if t[1] == "LATE" then
 						playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
 					end
 					
@@ -1430,18 +1429,19 @@ end
 
 local function UpdateGrid(g, d, name, altGs)
 	-- set gp detail
-	local gp = gps[d][name]
-	if gp then g:SetText(gp["loots"]) end
-
-	-- set ep detail
-	local ep = eps[d][name]
+	if gps[d][name] then
+		g:SetText(gps[d][name]["loots"])
+	else
+		g:SetText("")
+	end
 
 	local att, joinTime = GetMainAltAttendance(d, name)
 	if altGs then
+		-- 设置大号出勤状态
 		if _G[GRA_R_RaidLogs][d]["attendances"][name] then
 			if not _G[GRA_R_RaidLogs][d]["attendances"][name][3] then -- 大号没出勤
-				if att ~= "ABSENT" or att ~= "ONLEAVE" then -- 小号有出勤
-					g:SetAttendance(nil)
+				if att ~= "ABSENT" and att ~= "ONLEAVE" then -- 小号有出勤
+					g:SetAttendance("IGNORED")
 				else
 					g:SetAttendance(att)
 				end
@@ -1449,18 +1449,55 @@ local function UpdateGrid(g, d, name, altGs)
 				g:SetAttendance(att)
 			end
 		else
-			g:SetAttendance(nil)
+			g:SetAttendance("IGNORED")
 		end
 
 		-- update altGs
 		for altName, altG in pairs(altGs) do
 			if gps[d][altName] then
 				altG:SetText(gps[d][altName]["loots"])
-				altG:SetAttendance(att) -- same as main
+			else
+				altG:SetText("")
+			end
+
+			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
+				altG:SetAttendance(att)
+			else
+				altG:SetAttendance("IGNORED")
+			end
+
+			-- prepare tooltip, add alts to main
+			if todaysEP[d][altName] then -- 小号有EP
+				todaysEP[d][name] = todaysEP[d][altName] + (todaysEP[d][name] or 0)
+			end
+			if eps[d][altName] then -- 小号有EP
+				if not eps[d][name] then eps[d][name] = {} end -- 如果大号没有则创建table
+				for k, altEP in pairs(eps[d][altName]) do
+					table.insert(eps[d][name], altEP .. " (" .. GRA:GetClassColoredName(altName) .. "|cffffffff)")
+				end
+			end
+
+			if todaysGP[d][altName] then -- 小号有GP
+				todaysGP[d][name] = todaysGP[d][altName] + (todaysGP[d][name] or 0)
+			end
+			if gps[d][altName] then -- 小号有拾取
+				if not gps[d][name] then gps[d][name] = {} end -- 如果大号没有则创建table
+				for k, altGP in pairs(gps[d][altName]) do
+					if k ~= "loots" then
+						table.insert(gps[d][name], altGP .. " (" .. GRA:GetClassColoredName(altName) .. "|cffffffff)")
+					end
+				end
 			end
 		end
 	else
 		g:SetAttendance(att)
+	end
+
+	-- mark
+	if _G[GRA_R_RaidLogs][d]["attendances"][name] and _G[GRA_R_RaidLogs][d]["attendances"][name][2] then
+		g:ShowNoteMark(true)
+	else
+		g:ShowNoteMark(false)
 	end
 
 	-- tooltip
@@ -1495,8 +1532,8 @@ local function UpdateGrid(g, d, name, altGs)
 			end
 		end
 
-		if ep then
-			for _, v in pairs(ep) do
+		if eps[d][name] then
+			for _, v in pairs(eps[d][name]) do
 				GRA_Tooltip:AddLine(v)
 			end
 			GRA_Tooltip:Show()
@@ -1512,8 +1549,8 @@ local function UpdateGrid(g, d, name, altGs)
 			end
 		end
 
-		if gp then
-			for k, v in pairs(gp) do
+		if gps[d][name] then
+			for k, v in pairs(gps[d][name]) do
 				if k ~= "loots" then GRA_Tooltip:AddLine(v) end
 			end
 			GRA_Tooltip:Show()
@@ -1564,8 +1601,23 @@ local function RefreshDetailsByDate(d)
 			local g = row.dateGrids[index]
 			g:SetAttendance(nil)
 			g:SetText("")
-			g:SetScript("OnEnter", g.onEnter)
-			g:SetScript("OnLeave", g.onLeave)
+			if row.alts then
+				g:SetScript("OnEnter", function()
+					g:Highlight()
+					for _, alts in pairs(row.alts) do
+						alts.dateGrids[index]:Highlight()
+					end
+				end)
+				g:SetScript("OnLeave", function()
+					g:Unhighlight()
+					for _, alts in pairs(row.alts) do
+						alts.dateGrids[index]:Unhighlight()
+					end
+				end)
+			else
+				g:SetScript("OnEnter", g.Highlight)
+				g:SetScript("OnLeave", g.Unhighlight)
+			end
 		end
 		return
 	end
@@ -1708,7 +1760,7 @@ local function LoadSheet()
 end
 
 local function HideAll()
-	loaded = {} -- clear
+	wipe(loaded)
 
 	statusFrame:Hide()
 	headerFrame:Hide()
@@ -1716,7 +1768,7 @@ local function HideAll()
 		dateGrids[i]:ClearAllPoints()
 		dateGrids[i]:Hide()
 	end
-	dateGrids = {} -- clear
+	wipe(dateGrids)
 
 	-- attendanceFrame.loaded = 0
 	attendanceFrame.scrollFrame:Reset()

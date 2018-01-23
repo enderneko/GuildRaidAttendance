@@ -1,4 +1,5 @@
 TODO:
+    循环加分，待命密语（可能并不会实现，考虑中）
     player detail frame (just view)
     import / export
     optimize attendance rate update (from last point)

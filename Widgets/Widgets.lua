@@ -571,6 +571,12 @@ function GRA:CreateGrid(frame, width, text, color, highlight, ...)
 		function grid:SetAttendance(att)
 			if att == nil then
 				grid:SetBackdropColor(.7, .7, .7, .1)
+			elseif att == "IGNORED" then
+				grid:SetBackdropColor(.7, .7, .7, .1)
+				-- local tex = grid:CreateTexture()
+				-- tex:SetColorTexture(0, 0, 0, 1)
+				-- tex:SetSize(10, 1)
+				-- tex:SetPoint("CENTER")
 			elseif att == "PRESENT" then
 				grid:SetBackdropColor(0, 1, 0, .2)
 			elseif att == "LATE" then
@@ -579,6 +585,19 @@ function GRA:CreateGrid(frame, width, text, color, highlight, ...)
 				grid:SetBackdropColor(1, 0, 0, .2)
 			else  -- on leave
 				grid:SetBackdropColor(1, 0, 1, .2)
+			end
+		end
+
+		grid.noteMark = grid:CreateTexture()
+		grid.noteMark:SetTexture([[Interface\AddOns\GuildRaidAttendance\Media\mark]])
+		grid.noteMark:SetAlpha(.7)
+		grid.noteMark:SetPoint("TOPRIGHT")
+		grid.noteMark:Hide()
+		function grid:ShowNoteMark(s)
+			if s then
+				grid.noteMark:Show()
+			else
+				grid.noteMark:Hide()
 			end
 		end
 	end
@@ -800,7 +819,7 @@ function GRA:CreateRow(frame, width, mainName, onDoubleClick)
 		for i = 1, #row.dateGrids do
 			local grid = GRA:CreateGrid(row, gra.size.grid_dates, " ", {.7,.7,.7,.1})
 			if i == 1 then
-				grid:SetPoint("TOPLEFT", lastColumn, "TOPRIGHT", -1, - altsNum * gra.size.height + altsNum)
+				grid:SetPoint("TOP", row.dateGrids[1], "TOP", 0, - altsNum * gra.size.height + altsNum)
 			else
 				grid:SetPoint("LEFT", row.alts[altName].dateGrids[i-1], "RIGHT", -1, 0)
 			end
@@ -931,6 +950,7 @@ function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, j
 		row.attendanceGrid:SetText(attendanceText)
 		
 		row.noteEditBox:SetText(nt or "")
+		if nt == "" then row.note = nil end
 
 		if jt then
 			row:SetJoinTimeVisible(true)

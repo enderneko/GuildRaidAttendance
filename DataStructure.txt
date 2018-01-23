@@ -69,20 +69,6 @@ GRA_Config = {
 GRA_Variables = {
 	["useAccountProfile"] = (boolean),
 	["minimalMode"] = (boolean),
-	["classFilter"] = {
-		["HUNTER"] = (boolean),
-		["WARRIOR"] = (boolean),
-		["SHAMAN"] = (boolean),
-		["MAGE"] = (boolean),
-		["PRIEST"] = (boolean),
-		["ROGUE"] = (boolean),
-		["WARLOCK"] = (boolean),
-		["DEMONHUNTER"] = (boolean),
-		["DEATHKNIGHT"] = (boolean),
-		["DRUID"] = (boolean),
-		["MONK"] = (boolean),
-		["PALADIN"] = (boolean),
-	},
 	["sortKey"] = (string),
 	["columns"] = {
 		["AR_60"] = (boolean),
@@ -101,6 +87,7 @@ GRA_A_Variables = {
 		["hide"] = (boolean),
 	},
 	["size"] = (string),
+	["scaleFactor"] = (number),
 	["helpViewed"] = (boolean),
 	["useGameFont"] = (boolean),
 }

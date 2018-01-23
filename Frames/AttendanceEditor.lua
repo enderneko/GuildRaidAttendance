@@ -93,13 +93,15 @@ local function SortAttendanceEditor()
         else -- IGNORED
             att = 4
         end
-        table.insert(sorted, {n, att, row.joinTime})
+        table.insert(sorted, {n, att, row.joinTime, _G[GRA_R_Roster][n]["class"]})
     end
     table.sort(sorted, function(a, b)
         if a[2] ~= b[2] then
             return a[2] < b[2]
         elseif a[3] ~= b[3] then
             return a[3] < b[3]
+        elseif a[4] ~= b[4] then
+            return GRA:GetIndex(gra.CLASS_ORDER, a[4]) < GRA:GetIndex(gra.CLASS_ORDER, b[4])
         else
             return a[1] < b[1]
         end 
@@ -261,13 +263,11 @@ function GRA:ShowAttendanceEditor(d, b)
                     ["color"] = "yellow",
                     ["onClick"] = function()
                         row:SetRowInfo("IGNORED")
-                        row.noteEditBox:SetEnabled(false)
                         CheckPlayerAttendance(row)
                     end
                 },
             }
 		    local selector = GRA:CreatePopupSelector(row.attendanceGrid, 60, items)
-            -- selector:SetPoint("TOPLEFT", row.attendanceGrid, "BOTTOMLEFT", 0, -1)
             selector:SetPoint("TOPLEFT")
         end)
         
@@ -298,6 +298,7 @@ function GRA:ShowAttendanceEditor(d, b)
         row.noteEditBox:SetScript("OnTextChanged", function(self, userInput)
             if not userInput then return end
             row.note = self:GetText()
+            if row.note == "" then row.note = nil end
             CheckPlayerAttendance(row)
         end)
     end
