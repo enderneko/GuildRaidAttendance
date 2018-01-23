@@ -14,7 +14,7 @@ function GRA:ShowContextMenu(parent, width, title, numItems, items)
 		-- gra.contextMenu:EnableMouse(true)
 		gra.contextMenu:SetFrameStrata("TOOLTIP")
 		GRA:StylizeFrame(gra.contextMenu, {.1, .1, .1, .95})
-		LPP:PixelPerfectScale(gra.contextMenu)
+		gra.contextMenu:SetScale(GRA:GetScale())
 		gra.contextMenu:SetScript("OnShow", function()
 			LPP:PixelPerfectPoint(gra.contextMenu)
 		end)
@@ -38,9 +38,9 @@ function GRA:ShowContextMenu(parent, width, title, numItems, items)
 		end)
 
 		-- highlight
-		gra.contextMenu.highlight = gra.contextMenu:CreateTexture()
-		gra.contextMenu.highlight:SetSize(5, height - 2)
-		gra.contextMenu.highlight:SetColorTexture(unpack(gra.colors.chartreuse.t))
+		-- gra.contextMenu.highlight = gra.contextMenu:CreateTexture()
+		-- gra.contextMenu.highlight:SetSize(5, height - 2)
+		-- gra.contextMenu.highlight:SetColorTexture(unpack(gra.colors.chartreuse.t))
 	end
 
 	gra.contextMenu:SetScript("OnUpdate", function()
@@ -69,6 +69,9 @@ function GRA:ShowContextMenu(parent, width, title, numItems, items)
 	gra.contextMenu:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", GRA:GetCursorPosition())
 	if not gra.contextMenu.scrollFrame then
 		GRA:CreateScrollFrame(gra.contextMenu, 0, 19)
+		gra.contextMenu.highlight = gra.contextMenu.scrollFrame.content:CreateTexture()
+		gra.contextMenu.highlight:SetSize(5, height - 2)
+		gra.contextMenu.highlight:SetColorTexture(unpack(gra.colors.chartreuse.t))
 	end
 	gra.contextMenu.scrollFrame:SetScrollStep(height - 1)
 	gra.contextMenu.scrollFrame:Reset()

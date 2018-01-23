@@ -78,9 +78,9 @@ local function CreateItemButton(itemLink, looter)
         b:SetScript("OnClick", function(self, button)
             if button == "LeftButton" then
                 if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" or _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-                    GRA:ShowCreditFrame(raidDate, itemLink, nil, looter, nil, _G[GRA_R_RaidLogs][raidDate]["attendees"], nil, b)
+                    GRA:ShowCreditFrame(raidDate, itemLink, nil, looter, nil, nil, b)
                 else
-                    GRA:ShowRecordLootFrame(raidDate, itemLink, nil, looter, _G[GRA_R_RaidLogs][raidDate]["attendees"], nil, b)
+                    GRA:ShowRecordLootFrame(raidDate, itemLink, nil, looter, nil, b)
                 end
             elseif button == "RightButton" then
                 b:Hide()
@@ -114,7 +114,7 @@ local function CreateBossButton(bossName)
 
     b:SetScript("OnClick", function(self, button)
         if button == "LeftButton" then
-            GRA:ShowAwardFrame(raidDate, bossName, "", nil, _G[GRA_R_RaidLogs][raidDate]["attendees"], _G[GRA_R_RaidLogs][raidDate]["absentees"], nil, b)
+            GRA:ShowAwardFrame(raidDate, bossName, "", nil, nil, b)
         elseif button == "RightButton" then
             b:Hide()
         end

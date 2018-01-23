@@ -6,11 +6,8 @@ GRA_RaidLogs = {
 	date(string) = {
 		["desc"] = (string),
 		["startTime"] = (string),
-		["attendees"] = {
-			playerName(string) = {attendance("PRESENT", "LATE"), joinTime(number), note(string)},
-		},
-		["absentees"] = {
-			playerName(string) = {("ABSENT/ONLEAVE"), note(string)},
+		["attendances"] = {
+			playerName(string) = {"PRESENT"/"LATE"/"ONLEAVE"/"ABSENT", note(string), joinTime(number), leaveTime(number)},
 		},
 		["details"] = {
 			-- EPGP

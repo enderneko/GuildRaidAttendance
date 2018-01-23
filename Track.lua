@@ -16,15 +16,13 @@ local function RaidRosterUpdate()
 		if playerName then
 			if not string.find(playerName, "-") then playerName = playerName .. "-" .. GetRealmName() end
 			
-			-- only log players in raid team, and "ONCE"
-			if _G[GRA_R_Roster][playerName] and not _G[GRA_R_RaidLogs][raidDate]["attendees"][playerName] then
+			-- only log players in roster, and record joinTime
+			if _G[GRA_R_Roster][playerName] and not _G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][3] then
 				-- check attendance (PRESENT or LATE)
 				local joinTime = time()
 				local att = GRA:IsLate(joinTime, raidDate.._G[GRA_R_Config]["raidInfo"]["startTime"])
 				-- keep it logged
-				_G[GRA_R_RaidLogs][raidDate]["attendees"][playerName] = {att, joinTime}
-				-- remove from absentees
-				_G[GRA_R_RaidLogs][raidDate]["absentees"] = GRA:RemoveElementsByKeys(_G[GRA_R_RaidLogs][raidDate]["absentees"], {playerName})
+				_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName] = {att, nil, joinTime}
 				-- refresh sheet and logs
 				GRA:FireEvent("GRA_RAIDLOGS", raidDate)
 			end
@@ -60,10 +58,10 @@ function GRA:StartTracking(instanceName, difficultyName)
 		
 		-- init date
 		if not _G[GRA_R_RaidLogs][raidDate] then
-			_G[GRA_R_RaidLogs][raidDate] = {["attendees"]={}, ["absentees"]={}, ["details"]={}}
-			-- fill absent with all members
+			_G[GRA_R_RaidLogs][raidDate] = {["attendances"]={}, ["details"]={}}
+			-- init all members with "ABSENT" 
 			for n, t in pairs(_G[GRA_R_Roster]) do
-				_G[GRA_R_RaidLogs][raidDate]["absentees"][n] = ""
+				_G[GRA_R_RaidLogs][raidDate]["attendances"][n] = {"ABSENT"}
 			end
 		end
 

@@ -103,9 +103,9 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     local lastCB, count = nil, 0
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
-    for k, _ in pairs(playerTbl) do
-        if _G[GRA_R_Roster][k] then -- ignore deleted
-            table.insert(sorted, {k, _G[GRA_R_Roster][k]["class"], GRA:GetShortName(k)}) -- {"fullName", "class", "shortName"}
+    for _, n in pairs(playerTbl) do
+        if _G[GRA_R_Roster][n] then -- ignore deleted
+            table.insert(sorted, {n, _G[GRA_R_Roster][n]["class"], GRA:GetShortName(n)}) -- {"fullName", "class", "shortName"}
         end
     end
     SortByClass(sorted)
@@ -146,7 +146,7 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     end
 end
 
-function GRA:ShowPenalizeFrame(d, type, reason, value, selected, attendees, absentees, index)
+function GRA:ShowPenalizeFrame(d, type, reason, value, selected, index)
     pDate = d
     pIndex = index
     if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
@@ -166,6 +166,7 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, attendees, abse
     -- selected == {} --> unselect all
     if not selected then selected = {} end
 
+    local attendees, absentees = GRA:GetAttendeesAndAbsentees(d)
     CreatePlayerCheckBoxes(attendeesText, attendees, attendeeCBs)
     absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendees)/4)*26-20)
     CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)

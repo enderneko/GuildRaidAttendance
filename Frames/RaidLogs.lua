@@ -164,7 +164,7 @@ recordLootBtn:SetScript("OnClick", function()
 	else
 		local d = sortedDates[selected]
 		if not d then return end
-		GRA:ShowRecordLootFrame(d, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"])
+		GRA:ShowRecordLootFrame(d, nil, nil, nil)
 	end
 end)
 
@@ -177,7 +177,7 @@ penalizeBtn:SetScript("OnClick", function()
 	else
 		local d = sortedDates[selected]
 		if not d then return end
-		GRA:ShowPenalizeFrame(d, nil, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"], _G[GRA_R_RaidLogs][d]["absentees"])
+		GRA:ShowPenalizeFrame(d, nil, nil, nil, nil)
 	end
 end)
 penalizeBtn:Hide()
@@ -190,7 +190,7 @@ creditBtn:SetScript("OnClick", function()
 	else
 		local d = sortedDates[selected]
 		if not d then return end
-		GRA:ShowCreditFrame(d, nil, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"])
+		GRA:ShowCreditFrame(d, nil, nil, nil, nil)
 	end
 end)
 creditBtn:Hide()
@@ -203,7 +203,7 @@ awardBtn:SetScript("OnClick", function()
 	else
 		local d = sortedDates[selected]
 		if not d then return end
-		GRA:ShowAwardFrame(d, nil, nil, nil, _G[GRA_R_RaidLogs][d]["attendees"], _G[GRA_R_RaidLogs][d]["absentees"])
+		GRA:ShowAwardFrame(d, nil, nil, nil)
 	end
 end)
 awardBtn:Hide()
@@ -211,17 +211,37 @@ awardBtn:Hide()
 -----------------------------------------
 -- show raid info
 -----------------------------------------
+local function SortByClass(a, b)
+	local classA = _G[GRA_R_Roster][a] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][a]["class"]) or "99"
+	local classB = _G[GRA_R_Roster][b] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][b]["class"]) or "99"
+	if classA ~= classB then
+		return 	classA < classB
+	else
+		return a < b
+	end
+end
+
 local function ShowRaidSummary(d)
 	local t = _G[GRA_R_RaidLogs][d]
-	local attendees, absentees = "", ""
-	for n, tbl in pairs(t["attendees"]) do
-		attendees = attendees .. GRA:GetClassColoredName(n) .. " "
+	local attendeesString, absenteesString = "", ""
+
+	-- fill table
+	local attendees, absentees = GRA:GetAttendeesAndAbsentees(d)
+	-- sort by class
+	table.sort(attendees, function(a, b) return SortByClass(a, b) end)
+	table.sort(absentees, function(a, b) return SortByClass(a, b) end)
+
+	for _, n in pairs(attendees) do
+		attendeesString = attendeesString .. GRA:GetClassColoredName(n) .. " "
 	end
-	for n, tbl in pairs(t["absentees"]) do
-		absentees = absentees .. GRA:GetClassColoredName(n) .. " "
+	for _, n in pairs(absentees) do
+		absenteesString = absenteesString .. GRA:GetClassColoredName(n) .. " "
 	end
-	attendeesText:SetText("|cff80FF00" .. L["Attendees"] .. "(" .. GRA:Getn(t["attendees"]) .. "): " .. attendees)
-	absenteesText:SetText("|cff80FF00" .. L["Absentees"] .. "(" .. GRA:Getn(t["absentees"]) .. "): " .. absentees)
+	attendeesText:SetText("|cff80FF00" .. L["Attendees"] .. "(" .. GRA:Getn(attendees) .. "): " .. attendeesString)
+	absenteesText:SetText("|cff80FF00" .. L["Absentees"] .. "(" .. GRA:Getn(absentees) .. "): " .. absenteesString)
+
+	wipe(attendees)
+	wipe(absentees)
 end
 
 local function ShowRaidDetails(d)
@@ -314,11 +334,11 @@ local function ShowRaidDetails(d)
 					-- modify detail entry
 					b:SetScript("OnClick", function()
 						if detail[1] == "EP" then
-							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], t["attendees"], t["absentees"], k)
+							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
 						elseif detail[1] == "GP" then
-							GRA:ShowCreditFrame(d, detail[3], detail[2], detail[4], detail[5], t["attendees"], k)
+							GRA:ShowCreditFrame(d, detail[3], detail[2], detail[4], detail[5], k)
 						else -- PGP/PEP
-							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], t["attendees"], t["absentees"], k)
+							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
 						end
 					end)
 				elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
@@ -347,11 +367,11 @@ local function ShowRaidDetails(d)
 					-- modify detail entry
 					b:SetScript("OnClick", function()
 						if detail[1] == "DKP_A" then
-							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], t["attendees"], t["absentees"], k)
+							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
 						elseif detail[1] == "DKP_C" then
-							GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], t["attendees"], k)
+							GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], k)
 						else -- DKP_P
-							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], t["attendees"], t["absentees"], k)
+							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
 						end
 					end)
 				else -- loot council
@@ -373,7 +393,7 @@ local function ShowRaidDetails(d)
 
 					-- modify detail entry
 					b:SetScript("OnClick", function()
-						GRA:ShowRecordLootFrame(d, detail[3], detail[5], detail[4], t["attendees"], k)
+						GRA:ShowRecordLootFrame(d, detail[3], detail[5], detail[4], k)
 					end)
 				end
 			end
@@ -585,6 +605,14 @@ GRA:RegisterEvent("GRA_LOGS_DEL", "RaidLogsFrame_RaidLogsDeleted", function(dele
 	listFrame.scrollFrame:ResetHeight()
 	-- show last
 	UpdateList()
+end)
+
+GRA:RegisterEvent("GRA_ST_UPDATE", "RaidLogsFrame_StartTimeUpdate", function(d)
+	if (not d) or (d and dates[d].isSelected) then
+		titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
+			.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(sortedDates[selected]))
+			.. "    |cff80FF00" .. L["Raid Start Time"] .. ":|r " .. GRA:GetRaidStartTime(d))
+	end
 end)
 
 -----------------------------------------

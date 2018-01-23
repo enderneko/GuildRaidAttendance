@@ -6,6 +6,16 @@ TODO:
     （待定）新成员加入团队，如过记录窗口正在显示，不应当刷新scroll，如果当前显示的为今天，那么仅刷新名单列表
     larger font and frame (just use larger scale???)
 
+version r78-release
+------------------------
+    * Optimized raid log data structure.
+    * Fixed roster editor bugs (especially for DKP).
+    * Fixed raid log entry deletion (EPGP penalize).
+    + Added support for alts and primary roles.
+    + Added description to raid logs.
+    - Removed absentees from AwardFrame.
+    - Removed class filter.
+
 version r77-beta
 ------------------------
     + Added support for DKP system

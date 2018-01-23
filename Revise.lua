@@ -32,6 +32,28 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
         -- r78-release removed class filter
         if GRA_Variables["classFilter"] then
             GRA_Variables = GRA:RemoveElementsByKeys(GRA_Variables, {"classFilter"})
-        end
+		end
+		
+		-- r78-release new GRA_RaidLogs structure
+		for d, t in pairs(_G[GRA_R_RaidLogs]) do
+			if t["attendees"] and t["absentees"] then
+				t["attendances"] = {}
+				-- process attendees
+				for n, tbl in pairs(t["attendees"]) do
+					t["attendances"][n] = {tbl[1], nil, tbl[2]}
+				end
+				-- process absentees
+				for n, note in pairs(t["absentees"]) do
+					if note == "" then
+						t["attendances"][n] = {"ABSENT"}
+					else
+						t["attendances"][n] = {"ONLEAVE", note}
+					end
+				end
+
+				-- delete
+				_G[GRA_R_RaidLogs][d] = GRA:RemoveElementsByKeys(t, {"attendees", "absentees"})
+			end
+		end
     end
 end)

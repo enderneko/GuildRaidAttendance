@@ -17,6 +17,13 @@ gra.attendanceFrame = attendanceFrame
 
 -- attendanceFrame.loaded = 0 -- debug
 local loaded = {}
+local function GetRow(name)
+	for _, row in pairs(loaded) do
+		if row.name == name then
+			return row
+		end
+	end
+end
 
 -----------------------------------------
 -- sheet
@@ -135,10 +142,12 @@ end
 
 SortSheetByATT = function()
 	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-		-- att ar pr ep gp name
+		-- att late ar pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.attLifetime ~= b.attLifetime then
 				return a.attLifetime > b.attLifetime
+			elseif a.lateLifeTime ~= b.lateLifeTime then
+				return a.lateLifeTime < b.lateLifeTime
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
 			elseif a.pr ~= b.pr then
@@ -964,42 +973,41 @@ function GRA:RecalcPR()
 end
 
 function GRA:UpdatePlayerData_EPGP(name, ep, gp, noSort)
+	if _G[GRA_R_Roster][name]["altOf"] then return end
+
 	local baseGP = _G[GRA_R_Config]["raidInfo"]["EPGP"][1]
 	local minEP = _G[GRA_R_Config]["raidInfo"]["EPGP"][2]
-	for _, row in pairs(loaded) do
-		if row.name == name then
-			row.epGrid:SetText(ep)
-			-- ep < minEP
-			local color
-			if ep < minEP then
-				color = "|cffA0A0A0"
-			else
-				color = "|cffFFFFFF"
-			end
 
-			row.epGrid:SetText(color .. ep)
-			row.gpGrid:SetText(color .. (gp + baseGP))
-
-			local pr = (ep == 0) and 0 or (ep/(gp + baseGP))
-			row.ep = ep
-			row.gp = gp
-			row.pr = pr
-
-			if pr >= 1000 then
-				pr = math.ceil(pr)
-			elseif pr >= 100 then
-				pr = tonumber(string.format("%.1f", pr))
-			elseif pr >= 10 then
-				pr = tonumber(string.format("%.2f", pr))
-			elseif pr >= 1 then
-				pr = tonumber(string.format("%.3f", pr))
-			else
-				pr = tonumber(string.format("%.4f", pr))
-			end
-			row.prGrid:SetText(color .. pr)
-			break
-		end
+	local row = GetRow(name)
+	row.epGrid:SetText(ep)
+	-- ep < minEP
+	local color
+	if ep < minEP then
+		color = "|cffA0A0A0"
+	else
+		color = "|cffFFFFFF"
 	end
+
+	row.epGrid:SetText(color .. ep)
+	row.gpGrid:SetText(color .. (gp + baseGP))
+
+	local pr = (ep == 0) and 0 or (ep/(gp + baseGP))
+	row.ep = ep
+	row.gp = gp
+	row.pr = pr
+
+	if pr >= 1000 then
+		pr = math.ceil(pr)
+	elseif pr >= 100 then
+		pr = tonumber(string.format("%.1f", pr))
+	elseif pr >= 10 then
+		pr = tonumber(string.format("%.2f", pr))
+	elseif pr >= 1 then
+		pr = tonumber(string.format("%.3f", pr))
+	else
+		pr = tonumber(string.format("%.4f", pr))
+	end
+	row.prGrid:SetText(color .. pr)
 
 	if not noSort then
 		-- auto sort after data updated
@@ -1008,17 +1016,15 @@ function GRA:UpdatePlayerData_EPGP(name, ep, gp, noSort)
 end
 
 function GRA:UpdatePlayerData_DKP(name, current, spent, total)
-	for _, row in pairs(loaded) do
-		if row.name == name then
-			row.current = current
-			row.spent = spent
-			row.total = total
-			row.currentGrid:SetText(current)
-			row.spentGrid:SetText(spent)
-			row.totalGrid:SetText(total)
-			break
-		end
-	end
+	if _G[GRA_R_Roster][name]["altOf"] then return end
+
+	local row = GetRow(name)
+	row.current = current
+	row.spent = spent
+	row.total = total
+	row.currentGrid:SetText(current)
+	row.spentGrid:SetText(spent)
+	row.totalGrid:SetText(total)
 
 	-- auto sort after data updated
 	SortSheet(GRA_Variables["sortKey"])
@@ -1040,7 +1046,8 @@ ShowAR = function()
 		row.att60 = att60[1]
 		row.att90 = att90[1]
 		row.attLifetime = attLifetime[1]
-		
+		row.lateLifeTime = attLifetime[3] or 0 -- no attLifetime[3] in previous version
+
 		-- attendance rate
 		row.ar30 = tonumber(format("%.1f", att30[1]/(att30[1]+att30[2])*100)) or 0
 		row.ar60 = tonumber(format("%.1f", att60[1]/(att60[1]+att60[2])*100)) or 0
@@ -1094,9 +1101,12 @@ ShowAR = function()
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
 			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
 			GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. attLifetime[1])
-			GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. attLifetime[2])
 			GRA_Tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffff00" .. (attLifetime[3] or 0)) -- no attLifetime[3] in previous version
-			GRA_Tooltip:AddDoubleLine(L["On Leave"] .. ": ", "|cffff00ff" .. (attLifetime[4] or 0)) -- no attLifetime[4] in previous version
+			if attLifetime[4] and attLifetime[4] ~= 0 then
+				GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. attLifetime[2] .. " |cffff00ff(" .. attLifetime[4] .. ")")
+			else
+				GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. attLifetime[2])
+			end
 			GRA_Tooltip:Show()
 		end)
 		row.arLifetimeGrid:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
@@ -1219,41 +1229,30 @@ CalcAR = function()
 	local n = 1
 	-- calc
 	for d, l in pairs(_G[GRA_R_RaidLogs]) do
-		-- count PRESENT
-		for name, t in pairs(l["attendees"]) do
+		for name, t in pairs(l["attendances"]) do
 			if playerAtts[name] then -- exists in roster
-				playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
-				if t[1] == "LATE" then
-					playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
-				end
-				
-				if GRA:DateOffset(d, today) < 90 then
-					playerAtts[name]["90"][1] = playerAtts[name]["90"][1] + 1
-				end
-				if GRA:DateOffset(d, today) < 60 then
-					playerAtts[name]["60"][1] = playerAtts[name]["60"][1] + 1
-				end
-				if GRA:DateOffset(d, today) < 30 then
-					playerAtts[name]["30"][1] = playerAtts[name]["30"][1] + 1
-				end
-			end
-		end
-		-- count ABSENT
-		for name, reason in pairs(l["absentees"]) do
-			if playerAtts[name] then -- exists in roster
-				playerAtts[name]["lifetime"][2] = playerAtts[name]["lifetime"][2] + 1
-				if reason ~= "" then
-					playerAtts[name]["lifetime"][4] = playerAtts[name]["lifetime"][4] + 1
-				end
-				
-				if GRA:DateOffset(d, today) < 90 then
-					playerAtts[name]["90"][2] = playerAtts[name]["90"][2] + 1
-				end
-				if GRA:DateOffset(d, today) < 60 then
-					playerAtts[name]["60"][2] = playerAtts[name]["60"][2] + 1
-				end
-				if GRA:DateOffset(d, today) < 30 then
-					playerAtts[name]["30"][2] = playerAtts[name]["30"][2] + 1
+				if t[1] == "PRESENT" or t[1] == "LATE" then
+					if t[1] == "PRESENT" then
+						playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
+					elseif t[1] == "LATE" then
+						playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
+					end
+					
+					if GRA:DateOffset(d, today) < 90 then
+						playerAtts[name]["90"][1] = playerAtts[name]["90"][1] + 1
+					end
+					if GRA:DateOffset(d, today) < 60 then
+						playerAtts[name]["60"][1] = playerAtts[name]["60"][1] + 1
+					end
+					if GRA:DateOffset(d, today) < 30 then
+						playerAtts[name]["30"][1] = playerAtts[name]["30"][1] + 1
+					end
+				else
+					if t[1] == "ABSENT" then
+						playerAtts[name]["lifetime"][2] = playerAtts[name]["lifetime"][2] + 1
+					elseif t[1] == "ONLEAVE" then
+						playerAtts[name]["lifetime"][4] = playerAtts[name]["lifetime"][4] + 1
+					end
 				end
 			end
 		end
@@ -1401,41 +1400,88 @@ local function CountAll()
 	-- texplore(gps)
 end
 
-local function UpdateGrid(g, d, name)
+-- get main-alt attendance (which joined first)
+local function GetMainAltAttendance(d, mainName)
+	local att, joinTime
+
+	if _G[GRA_R_RaidLogs][d]["attendances"][mainName] then
+		att = _G[GRA_R_RaidLogs][d]["attendances"][mainName][1]
+
+		if _G[GRA_R_RaidLogs][d]["attendances"][mainName][3] then
+			joinTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][3]
+		end
+	end
+
+	if gra.mainAlt[mainName] then -- has alt
+		-- PRESENT or LATE
+		for _, altName in pairs(gra.mainAlt[mainName]) do
+			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
+				-- 大号没有出勤 or 小号先于大号进组
+				if not joinTime or joinTime > _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
+					att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
+					joinTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][3]
+				end
+			end
+		end
+	end
+
+	return att, joinTime
+end
+
+local function UpdateGrid(g, d, name, altGs)
 	-- set gp detail
 	local gp = gps[d][name]
-	-- if gp then g:SetText(#gp) end
 	if gp then g:SetText(gp["loots"]) end
 
 	-- set ep detail
 	local ep = eps[d][name]
 
-	-- set attendance (color grid)
-	if _G[GRA_R_RaidLogs][d]["attendees"][name] then
-		g:SetAttendance(_G[GRA_R_RaidLogs][d]["attendees"][name][1])
-	else 
-		g:SetAttendance(_G[GRA_R_RaidLogs][d]["absentees"][name])
+	local att, joinTime = GetMainAltAttendance(d, name)
+	if altGs then
+		if _G[GRA_R_RaidLogs][d]["attendances"][name] then
+			if not _G[GRA_R_RaidLogs][d]["attendances"][name][3] then -- 大号没出勤
+				if att ~= "ABSENT" or att ~= "ONLEAVE" then -- 小号有出勤
+					g:SetAttendance(nil)
+				else
+					g:SetAttendance(att)
+				end
+			else  -- 大号有出勤
+				g:SetAttendance(att)
+			end
+		else
+			g:SetAttendance(nil)
+		end
+
+		-- update altGs
+		for altName, altG in pairs(altGs) do
+			if gps[d][altName] then
+				altG:SetText(gps[d][altName]["loots"])
+				altG:SetAttendance(att) -- same as main
+			end
+		end
+	else
+		g:SetAttendance(att)
 	end
 
-	g:SetScript("OnEnter", function()
-		g.onEnter()
-
+	-- tooltip
+	g:HookScript("OnEnter", function()
 		GRA_Tooltip:SetOwner(g, "ANCHOR_NONE")
 		GRA_Tooltip:SetPoint("BOTTOMRIGHT", g, "BOTTOMLEFT", 1, 0)
+		GRA_Tooltip:SetPoint("RIGHT", g, "LEFT", 1, 0)
+		GRA_Tooltip:SetPoint("BOTTOM", g:GetParent(), 0, 0)
 		GRA_Tooltip:AddLine(GRA:GetClassColoredName(name))
 
 		local blankLine = false
 		-- join time
-		if _G[GRA_R_RaidLogs][d]["attendees"][name] then
-			GRA_Tooltip:AddLine(L["Join Time: "] .. GRA:SecondsToTime(_G[GRA_R_RaidLogs][d]["attendees"][name][2]))
+		if att == "PRESENT" or att == "LATE" then
+			GRA_Tooltip:AddLine(L["Join Time: "] .. GRA:SecondsToTime(joinTime))
 			GRA_Tooltip:Show()
 			blankLine = true
 		end
 
-
-		-- on leave
-		if _G[GRA_R_RaidLogs][d]["absentees"][name] and _G[GRA_R_RaidLogs][d]["absentees"][name] ~= "" then
-			GRA_Tooltip:AddLine(_G[GRA_R_RaidLogs][d]["absentees"][name])
+		-- note
+		if _G[GRA_R_RaidLogs][d]["attendances"][name] and _G[GRA_R_RaidLogs][d]["attendances"][name][2] then
+			GRA_Tooltip:AddLine(_G[GRA_R_RaidLogs][d]["attendances"][name][2])
 			GRA_Tooltip:Show()
 			blankLine = true
 		end
@@ -1474,18 +1520,25 @@ local function UpdateGrid(g, d, name)
 		end
 	end)
 
-	g:SetScript("OnLeave", function()
-		g.onLeave()
+	g:HookScript("OnLeave", function()
 		GRA_Tooltip:Hide()
 	end)
 end
 
-local function LoadRowDetail(row)
+local function LoadRowDetails(row)
 	for k, g in pairs(row.dateGrids) do
 		local d = dateGrids[k].date
 		
 		if _G[GRA_R_RaidLogs][d] then
-			UpdateGrid(g, d, row.name)
+			if row.alts then
+				local altGs = {}
+				for altName, altTable in pairs(row.alts) do
+					altGs[altName] = altTable.dateGrids[k]
+				end
+				UpdateGrid(g, d, row.name, altGs)
+			else
+				UpdateGrid(g, d, row.name)
+			end
 		end
 	end
 end
@@ -1527,8 +1580,15 @@ local function RefreshDetailsByDate(d)
 	end
 
 	for _, row in pairs(loaded) do
-		local g = row.dateGrids[index]
-		UpdateGrid(g, d, row.name)
+		if row.alts then
+			local altGs = {}
+			for altName, altTable in pairs(row.alts) do
+				altGs[altName] = altTable.dateGrids[index]
+			end
+			UpdateGrid(row.dateGrids[index], d, row.name, altGs)
+		else
+			UpdateGrid(row.dateGrids[index], d, row.name)
+		end
 	end
 end
 
@@ -1605,13 +1665,12 @@ end)
 -----------------------------------------
 local function LoadSheet()
 	CountAll()
-	-- process mains
+	GRA:UpdateMainAlt()
+	-- process mains and alts
 	for pName, pTable in pairs(_G[GRA_R_Roster]) do
-		-- if GRA_Variables["classFilter"][pTable["class"]] then
 		if not pTable["altOf"] then
 			local row = GRA:CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), pName,
 				function() print("Show details (WIP): " .. pName) end)
-			row.primaryRole:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\Roles\]] .. (pTable["role"] or "DPS"))
 			row.name = pName -- sort key
 			row.class = pTable["class"] -- sort key
 			
@@ -1627,19 +1686,23 @@ local function LoadSheet()
 			-- disabled in minimal mode
 			if not GRA_Variables["minimalMode"] then
 				row:CreateGrid(#dateGrids)
-				LoadRowDetail(row)
+			end
+			
+			-- load alts
+			if gra.mainAlt[pName] then
+				for _, altName in pairs(gra.mainAlt[pName]) do
+					row:AddAlt(altName)
+				end
+			end
+
+			-- disabled in minimal mode
+			if not GRA_Variables["minimalMode"] then
+				LoadRowDetails(row)
 			end
 			
 			table.insert(loaded, row)
 			attendanceFrame.scrollFrame:SetWidgetAutoWidth(row)
 			-- attendanceFrame.loaded = attendanceFrame.loaded + 1
-		end
-		-- end
-	end
-	-- process alts
-	for pName, pTable in pairs(_G[GRA_R_Roster]) do
-		if pTable["altOf"] then
-
 		end
 	end
 end

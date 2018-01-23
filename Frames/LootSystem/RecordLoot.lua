@@ -83,7 +83,7 @@ local function SortByClass(t)
 	end)
 end
 
-function GRA:ShowRecordLootFrame(d, link, note, looter, attendees, index, floatBtn)
+function GRA:ShowRecordLootFrame(d, link, note, looter, index, floatBtn)
     rlDate = d
     rlIndex = index
     if type(looter) ~= "string" then looter = nil end
@@ -93,11 +93,12 @@ function GRA:ShowRecordLootFrame(d, link, note, looter, attendees, index, floatB
     lootEditBox:SetText(link or "")
     noteEditBox:SetText(note or "")
 
+    local attendees = GRA:GetAttendeesAndAbsentees(d)
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
-    for k, v in pairs(attendees) do
-        if _G[GRA_R_Roster][k] then
-            table.insert(sorted, {k, _G[GRA_R_Roster][k]["class"]}) -- {"name", "class"}
+    for _, n in pairs(attendees) do
+        if _G[GRA_R_Roster][n] then
+            table.insert(sorted, {n, _G[GRA_R_Roster][n]["class"]}) -- {"name", "class"}
         end
     end
     SortByClass(sorted)

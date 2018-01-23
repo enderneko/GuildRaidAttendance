@@ -50,8 +50,8 @@ local attendeesText = awardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMAL
 attendeesText:SetText("|cff80FF00" .. L["Attendees"])
 attendeesText:SetPoint("TOPLEFT", aReasonText, 0, -50)
 
-local absenteesText = awardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-absenteesText:SetText("|cff80FF00" .. L["Absentees"])
+-- local absenteesText = awardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+-- absenteesText:SetText("|cff80FF00" .. L["Absentees"])
 -- absenteesText:SetPoint("TOPLEFT", aValueText, 0, -45)
 
 local attendeeCBs, absenteeCBs = {}, {}
@@ -138,9 +138,9 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     local lastCB, count = nil, 0
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
-    for k, _ in pairs(playerTbl) do
-        if _G[GRA_R_Roster][k] then -- ignore deleted
-            table.insert(sorted, {k, _G[GRA_R_Roster][k]["class"], GRA:GetShortName(k)}) -- {"fullName", "class", "shortName"}
+    for _, n in pairs(playerTbl) do
+        if _G[GRA_R_Roster][n] then -- ignore deleted
+            table.insert(sorted, {n, _G[GRA_R_Roster][n]["class"], GRA:GetShortName(n)}) -- {"fullName", "class", "shortName"}
         end
     end
     SortByClass(sorted)
@@ -181,7 +181,7 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     end
 end
 
-function GRA:ShowAwardFrame(d, reason, value, selected, attendees, absentees, index, floatBtn)
+function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
     aDate = d
     aIndex = index
     aFloatBtn = floatBtn
@@ -191,13 +191,12 @@ function GRA:ShowAwardFrame(d, reason, value, selected, attendees, absentees, in
     -- selected == {} --> unselect all
     if not selected then selected = {} end
 
+    local attendees = GRA:GetAttendeesAndAbsentees(d)
     CreatePlayerCheckBoxes(attendeesText, attendees, attendeeCBs)
-    -- absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendeeCBs)/4)*26-20)
-    absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendees)/4)*26-20)
-    CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)
+    -- absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendees)/4)*26-20)
+    -- CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)
 
-    -- awardFrame:SetHeight(120 + ceil(GRA:Getn(attendeeCBs)/4)*26 + ceil(GRA:Getn(absenteeCBs)/4)*26)
-    awardFrame:SetHeight(120 + ceil(GRA:Getn(attendees)/4)*26 + ceil(GRA:Getn(absentees)/4)*26)
+    awardFrame:SetHeight(100 + ceil(GRA:Getn(attendees)/4)*26)
 
     -- update cb state
     for name, cb in pairs(attendeeCBs) do

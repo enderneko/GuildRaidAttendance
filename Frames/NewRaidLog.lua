@@ -22,7 +22,6 @@ function GRA:NewRaidLog(parent)
         newRaidLogFrame:SetFrameStrata("DIALOG")
         newRaidLogFrame:SetFrameLevel(1)
         newRaidLogFrame:SetSize(158, 20)
-        LPP:PixelPerfectScale(newRaidLogFrame)
 
         datePicker = GRA:CreateDatePicker(newRaidLogFrame, 70, 20, function(d)
             newLogDate = tostring(d)
@@ -33,7 +32,7 @@ function GRA:NewRaidLog(parent)
         newBtn = GRA:CreateButton(newRaidLogFrame, L["Create"], "green", {45, 20})
         newBtn:SetPoint("LEFT", datePicker, "RIGHT", -1, 0)
         newBtn:SetScript("OnClick", function()
-            _G[GRA_R_RaidLogs][newLogDate] = {["attendees"]={}, ["absentees"]={}, ["details"]={}}
+            _G[GRA_R_RaidLogs][newLogDate] = {["attendances"]={}, ["details"]={}}
             -- manually edit attendance later
             GRA:FireEvent("GRA_RAIDLOGS", newLogDate)
             newRaidLogFrame:Hide()

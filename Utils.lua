@@ -239,6 +239,28 @@ function GRA:GetLocalizedClassName(class)
 	return classTable[class]
 end
 
+gra.mainAlt = {}
+function GRA:UpdateMainAlt()
+	for n, t in pairs(_G[GRA_R_Roster]) do
+		if t["altOf"] then
+			if not gra.mainAlt[t["altOf"]] then gra.mainAlt[t["altOf"]] = {} end
+			table.insert(gra.mainAlt[t["altOf"]], n)
+		end
+	end
+end
+
+function GRA:GetAttendeesAndAbsentees(d)
+	local attendees, absentees = {}, {}
+	for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendances"]) do
+		if t[3] then
+			table.insert(attendees, n)
+		else -- ABSENT or ONLEAVE
+			table.insert(absentees, n)
+		end
+	end
+	return attendees, absentees
+end
+
 -- d: date string/number, "20170321" or 20170321
 function GRA:DateToWeekday(d)
 	local year = string.sub(d, 1, 4)
@@ -319,7 +341,7 @@ function GRA:SecondsToTime(s)
 end
 
 function GRA:GetRaidStartTime(d)
-	if _G[GRA_R_RaidLogs][d]["startTime"] then
+	if d and _G[GRA_R_RaidLogs][d]["startTime"] then
 		return _G[GRA_R_RaidLogs][d]["startTime"]
 	else
 		return _G[GRA_R_Config]["raidInfo"]["startTime"]
@@ -341,8 +363,10 @@ end
 function GRA:UpdateAttendance(d)
 	if d then
 		-- start time changed for this day
-		for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendees"]) do
-			t[1] = GRA:IsLate(t[2], d .. (_G[GRA_R_RaidLogs][d]["startTime"] or _G[GRA_R_Config]["raidInfo"]["startTime"]))
+		for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendances"]) do
+			if t[3] then -- PRESENT or LATE
+				t[1] = GRA:IsLate(t[3], d .. (_G[GRA_R_RaidLogs][d]["startTime"] or _G[GRA_R_Config]["raidInfo"]["startTime"]))
+			end
 		end
 	else
 		-- global start time changed, only check date without start time

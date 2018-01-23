@@ -91,6 +91,10 @@ function GRA:SetScale(factor)
     gra.popupsAnchor:SetScale(scale)
     -- static popup
     if gra.staticPopup then gra.staticPopup:SetScale(scale) end
+    -- popup selector
+    if gra.popupSelector then gra.popupSelector:SetScale(scale) end
+    -- context menu
+    if gra.contextMenu then gra.contextMenu:SetScale(scale) end
     -- float buttons
     gra.floatButtonsAnchor:SetScale(scale)
 end

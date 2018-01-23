@@ -113,8 +113,7 @@ local function Delete()
     end
     for d, t in pairs(_G[GRA_R_RaidLogs]) do
         -- delete
-        t["attendees"] = GRA:RemoveElementsByKeys(t["attendees"], names)
-        t["absentees"] = GRA:RemoveElementsByKeys(t["absentees"], names)
+        t["attendances"] = GRA:RemoveElementsByKeys(t["attendances"], names)
         
         -- delete details
         for _, name in pairs(names) do
@@ -153,13 +152,9 @@ local function Rename()
     -- rename in _G[GRA_R_RaidLogs]
     for _, t in pairs(_G[GRA_R_RaidLogs]) do
         for oldName, newName in pairs(renamed) do
-            -- attendees
-            if t["attendees"][oldName] then
-                t["attendees"][newName[1]] = t["attendees"][oldName]
-            end
-            -- absentees
-            if t["absentees"][oldName] then
-                t["absentees"][newName[1]] = t["absentees"][oldName]
+            -- attendance
+            if t["attendances"][oldName] then
+                t["attendances"][newName[1]] = t["attendances"][oldName]
             end
             -- details
             for _, detail in pairs(t["details"]) do
@@ -178,8 +173,7 @@ local function Rename()
             end
         end
         -- delete old
-        t["attendees"] = GRA:RemoveElementsByKeys(t["attendees"], names)
-        t["absentees"] = GRA:RemoveElementsByKeys(t["absentees"], names)
+        t["attendances"] = GRA:RemoveElementsByKeys(t["attendances"], names)
     end
     -- rename in _G[GRA_R_Roster]
     for oldName, newName in pairs(renamed) do
