@@ -1196,8 +1196,36 @@ local function ShowCalcARProgressFrame(maxValue)
 	calcARProgressFrame.fadeIn:Play()
 end
 
+-- get main-alt attendance (which joined first)
+local function GetMainAltAttendance(d, mainName)
+	local att, joinTime
+
+	if _G[GRA_R_RaidLogs][d]["attendances"][mainName] then
+		att = _G[GRA_R_RaidLogs][d]["attendances"][mainName][1]
+
+		if _G[GRA_R_RaidLogs][d]["attendances"][mainName][3] then
+			joinTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][3]
+		end
+	end
+
+	if gra.mainAlt[mainName] then -- has alt
+		-- PRESENT or LATE
+		for _, altName in pairs(gra.mainAlt[mainName]) do
+			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
+				-- 大号没有出勤 or 小号先于大号进组
+				if not joinTime or joinTime > _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
+					att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
+					joinTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][3]
+				end
+			end
+		end
+	end
+
+	return att, joinTime
+end
+
 -- admin only, calculate AR
-CalcAR = function() -- TODO: 大小号！
+CalcAR = function()
 	if gra.isAdmin == nil then -- wait for GRA_PERMISSION
 		GRA:RegisterEvent("GRA_PERMISSION", "CalcAR_CheckPermission", function()
 			CalcAR()
@@ -1216,14 +1244,16 @@ CalcAR = function() -- TODO: 大小号！
 
 	local today = GRA:Date()
 	local playerAtts = {}
-	for n, _ in pairs(_G[GRA_R_Roster]) do
-		playerAtts[n] = {
-			-- {present, absent, late, onLeave}
-			["30"] = {0, 0},
-			["60"] = {0, 0},
-			["90"] = {0, 0},
-			["lifetime"] = {0, 0, 0, 0},
-		}
+	for n, t in pairs(_G[GRA_R_Roster]) do
+		if not t["altOf"] then -- ignore alts
+			playerAtts[n] = {
+				-- {present, absent, late, onLeave}
+				["30"] = {0, 0},
+				["60"] = {0, 0},
+				["90"] = {0, 0},
+				["lifetime"] = {0, 0, 0, 0},
+			}
+		end
 	end
 
 	local n = 1
@@ -1231,9 +1261,10 @@ CalcAR = function() -- TODO: 大小号！
 	for d, l in pairs(_G[GRA_R_RaidLogs]) do
 		for name, t in pairs(l["attendances"]) do
 			if playerAtts[name] then -- exists in roster
-				if t[3] then -- PRESENT or LATE
+				local att = GetMainAltAttendance(d, name) -- add alt attendance to main
+				if att == "PRESENT" or att == "LATE" then
 					playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
-					if t[1] == "LATE" then
+					if att == "LATE" then
 						playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
 					end
 					
@@ -1246,10 +1277,9 @@ CalcAR = function() -- TODO: 大小号！
 					if GRA:DateOffset(d, today) < 30 then
 						playerAtts[name]["30"][1] = playerAtts[name]["30"][1] + 1
 					end
-				else
-					if t[1] == "ABSENT" then
-						playerAtts[name]["lifetime"][2] = playerAtts[name]["lifetime"][2] + 1
-					elseif t[1] == "ONLEAVE" then
+				else -- ABSENT or ONLEAVE
+					playerAtts[name]["lifetime"][2] = playerAtts[name]["lifetime"][2] + 1
+					if att == "ONLEAVE" then
 						playerAtts[name]["lifetime"][4] = playerAtts[name]["lifetime"][4] + 1
 					end
 				end
@@ -1261,15 +1291,17 @@ CalcAR = function() -- TODO: 大小号！
 
 	-- save
 	for name, t in pairs(_G[GRA_R_Roster]) do
-		local present30, absent30 = playerAtts[name]["30"][1], playerAtts[name]["30"][2]
-		local present60, absent60 = playerAtts[name]["60"][1], playerAtts[name]["60"][2]
-		local present90, absent90 = playerAtts[name]["90"][1], playerAtts[name]["90"][2]
-		local presentL, absentL = playerAtts[name]["lifetime"][1], playerAtts[name]["lifetime"][2]
+		if playerAtts[name] then
+			local present30, absent30 = playerAtts[name]["30"][1], playerAtts[name]["30"][2]
+			local present60, absent60 = playerAtts[name]["60"][1], playerAtts[name]["60"][2]
+			local present90, absent90 = playerAtts[name]["90"][1], playerAtts[name]["90"][2]
+			local presentL, absentL = playerAtts[name]["lifetime"][1], playerAtts[name]["lifetime"][2]
 
-		t["att30"] = {playerAtts[name]["30"][1], playerAtts[name]["30"][2]}
-		t["att60"] = {playerAtts[name]["60"][1], playerAtts[name]["60"][2]}
-		t["att90"] = {playerAtts[name]["90"][1], playerAtts[name]["90"][2]}
-		t["attLifetime"] = {playerAtts[name]["lifetime"][1], playerAtts[name]["lifetime"][2], playerAtts[name]["lifetime"][3], playerAtts[name]["lifetime"][4]}
+			t["att30"] = {playerAtts[name]["30"][1], playerAtts[name]["30"][2]}
+			t["att60"] = {playerAtts[name]["60"][1], playerAtts[name]["60"][2]}
+			t["att90"] = {playerAtts[name]["90"][1], playerAtts[name]["90"][2]}
+			t["attLifetime"] = {playerAtts[name]["lifetime"][1], playerAtts[name]["lifetime"][2], playerAtts[name]["lifetime"][3], playerAtts[name]["lifetime"][4]}
+		end
 	end
 
 	ShowAR()
@@ -1397,34 +1429,6 @@ local function CountAll()
 		end
 	end
 	-- texplore(gps)
-end
-
--- get main-alt attendance (which joined first)
-local function GetMainAltAttendance(d, mainName)
-	local att, joinTime
-
-	if _G[GRA_R_RaidLogs][d]["attendances"][mainName] then
-		att = _G[GRA_R_RaidLogs][d]["attendances"][mainName][1]
-
-		if _G[GRA_R_RaidLogs][d]["attendances"][mainName][3] then
-			joinTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][3]
-		end
-	end
-
-	if gra.mainAlt[mainName] then -- has alt
-		-- PRESENT or LATE
-		for _, altName in pairs(gra.mainAlt[mainName]) do
-			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
-				-- 大号没有出勤 or 小号先于大号进组
-				if not joinTime or joinTime > _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
-					att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
-					joinTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][3]
-				end
-			end
-		end
-	end
-
-	return att, joinTime
 end
 
 local function UpdateGrid(g, d, name, altGs)
@@ -1601,7 +1605,15 @@ local function RefreshDetailsByDate(d)
 			local g = row.dateGrids[index]
 			g:SetAttendance(nil)
 			g:SetText("")
+			g:ShowNoteMark(false)
+
 			if row.alts then
+				for _, alts in pairs(row.alts) do
+					alts.dateGrids[index]:SetAttendance(nil)
+					alts.dateGrids[index]:SetText("")
+					alts.dateGrids[index]:ShowNoteMark(false)
+				end
+
 				g:SetScript("OnEnter", function()
 					g:Highlight()
 					for _, alts in pairs(row.alts) do
@@ -1710,6 +1722,10 @@ GRA:RegisterEvent("GRA_LOGS_DONE", "AttendanceFrame_LogsReceived", function(coun
 	GRA:RefreshSheetByDates(dates)
 	-- refresh attendance rate
 	ShowAR()
+end)
+
+GRA:RegisterEvent("GRA_MAINALT", "AttendanceFrame_MainAltChanged", function()
+	CalcAR()
 end)
 
 -----------------------------------------

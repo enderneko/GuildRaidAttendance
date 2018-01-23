@@ -226,7 +226,7 @@ local function ShowRaidSummary(d)
 	local attendeesString, absenteesString = "", ""
 
 	-- fill table
-	local attendees, absentees = GRA:GetAttendeesAndAbsentees(d)
+	local attendees, absentees = GRA:GetAttendeesAndAbsentees(d, true)
 	-- sort by class
 	table.sort(attendees, function(a, b) return SortByClass(a, b) end)
 	table.sort(absentees, function(a, b) return SortByClass(a, b) end)
@@ -351,7 +351,7 @@ local function ShowRaidDetails(d)
 					-- delete detail entry
 					b.deleteBtn:SetScript("OnClick", function()
 						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("DKP") .. "|r\n" 
-						.. detail[3] .. ": " .. detail[2] .. " " .. DKP
+						.. detail[3] .. ": " .. detail[2] .. " DKP"
 						, function()
 							if detail[1] == "DKP_P" then
 								GRA:UndoPenalizeDKP(d, k)

@@ -250,7 +250,13 @@ function GRA:UpdateMainAlt()
 	end
 end
 
-function GRA:GetAttendeesAndAbsentees(d)
+function GRA:IsAlt(n)
+	if _G[GRA_R_Roster][n] and _G[GRA_R_Roster][n]["altOf"] then
+		return _G[GRA_R_Roster][n]["altOf"]
+	end
+end
+
+function GRA:GetAttendeesAndAbsentees(d, filterMainAlt)
 	local attendees, absentees = {}, {}
 	for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendances"]) do
 		if t[3] then
@@ -259,6 +265,46 @@ function GRA:GetAttendeesAndAbsentees(d)
 			table.insert(absentees, n)
 		end
 	end
+
+	if filterMainAlt then
+		-- process main-alt
+		for i = #attendees, 1, -1 do
+			local n = attendees[i]
+			if _G[GRA_R_Roster][n] and _G[GRA_R_Roster][n]["altOf"] then
+				if GRA:GetIndex(attendees, _G[GRA_R_Roster][n]["altOf"]) then
+					-- main already exists in attendees, remove it
+					table.remove(attendees, i)
+				else
+					-- convert to main!
+					attendees[i] = _G[GRA_R_Roster][n]["altOf"]
+				end
+			end
+		end
+
+		for i = #absentees, 1, -1 do
+			local n = absentees[i]
+			if _G[GRA_R_Roster][n] and _G[GRA_R_Roster][n]["altOf"] then -- is alt
+				if GRA:GetIndex(absentees, _G[GRA_R_Roster][n]["altOf"]) then
+					-- main already exists in absentees, remove it
+					table.remove(absentees, i)
+				else
+					if tContains(attendees, _G[GRA_R_Roster][n]["altOf"]) then
+						-- main exists in attendees, remove it from absentees
+						table.remove(absentees, i)
+					else
+						-- convert to main!
+						absentees[i] = _G[GRA_R_Roster][n]["altOf"]
+					end
+				end
+			else -- is main
+				if tContains(attendees, n) then
+					-- main exists in attendees, remove it from absentees
+					table.remove(absentees, i)
+				end
+			end
+		end
+	end
+
 	return attendees, absentees
 end
 

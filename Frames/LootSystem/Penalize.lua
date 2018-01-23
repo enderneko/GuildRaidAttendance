@@ -166,7 +166,7 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, index)
     -- selected == {} --> unselect all
     if not selected then selected = {} end
 
-    local attendees, absentees = GRA:GetAttendeesAndAbsentees(d)
+    local attendees, absentees = GRA:GetAttendeesAndAbsentees(d, true)
     CreatePlayerCheckBoxes(attendeesText, attendees, attendeeCBs)
     absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendees)/4)*26-20)
     CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)

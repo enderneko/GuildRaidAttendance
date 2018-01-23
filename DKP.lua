@@ -9,12 +9,13 @@ local f = CreateFrame("Frame")
 -- get dkp
 -----------------------------------------
 function GRA:GetDKP(name, note)
-    if not note then note = LGN:GetOfficerNote(name) or "" end
+    local main = GRA:IsAlt(name)
+    if not note then note = LGN:GetOfficerNote(main or name) or "" end
     local current, spent, total = string.split(",", note)
     current, spent, total = tonumber(current), tonumber(spent), tonumber(total)
     -- failed to retrieve or LGN not initialized
 	if not current or not spent or not total then
-        GRA:Debug(string.format("Retrieve %s's dkp failed, return 0.", name))
+        GRA:Debug(string.format("Retrieve %s's dkp failed, return 0.", main or name))
 		current = 0
         spent = 0
         total = 0
@@ -58,8 +59,9 @@ function GRA:UndoDKP(dkpDate, index)
             GRA:SendEntryMsg(L["DKP Undo"], n, t[2], t[3])
         end
     else -- DKP_C
-        local current, spent, total = GRA:GetDKP(t[4])
-        LGN:SetOfficerNote(t[4], (current - t[2]) .. "," .. (spent + t[2]) .. "," .. total)
+        local main = GRA:IsAlt(t[4])
+        local current, spent, total = GRA:GetDKP(main or t[4])
+        LGN:SetOfficerNote(main or t[4], (current - t[2]) .. "," .. (spent + t[2]) .. "," .. total)
         GRA:SendEntryMsg(L["DKP Undo"], t[4], t[2], t[3])
     end
 
@@ -122,10 +124,11 @@ end
 -- dkp credit/modify
 -----------------------------------------
 function GRA:CreditDKP(dkpDate, dkp, reason, looter, note)
+    local main = GRA:IsAlt(looter)
     dkp = -dkp
     -- set officer note
-    local current, spent, total = GRA:GetDKP(looter)
-    LGN:SetOfficerNote(looter, (current + dkp) .. "," .. (spent - dkp) .. "," .. total)
+    local current, spent, total = GRA:GetDKP(main or looter)
+    LGN:SetOfficerNote(main or looter, (current + dkp) .. "," .. (spent - dkp) .. "," .. total)
     GRA:SendEntryMsg(L["DKP Credit"], looter, dkp, reason)
 
     -- add to _G[GRA_R_RaidLogs]
@@ -138,20 +141,23 @@ end
 function GRA:ModifyDKP_C(dkpDate, dkp, reason, looter, note, index)
     dkp = -dkp
     local t = _G[GRA_R_RaidLogs][dkpDate]["details"][index]
+    local main = GRA:IsAlt(looter)
+    local previousMain = GRA:IsAlt(t[4])
     
-    if t[4] == looter then -- same looter, modify dkp only
-        local current, spent, total = GRA:GetDKP(looter)
+    -- same looter, main -> alt, alt -> main, alt -> alt
+    if t[4] == looter or t[4] == main or previousMain == looter or (main and previousMain and main == previousMain) then
+        local current, spent, total = GRA:GetDKP(main or looter)
         local change = dkp - t[2]
-        LGN:SetOfficerNote(looter, (current + change) .. "," .. (spent - change) .. "," .. total)
+        LGN:SetOfficerNote(main or looter, (current + change) .. "," .. (spent - change) .. "," .. total)
         GRA:SendEntryMsg(L["DKP Modify"], looter, dkp, reason)
     else -- change looter
         -- undo previous looter
-        local current, spent, total = GRA:GetDKP(t[4])
-        LGN:SetOfficerNote(t[4], (current - t[2]) .. "," .. (spent + t[2]) .. "," .. total)
+        local current, spent, total = GRA:GetDKP(previousMain or t[4])
+        LGN:SetOfficerNote(previousMain or t[4], (current - t[2]) .. "," .. (spent + t[2]) .. "," .. total)
         GRA:SendEntryMsg(L["DKP Undo"], t[4], t[2], t[3])
         -- change to new looter
-        current, spent, total = GRA:GetDKP(looter)
-        LGN:SetOfficerNote(looter, (current + dkp) .. "," .. (spent - dkp) .. "," .. total)
+        current, spent, total = GRA:GetDKP(main or looter)
+        LGN:SetOfficerNote(main or looter, (current + dkp) .. "," .. (spent - dkp) .. "," .. total)
         GRA:SendEntryMsg(L["DKP Credit"], looter, dkp, reason)
     end
 

@@ -11,7 +11,7 @@ version r78-release
 ------------------------
     * Optimized raid log data structure.
     * Fixed roster editor bugs (especially for DKP).
-    * Fixed raid log entry deletion (EPGP penalize).
+    * Fixed raid log entry deletion (EPGP/DKP penalize).
     + Added support for alts and primary roles.
     + Added description to raid logs.
     - Removed absentees from AwardFrame.

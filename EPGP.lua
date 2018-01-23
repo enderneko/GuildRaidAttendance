@@ -23,10 +23,11 @@ end
 
 -- 用于显示的PR
 function GRA:GetPR(fullName)
-    if not _G[GRA_R_Roster][fullName] then return 0 end
+    local main = GRA:IsAlt(fullName)
+    if not _G[GRA_R_Roster][main or fullName] then return 0 end
 
-    local ep = _G[GRA_R_Roster][fullName]["EP"] or 0
-    local gp = _G[GRA_R_Roster][fullName]["GP"] or 0
+    local ep = _G[GRA_R_Roster][main or fullName]["EP"] or 0
+    local gp = _G[GRA_R_Roster][main or fullName]["GP"] or 0
     local pr = (ep == 0) and 0 or (ep/(gp + _G[GRA_R_Config]["raidInfo"]["EPGP"][1]))
 
     if pr >= 1000 then
@@ -83,8 +84,9 @@ function GRA:UndoEPGP(epgpDate, index)
             GRA:SendEntryMsg(L["EP Undo"], n, t[2], t[3])
         end
     else
-        local ep, gpOld = GRA:GetEPGP(t[4])
-        LGN:SetOfficerNote(t[4], ep .. "," .. (gpOld - t[2]))
+        local main = GRA:IsAlt(t[4])
+        local ep, gpOld = GRA:GetEPGP(main or t[4])
+        LGN:SetOfficerNote(main or t[4], ep .. "," .. (gpOld - t[2]))
         GRA:SendEntryMsg(L["GP Undo"], t[4], t[2], t[3])
     end
 
@@ -147,9 +149,10 @@ end
 -- gp credit/modify
 -----------------------------------------
 function GRA:CreditGP(gpDate, gp, reason, looter, note)
+    local main = GRA:IsAlt(looter)
     -- set officer note
-    local ep, gpOld = GRA:GetEPGP(looter)
-    LGN:SetOfficerNote(looter, ep .. "," .. (gp + gpOld))
+    local ep, gpOld = GRA:GetEPGP(main or looter)
+    LGN:SetOfficerNote(main or looter, ep .. "," .. (gp + gpOld))
     GRA:SendEntryMsg(L["GP Credit"], looter, gp, reason)
 
     -- add to _G[GRA_R_RaidLogs]
@@ -160,20 +163,23 @@ function GRA:CreditGP(gpDate, gp, reason, looter, note)
 end
 
 function GRA:ModifyGP(gpDate, gp, reason, looter, note, index)
+    local main = GRA:IsAlt(looter)
     local t = _G[GRA_R_RaidLogs][gpDate]["details"][index]
+    local previousMain = GRA:IsAlt(t[4])
     
-    if t[4] == looter then -- same looter, modify gp only
-        local ep, gpOld = GRA:GetEPGP(looter)
-        LGN:SetOfficerNote(looter, ep .. "," .. (gpOld + (gp - t[2])))
+    -- same looter, main -> alt, alt -> main, alt -> alt
+    if t[4] == looter or t[4] == main or previousMain == looter or (main and previousMain and main == previousMain) then
+        local ep, gpOld = GRA:GetEPGP(main or looter)
+        LGN:SetOfficerNote(main or looter, ep .. "," .. (gpOld + (gp - t[2])))
         GRA:SendEntryMsg(L["GP Modify"], looter, gp, reason)
     else -- change looter
         -- undo previous looter
-        local ep, gpOld = GRA:GetEPGP(t[4])
-        LGN:SetOfficerNote(t[4], ep .. "," .. (gpOld - t[2]))
+        local ep, gpOld = GRA:GetEPGP(previousMain or t[4])
+        LGN:SetOfficerNote(previousMain or t[4], ep .. "," .. (gpOld - t[2]))
         GRA:SendEntryMsg(L["GP Undo"], t[4], t[2], t[3])
         -- change to new looter
-        ep, gpOld = GRA:GetEPGP(looter)
-        LGN:SetOfficerNote(looter, ep .. "," .. (gpOld + gp))
+        ep, gpOld = GRA:GetEPGP(main or looter)
+        LGN:SetOfficerNote(main or looter, ep .. "," .. (gpOld + gp))
         GRA:SendEntryMsg(L["GP Credit"], looter, gp, reason)
     end
 

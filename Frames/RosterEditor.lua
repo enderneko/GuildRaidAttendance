@@ -202,6 +202,8 @@ local function SetMain()
             _G[GRA_R_Roster][n] = GRA:RemoveElementsByKeys(_G[GRA_R_Roster][n], {"altOf"})
         end
     end
+    -- calc AR
+    GRA:FireEvent("GRA_MAINALT")
 end
 
 --------------------------------------------------
