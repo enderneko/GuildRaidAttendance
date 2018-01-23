@@ -148,9 +148,9 @@ local function CheckAttendances(d)
 end
 
 -- set player attendance: on changed, save to changes(table)
-local function SetPlayerAttendance(name, raidDate, row)
+local function CheckPlayerAttendance(row)
     local changed = false
-
+    local name = row.name
     -- attendance/note/joinTime changed
     if row.attendance ~= attendances[name][1] or row.note ~= attendances[name][2] or row.joinTime ~= attendances[name][3] then 
         if not changes[name] then changes[name] = {} end
@@ -237,7 +237,7 @@ function GRA:ShowAttendanceEditor(d, b)
                     ["onClick"] = function()
                         local joinTime = GRA:DateToTime(dateString..raidStartTime, true)
                         row:SetRowInfo("PRESENT", row.note, row.joinTime or joinTime)
-                        SetPlayerAttendance(n, d, row)
+                        CheckPlayerAttendance(row)
                     end
                 },
                 {
@@ -245,7 +245,7 @@ function GRA:ShowAttendanceEditor(d, b)
                     ["color"] = "red",
                     ["onClick"] = function()
                         row:SetRowInfo("ABSENT", row.note)
-                        SetPlayerAttendance(n, d, row)
+                        CheckPlayerAttendance(row)
                     end
                 },
                 {
@@ -253,7 +253,7 @@ function GRA:ShowAttendanceEditor(d, b)
                     ["color"] = "magenta",
                     ["onClick"] = function()
                         row:SetRowInfo("ONLEAVE", row.note)
-                        SetPlayerAttendance(n, d, row)
+                        CheckPlayerAttendance(row)
                     end
                 },
                 {
@@ -262,7 +262,7 @@ function GRA:ShowAttendanceEditor(d, b)
                     ["onClick"] = function()
                         row:SetRowInfo("IGNORED")
                         row.noteEditBox:SetEnabled(false)
-                        SetPlayerAttendance(n, d, row)
+                        CheckPlayerAttendance(row)
                     end
                 },
             }
@@ -271,11 +271,6 @@ function GRA:ShowAttendanceEditor(d, b)
             selector:SetPoint("TOPLEFT")
         end)
         
-        -- disabled to alts
-        -- if _G[GRA_R_Roster][n]["altOf"] then
-        --     row.noteEditBox:SetEnabled(false)
-        -- end
-
         -- load text
         row:SetRowInfo(row.attendance, row.note, row.joinTime)
 
@@ -290,7 +285,7 @@ function GRA:ShowAttendanceEditor(d, b)
                     local joinTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
                     -- convert to seconds, update joinTime
                     row.joinTime = GRA:DateToTime(dateString..joinTime, true)
-                    SetPlayerAttendance(n, d, row)
+                    CheckPlayerAttendance(row)
                     saveBtn:SetEnabled(true)
                 else
                     row:SetChanged(true)
@@ -303,7 +298,7 @@ function GRA:ShowAttendanceEditor(d, b)
         row.noteEditBox:SetScript("OnTextChanged", function(self, userInput)
             if not userInput then return end
             row.note = self:GetText()
-            SetPlayerAttendance(n, d, row)
+            CheckPlayerAttendance(row)
         end)
     end
 
