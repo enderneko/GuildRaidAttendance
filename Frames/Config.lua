@@ -184,34 +184,43 @@ ar60CB:SetPoint("LEFT", ar30CB, "RIGHT", 67, 0)
 ar90CB:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -39)
 arCB:SetPoint("LEFT", ar90CB, "RIGHT", 67, 0)
 
--- raid start time
-local raidStartTimeTitle = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-raidStartTimeTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -65)
-raidStartTimeTitle:SetText(L["Raid Start Time"] .. ": ")
+-- raid hours
+local raidHoursTitle = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+raidHoursTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -66)
+raidHoursTitle:SetText(L["Raid Hours"] .. ": ")
 
-local raidStartTimeText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-raidStartTimeText:Hide()
--- raidStartTimeText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -6)
-raidStartTimeText:SetPoint("LEFT", raidStartTimeTitle, "RIGHT", 5, 0)
+local raidHoursText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+raidHoursText:Hide()
+-- raidHoursText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -6)
+raidHoursText:SetPoint("LEFT", raidHoursTitle, "RIGHT", 5, 0)
+
+local raidEndTimeEditBox = GRA:CreateEditBox(configFrame, 50, 20, false, "GRA_FONT_SMALL")
+raidEndTimeEditBox:Hide()
+raidEndTimeEditBox:SetJustifyH("CENTER")
+raidEndTimeEditBox:SetPoint("RIGHT", raidHoursTitle, "LEFT", configFrame:GetWidth()-10, 0)
+
+local raidHoursTo = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+raidHoursTo:SetText("-")
+raidHoursTo:Hide()
+raidHoursTo:SetPoint("RIGHT", raidEndTimeEditBox, "LEFT", -3, 0)
 
 local raidStartTimeEditBox = GRA:CreateEditBox(configFrame, 50, 20, false, "GRA_FONT_SMALL")
 raidStartTimeEditBox:Hide()
 raidStartTimeEditBox:SetJustifyH("CENTER")
-raidStartTimeEditBox:SetPoint("LEFT", raidStartTimeTitle, "RIGHT", 5, 0)
+raidStartTimeEditBox:SetPoint("RIGHT", raidHoursTo, "LEFT", -3, 0)
 
-
-local RSTComfirmBtn = GRA:CreateButton(raidStartTimeEditBox, L["OK"], "blue", {30, 20}, "GRA_FONT_SMALL")
-RSTComfirmBtn:SetPoint("LEFT", raidStartTimeEditBox, "RIGHT", -1, 0)
+local RSTComfirmBtn = GRA:CreateButton(raidStartTimeEditBox, L["OK"], "blue", {50, 15}, "GRA_FONT_SMALL")
+RSTComfirmBtn:SetPoint("TOP", raidStartTimeEditBox, "BOTTOM", 0, 1)
 RSTComfirmBtn:Hide()
 RSTComfirmBtn:SetScript("OnClick", function()
 	local h, m = string.split(":", raidStartTimeEditBox:GetText())
 	local startTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
 
 	_G[GRA_R_Config]["raidInfo"]["startTime"] = startTime
-	GRA:FireEvent("GRA_ST_UPDATE")
+	GRA:FireEvent("GRA_RH_UPDATE")
 	raidStartTimeEditBox:SetText(startTime)
 
-	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Raid start time has been set to "] .. startTime, "TOPLEFT", raidStartTimeEditBox, "BOTTOMLEFT", -raidStartTimeTitle:GetWidth(), -3)
+	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Raid hours has been updated."], "TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -85)
 	raidStartTimeEditBox:ClearFocus()
 	RSTComfirmBtn:Hide()
 end)
@@ -246,6 +255,52 @@ raidStartTimeEditBox:SetScript("OnHide", function()
 	GRA:StylizeFrame(raidStartTimeEditBox, {.1, .1, .1, .9})
 end)
 
+local RETComfirmBtn = GRA:CreateButton(raidEndTimeEditBox, L["OK"], "blue", {50, 15}, "GRA_FONT_SMALL")
+RETComfirmBtn:SetPoint("TOP", raidEndTimeEditBox, "BOTTOM", 0, 1)
+RETComfirmBtn:Hide()
+RETComfirmBtn:SetScript("OnClick", function()
+	local h, m = string.split(":", raidEndTimeEditBox:GetText())
+	local endTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
+
+	_G[GRA_R_Config]["raidInfo"]["endTime"] = endTime
+	GRA:FireEvent("GRA_RH_UPDATE")
+	raidEndTimeEditBox:SetText(endTime)
+
+	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Raid hours has been updated."], "TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -85)
+	raidEndTimeEditBox:ClearFocus()
+	RETComfirmBtn:Hide()
+end)
+
+raidEndTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
+	if not userInput then return end
+	-- check time validity
+	local h, m = string.split(":", raidEndTimeEditBox:GetText())
+	h, m = tonumber(h), tonumber(m)
+	if h and m and h >= 0 and h <= 23 and m >= 0 and m <= 59 then
+		RETComfirmBtn:Show()
+		GRA:StylizeFrame(raidEndTimeEditBox, {.1, .1, .1, .9})
+	else
+		RETComfirmBtn:Hide()
+		GRA:StylizeFrame(raidEndTimeEditBox, {.1, .1, .1, .9}, {1, 0, 0, 1})
+	end
+end)
+
+raidEndTimeEditBox:SetScript("OnEnter", function(self)
+	GRA_Tooltip:SetOwner(self, "ANCHOR_TOP", 0, 1)
+	GRA_Tooltip:AddLine(L["Raid End Time"])
+	GRA_Tooltip:AddLine(L["Leave before \"Raid End Time\" means the member leaves early.\n\nIt's used as default raid end time for each day, you can set a different time in attendance editor."], 1, 1, 1, true)
+	GRA_Tooltip:SetWidth(250)
+	GRA_Tooltip:Show()
+end)
+
+raidEndTimeEditBox:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
+
+-- next OnShow, its data MUST be valid
+raidEndTimeEditBox:SetScript("OnHide", function()
+	RETComfirmBtn:Hide()
+	GRA:StylizeFrame(raidEndTimeEditBox, {.1, .1, .1, .9})
+end)
+
 local function RefreshRaidSchedule()
 	for i = 1, 7 do
 		if tContains(_G[GRA_R_Config]["raidInfo"]["days"], i) then -- raid day
@@ -256,9 +311,11 @@ local function RefreshRaidSchedule()
 	end
 
 	local startTime = _G[GRA_R_Config]["raidInfo"]["startTime"]
-	if startTime then
+	local endTime = _G[GRA_R_Config]["raidInfo"]["endTime"]
+	if startTime and endTime then
 		raidStartTimeEditBox:SetText(startTime)
-		raidStartTimeText:SetText("|cff0080FF" .. startTime)
+		raidEndTimeEditBox:SetText(endTime)
+		raidHoursText:SetText("|cff0080FF" .. startTime .. " - " .. endTime)
 	end
 end
 
@@ -361,12 +418,16 @@ GRA:RegisterEvent("GRA_PERMISSION", "ConfigFrame_CheckPermissions", function(isA
 		rosterAdminFrame:Show()
 		rosterUserFrame:Hide()
 		raidStartTimeEditBox:Show()
-		raidStartTimeText:Hide()
+		raidEndTimeEditBox:Show()
+		raidHoursTo:Show()
+		raidHoursText:Hide()
 	else -- is not admin
 		rosterUserFrame:Show()
 		rosterAdminFrame:Hide()
-		raidStartTimeText:Show()
+		raidHoursText:Show()
 		raidStartTimeEditBox:Hide()
+		raidEndTimeEditBox:Hide()
+		raidHoursTo:Hide()
 	end
 end)
 

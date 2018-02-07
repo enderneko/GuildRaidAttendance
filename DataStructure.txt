@@ -5,7 +5,8 @@
 GRA_RaidLogs = {
 	date(string) = {
 		["desc"] = (string),
-		["startTime"] = (string),
+		["startTime"] = (number),
+		["endTime"] = (number),
 		["attendances"] = {
 			playerName(string) = {"PRESENT"/"LATE"/"ONLEAVE"/"ABSENT", note(string), joinTime(number), leaveTime(number)},
 		},

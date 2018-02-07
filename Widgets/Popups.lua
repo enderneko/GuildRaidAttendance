@@ -502,6 +502,12 @@ function GRA:CreateStaticPopup(title, text, onAccept, onDecline) -- button1Text,
 		-- gra.staticPopup.textFS:SetPoint("BOTTOMRIGHT", -10, 30)
 		gra.staticPopup.textFS:SetPoint("TOPRIGHT", -10, -30)
 
+		gra.staticPopup:SetScript("OnShow", function ()
+			C_Timer.After(.2, function()
+				gra.staticPopup:SetScript("OnUpdate", nil)
+			end)
+		end)
+
 		-- no
 		gra.staticPopup.button2 = GRA:CreateButton(gra.staticPopup, L["No"], "red", {45, 18}, "GRA_FONT_SMALL")
 		gra.staticPopup.button2:SetPoint("BOTTOMRIGHT")
@@ -513,9 +519,14 @@ function GRA:CreateStaticPopup(title, text, onAccept, onDecline) -- button1Text,
 
 	gra.staticPopup.titleFS:SetText(title)
 	gra.staticPopup.textFS:SetText(text)
-	-- auto height
-	local newHeight = GRA:Round(gra.staticPopup.textFS:GetHeight() + 55)
-	gra.staticPopup:SetHeight((newHeight > 100) and newHeight or 100)
+	-- update height
+	-- local newHeight = GRA:Round(gra.staticPopup.textFS:GetHeight() + 55)
+	-- gra.staticPopup:SetHeight((newHeight > 100) and newHeight or 100)
+	gra.staticPopup:SetScript("OnUpdate", function(self, elapsed)
+		local newHeight = GRA:Round(gra.staticPopup.textFS:GetStringHeight() + 55)
+		newHeight = (newHeight > 100) and newHeight or 100
+		gra.staticPopup:SetHeight(newHeight)
+	end)
 
 	gra.staticPopup.button1:SetScript("OnClick", function()
 		if onAccept then onAccept() else --[[do nothing]] end
@@ -539,6 +550,7 @@ function GRA:CreateConfirmBox(parent, width, text, onAccept, mask)
 		GRA:StylizeFrame(parent.confirmBox, {.05, .05, .05, .95}, {0, .7, 1, .7})
 		parent.confirmBox:SetFrameStrata("DIALOG")
 		parent.confirmBox:SetFrameLevel(2)
+		parent.confirmBox:Hide()
 		
 		parent.confirmBox:SetScript("OnHide", function()
 			parent.confirmBox:Hide()
@@ -553,19 +565,18 @@ function GRA:CreateConfirmBox(parent, width, text, onAccept, mask)
 		end)
 
 		parent.confirmBox:SetScript("OnShow", function ()
-			-- local newHeight = GRA:Round(parent.confirmBox.text:GetHeight() + 30)
-			-- parent.confirmBox:SetHeight(newHeight)
+			C_Timer.After(.2, function()
+				parent.confirmBox:SetScript("OnUpdate", nil)
+			end)
 		end)
 		
 		parent.confirmBox.text = parent.confirmBox:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 		parent.confirmBox.text:SetWordWrap(true)
 		parent.confirmBox.text:SetSpacing(3)
 		parent.confirmBox.text:SetJustifyH("CENTER")
-		-- parent.confirmBox.text:SetJustifyV("MIDDLE")
 		parent.confirmBox.text:SetPoint("TOPLEFT", 5, -8)
 		parent.confirmBox.text:SetPoint("TOPRIGHT", -5, -8)
-		-- parent.confirmBox.text:SetPoint("BOTTOMRIGHT", -5, 8)
-		
+
 		-- yes
 		parent.confirmBox.button1 = GRA:CreateButton(parent.confirmBox, L["Yes"], "green", {35, 15}, "GRA_FONT_SMALL")
 		-- button1:SetPoint("BOTTOMRIGHT", -45, 0)
@@ -614,18 +625,16 @@ function GRA:CreateConfirmBox(parent, width, text, onAccept, mask)
 	
 	parent.confirmBox:SetWidth(width)
 	parent.confirmBox.text:SetText(text)
-	-- TODO: fix this bug
-	parent.confirmBox:SetScript("OnUpdate", function(self, elapsed)
-		-- local newHeight = GRA:Round(parent.confirmBox.text:GetHeight() + 30)
-		local newHeight = parent.confirmBox.text:GetNumLines() * 15 + 25
-		parent.confirmBox:SetHeight(newHeight)
 
-		-- parent.confirmBox:SetScript("OnUpdate", nil)
+	-- update height
+	parent.confirmBox:SetScript("OnUpdate", function(self, elapsed)
+		local newHeight = parent.confirmBox.text:GetStringHeight() + 30
+		parent.confirmBox:SetHeight(newHeight)
 	end)
 
 	parent.confirmBox:ClearAllPoints() -- prepare for SetPoint()
 	parent.confirmBox:Show()
-	
+
 	return parent.confirmBox
 end
 

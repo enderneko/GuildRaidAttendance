@@ -146,8 +146,8 @@ SortSheetByATT = function()
 		table.sort(loaded, function(a, b)
 			if a.attLifetime ~= b.attLifetime then
 				return a.attLifetime > b.attLifetime
-			elseif a.lateLifeTime ~= b.lateLifeTime then
-				return a.lateLifeTime < b.lateLifeTime
+			elseif a.partlyLifeTime ~= b.partlyLifeTime then
+				return a.partlyLifeTime < b.partlyLifeTime
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
 			elseif a.pr ~= b.pr then
@@ -661,7 +661,7 @@ legendFrame:SetScript("OnEnter", function(self)
 	GRA_Tooltip:SetOwner(self, "ANCHOR_LEFT", -1, -8)
 	GRA_Tooltip:AddLine(L["Legend"])
 	GRA_Tooltip:AddDoubleLine("|cff00FF00" .. L["Green"] .. "|r - |cffFFFFFF" .. L["Present"])
-	GRA_Tooltip:AddLine("|cffFFFF00" .. L["Yellow"] .. "|r - |cffFFFFFF" .. L["Late"])
+	GRA_Tooltip:AddLine("|cffFFFF00" .. L["Yellow"] .. "|r - |cffFFFFFF" .. L["Late Arrival / Early Leave"])
 	GRA_Tooltip:AddLine("|cffFF0000" .. L["Red"] .. "|r - |cffFFFFFF" .. L["Absent"])
 	GRA_Tooltip:AddLine("|cffFF00FF" .. L["Magenta"] .. "|r - |cffFFFFFF" .. L["On Leave"])
 	GRA_Tooltip:Show()
@@ -1036,23 +1036,23 @@ end
 ShowAR = function()
 	-- GRA:Debug("|cff1E90FFShow attendance rate")
 	for _, row in pairs(loaded) do
-		local att30 = _G[GRA_R_Roster][row.name]["att30"] or {0, 0}
-		local att60 = _G[GRA_R_Roster][row.name]["att60"] or {0, 0}
-		local att90 = _G[GRA_R_Roster][row.name]["att90"] or {0, 0}
-		local attLifetime = _G[GRA_R_Roster][row.name]["attLifetime"] or {0, 0, 0, 0}
+		local att30 = _G[GRA_R_Roster][row.name]["att30"] or {0, 0, 0, 0, 0}
+		local att60 = _G[GRA_R_Roster][row.name]["att60"] or {0, 0, 0, 0, 0}
+		local att90 = _G[GRA_R_Roster][row.name]["att90"] or {0, 0, 0, 0, 0}
+		local attLifetime = _G[GRA_R_Roster][row.name]["attLifetime"] or {0, 0, 0, 0, 0}
 		
 		-- attendance count
 		row.att30 = att30[1]
 		row.att60 = att60[1]
 		row.att90 = att90[1]
 		row.attLifetime = attLifetime[1]
-		row.lateLifeTime = attLifetime[3] or 0 -- no attLifetime[3] in previous version
+		row.partlyLifeTime = attLifetime[3] or 0 -- no attLifetime[3] in previous version
 
 		-- attendance rate
-		row.ar30 = tonumber(format("%.1f", att30[1]/(att30[1]+att30[2])*100)) or 0
-		row.ar60 = tonumber(format("%.1f", att60[1]/(att60[1]+att60[2])*100)) or 0
-		row.ar90 = tonumber(format("%.1f", att90[1]/(att90[1]+att90[2])*100)) or 0
-		row.arLifetime = tonumber(format("%.1f", attLifetime[1]/(attLifetime[1]+attLifetime[2])*100)) or 0
+		row.ar30 = tonumber(format("%.1f", att30[5] or 0))
+		row.ar60 = tonumber(format("%.1f", att60[5] or 0))
+		row.ar90 = tonumber(format("%.1f", att90[5] or 0))
+		row.arLifetime = tonumber(format("%.1f", attLifetime[5] or 0))
 
 		row.ar30Grid:SetText(row.ar30 .. "%")
 		row.ar60Grid:SetText(row.ar60 .. "%")
@@ -1064,10 +1064,16 @@ ShowAR = function()
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
 			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
-			GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att30[1])
-			GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. att30[2])
-			-- GRA_Tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffffff" .. "nil")
-			-- GRA_Tooltip:AddDoubleLine(L["On Leave"] .. ": ", "|cffffffff" .. "nil")
+			if att30[3] and att30[3] ~= 0 then
+				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att30[1] .. " |cffffff00(" .. att30[3] .. ")")
+			else
+				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att30[1])
+			end
+			if att30[4] and att30[4] ~= 0 then
+				GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. att30[2] .. " |cffff00ff(" .. att30[4] .. ")")
+			else
+				GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. att30[2])
+			end
 			GRA_Tooltip:Show()
 		end)
 		row.ar30Grid:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
@@ -1076,10 +1082,16 @@ ShowAR = function()
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
 			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
-			GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att60[1])
-			GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. att60[2])
-			-- GRA_Tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffffff" .. "nil")
-			-- GRA_Tooltip:AddDoubleLine(L["On Leave"] .. ": ", "|cffffffff" .. "nil")
+			if att60[3] and att60[3] ~= 0 then
+				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att60[1] .. " |cffffff00(" .. att60[3] .. ")")
+			else
+				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att60[1])
+			end
+			if att60[4] and att60[4] ~= 0 then
+				GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. att60[2] .. " |cffff00ff(" .. att60[4] .. ")")
+			else
+				GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. att60[2])
+			end
 			GRA_Tooltip:Show()
 		end)
 		row.ar60Grid:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
@@ -1088,10 +1100,16 @@ ShowAR = function()
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
 			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
+			if att90[3] and att90[3] ~= 0 then
+				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att90[1] .. " |cffffff00(" .. att90[3] .. ")")
+			else
 			GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att90[1])
+			end
+			if att90[4] and att90[4] ~= 0 then
+				GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. att90[2] .. " |cffff00ff(" .. att90[4] .. ")")
+			else
 			GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. att90[2])
-			-- GRA_Tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffffff" .. "nil")
-			-- GRA_Tooltip:AddDoubleLine(L["On Leave"] .. ": ", "|cffffffff" .. "nil")
+			end
 			GRA_Tooltip:Show()
 		end)
 		row.ar90Grid:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
@@ -1100,8 +1118,11 @@ ShowAR = function()
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
 			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
+			if attLifetime[3] and attLifetime[3] ~= 0 then
+				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. attLifetime[1] .. " |cffffff00(" .. attLifetime[3] .. ")")
+			else
 			GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. attLifetime[1])
-			GRA_Tooltip:AddDoubleLine(L["Late"] .. ": ", "|cffffff00" .. (attLifetime[3] or 0)) -- no attLifetime[3] in previous version
+			end
 			if attLifetime[4] and attLifetime[4] ~= 0 then
 				GRA_Tooltip:AddDoubleLine(L["Absent"] .. ": ", "|cffff0000" .. attLifetime[2] .. " |cffff00ff(" .. attLifetime[4] .. ")")
 			else
@@ -1198,18 +1219,19 @@ end
 
 -- get main-alt attendance (which joined first)
 local function GetMainAltAttendance(d, mainName)
-	local att, joinTime
+	local att, joinTime, leaveTime
 
 	if _G[GRA_R_RaidLogs][d]["attendances"][mainName] then
 		att = _G[GRA_R_RaidLogs][d]["attendances"][mainName][1]
 
 		if _G[GRA_R_RaidLogs][d]["attendances"][mainName][3] then
 			joinTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][3]
+			leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][4] or select(2, GRA:GetRaidEndTime(d))
 		end
 	end
 
 	if gra.mainAlt[mainName] then -- has alt
-		-- PRESENT or LATE
+		-- PRESENT or PARTLY
 		for _, altName in pairs(gra.mainAlt[mainName]) do
 			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
 				-- 大号没有出勤 or 小号先于大号进组
@@ -1217,11 +1239,15 @@ local function GetMainAltAttendance(d, mainName)
 					att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
 					joinTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][3]
 				end
+				-- 小号后于大号退组
+				if _G[GRA_R_RaidLogs][d]["attendances"][altName][4] and leaveTime < _G[GRA_R_RaidLogs][d]["attendances"][altName][4] then
+					leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][4]
+				end
 			end
 		end
 	end
 
-	return att, joinTime
+	return att, joinTime, leaveTime
 end
 
 -- admin only, calculate AR
@@ -1247,11 +1273,11 @@ CalcAR = function()
 	for n, t in pairs(_G[GRA_R_Roster]) do
 		if not t["altOf"] then -- ignore alts
 			playerAtts[n] = {
-				-- {present, absent, late, onLeave}
-				["30"] = {0, 0},
-				["60"] = {0, 0},
-				["90"] = {0, 0},
-				["lifetime"] = {0, 0, 0, 0},
+				-- {present, absent, late/leaveEarly, onLeave, ar_minutes}
+				["30"] = {0, 0, 0, 0, 0},
+				["60"] = {0, 0, 0, 0, 0},
+				["90"] = {0, 0, 0, 0, 0},
+				["lifetime"] = {0, 0, 0, 0, 0},
 			}
 		end
 	end
@@ -1262,25 +1288,59 @@ CalcAR = function()
 		for name, t in pairs(l["attendances"]) do
 			if playerAtts[name] then -- exists in roster
 				local att = GetMainAltAttendance(d, name) -- add alt attendance to main
-				if att == "PRESENT" or att == "LATE" then
+				local dateOffset = GRA:DateOffset(d, today)
+				if att == "PRESENT" or att == "PARTLY" then
+					local ar = GRA:GetAttendanceRate(d, name)
 					playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
-					if att == "LATE" then
+					playerAtts[name]["lifetime"][5] = playerAtts[name]["lifetime"][5] + ar
+					if att == "PARTLY" then
 						playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
 					end
 					
-					if GRA:DateOffset(d, today) < 90 then
+					if dateOffset < 90 then
 						playerAtts[name]["90"][1] = playerAtts[name]["90"][1] + 1
+						playerAtts[name]["90"][5] = playerAtts[name]["90"][5] + ar
+						if att == "PARTLY" then
+							playerAtts[name]["90"][3] = playerAtts[name]["90"][3] + 1
 					end
-					if GRA:DateOffset(d, today) < 60 then
+					end
+					if dateOffset < 60 then
 						playerAtts[name]["60"][1] = playerAtts[name]["60"][1] + 1
+						playerAtts[name]["60"][5] = playerAtts[name]["60"][5] + ar
+						if att == "PARTLY" then
+							playerAtts[name]["60"][3] = playerAtts[name]["60"][3] + 1
 					end
-					if GRA:DateOffset(d, today) < 30 then
+					end
+					if dateOffset < 30 then
 						playerAtts[name]["30"][1] = playerAtts[name]["30"][1] + 1
+						playerAtts[name]["30"][5] = playerAtts[name]["30"][5] + ar
+						if att == "PARTLY" then
+							playerAtts[name]["30"][3] = playerAtts[name]["30"][3] + 1
+						end
 					end
 				else -- ABSENT or ONLEAVE
 					playerAtts[name]["lifetime"][2] = playerAtts[name]["lifetime"][2] + 1
 					if att == "ONLEAVE" then
 						playerAtts[name]["lifetime"][4] = playerAtts[name]["lifetime"][4] + 1
+					end
+
+					if dateOffset < 90 then
+						playerAtts[name]["90"][2] = playerAtts[name]["90"][2] + 1
+						if att == "ONLEAVE" then
+							playerAtts[name]["90"][4] = playerAtts[name]["90"][4] + 1
+						end
+					end
+					if dateOffset < 60 then
+						playerAtts[name]["60"][2] = playerAtts[name]["60"][2] + 1
+						if att == "ONLEAVE" then
+							playerAtts[name]["60"][4] = playerAtts[name]["60"][4] + 1
+						end
+					end
+					if dateOffset < 30 then
+						playerAtts[name]["30"][2] = playerAtts[name]["30"][2] + 1
+						if att == "ONLEAVE" then
+							playerAtts[name]["30"][4] = playerAtts[name]["30"][4] + 1
+						end
 					end
 				end
 			end
@@ -1289,18 +1349,19 @@ CalcAR = function()
 		n = n + 1
 	end
 
-	-- save
 	for name, t in pairs(_G[GRA_R_Roster]) do
 		if playerAtts[name] then
-			local present30, absent30 = playerAtts[name]["30"][1], playerAtts[name]["30"][2]
-			local present60, absent60 = playerAtts[name]["60"][1], playerAtts[name]["60"][2]
-			local present90, absent90 = playerAtts[name]["90"][1], playerAtts[name]["90"][2]
-			local presentL, absentL = playerAtts[name]["lifetime"][1], playerAtts[name]["lifetime"][2]
+			-- update ar_minutes
+			playerAtts[name]["30"][5] = (playerAtts[name]["30"][5] == 0) and 0 or (playerAtts[name]["30"][5] / (playerAtts[name]["30"][1] + playerAtts[name]["30"][2]) * 100)
+			playerAtts[name]["60"][5] = (playerAtts[name]["60"][5] == 0) and 0 or (playerAtts[name]["60"][5] / (playerAtts[name]["60"][1] + playerAtts[name]["60"][2]) * 100)
+			playerAtts[name]["90"][5] = (playerAtts[name]["90"][5] == 0) and 0 or (playerAtts[name]["90"][5] / (playerAtts[name]["90"][1] + playerAtts[name]["90"][2]) * 100)
+			playerAtts[name]["lifetime"][5] = (playerAtts[name]["lifetime"][5] == 0) and 0 or (playerAtts[name]["lifetime"][5] / (playerAtts[name]["lifetime"][1] + playerAtts[name]["lifetime"][2]) * 100)
 
-			t["att30"] = {playerAtts[name]["30"][1], playerAtts[name]["30"][2]}
-			t["att60"] = {playerAtts[name]["60"][1], playerAtts[name]["60"][2]}
-			t["att90"] = {playerAtts[name]["90"][1], playerAtts[name]["90"][2]}
-			t["attLifetime"] = {playerAtts[name]["lifetime"][1], playerAtts[name]["lifetime"][2], playerAtts[name]["lifetime"][3], playerAtts[name]["lifetime"][4]}
+			-- save
+			t["att30"] = playerAtts[name]["30"]
+			t["att60"] = playerAtts[name]["60"]
+			t["att90"] = playerAtts[name]["90"]
+			t["attLifetime"] = playerAtts[name]["lifetime"]
 		end
 	end
 
@@ -1439,7 +1500,7 @@ local function UpdateGrid(g, d, name, altGs)
 		g:SetText("")
 	end
 
-	local att, joinTime = GetMainAltAttendance(d, name)
+	local att, joinTime, leaveTime = GetMainAltAttendance(d, name)
 	if altGs then
 		-- 设置大号出勤状态
 		if _G[GRA_R_RaidLogs][d]["attendances"][name] then
@@ -1514,8 +1575,8 @@ local function UpdateGrid(g, d, name, altGs)
 
 		local blankLine = false
 		-- join time
-		if att == "PRESENT" or att == "LATE" then
-			GRA_Tooltip:AddLine(L["Join Time: "] .. GRA:SecondsToTime(joinTime))
+		if att == "PRESENT" or att == "PARTLY" then
+			GRA_Tooltip:AddLine(GRA:SecondsToTime(joinTime) .. " - " .. (GRA:SecondsToTime(leaveTime)))
 			GRA_Tooltip:Show()
 			blankLine = true
 		end
@@ -1693,14 +1754,15 @@ GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", function(dat
 end)
 
 -- raid start time update
-GRA:RegisterEvent("GRA_ST_UPDATE", "AttendanceSheet_StartTimeUpdate", function(d)
-	GRA:Debug("|cff66CD00GRA_ST_UPDATE:|r " .. (d or "GLOBAL"))
+GRA:RegisterEvent("GRA_RH_UPDATE", "AttendanceSheet_RaidHoursUpdate", function(d)
+	GRA:Debug("|cff66CD00GRA_RH_UPDATE:|r " .. (d or "GLOBAL"))
 	GRA:UpdateAttendance(d)
 	if d then
 		RefreshDetailsByDate(d)
 	else -- update all
 		GRA:ShowAttendanceSheet()
 	end
+	CalcAR()
 end)
 
 -- system changed

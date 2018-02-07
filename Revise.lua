@@ -55,5 +55,23 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 				_G[GRA_R_RaidLogs][d] = GRA:RemoveElementsByKeys(t, {"attendees", "absentees"})
 			end
 		end
+
+		-- r79-release startTime string -> number
+		for d, t in pairs(_G[GRA_R_RaidLogs]) do
+			if type(t["startTime"]) == "string" then
+				t["startTime"] = GRA:DateToTime(d .. t["startTime"], true)
+			end
+			-- change LATE -> PARTLY
+			for n, att in pairs(t["attendances"]) do
+				if att[1] == "LATE" then
+					att[1] = "PARTLY"
+				end
+			end
+		end
+
+		-- r79 add endTime
+		if type(_G[GRA_R_Config]["raidInfo"]["endTime"]) ~= "string" then
+			_G[GRA_R_Config]["raidInfo"]["endTime"] = "23:00"
+		end
     end
 end)

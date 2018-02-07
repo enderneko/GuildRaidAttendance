@@ -128,6 +128,7 @@ end)
 local receiveLogsPopup, sendLogsPopup, logsAccepted, logsReceived, receivedLogs
 local dates
 local function OnLogsReceived()
+    -- TODO: version mismatch warning
     if logsAccepted and logsReceived and receivedLogs then
         for d, tbl in pairs(receivedLogs[1]) do
             _G[GRA_R_RaidLogs][d] = tbl

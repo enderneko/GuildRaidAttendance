@@ -387,32 +387,71 @@ function GRA:SecondsToTime(s)
 	return date("%H:%M", s)
 end
 
+-- time, seconds
 function GRA:GetRaidStartTime(d)
-	if d and _G[GRA_R_RaidLogs][d]["startTime"] then
-		return _G[GRA_R_RaidLogs][d]["startTime"]
+	if d then
+		if _G[GRA_R_RaidLogs][d]["startTime"] then -- has startTime
+			return GRA:SecondsToTime(_G[GRA_R_RaidLogs][d]["startTime"]), _G[GRA_R_RaidLogs][d]["startTime"]
+		else
+			return _G[GRA_R_Config]["raidInfo"]["startTime"], GRA:DateToTime(d .. _G[GRA_R_Config]["raidInfo"]["startTime"], true)
+		end
 	else
 		return _G[GRA_R_Config]["raidInfo"]["startTime"]
 	end
 end
 
-function GRA:IsLate(joinTime, startTime)
-	if joinTime <= GRA:DateToTime(startTime, true) then
-		return "PRESENT"
+function GRA:GetRaidEndTime(d)
+	if d then
+		if _G[GRA_R_RaidLogs][d]["endTime"] then -- has endTime
+			return GRA:SecondsToTime(_G[GRA_R_RaidLogs][d]["endTime"]), _G[GRA_R_RaidLogs][d]["endTime"]
+		else
+			return _G[GRA_R_Config]["raidInfo"]["endTime"], GRA:DateToTime(d .. _G[GRA_R_Config]["raidInfo"]["endTime"], true)
+		end
 	else
-		return "LATE"
+		return _G[GRA_R_Config]["raidInfo"]["endTime"]
 	end
-	-- local h1,m1 = strsplit(":", joinTime)
-	-- local h2,m2 = strsplit(":", startTime)
-	-- return tonumber(h1..m1) > tonumber(h2..m2)
 end
 
--- update attendances when start time changed
+function GRA:CheckAttendanceStatus(joinTime, startTime, leaveTime, endTime)
+	if joinTime and startTime and (joinTime > startTime) then
+		return "PARTLY" -- no need to check leaveTime
+	end
+
+	if leaveTime and endTime and (leaveTime < endTime) then
+		return "PARTLY"
+	end
+
+	return "PRESENT"
+end
+
+-- 出勤率使用出勤分钟数计算
+function GRA:GetAttendanceRate(d, name)
+	if _G[GRA_R_RaidLogs][d]["attendances"][name] then
+		if _G[GRA_R_RaidLogs][d]["attendances"][name][1] == "PRESENT" then
+			return 1
+		elseif _G[GRA_R_RaidLogs][d]["attendances"][name][1] == "PARTLY" then
+			local startTime = select(2, GRA:GetRaidStartTime(d))
+			local endTime = select(2, GRA:GetRaidEndTime(d))
+			local joinTime = _G[GRA_R_RaidLogs][d]["attendances"][name][3]
+			local leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][name][4] or endTime -- 没有退队的成员可能没有leaveTime
+
+			joinTime = math.max(startTime, joinTime)
+			leaveTime = math.min(endTime, leaveTime)
+			
+			return math.ceil((leaveTime - joinTime) / 60) / math.ceil((endTime - startTime) / 60)
+		else
+			return 0
+		end
+	end
+end
+
+-- update attendances when raid hours changed
 function GRA:UpdateAttendance(d)
 	if d then
-		-- start time changed for this day
+		-- start/end time changed for this day
 		for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendances"]) do
-			if t[3] then -- PRESENT or LATE
-				t[1] = GRA:IsLate(t[3], d .. (_G[GRA_R_RaidLogs][d]["startTime"] or _G[GRA_R_Config]["raidInfo"]["startTime"]))
+			if t[3] then -- PRESENT or PARTLY
+				t[1] = GRA:CheckAttendanceStatus(t[3], select(2, GRA:GetRaidStartTime(d)), t[4], select(2, GRA:GetRaidEndTime(d)))
 			end
 		end
 	else

@@ -483,7 +483,7 @@ local function LoadDateList()
 
 					titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
 						.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(sortedDates[selected]))
-						.. "    |cff80FF00" .. L["Raid Start Time"] .. ":|r " .. GRA:GetRaidStartTime(d))
+						.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA:GetRaidStartTime(d) .. " - " ..  GRA:GetRaidEndTime(d))
 				end
 			end)
 		end
@@ -607,12 +607,13 @@ GRA:RegisterEvent("GRA_LOGS_DEL", "RaidLogsFrame_RaidLogsDeleted", function(dele
 	UpdateList()
 end)
 
-GRA:RegisterEvent("GRA_ST_UPDATE", "RaidLogsFrame_StartTimeUpdate", function(d)
-	if (not d) or (d and dates[d].isSelected) then
-		titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
-			.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(sortedDates[selected]))
-			.. "    |cff80FF00" .. L["Raid Start Time"] .. ":|r " .. GRA:GetRaidStartTime(d))
-	end
+GRA:RegisterEvent("GRA_RH_UPDATE", "RaidLogsFrame_RaidHoursUpdate", function(d)
+	if not init then return end
+
+	d = sortedDates[selected] -- set to current selected
+	titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
+		.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(d))
+		.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA:GetRaidStartTime(d) .. " - " ..  GRA:GetRaidEndTime(d))
 end)
 
 -----------------------------------------

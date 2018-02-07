@@ -579,7 +579,7 @@ function GRA:CreateGrid(frame, width, text, color, highlight, ...)
 				-- tex:SetPoint("CENTER")
 			elseif att == "PRESENT" then
 				grid:SetBackdropColor(0, 1, 0, .2)
-			elseif att == "LATE" then
+			elseif att == "PARTLY" then
 				grid:SetBackdropColor(1, 1, 0, .2)
 			elseif att == "ABSENT" then
 				grid:SetBackdropColor(1, 0, 0, .2)
@@ -880,7 +880,7 @@ function GRA:CreateListButton(parent, text, color, size, font)
 	return b
 end
 
-function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, joinTime)
+function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, joinTime, leaveTime)
 	local row = CreateFrame("Button", nil, parent)
 	row:SetFrameLevel(5)
 	row:SetSize(width, 20)
@@ -908,7 +908,14 @@ function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, j
 	row.joinTimeEditBox:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .1) end)
 	row.joinTimeEditBox:SetScript("OnLeave", function() row:SetBackdropColor(0, 0, 0, 0) end)
 	row.joinTimeEditBox:Hide()
-	-- row.joinTimeEditBox:SetPoint("RIGHT")
+
+	row.leaveTimeEditBox = GRA:CreateEditBox(row, 60, 20)
+	row.leaveTimeEditBox:SetJustifyH("CENTER")
+	GRA:StylizeFrame(row.leaveTimeEditBox, {.7,.7,.7,.1})
+	row.leaveTimeEditBox:SetPoint("LEFT", row.joinTimeEditBox, "RIGHT", -1, 0)
+	row.leaveTimeEditBox:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .1) end)
+	row.leaveTimeEditBox:SetScript("OnLeave", function() row:SetBackdropColor(0, 0, 0, 0) end)
+	row.leaveTimeEditBox:Hide()
 
 	row.noteEditBox = GRA:CreateEditBox(row, 100, 20)
 	GRA:StylizeFrame(row.noteEditBox, {.7,.7,.7,.1})
@@ -917,23 +924,28 @@ function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, j
 	row.noteEditBox:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .1) end)
 	row.noteEditBox:SetScript("OnLeave", function() row:SetBackdropColor(0, 0, 0, 0) end)
 
-	function row:SetJoinTimeVisible(v)
+	function row:SetTimeGridVisible(v)
 		if v then
 			row.joinTimeEditBox:Show()
-			row.noteEditBox:SetPoint("LEFT", row.joinTimeEditBox, "RIGHT", -1, 0)
+			row.joinTimeEditBox:SetTextColor(1, 1, 1, 1)
+			row.leaveTimeEditBox:Show()
+			row.leaveTimeEditBox:SetTextColor(1, 1, 1, 1)
+			row.noteEditBox:SetPoint("LEFT", row.leaveTimeEditBox, "RIGHT", -1, 0)
 		else
 			row.joinTimeEditBox:Hide()
+			row.leaveTimeEditBox:Hide()
 			row.noteEditBox:SetPoint("LEFT", row.attendanceGrid, "RIGHT", -1, 0)
 		end
 	end
 
-	function row:SetRowInfo(att, nt, jt)
+	function row:SetRowInfo(att, nt, jt, lt)
 		local attendanceText
 		row.attendance = att -- sort key
 		row.joinTime = jt
+		row.leaveTime = lt
 		row.note = nt
 
-		if att == "PRESENT" or att == "LATE" then
+		if att == "PRESENT" or att == "PARTLY" then
 			row.attendance = "PRESENT"
 			attendanceText = L["Present"]
 			row.attendanceGrid:GetFontString():SetTextColor(0, 1, 0, .9)
@@ -953,10 +965,11 @@ function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, j
 		if nt == "" then row.note = nil end
 
 		if jt then
-			row:SetJoinTimeVisible(true)
+			row:SetTimeGridVisible(true)
 			row.joinTimeEditBox:SetText(GRA:SecondsToTime(jt))
+			row.leaveTimeEditBox:SetText(GRA:SecondsToTime(lt))
 		else
-			row:SetJoinTimeVisible(false)
+			row:SetTimeGridVisible(false)
 		end
 		
 		if att == "IGNORED" then
@@ -972,18 +985,20 @@ function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, j
 		-- let the first letter be first
 		row.noteEditBox:SetCursorPosition(0)
 	end
-	row:SetRowInfo(attendance, note, joinTime)
+	row:SetRowInfo(attendance, note, joinTime, leaveTime)
 
 	function row:SetChanged(changed)
 		if changed then
 			GRA:StylizeFrame(row.nameGrid, {1, .3, .3, .2})
 			GRA:StylizeFrame(row.attendanceGrid, {1, .3, .3, .2})
 			GRA:StylizeFrame(row.joinTimeEditBox, {1, .3, .3, .2})
+			GRA:StylizeFrame(row.leaveTimeEditBox, {1, .3, .3, .2})
 			GRA:StylizeFrame(row.noteEditBox, {1, .3, .3, .2})
 		else
 			GRA:StylizeFrame(row.nameGrid, {.7,.7,.7,.1})
 			GRA:StylizeFrame(row.attendanceGrid, {.7,.7,.7,.1})
 			GRA:StylizeFrame(row.joinTimeEditBox, {.7,.7,.7,.1})
+			GRA:StylizeFrame(row.leaveTimeEditBox, {.7,.7,.7,.1})
 			GRA:StylizeFrame(row.noteEditBox, {.7,.7,.7,.1})
 		end
 	end

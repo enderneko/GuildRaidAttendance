@@ -1,13 +1,13 @@
 local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 
-local dateString, dateButton, raidStartTime
+local dateString, dateButton, raidStartTime, raidEndTime
 -- attendances: _G[GRA_R_RaidLogs] data
 -- changes: changed data
 -- rows: row buttons, used for highlighting and discarding changes
 local attendances, changes, rows = {}, {}, {}
 
-local attendanceEditor = GRA:CreateFrame(L["Attendance Editor"], "GRA_AttendanceEditor", gra.mainFrame, 326, gra.mainFrame:GetHeight())
+local attendanceEditor = GRA:CreateFrame(L["Attendance Editor"], "GRA_AttendanceEditor", gra.mainFrame, 385, gra.mainFrame:GetHeight())
 gra.attendanceEditor = attendanceEditor
 attendanceEditor:SetPoint("TOPLEFT", gra.mainFrame, "TOPRIGHT", 2, 0)
 attendanceEditor:Hide()
@@ -30,13 +30,52 @@ attendanceEditor.header.helpBtn:HookScript("OnLeave", function() GRA_Tooltip:Hid
 local raidDateText = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 raidDateText:SetPoint("TOPLEFT", 5, -10)
 
+-- raid end time
+local raidEndTimeEditBox = GRA:CreateEditBox(attendanceEditor, 70, 20, false, "GRA_FONT_SMALL")
+raidEndTimeEditBox:SetJustifyH("CENTER")
+raidEndTimeEditBox:SetPoint("TOPRIGHT", attendanceEditor, -5, -5)
+
+local RETComfirmBtn = GRA:CreateButton(raidEndTimeEditBox, L["OK"], "blue", {20, 20}, "GRA_FONT_SMALL")
+RETComfirmBtn:SetPoint("RIGHT", raidEndTimeEditBox)
+RETComfirmBtn:Hide()
+RETComfirmBtn:SetScript("OnClick", function()
+	local h, m = string.split(":", raidEndTimeEditBox:GetText())
+	raidEndTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
+
+	_G[GRA_R_RaidLogs][dateString]["endTime"] = GRA:DateToTime(dateString .. raidEndTime, true)
+    -- update attendance sheet column
+    GRA:FireEvent("GRA_RH_UPDATE", dateString)
+
+	raidEndTimeEditBox:SetText(raidEndTime)
+
+	raidEndTimeEditBox:ClearFocus()
+	RETComfirmBtn:Hide()
+end)
+
+raidEndTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
+	if not userInput then return end
+	-- check time validity
+	local h, m = string.split(":", raidEndTimeEditBox:GetText())
+	h, m = tonumber(h), tonumber(m)
+	if h and m and h >= 0 and h <= 23 and m >= 0 and m <= 59 then
+		RETComfirmBtn:Show()
+		GRA:StylizeFrame(raidEndTimeEditBox, {.1, .1, .1, .9})
+	else
+		RETComfirmBtn:Hide()
+		GRA:StylizeFrame(raidEndTimeEditBox, {.1, .1, .1, .9}, {1, 0, 0, 1})
+	end
+end)
+
+-- next OnShow, its data MUST be valid
+raidEndTimeEditBox:SetScript("OnHide", function()
+	RETComfirmBtn:Hide()
+	GRA:StylizeFrame(raidEndTimeEditBox, {.1, .1, .1, .9})
+end)
+
+-- raid start time
 local raidStartTimeEditBox = GRA:CreateEditBox(attendanceEditor, 70, 20, false, "GRA_FONT_SMALL")
 raidStartTimeEditBox:SetJustifyH("CENTER")
-raidStartTimeEditBox:SetPoint("TOPRIGHT", attendanceEditor, -5, -5)
-
-local raidStartTimeText = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-raidStartTimeText:SetPoint("RIGHT", raidStartTimeEditBox, "LEFT", -5, 0)
-raidStartTimeText:SetText("|cff80FF00" .. L["Raid Start Time"] .. ": ")
+raidStartTimeEditBox:SetPoint("RIGHT", raidEndTimeEditBox, "LEFT", -5, 0)
 
 local RSTComfirmBtn = GRA:CreateButton(raidStartTimeEditBox, L["OK"], "blue", {20, 20}, "GRA_FONT_SMALL")
 RSTComfirmBtn:SetPoint("RIGHT", raidStartTimeEditBox)
@@ -45,9 +84,9 @@ RSTComfirmBtn:SetScript("OnClick", function()
 	local h, m = string.split(":", raidStartTimeEditBox:GetText())
 	raidStartTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
 
-	_G[GRA_R_RaidLogs][dateString]["startTime"] = raidStartTime
+	_G[GRA_R_RaidLogs][dateString]["startTime"] = GRA:DateToTime(dateString .. raidStartTime, true)
     -- update attendance sheet column
-    GRA:FireEvent("GRA_ST_UPDATE", dateString)
+    GRA:FireEvent("GRA_RH_UPDATE", dateString)
 
 	raidStartTimeEditBox:SetText(raidStartTime)
 
@@ -74,7 +113,12 @@ raidStartTimeEditBox:SetScript("OnHide", function()
 	RSTComfirmBtn:Hide()
 	GRA:StylizeFrame(raidStartTimeEditBox, {.1, .1, .1, .9})
 end)
- 
+
+
+local raidHours = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+raidHours:SetPoint("RIGHT", raidStartTimeEditBox, "LEFT", -3, 0)
+raidHours:SetText("|cff80FF00" .. L["Raid Hours"] .. ": ")
+
 local scroll = GRA:CreateScrollFrame(attendanceEditor, -28, 29)
 GRA:StylizeFrame(scroll, {0, 0, 0, 0})
 scroll:SetScrollStep(19)
@@ -93,7 +137,7 @@ local function SortAttendanceEditor()
         else -- IGNORED
             att = 4
         end
-        table.insert(sorted, {n, att, row.joinTime, _G[GRA_R_Roster][n]["class"]})
+        table.insert(sorted, {n, att, row.joinTime, row.leaveTime, _G[GRA_R_Roster][n]["class"]})
     end
     table.sort(sorted, function(a, b)
         if a[2] ~= b[2] then
@@ -101,7 +145,9 @@ local function SortAttendanceEditor()
         elseif a[3] ~= b[3] then
             return a[3] < b[3]
         elseif a[4] ~= b[4] then
-            return GRA:GetIndex(gra.CLASS_ORDER, a[4]) < GRA:GetIndex(gra.CLASS_ORDER, b[4])
+            return a[4] > b[4]
+        elseif a[5] ~= b[5] then
+            return GRA:GetIndex(gra.CLASS_ORDER, a[5]) < GRA:GetIndex(gra.CLASS_ORDER, b[5])
         else
             return a[1] < b[1]
         end 
@@ -137,9 +183,9 @@ end)
 local function CheckAttendances(d)
     attendances = {}
     for n, _ in pairs(_G[GRA_R_Roster]) do
-        if _G[GRA_R_RaidLogs][d]["attendances"][n] then -- present/absent/late/onleave
-            if _G[GRA_R_RaidLogs][d]["attendances"][n][3] then -- present/late
-                attendances[n] = {"PRESENT", _G[GRA_R_RaidLogs][d]["attendances"][n][2], _G[GRA_R_RaidLogs][d]["attendances"][n][3]}
+        if _G[GRA_R_RaidLogs][d]["attendances"][n] then -- present/absent/partly/onleave
+            if _G[GRA_R_RaidLogs][d]["attendances"][n][3] then -- present/partly
+                attendances[n] = {"PRESENT", _G[GRA_R_RaidLogs][d]["attendances"][n][2], _G[GRA_R_RaidLogs][d]["attendances"][n][3], _G[GRA_R_RaidLogs][d]["attendances"][n][4] or select(2, GRA:GetRaidEndTime(d))}
             else -- absent/onleave
                 attendances[n] = {_G[GRA_R_RaidLogs][d]["attendances"][n][1], _G[GRA_R_RaidLogs][d]["attendances"][n][2]}
             end
@@ -154,11 +200,12 @@ local function CheckPlayerAttendance(row)
     local changed = false
     local name = row.name
     -- attendance/note/joinTime changed
-    if row.attendance ~= attendances[name][1] or row.note ~= attendances[name][2] or row.joinTime ~= attendances[name][3] then 
+    if row.attendance ~= attendances[name][1] or row.note ~= attendances[name][2] or row.joinTime ~= attendances[name][3] or row.leaveTime ~= attendances[name][4] then 
         if not changes[name] then changes[name] = {} end
         changes[name][1] = row.attendance
         changes[name][2] = row.note
         changes[name][3] = row.joinTime
+        changes[name][4] = row.leaveTime
         changed = true
     else
         changes = GRA:RemoveElementsByKeys(changes, {name})
@@ -175,7 +222,7 @@ SaveChanges = function()
         if t[1] == "IGNORED" then -- delete
             _G[GRA_R_RaidLogs][dateString]["attendances"] = GRA:RemoveElementsByKeys(_G[GRA_R_RaidLogs][dateString]["attendances"], {n})
         elseif t[1] == "PRESENT" then -- PRESENT
-            _G[GRA_R_RaidLogs][dateString]["attendances"][n] = {GRA:IsLate(t[3], dateString..raidStartTime), t[2], t[3]}
+            _G[GRA_R_RaidLogs][dateString]["attendances"][n] = {GRA:CheckAttendanceStatus(t[3], select(2, GRA:GetRaidStartTime(dateString)), t[4], select(2, GRA:GetRaidEndTime(dateString))), t[2], t[3], t[4]}
         else -- ABSENT, ONLEAVE
             if t[2] then
                 _G[GRA_R_RaidLogs][dateString]["attendances"][n] = {t[1], t[2]}
@@ -185,6 +232,7 @@ SaveChanges = function()
         end
 
         rows[n].joinTimeEditBox:ClearFocus()
+        rows[n].leaveTimeEditBox:ClearFocus()
         rows[n].noteEditBox:ClearFocus()
         rows[n]:SetChanged(false)
     end
@@ -202,8 +250,9 @@ end
 DiscardChanges = function()
     if GRA:Getn(changes) == 0 then return end
     for n, _ in pairs(changes) do
-        rows[n]:SetRowInfo(attendances[n][1], attendances[n][2], attendances[n][3])
+        rows[n]:SetRowInfo(attendances[n][1], attendances[n][2], attendances[n][3], attendances[n][4])
         rows[n].joinTimeEditBox:ClearFocus()
+        rows[n].leaveTimeEditBox:ClearFocus()
         rows[n].noteEditBox:ClearFocus()
         rows[n]:SetChanged(false)
     end
@@ -217,7 +266,9 @@ function GRA:ShowAttendanceEditor(d, b)
     dateString = d
     raidDateText:SetText("|cff80FF00" .. L["Raid Date: "] .. "|r" .. date("%x", GRA:DateToTime(d)))
     raidStartTime = GRA:GetRaidStartTime(d)
+    raidEndTime = GRA:GetRaidEndTime(d)
     raidStartTimeEditBox:SetText(raidStartTime)
+    raidEndTimeEditBox:SetText(raidEndTime)
 
     scroll:Reset()
     rows = {}
@@ -225,7 +276,7 @@ function GRA:ShowAttendanceEditor(d, b)
     -- check attendances from _G[GRA_R_RaidLogs][d]
     CheckAttendances(d)
     for n, t in pairs(attendances) do
-        local row = GRA:CreateRow_AttendanceEditor(scroll.content, attendanceEditor:GetWidth(), n, t[1], t[2], t[3])
+        local row = GRA:CreateRow_AttendanceEditor(scroll.content, attendanceEditor:GetWidth(), n, t[1], t[2], t[3], t[4])
         scroll:SetWidgetAutoWidth(row)
         rows[n] = row
         row.name = n
@@ -238,7 +289,8 @@ function GRA:ShowAttendanceEditor(d, b)
                     ["color"] = "green",
                     ["onClick"] = function()
                         local joinTime = GRA:DateToTime(dateString..raidStartTime, true)
-                        row:SetRowInfo("PRESENT", row.note, row.joinTime or joinTime)
+                        local leaveTime = GRA:DateToTime(dateString..raidEndTime, true)
+                        row:SetRowInfo("PRESENT", row.note, row.joinTime or joinTime, row.leaveTime or leaveTime)
                         CheckPlayerAttendance(row)
                     end
                 },
@@ -271,9 +323,6 @@ function GRA:ShowAttendanceEditor(d, b)
             selector:SetPoint("TOPLEFT")
         end)
         
-        -- load text
-        row:SetRowInfo(row.attendance, row.note, row.joinTime)
-
         -- joinTime
         row.joinTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
             if not userInput then return end
@@ -285,13 +334,34 @@ function GRA:ShowAttendanceEditor(d, b)
                     local joinTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
                     -- convert to seconds, update joinTime
                     row.joinTime = GRA:DateToTime(dateString..joinTime, true)
-                    CheckPlayerAttendance(row)
                     saveBtn:SetEnabled(true)
                 else
-                    row:SetChanged(true)
                     self:SetTextColor(1, .12, .12, 1)
+                    row.joinTime = nil
                     saveBtn:SetEnabled(false)
                 end
+                CheckPlayerAttendance(row)
+            end
+        end)
+
+        -- leaveTime
+        row.leaveTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
+            if not userInput then return end
+            if row.attendance == "PRESENT" then
+                local h, m = string.split(":", self:GetText())
+                h, m = tonumber(h), tonumber(m)
+                if h and m and h >= 0 and h <= 23 and m >= 0 and m <= 59 then
+                    self:SetTextColor(1, 1, 1, 1)
+                    local leaveTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
+                    -- convert to seconds, update leaveTime
+                    row.leaveTime = GRA:DateToTime(dateString..leaveTime, true)
+                    saveBtn:SetEnabled(true)
+                else
+                    self:SetTextColor(1, .12, .12, 1)
+                    row.leaveTime = nil
+                    saveBtn:SetEnabled(false)
+                end
+                CheckPlayerAttendance(row)
             end
         end)
 
@@ -306,6 +376,13 @@ function GRA:ShowAttendanceEditor(d, b)
     SortAttendanceEditor()
     attendanceEditor:Show()
 end
+
+GRA:RegisterEvent("GRA_RH_UPDATE", "AttendanceEditor_RaidHoursUpdate", function(d)
+    if not attendanceEditor:IsShown() then return end
+    -- 改变Global RH并不会刷新此页面，因为 attendanceEditor not shown
+    -- 出勤编辑当前显示的日期必然是RH发生了变化的这一天，刷新即可
+    GRA:ShowAttendanceEditor(dateString, dateButton)
+end)
 
 attendanceEditor:SetScript("OnHide", function(self)
     self:Hide()

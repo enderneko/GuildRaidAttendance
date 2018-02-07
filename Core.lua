@@ -307,6 +307,7 @@ function frame:ADDON_LOADED(arg1)
 				["DKP"] = 0,
 				["days"] = {gra.RAID_LOCKOUTS_RESET},
 				["startTime"] = "19:30",
+				["endTime"] = "23:00",
 				["system"] = "",
 			}
 		end
