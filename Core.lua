@@ -278,6 +278,9 @@ function frame:ADDON_LOADED(arg1)
 
 		-- help viewed
 		if type(GRA_A_Variables["helpViewed"]) ~= "boolean" then GRA_A_Variables["helpViewed"] = false end
+		
+		-- about current version
+		if type(GRA_A_Variables["aboutViewed"]) ~= "string" then GRA_A_Variables["aboutViewed"] = "" end
 
 		-- scale
 		if type(GRA_A_Variables["scaleFactor"]) ~= "number" then GRA_A_Variables["scaleFactor"] = 1 end
@@ -410,7 +413,7 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
 		gra.mainFrame:SetPoint("CENTER")
 		gra.mainFrame:Show()
 	elseif command == "resetsize" then
-		-- TODO:
+		-- TODO: 
 	elseif command == "loot" then
 		gra.distributionFrame:Show()
 	--@debug@

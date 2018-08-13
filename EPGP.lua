@@ -118,7 +118,7 @@ function GRA:ModifyEP(epDate, ep, reason, players, index)
 
     -- modify exist
     for _, n in pairs(t[4]) do
-        if tContains(players, n) then -- ep changed
+        if GRA:TContains(players, n) then -- ep changed
             changes[n] = ep - t[2]
             GRA:SendEntryMsg(L["EP Modify"], n, ep, reason)
         else -- ep undo

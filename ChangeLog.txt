@@ -1,11 +1,6 @@
-TODO:
-    循环加分，待命密语（可能并不会实现，考虑中）
-    player detail frame (just view)
-    import / export
-    optimize attendance rate update (from last point)
-	发送EPGP信息时，没有变化的玩家不应当继续收到消息
-    （待定）新成员加入团队，如过记录窗口正在显示，不应当刷新scroll，如果当前显示的为今天，那么仅刷新名单列表
-    larger font and frame (just use larger scale???)
+version r80-beta
+------------------------
+    * Fixed bugs for BfA. (date related functions, tContains, ScrollFrame)
 
 version r79-release
 ------------------------

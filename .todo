@@ -1,0 +1,30 @@
+New Features:
+    ☐ 将util分类，GRA.Util.DateUtil.function @high 
+    ☐ player detail frame (just view)
+    ☐ import / export
+    
+Modules/Frames:
+    Config:
+        ☐ help button glow @high
+        ☐ loot system buttons
+    Loot System:
+        ☐ remove them
+    Distribution Tool:
+        ☐ add ploot support
+    Help:
+        ☐ a lot of tutorials to add @high
+    Raid Log:
+        ☐ 新成员加入团队，如过raidlog正在显示，不应当刷新scroll，如果当前显示的为今天，那么仅刷新名单列表
+    Attendance:
+        ☐ optimize attendance rate update
+        ☐ AR30/60/90 sort by attendance @critical 
+
+Widgets:
+    ScrollFrame:
+        ☐ check widgets in scrollchild visibility
+
+Appearance:
+    ☐ larger font and frame (not scale)
+    
+Archive:
+  ✘ 循环加分，待命密语 @cancelled(18-08-14 02:58) @project(New Features)

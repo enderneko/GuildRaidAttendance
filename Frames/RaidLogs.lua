@@ -426,7 +426,6 @@ local function LoadDateList()
 	-- clear data
 	-- listFrame.scrollFrame:Reset()
 
-	wipe(sortedDates)
 	for d, t in pairs(_G[GRA_R_RaidLogs]) do
 		table.insert(sortedDates, d)
 	end
@@ -506,8 +505,10 @@ local function LoadDateList()
 end
 
 local function PrepareRaidLogs()
+	wipe(sortedDates)
 	if GRA:Getn(_G[GRA_R_RaidLogs]) == 0 then
 		GRA:CreateMask(raidLogsFrame, L["No raid log"], {-1, 1, 1, -1})
+		titleText:SetText("")
 		attendeesText:SetText("")
 		absenteesText:SetText("")
 		detailsFrame.scrollFrame:Reset()

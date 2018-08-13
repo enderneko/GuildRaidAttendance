@@ -83,7 +83,7 @@ local function SetRowPoints()
 	attendanceFrame.scrollFrame:ResetScroll()
 end
 
-local SortSheetByName, SortSheetByClass, SortSheetByATT, SortSheetByAR, SortSheetByAR30, SortSheetByAR60, SortSheetByAR90, SortSheetByPR, SortSheetByEP, SortSheetByGP, SortSheetByCurrentDKP, SortSheetBySpentDKP, SortSheetByTotalDKP
+local SortSheetByName, SortSheetByClass, SortSheetByATT, SortSheetByAR, SortSheetByATT30, SortSheetByAR30, SortSheetByAR60, SortSheetByAR90, SortSheetByPR, SortSheetByEP, SortSheetByGP, SortSheetByCurrentDKP, SortSheetBySpentDKP, SortSheetByTotalDKP
 
 SortSheetByName = function()
 	table.sort(loaded, function(a, b) return a.name < b.name end)
@@ -146,8 +146,8 @@ SortSheetByATT = function()
 		table.sort(loaded, function(a, b)
 			if a.attLifetime ~= b.attLifetime then
 				return a.attLifetime > b.attLifetime
-			elseif a.partlyLifeTime ~= b.partlyLifeTime then
-				return a.partlyLifeTime < b.partlyLifeTime
+			-- elseif a.partlyLifeTime ~= b.partlyLifeTime then
+			-- 	return a.partlyLifeTime < b.partlyLifeTime
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
 			elseif a.pr ~= b.pr then
@@ -246,6 +246,57 @@ SortSheetByAR = function()
 	end
 	SetRowPoints()
 	GRA_Variables["sortKey"] = "ar"
+end
+
+SortSheetByATT30 = function()
+	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+		-- att late ar pr ep gp name
+		table.sort(loaded, function(a, b)
+			if a.att30 ~= b.att30 then
+				return a.att30 > b.att30
+			elseif a.ar30 ~= b.ar30 then
+				return a.ar30 > b.ar30
+			elseif a.pr ~= b.pr then
+				return a.pr > b.pr
+			elseif a.ep ~= b.ep then
+				return a.ep > b.ep
+			elseif a.gp ~= b.gp then
+				return a.gp < b.gp
+			else
+				return a.name < b.name
+			end
+		end)
+	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		-- att ar current total spent name
+		table.sort(loaded, function(a, b)
+			if a.att30 ~= b.att30 then
+				return a.att30 > b.att30
+			elseif a.ar30 ~= b.ar30 then
+				return a.ar30 > b.ar30
+			elseif a.current ~= b.current then
+				return a.current > b.current
+			elseif a.total ~= b.total then
+				return a.total > b.total
+			elseif a.spent ~= b.spent then
+				return a.spent < b.spent
+			else
+				return a.name < b.name
+			end
+		end)
+	else
+		-- att ar ar30 name
+		table.sort(loaded, function(a, b)
+			if a.att30 ~= b.att30 then
+				return a.att30 > b.att30
+			elseif a.ar30 ~= b.ar30 then
+				return a.ar30 > b.ar30
+			else
+				return a.name < b.name
+			end
+		end)
+	end
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "att30"
 end
 
 SortSheetByAR30 = function()
@@ -536,6 +587,8 @@ local function SortSheet(key)
 		SortSheetByAR()
 	elseif key == "ar30" then
 		SortSheetByAR30()
+	elseif key == "att30" then
+		SortSheetByATT30()
 	elseif key == "ar60" then
 		SortSheetByAR60()
 	elseif key == "ar90" then
@@ -752,9 +805,15 @@ end)
 local ar30Text = GRA:CreateGrid(headerFrame, 50, "AR 30", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by attendance rate (30 days)."])
 ar30Text:GetFontString():ClearAllPoints()
 ar30Text:GetFontString():SetPoint("BOTTOM", 0, 1)
-ar30Text:SetScript("OnClick", function()
-	SortSheetByAR30()
-	GRA:Print(L["Sort attendance sheet by attendance rate (30 days)."])
+ar30Text:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+ar30Text:SetScript("OnClick", function(self, button)
+	if button == "LeftButton" then
+		SortSheetByAR30()
+		GRA:Print(L["Sort attendance sheet by attendance rate (30 days)."])
+	elseif button == "RightButton" then
+		SortSheetByATT30()
+		GRA:Print(L["Sort attendance sheet by attendance (30 days)."])
+	end
 end)
 
 local ar60Text = GRA:CreateGrid(headerFrame, 50, "AR 60", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by attendance rate (60 days)."])
@@ -807,7 +866,7 @@ local function CreateDateHeader()
 	local firstRaidDay, temp = nil, gra.RAID_LOCKOUTS_RESET
 	-- calc first raid day after RAID_LOCKOUTS_RESET day
 	for i = 1, 7 do
-		if tContains(days, temp) then
+		if GRA:TContains(days, temp) then
 			firstRaidDay = temp
 			break
 		end
@@ -818,7 +877,7 @@ local function CreateDateHeader()
 	for i = 1, weeks do
 		for j = 1, 7 do -- 7 days
 			local wday = select(2, GRA:DateToWeekday(startDate))
-			if tContains(days, wday) then -- is a raid day
+			if GRA:TContains(days, wday) then -- is a raid day
 				-- color first day for every raid lockouts period
 				-- one day per week = white
 				if daysPerWeek ~= 1 and (wday == gra.RAID_LOCKOUTS_RESET or wday == firstRaidDay) then
@@ -1046,7 +1105,7 @@ ShowAR = function()
 		row.att60 = att60[1]
 		row.att90 = att90[1]
 		row.attLifetime = attLifetime[1]
-		row.partlyLifeTime = attLifetime[3] or 0 -- no attLifetime[3] in previous version
+		-- row.partlyLifeTime = attLifetime[3] or 0 -- no attLifetime[3] in previous version
 
 		-- attendance rate
 		row.ar30 = tonumber(format("%.1f", att30[5] or 0))

@@ -4,7 +4,8 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("ADDON_LOADED")
 
 frame:SetScript("OnEvent", function(self, event, arg1, ...)
-    if arg1 == addonName then
+	if arg1 == addonName then
+		--[[
 		if type(_G[GRA_R_Config]["raidInfo"]["DKP"]) ~= "number" then
 			_G[GRA_R_Config]["raidInfo"]["DKP"] = 0
         end
@@ -73,5 +74,6 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 		if type(_G[GRA_R_Config]["raidInfo"]["endTime"]) ~= "string" then
 			_G[GRA_R_Config]["raidInfo"]["endTime"] = "23:00"
 		end
+		]]
     end
 end)

@@ -100,6 +100,7 @@ epgpOptionsBtn:SetScript("OnClick", function()
 	configFrame:Hide()
 	gra.epgpOptionsFrame:Show()
 end)
+epgpOptionsBtn:SetEnabled(false) -- TODO: remove this module
 
 local dkpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["DKP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
 dkpOptionsBtn:SetPoint("LEFT", epgpOptionsBtn, "RIGHT", -1, 0)
@@ -107,6 +108,7 @@ dkpOptionsBtn:SetScript("OnClick", function()
 	configFrame:Hide()
 	gra.dkpOptionsFrame:Show()
 end)
+dkpOptionsBtn:SetEnabled(false) -- TODO: remove this module
 
 -----------------------------------------
 -- attendance sheet settings
@@ -303,7 +305,7 @@ end)
 
 local function RefreshRaidSchedule()
 	for i = 1, 7 do
-		if tContains(_G[GRA_R_Config]["raidInfo"]["days"], i) then -- raid day
+		if GRA:TContains(_G[GRA_R_Config]["raidInfo"]["days"], i) then -- raid day
 			days[i]:SetChecked(true)
 		else
 			days[i]:SetChecked(false)
@@ -357,7 +359,7 @@ appearanceBtn:SetScript("OnClick", function()
 	gra.appearanceFrame:Show()
 end)
 
-local lootDistrBtn = GRA:CreateButton(configFrame, L["Loot Distr"], "red", {91, 20}, "GRA_FONT_SMALL")
+local lootDistrBtn = GRA:CreateButton(configFrame, L["PLoot Helper"], "red", {91, 20}, "GRA_FONT_SMALL")
 lootDistrBtn:SetPoint("LEFT", appearanceBtn, "RIGHT", -1, 0)
 lootDistrBtn:SetScript("OnClick", function()
 	gra.profilesFrame:Hide()
@@ -367,6 +369,7 @@ lootDistrBtn:SetScript("OnClick", function()
 		gra.lootDistrConfigFrame:Show()
 	end
 end)
+lootDistrBtn:SetEnabled(false) -- TODO: remake this module
 
 -- String: version
 local version = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
@@ -378,7 +381,7 @@ memUsage:SetPoint("TOPLEFT", miscSection, 0, -65)
 local memUsageTimer
 
 -----------------------------------------
--- reload & reset
+-- help, anchor, profile
 -----------------------------------------
 local profilesBtn = GRA:CreateButton(configFrame, L["Profiles"], "red", {57, 20}, "GRA_FONT_SMALL")
 profilesBtn:SetPoint("BOTTOMRIGHT", -5, 5)
@@ -404,7 +407,7 @@ helpBtn:SetScript("OnClick", function()
 	-- configFrame:Hide()
 	gra.helpFrame:Show()
 	ActionButton_HideOverlayGlow(helpBtn)
-	GRA_A_Variables["helpViewed"] = true
+	-- GRA_A_Variables["helpViewed"] = true -- TODO: take it back when help is complete
 end)
 
 -----------------------------------------
@@ -492,7 +495,7 @@ end)
 
 configFrame:SetScript("OnShow", function(self)
 	if not GRA_A_Variables["helpViewed"] then
-		ActionButton_ShowOverlayGlow(helpBtn)
+		-- ActionButton_ShowOverlayGlow(helpBtn) -- TODO: take it back when help is complete
 	end
 	EnableMiniMode(GRA_Variables["minimalMode"])
 	rosterUserLastUpdatedText:SetText(L["Last updated time: "] .. "|cff0080FF" .. (_G[GRA_R_Config]["lastUpdatedTime"] or L["never"]))

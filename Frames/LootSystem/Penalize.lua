@@ -175,7 +175,7 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, index)
 
     -- update cb state
     for name, cb in pairs(attendeeCBs) do
-        if tContains(selected, name) then
+        if GRA:TContains(selected, name) then
             cb:SetChecked(true)
         else
             cb:SetChecked(false)
@@ -183,7 +183,7 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, index)
     end
 
     for name, cb in pairs(absenteeCBs) do
-        if tContains(selected, name) then
+        if GRA:TContains(selected, name) then
             cb:SetChecked(true)
         else
             cb:SetChecked(false)

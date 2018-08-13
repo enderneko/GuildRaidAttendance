@@ -104,7 +104,7 @@ selectAllAttendees:SetScript("OnClick", function()
     for name, cb in pairs(attendeeCBs) do
         if cb:IsShown() then -- only select shown cbs
             cb:SetChecked(true)
-            if tContains(aSelected, name) ~= 1 then
+            if not GRA:TContains(aSelected, name) then
                 table.insert(aSelected, name)
             end
         end
@@ -200,7 +200,7 @@ function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
 
     -- update cb state
     for name, cb in pairs(attendeeCBs) do
-        if tContains(selected, name) then
+        if GRA:TContains(selected, name) then
             cb:SetChecked(true)
         else
             cb:SetChecked(false)
@@ -208,7 +208,7 @@ function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
     end
 
     for name, cb in pairs(absenteeCBs) do
-        if tContains(selected, name) then
+        if GRA:TContains(selected, name) then
             cb:SetChecked(true)
         else
             cb:SetChecked(false)

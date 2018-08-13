@@ -28,7 +28,7 @@ tip2:SetJustifyH("LEFT")
 tip2:SetSpacing(3)
 tip2:SetPoint("BOTTOMLEFT", reloadBtn, "TOPLEFT", 0, 5)
 tip2:SetPoint("BOTTOMRIGHT", reloadBtn, "TOPRIGHT", 0, 5)
-tip2:SetText(gra.colors.firebrick.s .. L["Most of the settings above require a UI reload."])
+tip2:SetText(gra.colors.firebrick.s .. L["Some of the settings above require a UI reload."])
 
 -----------------------------------------
 -- font
@@ -84,6 +84,7 @@ function GRA:SetScale(factor)
     gra.penalizeFrame:SetScale(scale)
     gra.recordLootFrame:SetScale(scale)
     gra.helpFrame:SetScale(scale)
+    gra.aboutFrame:SetScale(scale)
     -- loot distr
     gra.distributionFrame:SetScale(scale)
     gra.lootFrame:SetScale(scale)

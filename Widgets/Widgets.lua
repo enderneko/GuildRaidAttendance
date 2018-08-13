@@ -378,8 +378,8 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 	function datePicker:SetDate(d)
 		local t, tbl = GRA:DateToTime(d)
 		datePicker:SetText(date("%x", t))
-		monthSet, yearSet, numDays, firstWeekday = CalendarGetAbsMonth(tbl.month, tbl.year)
-		daySet = tbl.day
+		numDays, firstWeekday = GRA:GetAbsMonthInfo(tbl.month, tbl.year)
+		yearSet, monthSet, daySet = tbl.year, tbl.month, tbl.day
 		year = yearSet
 		month = monthSet
 	end
@@ -450,7 +450,7 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 	end
 
 	local function FillCalendar()
-		dateFS:SetText(({CalendarGetMonthNames()})[month] .. ", " .. year)
+		dateFS:SetText(GRA:GetMonthNames()[month] .. ", " .. year)
 
 		local d = 1
 		for i = 1, 42 do
@@ -482,7 +482,7 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 			year = year - 1
 			month = 12
 		end
-		month, year, numDays, firstWeekday = CalendarGetAbsMonth(month, year)
+		numDays, firstWeekday = GRA:GetAbsMonthInfo(month, year)
 		FillCalendar()
 	end)
 
@@ -493,7 +493,7 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 			year = year + 1
 			month = 1
 		end
-		month, year, numDays, firstWeekday = CalendarGetAbsMonth(month, year)
+		numDays, firstWeekday = GRA:GetAbsMonthInfo(month, year)
 		FillCalendar()
 	end)
 

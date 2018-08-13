@@ -54,11 +54,11 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 		content:SetHeight(20)
 	end
 	
-	local beforeScroll, afterScroll = nil, 0 -- no checking again and again
+	-- local beforeScroll, afterScroll = nil, 0 -- no checking again and again -- TODO: remove
 	-- reset to top, useful when used with DropDownMenu (variable content height)
 	function scrollFrame:ResetScroll()
 		scrollFrame:SetVerticalScroll(0)
-		beforeScroll, afterScroll = nil, 0
+		-- beforeScroll, afterScroll = nil, 0 -- TODO: remove
 	end
 	
 	-- TODO: test on higher resolution
@@ -82,22 +82,26 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 		-- set content height, check if it CAN SCROLL
 		content:SetHeight(select(4, content:GetBoundsRect()))
 
+		-- FIXME: it seems that BLZ has fix this problem (widgets in scroll child are not click-through even if they're not shown)
+		--[[
 		if beforeScroll ~= afterScroll then -- if scrollED then
 			local top, bottom = scrollFrame:GetTop(), scrollFrame:GetBottom()
 			-- GRA:Debug("Update Scroll Widgets Visibility...")
 			-- hide "invisible" widgets
 			for k, widget in pairs({content:GetChildren()}) do
 				local widgetTop, widgetBottom = widget:GetTop(), widget:GetBottom()
-				if widgetBottom+5 >= top or widgetTop-5 <= bottom then -- "invisible"
-					-- gra.test[k] = "invisible"
-					widget:Hide() -- hide will cause scrollrange changed, content:SetHeight() to prevent it
-				else
+				-- if widgetBottom+5 >= top or widgetTop-5 <= bottom then -- "invisible"
+				if widgetTop and widgetBottom then -- "invisible"
 					-- gra.test[k] = "visible"
 					widget:Show()
+				else
+					-- gra.test[k] = "invisible"
+					widget:Hide() -- hide will cause scrollrange changed, content:SetHeight() to prevent it
 				end
 			end
 			beforeScroll = afterScroll
 		end
+		]]
 	end)
 	
 	-- stores all widgets on content frame
@@ -147,7 +151,7 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 		-- scrollRange = content:GetHeight() - scrollFrame:GetHeight()
 
 		-- recheck widgets visibility
-		beforeScroll, afterScroll = nil, 0
+		-- beforeScroll, afterScroll = nil, 0 -- TODO: remove
 		-- set thumb height (%)
 		local p = scrollFrame:GetHeight() / content:GetHeight()
 		p = tonumber(string.format("%.3f", p))
@@ -205,7 +209,7 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 		local yoffset = -((scrollbar:GetHeight()-scrollThumb:GetHeight())*scrollP)
 		scrollThumb:SetPoint("TOP", 0, yoffset)
 
-		afterScroll = scrollFrame:GetVerticalScroll()
+		-- afterScroll = scrollFrame:GetVerticalScroll() -- TODO: remove
 	end)
 	
 	local step = 25

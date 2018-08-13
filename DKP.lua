@@ -93,7 +93,7 @@ function GRA:ModifyDKP_A(dkpDate, dkp, reason, players, index)
 
     -- modify exist
     for _, n in pairs(t[4]) do
-        if tContains(players, n) then -- dkp changed
+        if GRA:TContains(players, n) then -- dkp changed
             changes[n] = dkp - t[2]
             GRA:SendEntryMsg(L["DKP Modify"], n, dkp, reason)
         else -- dkp undo

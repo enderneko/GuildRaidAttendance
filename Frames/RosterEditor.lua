@@ -159,7 +159,7 @@ local function Rename()
             -- details
             for _, detail in pairs(t["details"]) do
                 if detail[1] == "EP" or detail[1] == "PGP" or detail[1] == "PEP" or detail[1] == "DKP_A" or detail[1] == "DKP_P" then
-                    if tContains(detail[4], oldName) then
+                    if GRA:TContains(detail[4], oldName) then
                         -- delete old
                         GRA:Remove(detail[4], oldName)
                         -- insert new

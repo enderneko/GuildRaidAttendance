@@ -2,7 +2,8 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
-local helpFrame = GRA:CreateMovableFrame("GRA " .. L["Help"], "GRA_HelpFrame", 550, 400, "GRA_FONT_NORMAL", "HIGH")
+-- TODO: incomplete
+local helpFrame = GRA:CreateMovableFrame("GRA " .. L["Help"] .. " (INCOMPLETE)", "GRA_HelpFrame", 550, 400, "GRA_FONT_NORMAL", "HIGH")
 gra.helpFrame = helpFrame
 helpFrame:SetToplevel(true)
 helpFrame:SetScript("OnShow", function()
@@ -81,7 +82,6 @@ content:SetHyperlinkFormat("|H%s|h"..gra.colors.yellow.s.."%s|r|h")
 local about = [[
     <html><body>
     <p></p>
-    <p>]]..gra.colors.firebrick.s..L["Run WoW in full screen mode, if you want GRA to be pixel perfect."]..[[</p>
     <p>]]..L["Click on |cffffd100yellow text|r to copy it."]..[[</p>
     <h1>]]..L["Author"]..[[</h1>
     <img src="Interface\AddOns\GuildRaidAttendance\Media\author" height="16" align="left"/>

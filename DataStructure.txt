@@ -8,7 +8,7 @@ GRA_RaidLogs = {
 		["startTime"] = (number),
 		["endTime"] = (number),
 		["attendances"] = {
-			playerName(string) = {"PRESENT"/"LATE"/"ONLEAVE"/"ABSENT", note(string), joinTime(number), leaveTime(number)},
+			playerName(string) = {"PRESENT"/"PARTLY"/"ONLEAVE"/"ABSENT", note(string), joinTime(number), leaveTime(number)},
 		},
 		["details"] = {
 			-- EPGP
@@ -54,7 +54,7 @@ GRA_Config = {
 		["DKP"] = decay,
 		["startTime"] = "19:30",
 		["days"]={4,5,1,2},
-		["system"] = (string),
+		["system"] = "DKP"/"EPGP"/"",
 	},
 	["lastRaidDate"] = (string),
 	["lastDecayed"] = (string),

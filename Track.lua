@@ -11,6 +11,7 @@ local function RaidRosterUpdate()
 	-- 意外删除了刚刚创建的记录，再次询问
 	if not _G[GRA_R_RaidLogs][raidDate] then GRA:StartTracking() return end
 
+	local updateNeeded = false
 	-- joinTime
 	local n = GetNumGroupMembers("LE_PARTY_CATEGORY_HOME")
 	for i = 1, n do
@@ -27,15 +28,15 @@ local function RaidRosterUpdate()
 					local att = GRA:CheckAttendanceStatus(joinTime, select(2, GRA:GetRaidStartTime(raidDate)))
 					-- keep it logged
 					_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName] = {att, nil, joinTime}
-					-- refresh sheet and logs
-					GRA:FireEvent("GRA_RAIDLOGS", raidDate)
+					updateNeeded = true
 				end
 
-				-- in group, delete leaveTime if exists
+				-- re-join group, delete leaveTime if exists
 				if _G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][4] then
 					table.remove(_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName], 4)
 					-- update att
 					_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][1] = GRA:CheckAttendanceStatus(_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][3], select(2, GRA:GetRaidStartTime(raidDate)))
+					updateNeeded = true
 				end
 			end
 		end
@@ -49,7 +50,13 @@ local function RaidRosterUpdate()
 			-- 记录离团时间，并更新出勤
 			_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][4] = time()
 			_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][1] = GRA:CheckAttendanceStatus(_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][3], select(2, GRA:GetRaidStartTime(raidDate)), _G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][4], select(2, GRA:GetRaidEndTime(raidDate)))
+			updateNeeded = true
 		end
+	end
+
+	if updateNeeded then
+		-- refresh sheet and logs
+		GRA:FireEvent("GRA_RAIDLOGS", raidDate)
 	end
 end
 
