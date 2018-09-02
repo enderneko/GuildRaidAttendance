@@ -87,20 +87,18 @@ sendRosterBtn:SetScript("OnClick", function()
 	confirm:SetPoint("TOPRIGHT", sendRosterBtn)
 end)
 
--- local exportBtn = GRA:CreateButton(rosterAdminFrame, L["Export"], nil, {61, 18}, "GRA_FONT_SMALL")
--- exportBtn:SetEnabled(false)
--- exportBtn:SetPoint("LEFT", importBtn, "RIGHT", -1, 0)
--- exportBtn:SetScript("OnClick", function()
--- 	gra.exportFrame:Show()
--- end)
+local exportBtn = GRA:CreateButton(rosterAdminFrame, L["Export to CSV (WIP)"], "red", {configFrame:GetWidth()-10, 20}, "GRA_FONT_SMALL")
+exportBtn:SetPoint("TOPLEFT", editBtn, "BOTTOMLEFT", 0, -5)
+exportBtn:SetEnabled(false)
 
+--[[
 local epgpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["EPGP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
 epgpOptionsBtn:SetPoint("TOPLEFT", editBtn, "BOTTOMLEFT", 0, -5)
 epgpOptionsBtn:SetScript("OnClick", function()
 	configFrame:Hide()
 	gra.epgpOptionsFrame:Show()
 end)
-epgpOptionsBtn:SetEnabled(false) -- TODO: remove this module
+epgpOptionsBtn:SetEnabled(true)
 
 local dkpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["DKP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
 dkpOptionsBtn:SetPoint("LEFT", epgpOptionsBtn, "RIGHT", -1, 0)
@@ -108,7 +106,8 @@ dkpOptionsBtn:SetScript("OnClick", function()
 	configFrame:Hide()
 	gra.dkpOptionsFrame:Show()
 end)
-dkpOptionsBtn:SetEnabled(false) -- TODO: remove this module
+dkpOptionsBtn:SetEnabled(true)
+]]
 
 -----------------------------------------
 -- attendance sheet settings

@@ -104,15 +104,15 @@ end
 -----------------------------------------
 -- SetTooltip
 -----------------------------------------
-local function SetTooltip(widget, x, y, tipText1, tipText2, tipText3, tipText4, tipText5)
-	if tipText1 then
+local function SetTooltip(widget, x, y, ...)
+	local tooltips = {...}
+	if #tooltips ~= 0 then
 		widget:HookScript("OnEnter", function(self)
 			GRA_Tooltip:SetOwner(self, "ANCHOR_TOPLEFT", x or 0, y or 0)
-			GRA_Tooltip:AddLine(tipText1)
-			if tipText2 then GRA_Tooltip:AddLine("|cffffffff" .. tipText2) end
-			if tipText3 then GRA_Tooltip:AddLine("|cffffffff" .. tipText3) end
-			if tipText4 then GRA_Tooltip:AddLine("|cffffffff" .. tipText4) end
-			if tipText5 then GRA_Tooltip:AddLine("|cffffffff" .. tipText5) end
+			GRA_Tooltip:AddLine(tooltips[1])
+			for i = 2, #tooltips do
+				GRA_Tooltip:AddLine("|cffffffff" .. tooltips[i])
+			end
 			GRA_Tooltip:Show()
 		end)
 		widget:HookScript("OnLeave", function(self)
@@ -164,8 +164,14 @@ function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
 	if buttonColor == "red" then
 		color = {.6, .1, .1, .6}
 		hoverColor = {.6, .1, .1, 1}
+	elseif buttonColor == "red-hover" then
+		color = {.1, .1, .1, 1}
+		hoverColor = {.6, .1, .1, 1}
 	elseif buttonColor == "green" then
 		color = {.1, .6, .1, .6}
+		hoverColor = {.1, .6, .1, 1}
+	elseif buttonColor == "green-hover" then
+		color = {.1, .1, .1, 1}
 		hoverColor = {.1, .6, .1, 1}
 	elseif buttonColor == "cyan" then
 		color = {0, .9, .9, .6}
@@ -178,6 +184,9 @@ function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
 		hoverColor = {0, .5, .8, 1}
 	elseif buttonColor == "yellow" then
 		color = {.7, .7, 0, .6}
+		hoverColor = {.7, .7, 0, 1}
+	elseif buttonColor == "yellow-hover" then
+		color = {.1, .1, .1, 1}
 		hoverColor = {.7, .7, 0, 1}
 	elseif buttonColor == "chartreuse" then
 		color = {.5, 1, 0, .6}
@@ -1009,7 +1018,7 @@ end
 -----------------------------------------
 -- detail button (raid logs frame)
 -----------------------------------------
-function GRA:CreateDetailButton(parent, detailTable, font)
+function GRA:CreateDetailButton_EPGP(parent, detailTable, font)
 	if string.find(detailTable[1], "DKP") then return end
 	-- {"EP"/"GP", ep/gp, reason(string)/itemLink, {playerName...}},
 	if not font then font = "GRA_FONT_SMALL" end
@@ -1319,10 +1328,9 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 	return b
 end
 
-function GRA:CreateDetailButton_LC(parent, detailTable, font)
-	-- 为了兼容性，假装为GP
-	-- {"GP", 0, itemLink, playerName, note},
-	if detailTable[1] ~= "GP" then return end
+function GRA:CreateLootButton(parent, detailTable, font)
+	-- {"LOOT", itemLink, playerName, note},
+	if detailTable[1] ~= "LOOT" then return end
 	if not font then font = "GRA_FONT_SMALL" end
 	local hoverColor, borderColor, textColor
 	hoverColor = {.1, .6, .95, .3}
@@ -1367,15 +1375,12 @@ function GRA:CreateDetailButton_LC(parent, detailTable, font)
 	b.noteText:SetJustifyH("LEFT")
 	b.noteText:SetWordWrap(false)
 
-	b.itemText:SetText(detailTable[3])
-	if type(detailTable[4]) == "table" then -- EPGP/DKP mass award credit
-		b.playerText:SetText("EPGP/DKP data")
-	else -- string
-		b.playerText:SetText(GRA:GetShortName(detailTable[4]))
-	end
+	b.itemText:SetText(detailTable[2])
+	-- b.playerText:SetText(GRA:GetShortName(detailTable[3]))
+	b.playerText:SetText(GRA:GetClassColoredName(detailTable[3]))
 
-	if detailTable[5] and detailTable[5] ~= "" then
-		b.noteText:SetText(detailTable[5])
+	if detailTable[4] and detailTable[4] ~= "" then
+		b.noteText:SetText(detailTable[4])
 	else
 		tex2:Hide()
 	end
@@ -1414,6 +1419,119 @@ function GRA:CreateDetailButton_LC(parent, detailTable, font)
 		b.itemText:SetTextColor(unpack(textColor))
 		b.playerText:SetTextColor(unpack(textColor))
 		b.noteText:SetTextColor(unpack(textColor))
+		b:SetBackdropColor(0, 0, 0, 0)
+	end)
+	
+	b.deleteBtn:Hide()
+
+	return b
+end
+
+-----------------------------------------
+-- boss
+-----------------------------------------
+function GRA:CreateBossButton(parent, bossTable, font)
+	if not font then font = "GRA_FONT_TEXT" end
+
+	local hoverColor, borderColor, textColor
+	-- hoverColor = {1, .75, .80, .2}
+	-- borderColor = {1, .75, .80, .6}
+	-- textColor = {.1, .95, .2, 1}
+	hoverColor = {.98, .29, .62, .2}
+	borderColor = {.98, .29, .62, .6}
+	-- textColor = {1, .94, .86, 1}
+	textColor = {.73, .73, .73, 1}
+
+	local b = CreateFrame("Button", nil, parent)
+	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
+	b:SetBackdropColor(0, 0, 0, 0)
+	b:SetBackdropBorderColor(unpack(borderColor))
+	b:SetPushedTextOffset(0, 0)
+	b:SetSize(20, 36)
+
+	b.difficultyText = b:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT2")
+	b.difficultyText:SetTextColor(.98, .29, .62, 1)
+	b.difficultyText:SetPoint("TOPLEFT", 5, -5)
+	b.difficultyText:SetJustifyH("LEFT")
+	b.difficultyText:SetWordWrap(false)
+	
+	b.bossText = b:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT2")
+	b.bossText:SetTextColor(1, .94, .86, 1)
+	b.bossText:SetPoint("LEFT", b.difficultyText, "RIGHT", 5, 0)
+	-- b.bossText:SetWidth(80)
+	b.bossText:SetJustifyH("LEFT")
+	b.bossText:SetWordWrap(false)
+
+	b.timeText = b:CreateFontString(nil, "OVERLAY", font)
+	b.timeText:SetTextColor(unpack(textColor))
+	b.timeText:SetPoint("TOPRIGHT", -5, -6)
+	b.timeText:SetJustifyH("LEFT")
+	b.timeText:SetWordWrap(false)
+
+	b.membersText = b:CreateFontString(nil, "OVERLAY", font)
+	b.membersText:SetTextColor(unpack(textColor))
+	b.membersText:SetPoint("BOTTOMLEFT", 5, 5)
+	b.membersText:SetPoint("BOTTOMRIGHT", -5, 5)
+	-- b.membersText:SetWidth(80)
+	b.membersText:SetJustifyH("LEFT")
+	b.membersText:SetWordWrap(false)
+
+	-- set text -------------------------------
+	b.bossText:SetText(bossTable[1])
+	b.difficultyText:SetText(GRA:GetDifficultyInfo(bossTable[2]))
+	if bossTable[3] then -- has starttime
+		local duration = bossTable[4] - bossTable[3]
+		b.timeText:SetText(string.format("%d:%.2d", duration/60%60, duration%60)
+			.. " (" .. date("%H:%M:%S", bossTable[3]) .. " - " .. date("%H:%M:%S", bossTable[4]) .. ")")
+	else
+		b.timeText:SetText(_G.UNKOWN .. " - " .. date("%H:%M:%S", bossTable[4]))
+	end
+
+	local membersShort = ""
+	for g, gt in pairs(bossTable[5]) do
+		local info = "G" .. g .. ":"
+		for _, n in pairs(gt) do
+			info = info .. string.sub(n, 1, 3) .. " "
+		end
+		membersShort = membersShort .. info
+	end
+	
+	b.membersText:SetText(membersShort)
+	-------------------------------------------
+
+	b:SetScript("OnEnter", function()
+		b:SetBackdropColor(unpack(hoverColor))
+		GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
+		GRA_Tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
+		GRA_Tooltip:AddLine(L["Members In Raid"])
+		for g, gt in pairs(bossTable[5]) do
+			local line = _G["GROUP"..g.."_CHAT_TAG1"] .. " (" .. #gt .. "): "
+			for _, n in pairs(gt) do
+				line = line .. GRA:GetClassColoredName(n) .. " "
+			end
+			GRA_Tooltip:AddLine(line)
+		end
+		GRA_Tooltip:Show()
+	end)
+
+	b:SetScript("OnLeave", function()
+		b:SetBackdropColor(0, 0, 0, 0)
+		GRA_Tooltip:Hide()
+	end)
+
+	b.deleteBtn = CreateFrame("Button", nil, b)
+	b.deleteBtn:SetSize(20, 20)
+	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
+	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
+	b.deleteBtn:SetBackdropBorderColor(unpack(borderColor))
+	b.deleteBtn:SetText("×")
+	b.deleteBtn:SetNormalFontObject("GRA_FONT_BUTTON")
+	b.deleteBtn:SetPushedTextOffset(0, -1)
+	b.deleteBtn:SetPoint("TOPRIGHT")
+	b.deleteBtn:SetScript("OnEnter", function()
+		b:SetBackdropColor(unpack(hoverColor))
+	end)
+	b.deleteBtn:SetScript("OnLeave", function()
 		b:SetBackdropColor(0, 0, 0, 0)
 	end)
 	

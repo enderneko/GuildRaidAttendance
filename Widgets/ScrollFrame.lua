@@ -41,7 +41,7 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 	
 	-- scrollbar thumb
 	local scrollThumb = CreateFrame("Frame", nil, scrollbar)
-	scrollThumb:SetWidth(scrollbar:GetWidth())
+	scrollThumb:SetWidth(5) -- scrollbar's width is 5
 	scrollThumb:SetHeight(scrollbar:GetHeight())
 	scrollThumb:SetPoint("TOP")
 	GRA:StylizeFrame(scrollThumb, {.5, 1, 0, .8})
@@ -61,7 +61,6 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 		-- beforeScroll, afterScroll = nil, 0 -- TODO: remove
 	end
 	
-	-- TODO: test on higher resolution
 	-- local scrollRange -- ACCURATE scroll range, for SetVerticalScroll(), instead of scrollFrame:GetVerticalScrollRange()
 	function scrollFrame:VerticalScroll(step)
 		local scroll = scrollFrame:GetVerticalScroll() + step

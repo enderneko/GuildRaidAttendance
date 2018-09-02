@@ -1,3 +1,14 @@
+version r81-release
+------------------------
+    + Added killed bosses details.
+    * Updated RaidLogsFrame (new tabs structure: Summary, Attendances, Loots).
+    * Moved AttendanceEditor into RaidLogsFrame.
+    * Disabled Loot distribution tool and FloatButtons.
+    * Updated loot data structure.
+    * Renamed LC/EPGP functions.
+    * Updated functions: SetTooltip.
+    * Deleting current tracking log will stop tracking automatically.
+
 version r80-beta
 ------------------------
     * Fixed bugs for BfA. (date related functions, tContains, ScrollFrame)

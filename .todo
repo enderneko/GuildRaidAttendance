@@ -1,30 +1,33 @@
-New Features:
-    ☐ 将util分类，GRA.Util.DateUtil.function @high 
+General:
+    ☐ 将util分类，GRA.Util.DateUtil.function @low
     ☐ player detail frame (just view)
     ☐ import / export
     
 Modules/Frames:
     Config:
         ☐ help button glow @high
-        ☐ loot system buttons
+        ✔ remove loot system buttons @done(18-08-31 12:43)
+        ☐ export to csv
     Loot System:
-        ☐ remove them
+        ✔ remove them @done(18-08-31 12:43)
     Distribution Tool:
-        ☐ add ploot support
+        ☐ add ploot support @low
     Help:
         ☐ a lot of tutorials to add @high
     Raid Log:
-        ☐ 新成员加入团队，如过raidlog正在显示，不应当刷新scroll，如果当前显示的为今天，那么仅刷新名单列表
+        ✔ 新成员加入团队，如过raidlog正在显示，不应当刷新scroll，如果当前显示的为今天，那么仅刷新名单列表 @done(18-09-01 14:15)
+        ☐ function to custom title for every log @critical
+        ☐ export to csv
     Attendance:
         ☐ optimize attendance rate update
-        ☐ AR30/60/90 sort by attendance @critical 
+        ☐ AR30/60/90 sort by attendance @critical
 
 Widgets:
     ScrollFrame:
-        ☐ check widgets in scrollchild visibility
+        ✔ check widgets in scrollchild visibility @done(18-08-31 12:44)
 
 Appearance:
-    ☐ larger font and frame (not scale)
+    ☐ larger font and frame, add GRA:Resize() in Appearance.lua
     
 Archive:
   ✘ 循环加分，待命密语 @cancelled(18-08-14 02:58) @project(New Features)

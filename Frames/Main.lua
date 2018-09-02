@@ -85,9 +85,8 @@ local configBtn = GRA:CreateButton(gra.mainFrame, L["Config"], "red", {55, 20}, 
 configBtn:SetPoint("BOTTOMRIGHT", -8, 5)
 configBtn:SetScript("OnClick", function()
 	gra.importFrame:Hide()
-	gra.epgpOptionsFrame:Hide()
-	gra.dkpOptionsFrame:Hide()
-	gra.attendanceEditor:Hide()
+	-- gra.epgpOptionsFrame:Hide()
+	-- gra.dkpOptionsFrame:Hide()
 	gra.rosterEditorFrame:Hide()
 	gra.appearanceFrame:Hide()
 	if gra.configFrame:IsShown() then
@@ -128,19 +127,6 @@ buttons["raidLogsBtn"]:SetScript("OnClick", function()
 	gra.raidLogsFrame:Show()
 end)
 
-buttons["announcementsBtn"] = GRA:CreateButton(gra.mainFrame, L["Announcements"], "red", {100, 20}, "GRA_FONT_SMALL")
-buttons["announcementsBtn"]:SetPoint("LEFT", buttons["raidLogsBtn"], "RIGHT", 5, 0)
-buttons["announcementsBtn"]:SetScript("OnClick", function()
-	HighlightButton("announcementsBtn")
-	lastFrame = gra.announcementsFrame
-	gra.attendanceFrame:Hide()
-	gra.announcementsFrame:Show()
-	gra.raidLogsFrame:Hide()
-end)
--- TODO: announcements
-buttons["announcementsBtn"]:SetEnabled(false)
-buttons["announcementsBtn"]:Hide()
-
 -- track button, change text and color OnClick
 local trackBtn = GRA:CreateButton(gra.mainFrame.header, "TRACK", nil, {60, 22}, "GRA_FONT_PIXEL")
 trackBtn:SetPoint("LEFT", gra.mainFrame.header)
@@ -180,13 +166,11 @@ local function EnableMiniMode(f)
 	if f then
 		buttons["attendanceSheetBtn"]:Hide()
 		buttons["raidLogsBtn"]:Hide()
-		-- buttons["announcementsBtn"]:Hide()
 		buttons["attendanceSheetBtn"]:Click()
 		-- gra.mainFrame:SetHeight(420)
 	else
 		buttons["attendanceSheetBtn"]:Show()
 		buttons["raidLogsBtn"]:Show()
-		-- buttons["announcementsBtn"]:Show()
 		-- gra.mainFrame:SetHeight(400)
 	end
 end

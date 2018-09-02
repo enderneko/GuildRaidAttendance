@@ -2,7 +2,7 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
-local aboutFrame = GRA:CreateMovableFrame(L["About"], "GRA_AboutFrame", 400, 300, "GRA_FONT_NORMAL", "HIGH")
+local aboutFrame = GRA:CreateMovableFrame(L["About"], "GRA_AboutFrame", 450, 350, "GRA_FONT_NORMAL", "HIGH")
 gra.aboutFrame = aboutFrame
 aboutFrame:SetToplevel(true)
 

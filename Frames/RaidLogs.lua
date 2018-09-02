@@ -23,19 +23,18 @@ titleFrame:SetPoint("BOTTOMRIGHT", raidLogsFrame, "TOPRIGHT", 0, -16)
 
 local titleText = titleFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 titleText:SetPoint("LEFT", 5, 0)
+local function UpdateTitleText(d)
+	titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
+		.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(d))
+		.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA:GetRaidStartTime(d) .. " - " ..  GRA:GetRaidEndTime(d))
+end
 
-local attendanceEditorBtn = GRA:CreateButton(titleFrame, L["Attendance Editor"], "green", {100, 18})
-attendanceEditorBtn:SetPoint("RIGHT")
-attendanceEditorBtn:Hide()
-attendanceEditorBtn:SetScript("OnClick", function()
-	gra.configFrame:Hide()
-	gra.importFrame:Hide()
-	gra.epgpOptionsFrame:Hide()
-	gra.dkpOptionsFrame:Hide()
-	gra.rosterEditorFrame:Hide()
-	gra.appearanceFrame:Hide()
-	GRA:ShowAttendanceEditor(sortedDates[selected], dates[sortedDates[selected]])
-end)
+-----------------------------------------
+-- status frame
+-----------------------------------------
+local statusFrame = CreateFrame("Frame", nil, raidLogsFrame)
+statusFrame:SetPoint("TOPLEFT", raidLogsFrame, "BOTTOMLEFT", 0, 20)
+statusFrame:SetPoint("BOTTOMRIGHT")
 
 -----------------------------------------
 -- date list
@@ -50,11 +49,59 @@ GRA:CreateScrollFrame(listFrame, 0, 0)
 listFrame.scrollFrame:SetScrollStep(15)
 
 -----------------------------------------
+-- tabs
+-----------------------------------------
+local tabs, tabButtons = {}, {}
+local currentTab
+local function ShowTab(tabToShow, d)
+	for n, tab in pairs(tabs) do
+		local b = tabButtons[n]
+		if n == tabToShow then
+			b:SetBackdropColor(unpack(b.hoverColor))
+			b:SetScript("OnEnter", nil)
+			b:SetScript("OnLeave", nil)
+			tab.func(d) -- load content
+			tab:Show()
+		else
+			b:SetBackdropColor(unpack(b.color))
+			b:SetScript("OnEnter", function(self) self:SetBackdropColor(unpack(b.hoverColor)) end)
+			b:SetScript("OnLeave", function(self) self:SetBackdropColor(unpack(b.color)) end)
+			tab:Hide()
+		end
+	end
+	currentTab = tabToShow
+end
+
+tabButtons["loots"] = GRA:CreateButton(titleFrame, L["Loots"], "blue-hover", {70, 17})
+tabButtons["loots"]:SetPoint("BOTTOMRIGHT", 0, -1)
+tabButtons["loots"]:SetScript("OnClick", function(self)
+	ShowTab("loots", sortedDates[selected])
+end)
+
+tabButtons["attendances"] = GRA:CreateButton(titleFrame, L["Attendances"], "green-hover", {70, 17})
+-- tabButtons["attendances"]:SetPoint("RIGHT", tabButtons["loots"], "LEFT", 1, 0)
+tabButtons["attendances"]:SetScript("OnClick", function(self)
+	ShowTab("attendances", sortedDates[selected])
+end)
+
+tabButtons["summary"] = GRA:CreateButton(titleFrame, L["Summary"], "red-hover", {70, 17})
+tabButtons["summary"]:SetPoint("RIGHT", tabButtons["loots"], "LEFT", 1, 0)
+tabButtons["summary"]:SetScript("OnClick", function(self)
+	ShowTab("summary", sortedDates[selected])
+end)
+
+-----------------------------------------
 -- summary
 -----------------------------------------
-local attendeesFrame = CreateFrame("Frame", nil, raidLogsFrame)
-GRA:StylizeFrame(attendeesFrame, {.5, .5, .5, .1})
-attendeesFrame:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
+local summaryTab = CreateFrame("Frame", "GRA_RaidLogsFrame_Summary", raidLogsFrame)
+tabs["summary"] = summaryTab
+GRA:StylizeFrame(summaryTab, {.5, .5, .5, .1})
+summaryTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
+summaryTab:SetPoint("BOTTOMRIGHT", 0, 24)
+
+local attendeesFrame = CreateFrame("Frame", nil, summaryTab)
+GRA:StylizeFrame(attendeesFrame, {0, 0, 0, 0})
+attendeesFrame:SetPoint("TOPLEFT")
 attendeesFrame:SetPoint("RIGHT")
 attendeesFrame:SetHeight(46)
 
@@ -67,8 +114,8 @@ attendeesText:SetMaxLines(3)
 attendeesText:SetJustifyH("LEFT")
 attendeesText:SetJustifyV("TOP")
 
-local absenteesFrame = CreateFrame("Frame", nil, raidLogsFrame)
-GRA:StylizeFrame(absenteesFrame, {.5, .5, .5, .1})
+local absenteesFrame = CreateFrame("Frame", nil, summaryTab)
+GRA:StylizeFrame(absenteesFrame, {0, 0, 0, 0})
 absenteesFrame:SetPoint("TOPLEFT", attendeesFrame, "BOTTOMLEFT", 0, 1)
 absenteesFrame:SetPoint("RIGHT")
 absenteesFrame:SetHeight(46)
@@ -82,23 +129,80 @@ absenteesText:SetMaxLines(3)
 absenteesText:SetJustifyH("LEFT")
 absenteesText:SetJustifyV("TOP")
 
+local bossesFrame = CreateFrame("Frame", nil, summaryTab)
+GRA:StylizeFrame(bossesFrame, {0, 0, 0, 0})
+bossesFrame:SetPoint("TOPLEFT", absenteesFrame, "BOTTOMLEFT", 0, 1)
+bossesFrame:SetPoint("BOTTOMRIGHT")
+GRA:CreateScrollFrame(bossesFrame, -5, 6)
+bossesFrame.scrollFrame:SetScrollStep(41)
+
+local addBossBtn = GRA:CreateButton(summaryTab, L["Add Boss"], "blue", {100, 20})
+addBossBtn:SetPoint("BOTTOMRIGHT", statusFrame)
+addBossBtn:Hide()
+addBossBtn:SetEnabled(false)
+
+local exportBtn = GRA:CreateButton(summaryTab, L["Export to CSV"], "blue", {100, 20})
+exportBtn:SetPoint("RIGHT", addBossBtn, "LEFT", -5, 0)
+exportBtn:Hide()
+exportBtn:SetEnabled(false)
+
+-----------------------------------------
+-- attendances
+-----------------------------------------
+local attendancesTab = CreateFrame("Frame", "GRA_RaidLogsFrame_Attendance", raidLogsFrame)
+tabs["attendances"] = attendancesTab
+GRA:StylizeFrame(attendancesTab, {.5, .5, .5, .1})
+attendancesTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
+attendancesTab:SetPoint("BOTTOMRIGHT", 0, 24)
+attendancesTab:Hide()
+-- attendance editor
+gra.attendanceEditor:SetParent(attendancesTab)
+gra.attendanceEditor:SetAllPoints(attendancesTab)
+gra.attendanceEditor.discardBtn:SetPoint("BOTTOMRIGHT", statusFrame)
+gra.attendanceEditor.saveBtn:SetPoint("RIGHT", gra.attendanceEditor.discardBtn, "LEFT", -5, 0)
+
+-----------------------------------------
+-- loots
+-----------------------------------------
+local lootsTab = CreateFrame("Frame", "GRA_RaidLogsFrame_Loots", raidLogsFrame)
+tabs["loots"] = lootsTab
+GRA:StylizeFrame(lootsTab, {.5, .5, .5, .1})
+lootsTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
+lootsTab:SetPoint("BOTTOMRIGHT", 0, 24)
+lootsTab:Hide()
+GRA:CreateScrollFrame(lootsTab, -29, 2)
+lootsTab.scrollFrame:SetScrollStep(25)
+
+-- 并不想有此文字显示，为了PixelPerfect，scroll的高度最大只能如此，剩下了很多空位，只能随便放点文字了... 
+local lootsTitle = lootsTab:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+lootsTitle:SetPoint("TOPLEFT", 7, -9)
+
+local recordLootBtn = GRA:CreateButton(lootsTab, L["Record Loot"], "blue", {100, 20})
+recordLootBtn:SetPoint("BOTTOMRIGHT", statusFrame)
+recordLootBtn:Hide()
+recordLootBtn:SetScript("OnClick", function()
+	if gra.recordLootFrame:IsShown() then
+		gra.recordLootFrame:Hide()
+	else
+		local d = sortedDates[selected]
+		if not d then return end
+		GRA:ShowRecordLootFrame(d, nil, nil, nil)
+	end
+end)
+
 -----------------------------------------
 -- details
 -----------------------------------------
-local detailsFrame = CreateFrame("Frame", nil, raidLogsFrame)
-GRA:StylizeFrame(detailsFrame, {.5, .5, .5, .1})
-detailsFrame:SetPoint("TOPLEFT", absenteesFrame, "BOTTOMLEFT", 0, -5)
-detailsFrame:SetPoint("BOTTOMRIGHT", 0, 24)
-GRA:CreateScrollFrame(detailsFrame, -5, 5)
+-- local detailsFrame = CreateFrame("Frame", nil, raidLogsFrame)
+-- GRA:StylizeFrame(detailsFrame, {.5, .5, .5, .1})
+-- detailsFrame:SetPoint("TOPLEFT", absenteesFrame, "BOTTOMLEFT", 0, -5)
+-- detailsFrame:SetPoint("BOTTOMRIGHT", 0, 24)
+-- GRA:CreateScrollFrame(detailsFrame, -5, 5)
 -- detailsFrame.scrollFrame:SetScrollStep(19)
 
 -----------------------------------------
--- status & buttons
+-- status frame buttons
 -----------------------------------------
-local statusFrame = CreateFrame("Frame", nil, raidLogsFrame)
-statusFrame:SetPoint("TOPLEFT", raidLogsFrame, "BOTTOMLEFT", 0, 20)
-statusFrame:SetPoint("BOTTOMRIGHT")
-
 local sendToRaidBtn = GRA:CreateButton(statusFrame, L["Send To Raid"], "blue", {100, 20}, nil, false,
 	L["Send selected logs to raid members"],
 	L["GRA must be installed to receive data."],
@@ -154,20 +258,7 @@ deleteRaidLogBtn:SetScript("OnClick", function()
 	confirm:SetPoint("CENTER")
 end)
 
--- non-EPGP
-local recordLootBtn = GRA:CreateButton(statusFrame, L["Record Loot"], "blue", {100, 20})
-recordLootBtn:SetPoint("BOTTOMRIGHT")
-recordLootBtn:Hide()
-recordLootBtn:SetScript("OnClick", function()
-	if gra.recordLootFrame:IsShown() then
-		gra.recordLootFrame:Hide()
-	else
-		local d = sortedDates[selected]
-		if not d then return end
-		GRA:ShowRecordLootFrame(d, nil, nil, nil)
-	end
-end)
-
+--[[
 -- EPGP/DKP penalize
 local penalizeBtn = GRA:CreateButton(statusFrame, L["Penalize"], "Penalize", {70, 20})
 penalizeBtn:SetPoint("BOTTOMRIGHT")
@@ -207,9 +298,10 @@ awardBtn:SetScript("OnClick", function()
 	end
 end)
 awardBtn:Hide()
+]]
 
 -----------------------------------------
--- show raid info
+-- tab content functions
 -----------------------------------------
 local function SortByClass(a, b)
 	local classA = _G[GRA_R_Roster][a] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][a]["class"]) or "99"
@@ -221,7 +313,10 @@ local function SortByClass(a, b)
 	end
 end
 
-local function ShowRaidSummary(d)
+-- ShowRaidSummary
+summaryTab.func = function(d)
+	GRA:Debug("|cffFFC0CBUpdate summary: |r" .. d)
+
 	local t = _G[GRA_R_RaidLogs][d]
 	local attendeesString, absenteesString = "", ""
 
@@ -242,10 +337,43 @@ local function ShowRaidSummary(d)
 
 	wipe(attendees)
 	wipe(absentees)
+
+	-- bosses
+	bossesFrame.scrollFrame:Reset()
+	local last
+	for _, boss in pairs(t["bosses"]) do
+		local b = GRA:CreateBossButton(bossesFrame.scrollFrame.content, boss)
+		b:SetPoint("LEFT", 5, 0)
+		b:SetPoint("RIGHT", -5, 0)
+
+		if last then
+			b:SetPoint("TOP", last, "BOTTOM", 0, -5)
+		else
+			b:SetPoint("TOP")
+		end
+		last = b
+
+		if gra.isAdmin then
+			b:SetScript("OnClick", function()
+				GRA:Print("Editing boss details is WIP.")
+			end)
+		end
+	end
+
+	if bossesFrame.scrollRequired then
+		bossesFrame.scrollFrame:SetVerticalScroll(bossesFrame.scrollFrame:GetVerticalScrollRange())
+		bossesFrame.scrollRequired = false
+	end
 end
 
-local function ShowRaidDetails(d)
-	detailsFrame.scrollFrame:ClearContent()
+-- ShowRaidAttendances
+attendancesTab.func = function(d)
+	GRA:ShowAttendanceEditor(d)
+end
+
+-- ShowRaidLoots
+lootsTab.func = function(d)
+	lootsTab.scrollFrame:Reset()
 	
 	details = {}
 	local t = _G[GRA_R_RaidLogs][d]
@@ -254,13 +382,13 @@ local function ShowRaidDetails(d)
 	for k, detail in pairs(t["details"]) do
 		local b
 		
-		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-			b = GRA:CreateDetailButton(detailsFrame.scrollFrame.content, detail)
-		elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-			b = GRA:CreateDetailButton_DKP(detailsFrame.scrollFrame.content, detail)
-		else -- loot council
-			b = GRA:CreateDetailButton_LC(detailsFrame.scrollFrame.content, detail)
-		end
+		-- if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+		-- 	b = GRA:CreateDetailButton_EPGP(detailsFrame.scrollFrame.content, detail)
+		-- elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		-- 	b = GRA:CreateDetailButton_DKP(detailsFrame.scrollFrame.content, detail)
+		-- else -- loot council
+			b = GRA:CreateLootButton(lootsTab.scrollFrame.content, detail)
+		-- end
 		
 		if b then
 			b:SetPoint("LEFT", 5, 0)
@@ -275,31 +403,39 @@ local function ShowRaidDetails(d)
 
 			-- GRA_Tooltip
 			b:HookScript("OnEnter", function()
-				if detail[1] == "GP" or detail[1] == "DKP_C" then
-					if string.find(detail[3], "|Hitem") then
+				-- if detail[1] == "LOOT" then
+					if string.find(detail[2], "|Hitem") then
 						GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
 						GRA_Tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
-						GRA_Tooltip:SetHyperlink(detail[3])
+						GRA_Tooltip:SetHyperlink(detail[2])
 					else
 						GRA_Tooltip:Hide()
 					end
-				else -- EP or DKP_A or Penalize
-					if b.playerText:IsTruncated() then
-						GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
-						GRA_Tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
-						if detail[1] == "EP" then
-							GRA_Tooltip:AddLine(L["EP Award"] .. " (" .. #detail[4] .. ")")
-						elseif detail[1] == "DKP_A" then
-							GRA_Tooltip:AddLine(L["DKP Award"] .. " (" .. #detail[4] .. ")")
-						else
-							GRA_Tooltip:AddLine(L["Penalize"] .. " (" .. #detail[4] .. ")")
-						end
-						for i = 1, #detail[4], 2 do
-							GRA_Tooltip:AddDoubleLine(GRA:GetClassColoredName(detail[4][i]), GRA:GetClassColoredName(detail[4][i+1]))
-						end
-						GRA_Tooltip:Show()
-					end
-				end
+				-- elseif detail[1] == "GP" or detail[1] == "DKP_C" then
+				-- 	if string.find(detail[3], "|Hitem") then
+				-- 		GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
+				-- 		GRA_Tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
+				-- 		GRA_Tooltip:SetHyperlink(detail[3])
+				-- 	else
+				-- 		GRA_Tooltip:Hide()
+				-- 	end
+				-- else -- EP or DKP_A or Penalize
+				-- 	if b.playerText:IsTruncated() then
+				-- 		GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
+				-- 		GRA_Tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
+				-- 		if detail[1] == "EP" then
+				-- 			GRA_Tooltip:AddLine(L["EP Award"] .. " (" .. #detail[4] .. ")")
+				-- 		elseif detail[1] == "DKP_A" then
+				-- 			GRA_Tooltip:AddLine(L["DKP Award"] .. " (" .. #detail[4] .. ")")
+				-- 		else
+				-- 			GRA_Tooltip:AddLine(L["Penalize"] .. " (" .. #detail[4] .. ")")
+				-- 		end
+				-- 		for i = 1, #detail[4], 2 do
+				-- 			GRA_Tooltip:AddDoubleLine(GRA:GetClassColoredName(detail[4][i]), GRA:GetClassColoredName(detail[4][i+1]))
+				-- 		end
+				-- 		GRA_Tooltip:Show()
+				-- 	end
+				-- end
 			end)
 
 			b:HookScript("OnLeave", function()
@@ -308,123 +444,110 @@ local function ShowRaidDetails(d)
 
 			if gra.isAdmin then
 				b.deleteBtn:Show()
-				if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-					if detail[1] == "GP" then
-						b.noteText:SetPoint("RIGHT", -25, 0)
-					else
-						b.playerText:SetPoint("RIGHT", -25, 0)
-					end
+				-- if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+				-- 	if detail[1] == "GP" then
+				-- 		b.noteText:SetPoint("RIGHT", -25, 0)
+				-- 	else
+				-- 		b.playerText:SetPoint("RIGHT", -25, 0)
+				-- 	end
 
-					-- delete detail entry
-					b.deleteBtn:SetScript("OnClick", function()
-						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("EP/GP") .. "|r\n" 
-						.. detail[3] .. ": " .. detail[2] .. " " .. (string.find(detail[1], "EP") and "EP" or "GP")
-						, function()
-							if string.find(detail[1], "P") == 1 then
-								GRA:UndoPenalizeEPGP(d, k)
-							else
-								GRA:UndoEPGP(d, k)
-							end
-							ShowRaidDetails(d)
-							detailsFrame.scrollFrame:ResetScroll()
-						end, true)
-						confirm:SetPoint("CENTER")
-					end)
+				-- 	-- delete detail entry
+				-- 	b.deleteBtn:SetScript("OnClick", function()
+				-- 		local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("EP/GP") .. "|r\n" 
+				-- 		.. detail[3] .. ": " .. detail[2] .. " " .. (string.find(detail[1], "EP") and "EP" or "GP")
+				-- 		, function()
+				-- 			if string.find(detail[1], "P") == 1 then
+				-- 				GRA:UndoPenalizeEPGP(d, k)
+				-- 			else
+				-- 				GRA:UndoEPGP(d, k)
+				-- 			end
+				-- 			ShowRaidDetails(d)
+				-- 			detailsFrame.scrollFrame:ResetScroll()
+				-- 		end, true)
+				-- 		confirm:SetPoint("CENTER")
+				-- 	end)
 
-					-- modify detail entry
-					b:SetScript("OnClick", function()
-						if detail[1] == "EP" then
-							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
-						elseif detail[1] == "GP" then
-							GRA:ShowCreditFrame(d, detail[3], detail[2], detail[4], detail[5], k)
-						else -- PGP/PEP
-							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
-						end
-					end)
-				elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-					if detail[1] == "DKP_C" then
-						b.noteText:SetPoint("RIGHT", -25, 0)
-					else
-						b.playerText:SetPoint("RIGHT", -25, 0)
-					end
+				-- 	-- modify detail entry
+				-- 	b:SetScript("OnClick", function()
+				-- 		if detail[1] == "EP" then
+				-- 			GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
+				-- 		elseif detail[1] == "GP" then
+				-- 			GRA:ShowCreditFrame(d, detail[3], detail[2], detail[4], detail[5], k)
+				-- 		else -- PGP/PEP
+				-- 			GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
+				-- 		end
+				-- 	end)
+				-- elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+				-- 	if detail[1] == "DKP_C" then
+				-- 		b.noteText:SetPoint("RIGHT", -25, 0)
+				-- 	else
+				-- 		b.playerText:SetPoint("RIGHT", -25, 0)
+				-- 	end
 
-					-- delete detail entry
-					b.deleteBtn:SetScript("OnClick", function()
-						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("DKP") .. "|r\n" 
-						.. detail[3] .. ": " .. detail[2] .. " DKP"
-						, function()
-							if detail[1] == "DKP_P" then
-								GRA:UndoPenalizeDKP(d, k)
-							else
-								GRA:UndoDKP(d, k)
-							end
-							ShowRaidDetails(d)
-							detailsFrame.scrollFrame:ResetScroll()
-						end, true)
-						confirm:SetPoint("CENTER")
-					end)
+				-- 	-- delete detail entry
+				-- 	b.deleteBtn:SetScript("OnClick", function()
+				-- 		local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("DKP") .. "|r\n" 
+				-- 		.. detail[3] .. ": " .. detail[2] .. " DKP"
+				-- 		, function()
+				-- 			if detail[1] == "DKP_P" then
+				-- 				GRA:UndoPenalizeDKP(d, k)
+				-- 			else
+				-- 				GRA:UndoDKP(d, k)
+				-- 			end
+				-- 			ShowRaidDetails(d)
+				-- 			detailsFrame.scrollFrame:ResetScroll()
+				-- 		end, true)
+				-- 		confirm:SetPoint("CENTER")
+				-- 	end)
 
-					-- modify detail entry
-					b:SetScript("OnClick", function()
-						if detail[1] == "DKP_A" then
-							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
-						elseif detail[1] == "DKP_C" then
-							GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], k)
-						else -- DKP_P
-							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
-						end
-					end)
-				else -- loot council
+				-- 	-- modify detail entry
+				-- 	b:SetScript("OnClick", function()
+				-- 		if detail[1] == "DKP_A" then
+				-- 			GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
+				-- 		elseif detail[1] == "DKP_C" then
+				-- 			GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], k)
+				-- 		else -- DKP_P
+				-- 			GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
+				-- 		end
+				-- 	end)
+				-- else -- loot council
 					b.noteText:SetPoint("RIGHT", -25, 0)
 					-- delete detail entry
 					b.deleteBtn:SetScript("OnClick", function()
-						local confirm = GRA:CreateConfirmBox(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry?"] .. "|r\n" 
-						.. detail[3] .. " " .. GRA:GetClassColoredName(detail[4])
+						local confirm = GRA:CreateConfirmBox(lootsTab, 200, gra.colors.firebrick.s .. L["Delete this entry?"] .. "|r\n" 
+						.. detail[2] .. " " .. GRA:GetClassColoredName(detail[3])
 						, function()
 							-- delete from logs
 							table.remove(_G[GRA_R_RaidLogs][d]["details"], k)
 							-- fake GRA_ENTRY_UNDO event, refresh sheet by date
 							GRA:FireEvent("GRA_ENTRY_UNDO", d)
-							ShowRaidDetails(d)
-							detailsFrame.scrollFrame:ResetScroll()
+							ShowTab("loots", d)
+							lootsTab.scrollFrame:ResetScroll()
 						end, true)
 						confirm:SetPoint("CENTER")
 					end)
 
 					-- modify detail entry
 					b:SetScript("OnClick", function()
-						GRA:ShowRecordLootFrame(d, detail[3], detail[5], detail[4], k)
+						GRA:ShowRecordLootFrame(d, detail[2], detail[4], detail[3], k)
 					end)
-				end
+				-- end
 			end
 		end
 	end
-end
+	lootsTitle:SetText(gra.colors.chartreuse.s .. L["Loots"] .. ":|r " .. #details)
 
-local function Refresh()
-	if sortedDates[selected] then
-		ShowRaidDetails(sortedDates[selected])
+	if lootsTab.scrollRequired then
+		lootsTab.scrollFrame:SetVerticalScroll(lootsTab.scrollFrame:GetVerticalScrollRange())
+		lootsTab.scrollRequired = false
 	end
 end
-
-local function RefreshAndScroll()
-	Refresh()
-	C_Timer.After(.1, function()
-		detailsFrame.scrollFrame:SetVerticalScroll(detailsFrame.scrollFrame:GetVerticalScrollRange())
-	end)
-end
-
-GRA:RegisterEvent("GRA_ENTRY", "RaidLogs_EPGPRefresh", RefreshAndScroll)
-GRA:RegisterEvent("GRA_ENTRY_MODIFY", "RaidLogs_EPGPRefresh", Refresh)
-GRA:RegisterEvent("GRA_SYSTEM", "RaidLogs_EPGPRefresh", Refresh)
 
 -----------------------------------------
 -- load date list
 -----------------------------------------
 local function LoadDateList()
 	GRA:Debug("|cffFFC0CBLoading date list...|r ")
-	-- clear data
-	-- listFrame.scrollFrame:Reset()
 
 	for d, t in pairs(_G[GRA_R_RaidLogs]) do
 		table.insert(sortedDates, d)
@@ -476,13 +599,11 @@ local function LoadDateList()
 						end
 					end
 					
-					ShowRaidSummary(d)
-					ShowRaidDetails(d)
-					detailsFrame.scrollFrame:ResetScroll()
-
-					titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
-						.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(sortedDates[selected]))
-						.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA:GetRaidStartTime(d) .. " - " ..  GRA:GetRaidEndTime(d))
+					ShowTab("summary", d)
+					-- ShowRaidSummary(d)
+					-- ShowRaidDetails(d)
+					-- detailsFrame.scrollFrame:ResetScroll()
+					UpdateTitleText(d)					
 				end
 			end)
 		end
@@ -511,7 +632,11 @@ local function PrepareRaidLogs()
 		titleText:SetText("")
 		attendeesText:SetText("")
 		absenteesText:SetText("")
-		detailsFrame.scrollFrame:Reset()
+
+		bossesFrame.scrollFrame:Reset()
+		gra.attendanceEditor.scrollFrame:Reset()
+		lootsTab.scrollFrame:Reset()
+
 		newRaidLogBtn:SetFrameLevel(127)
 	else
 		if raidLogsFrame.mask then raidLogsFrame.mask:Hide() end
@@ -527,18 +652,18 @@ local function UpdateList(dateToShow)
 	PrepareRaidLogs()
 	-- show last log by default
 	if not dateToShow then dateToShow = sortedDates[#sortedDates] end
-	GRA:Debug("|cffFFC0CBRefreshing current log: |r" .. (dateToShow or "nil"))
+	GRA:Debug("|cffFFC0CBShowing log: |r" .. (dateToShow or "nil"))
 	if dates[dateToShow] then
-		dates[dateToShow]:Click()
+		dates[dateToShow]:Click() -- highlight this date button and load its content
 		-- scroll list
 		C_Timer.After(.1, function()
-			if not dates[dateToShow]:IsVisible() then
+			-- if not dates[dateToShow]:IsVisible() then
 				if dates[dateToShow].index > 20 then
 					listFrame.scrollFrame:SetVerticalScroll((gra.size.height-5) * (dates[dateToShow].index - 20))
 				else
 					listFrame.scrollFrame:SetVerticalScroll(0)
 				end
-			end
+			-- end
 		end)
 	end
 end
@@ -548,9 +673,13 @@ raidLogsFrame:SetScript("OnShow", function()
 	LPP:PixelPerfectPoint(gra.mainFrame)
 	gra.mainFrame:SetWidth(gra.size.mainFrame[1])
 
-	if updateRequired ~= nil then
+	if updateRequired then
 		init = true
-		UpdateList(updateRequired)
+		if sortedDates[selected] == updateRequired then -- 需要刷新的日期与当前显示的日期相同，仅更新当前tab
+			ShowTab(currentTab, updateRequired)
+		else -- 否则重新加载list并显示
+			UpdateList(updateRequired)
+		end
 		updateRequired = nil
 	end
 
@@ -583,10 +712,16 @@ GRA:RegisterEvent("GRA_LOGS_DONE", "RaidLogsFrame_LogsReceived", function(count,
 	end
 end)
 
--- show new log (details), 不可见不刷新
+-- show updated log -- FIXME: may cause unpredictable error
 GRA:RegisterEvent("GRA_RAIDLOGS", "RaidLogsFrame_RaidLogsUpdated", function(d)
 	if raidLogsFrame:IsVisible() then
-		UpdateList(d)
+		if not dates[d] then -- 需要刷新的日期未创建
+			UpdateList(d)
+		elseif sortedDates[selected] == d then -- 已创建 并 需要刷新的日期与当前显示的日期相同
+			ShowTab(currentTab, d)
+		else -- 已创建 并 当前显示其他日期log
+			updateRequired = d
+		end
 	else
 		updateRequired = d
 	end
@@ -606,16 +741,56 @@ GRA:RegisterEvent("GRA_LOGS_DEL", "RaidLogsFrame_RaidLogsDeleted", function(dele
 	listFrame.scrollFrame:ResetHeight()
 	-- show last
 	UpdateList()
+
+	if GRA:TContains(deletedDates, gra.trackingDate) then
+		GRA:StopTracking(true)
+	end
 end)
 
 GRA:RegisterEvent("GRA_RH_UPDATE", "RaidLogsFrame_RaidHoursUpdate", function(d)
 	if not init then return end
 
-	d = sortedDates[selected] -- set to current selected
-	titleText:SetText("|cff80FF00" .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
-		.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToTime(d))
-		.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA:GetRaidStartTime(d) .. " - " ..  GRA:GetRaidEndTime(d))
+	UpdateTitleText(sortedDates[selected])
 end)
+
+-- loots
+local function Loots_Refresh(d)
+	if sortedDates[selected] == d and currentTab == "loots" then
+		if raidLogsFrame:IsVisible() then
+			ShowTab("loots", d)
+		else
+			updateRequired = d
+		end
+	end
+end
+
+local function Loots_RefreshAndScroll(d)
+	lootsTab.scrollRequired = true
+	Loots_Refresh(d)
+end
+
+GRA:RegisterEvent("GRA_ENTRY", "RaidLogsFrame_LootsRefresh", Loots_RefreshAndScroll)
+GRA:RegisterEvent("GRA_ENTRY_MODIFY", "RaidLogsFrame_LootsRefresh", Loots_Refresh)
+GRA:RegisterEvent("GRA_SYSTEM", "RaidLogsFrame_LootsRefresh", Loots_RefreshAndScroll)
+
+-- bosses
+local function Bosses_Refresh(d)
+	if sortedDates[selected] == d and currentTab == "summary" then
+		if raidLogsFrame:IsVisible() then
+			ShowTab("summary", d)
+		else
+			updateRequired = d
+		end
+	end
+end
+
+local function Bosses_RefreshAndScroll(d)
+	bossesFrame.scrollRequired = true
+	Bosses_Refresh(d)
+end
+
+GRA:RegisterEvent("GRA_BOSS", "RaidLogsFrame_BossesRefresh", Bosses_RefreshAndScroll)
+GRA:RegisterEvent("GRA_BOSS_MODIFY", "RaidLogsFrame_BossesRefresh", Bosses_Refresh) -- TODO:
 
 -----------------------------------------
 -- permission
@@ -624,9 +799,11 @@ GRA:RegisterEvent("GRA_PERMISSION", "RaidLogsFrame_CheckPermissions", function(i
 	if isAdmin then
 		sendToRaidBtn:Show()
 		newRaidLogBtn:Show()
-		-- deleteRaidLogBtn:Show()
 		deleteRaidLogBtn:SetPoint("LEFT", newRaidLogBtn, "RIGHT", 5, 0)
-		attendanceEditorBtn:Show()
+		exportBtn:Show()
+		addBossBtn:Show()
+		tabButtons["attendances"]:SetPoint("RIGHT", tabButtons["loots"], "LEFT", 1, 0)
+		tabButtons["summary"]:SetPoint("RIGHT", tabButtons["attendances"], "LEFT", 1, 0)
 
 		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 			creditBtn:SetText(L["GP Credit"])
@@ -644,9 +821,9 @@ GRA:RegisterEvent("GRA_PERMISSION", "RaidLogsFrame_CheckPermissions", function(i
 			recordLootBtn:Show()
 		end
 
-		-- 重新加载当前详情，以显示删除按钮或修改
-		if GRA:Getn(dates) ~= 0 then
-			ShowRaidDetails(sortedDates[selected])
+		-- current tab = loots -- FIXME: bug???
+		if GRA:Getn(dates) ~= 0 and currentTab == "loots" then
+			ShowTab("loots", sortedDates[selected])
 		end
 	else
 		deleteRaidLogBtn:SetPoint("BOTTOMLEFT")
@@ -694,7 +871,6 @@ function raidLogsFrame:Resize()
 	raidLogsFrame:SetHeight(gra.size.raidLogsFrame[2])
 	titleFrame:SetPoint("BOTTOMRIGHT", raidLogsFrame, "TOPRIGHT", 0, 3-gra.size.height)
 	-- buttons
-	attendanceEditorBtn:SetSize(unpack(gra.size.button_attendanceEditor))
 	sendToRaidBtn:SetSize(unpack(gra.size.button_main))
 	newRaidLogBtn:SetSize(unpack(gra.size.button_main))
 	deleteRaidLogBtn:SetSize(unpack(gra.size.button_main))
@@ -712,6 +888,6 @@ function raidLogsFrame:Resize()
 	attendeesText:SetSpacing(gra.size.fontSize-9)
 	absenteesText:SetSpacing(gra.size.fontSize-9)
 	-- details
-	detailsFrame:SetPoint("BOTTOMRIGHT", 0, gra.size.raidLogsFrame_list[2])
-	detailsFrame.scrollFrame:SetScrollStep(gra.size.height+5)
+	-- detailsFrame:SetPoint("BOTTOMRIGHT", 0, gra.size.raidLogsFrame_list[2])
+	-- detailsFrame.scrollFrame:SetScrollStep(gra.size.height+5)
 end

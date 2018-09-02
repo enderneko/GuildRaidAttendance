@@ -182,16 +182,18 @@ function GRA:Sort(t, k1, order1, k2, order2)
 	return t
 end
 
-function GRA:TableToString(tbl)
+function GRA:TableToString(tbl, sep, noEndDot)
 	-- if string then return it
 	if type(tbl) == "string" then return tbl end
 	if type(tbl) ~= "table" or #tbl == 0 then return "" end
 	
+	if not sep then sep = ", " end
+
 	s = tbl[1]
 	for i = 2, #tbl do
-		s = s .. ", " .. tbl[i]
+		s = s .. sep .. tbl[i]
 	end
-	s = s .. "."
+	if not noEndDot then s = s .. "." end
 	return s
 end
 
@@ -253,6 +255,35 @@ function GRA:GetClassColoredName(fullName, class)
 		return "|cff909090" .. name .. "|r"
 	else
 		return "|c" .. RAID_CLASS_COLORS[class].colorStr .. name .. "|r"
+	end
+end
+
+function GRA:GetPlayersInRaid()
+	if IsInRaid() then
+		local raidInfo = {}
+		for i = 1, 40 do
+			local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole = GetRaidRosterInfo(i)
+			if name then
+				if not raidInfo[subgroup] then raidInfo[subgroup] = {} end
+				if not string.find(name, "-") then name = name .. "-" .. GetRealmName() end
+				table.insert(raidInfo[subgroup], name)
+			 end
+		end
+		return raidInfo
+	end
+end
+
+function GRA:GetDifficultyInfo(difficultyID)
+	if difficultyID == 14  or difficultyID == 3 or difficultyID == 4 then
+		return "N"
+	elseif difficultyID == 15 or difficultyID == 5 or difficultyID == 6 then
+		return "H"
+	elseif difficultyID == 16 then
+		return "M"
+	elseif difficultyID == 17 or difficultyID == 7 then
+		return "LFR"
+	else
+		return "?"
 	end
 end
 

@@ -1,11 +1,15 @@
 ## Interface: 80000
 ## Title: |cff80FF00Guild|r Raid Attendance
-## Notes: Keeps track of raid loot and attendance for guild. Built-in simple loot distribution tool, support Loot Council and EPGP. 
-## Notes-zhCN: 记录公会活动出勤与拾取。内置简单装备分配工具，支持CL与EPGP。
-## Version: r80-beta
+## Notes: Keeps track of raid loot and attendance for guild.
+## Notes-zhCN: 记录公会活动出勤与拾取。
+## Version: r81-release
 ## Author: fyhcslb
 ## SavedVariables: GRA_A_RaidLogs, GRA_A_Roster, GRA_A_Config, GRA_A_Variables
 ## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Roster, GRA_Config, GRA_Variables
+
+## X-Email: kevin.liyang@live.com
+## X-Website: https://www.curseforge.com/wow/addons/guild-raid-attendance
+## X-Issues: https://github.com/enderneko/GuildRaidAttendance/issues
 
 embeds.xml
 
@@ -17,8 +21,8 @@ Locales\zhCN.lua
 
 Utils.lua
 CustomEvents.lua
-EPGP.lua
-DKP.lua
+# EPGP.lua
+# DKP.lua
 Comm.lua
 Track.lua
 
@@ -38,13 +42,13 @@ Frames\Announcements.lua
 Frames\AttendanceEditor.lua
 Frames\RaidLogs.lua
 Frames\NewRaidLog.lua
-Frames\LootSystem\Award.lua
-Frames\LootSystem\Credit.lua
-Frames\LootSystem\Penalize.lua
+# Frames\LootSystem\Award.lua
+# Frames\LootSystem\Credit.lua
+# Frames\LootSystem\Penalize.lua
 Frames\LootSystem\RecordLoot.lua
-Frames\LootSystem\EPGPOptions.lua
-Frames\LootSystem\DKPOptions.lua
-Frames\FloatButtons.lua
+# Frames\LootSystem\EPGPOptions.lua
+# Frames\LootSystem\DKPOptions.lua
+# Frames\FloatButtons.lua
 Frames\Config.lua
 Frames\RosterEditor.lua
 Frames\MemberDetails.lua
@@ -54,9 +58,9 @@ Frames\Profiles.lua
 Frames\Help.lua
 Frames\About.lua
 
-Frames\LootDistribution\Common.lua
-Frames\LootDistribution\Token.lua
-Frames\LootDistribution\Artifact.lua
-Frames\LootDistribution\Distribution.lua
-Frames\LootDistribution\Loot.lua
-Frames\LootDistribution\Config.lua
+# Frames\LootDistribution\Common.lua
+# Frames\LootDistribution\Token.lua
+# Frames\LootDistribution\Artifact.lua
+# Frames\LootDistribution\Distribution.lua
+# Frames\LootDistribution\Loot.lua
+# Frames\LootDistribution\Config.lua

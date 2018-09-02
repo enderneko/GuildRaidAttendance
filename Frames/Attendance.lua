@@ -1437,7 +1437,7 @@ end
 -----------------------------------------
 local gps, eps = {}, {} -- details
 local todaysGP, todaysEP = {}, {} -- points
-local function CountByDate(d)
+local function CountByDate_EPGP(d)
 	if _G[GRA_R_RaidLogs][d] then
 		gps[d] = {}
 		eps[d] = {}
@@ -1449,7 +1449,6 @@ local function CountByDate(d)
 		for _, detail in pairs(details) do
 			if detail[1] == "GP" then
 				local name = detail[4]
-				-- if type(detail[4]) ~= "table" then detail[4] = {detail[4]} end -- convert old format
 				-- for _, name in pairs(detail[4]) do
 					if not gps[d][name] then gps[d][name] = {} end
 					gps[d][name]["loots"] = (gps[d][name]["loots"] or 0) + 1 -- store loot num
@@ -1515,7 +1514,7 @@ local function CountByDate_DKP(d)
 	end
 end
 
-local function CountByDate_LC(d)
+local function CountByDate(d)
 	if _G[GRA_R_RaidLogs][d] then
 		gps[d] = {}
 		eps[d] = {}
@@ -1523,13 +1522,13 @@ local function CountByDate_LC(d)
 		todaysEP[d] = {}
 
 		local details = _G[GRA_R_RaidLogs][d]["details"]
-		-- scan each gp
+		-- scan each loot
 		for _, detail in pairs(details) do
-			if detail[1] == "GP" then
-				local name = detail[4]
+			if detail[1] == "LOOT" then
+				local name = detail[3]
 				if not gps[d][name] then gps[d][name] = {["loots"] = 0} end
 				gps[d][name]["loots"] = gps[d][name]["loots"] + 1 -- store loot num
-				table.insert(gps[d][name], "|cffffffff" .. detail[3] .. " |cffffffff" .. (detail[5] or ""))
+				table.insert(gps[d][name], "|cffffffff" .. detail[2] .. " |cffffffff" .. (detail[4] or ""))
 			end
 		end
 	end
@@ -1541,11 +1540,11 @@ local function CountAll()
 	for k, dateGrid in pairs(dateGrids) do
 		local d = dateGrid.date
 		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-			CountByDate(d)
+			CountByDate_EPGP(d)
 		elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
 			CountByDate_DKP(d)
 		else
-			CountByDate_LC(d)
+			CountByDate(d)
 		end
 	end
 	-- texplore(gps)
@@ -1756,11 +1755,11 @@ local function RefreshDetailsByDate(d)
 
 	-- count on this day
 	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-		CountByDate(d)
+		CountByDate_EPGP(d)
 	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
 		CountByDate_DKP(d)
 	else
-		CountByDate_LC(d)
+		CountByDate(d)
 	end
 
 	for _, row in pairs(loaded) do

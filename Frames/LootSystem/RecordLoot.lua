@@ -14,7 +14,7 @@ gra.recordLootFrame = recordLootFrame
 local recordBtn = GRA:CreateButton(recordLootFrame, L["Record it!"], "red", {recordLootFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
 recordBtn:SetPoint("BOTTOM")
 recordBtn:SetScript("OnClick", function()
-    local lootTable = {"GP", 0, rlItem, rlLooter, rlNote}
+    local lootTable = {"LOOT", rlItem, rlLooter, rlNote}
     if rlIndex then -- modify
         _G[GRA_R_RaidLogs][rlDate]["details"][rlIndex] = lootTable
         GRA:FireEvent("GRA_ENTRY_MODIFY", rlDate)

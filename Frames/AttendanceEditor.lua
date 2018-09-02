@@ -1,39 +1,27 @@
 local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 
-local dateString, dateButton, raidStartTime, raidEndTime
+local dateString, raidStartTime, raidEndTime
 -- attendances: _G[GRA_R_RaidLogs] data
 -- changes: changed data
 -- rows: row buttons, used for highlighting and discarding changes
 local attendances, changes, rows = {}, {}, {}
 
-local attendanceEditor = GRA:CreateFrame(L["Attendance Editor"], "GRA_AttendanceEditor", gra.mainFrame, 385, gra.mainFrame:GetHeight())
+local attendanceEditor = CreateFrame("Frame", "GRA_AttendanceEditor", gra.mainFrame)
 gra.attendanceEditor = attendanceEditor
-attendanceEditor:SetPoint("TOPLEFT", gra.mainFrame, "TOPRIGHT", 2, 0)
 attendanceEditor:Hide()
--- help button
-attendanceEditor.header.helpBtn = GRA:CreateButton(attendanceEditor.header, "?", "red", {16, 16}, "GRA_FONT_BUTTON")
-attendanceEditor.header.helpBtn:SetPoint("RIGHT", attendanceEditor.header.closeBtn, "LEFT", 1, 0)
-local fontName = GRA_FONT_BUTTON:GetFont()
-attendanceEditor.header.helpBtn:GetFontString():SetFont(fontName, 12)
 
-attendanceEditor.header.helpBtn:HookScript("OnEnter", function()
-    GRA_Tooltip:SetOwner(attendanceEditor.header, "ANCHOR_TOPRIGHT", 0, 1)
-    GRA_Tooltip:AddLine(L["Attendance Editor Help"])
-    GRA_Tooltip:AddLine(L["Double-click on the second column: "] .. "|cffffffff" .. L["Select attendance status."])
-    GRA_Tooltip:AddLine(L["Click on the last column: "] .. "|cffffffff" .. L["Set notes (not available for alts)."])
-    GRA_Tooltip:Show()
-end)
-
-attendanceEditor.header.helpBtn:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
-
-local raidDateText = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-raidDateText:SetPoint("TOPLEFT", 5, -10)
+local tipText1 = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+tipText1:SetPoint("TOPLEFT", 5, -5)
+tipText1:SetText("|cff66d400" .. L["Double-click on the second column: "] .. gra.colors.grey.s .. L["Select attendance status."])
+local tipText2 = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+tipText2:SetPoint("TOPLEFT", tipText1, "BOTTOMLEFT", 0, -3)
+tipText2:SetText("|cff53d400" .. L["Click on the last column: "] .. gra.colors.grey.s .. L["Set notes (not available for alts)."])
 
 -- raid end time
 local raidEndTimeEditBox = GRA:CreateEditBox(attendanceEditor, 70, 20, false, "GRA_FONT_SMALL")
 raidEndTimeEditBox:SetJustifyH("CENTER")
-raidEndTimeEditBox:SetPoint("TOPRIGHT", attendanceEditor, -5, -5)
+raidEndTimeEditBox:SetPoint("TOPRIGHT", attendanceEditor, -5, -7)
 
 local RETComfirmBtn = GRA:CreateButton(raidEndTimeEditBox, L["OK"], "blue", {20, 20}, "GRA_FONT_SMALL")
 RETComfirmBtn:SetPoint("RIGHT", raidEndTimeEditBox)
@@ -117,9 +105,9 @@ end)
 
 local raidHours = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 raidHours:SetPoint("RIGHT", raidStartTimeEditBox, "LEFT", -3, 0)
-raidHours:SetText("|cff80FF00" .. L["Raid Hours"] .. ": ")
+raidHours:SetText(gra.colors.chartreuse.s .. L["Raid Hours"] .. ": ")
 
-local scroll = GRA:CreateScrollFrame(attendanceEditor, -28, 29)
+local scroll = GRA:CreateScrollFrame(attendanceEditor, -34, 0)
 GRA:StylizeFrame(scroll, {0, 0, 0, 0})
 scroll:SetScrollStep(19)
 
@@ -166,16 +154,16 @@ local function SortAttendanceEditor()
 end
 
 local SaveChanges
-local saveBtn = GRA:CreateButton(attendanceEditor, L["Save All Changes"], "green", {156, 20})
-saveBtn:SetPoint("BOTTOMLEFT", 5, 5)
+local saveBtn = GRA:CreateButton(attendanceEditor, L["Save All Changes"], "green", {115, 20})
+attendanceEditor.saveBtn = saveBtn
 saveBtn:SetScript("OnClick", function()
     SaveChanges()
     SortAttendanceEditor()
 end)
 
 local DiscardChanges
-local discardBtn = GRA:CreateButton(attendanceEditor, L["Discard All Changes"], "red", {156, 20})
-discardBtn:SetPoint("BOTTOMRIGHT", -5, 5)
+local discardBtn = GRA:CreateButton(attendanceEditor, L["Discard All Changes"], "red", {115, 20})
+attendanceEditor.discardBtn = discardBtn
 discardBtn:SetScript("OnClick", function()
     DiscardChanges()
 end)
@@ -238,8 +226,6 @@ SaveChanges = function()
     end
 
     wipe(changes)
-    -- refresh date detail
-    dateButton:Click()
     GRA:Print(L["Saved all attendance changes on %s."]:format(date("%x", GRA:DateToTime(dateString))))
     -- re-check attendances
     CheckAttendances(dateString)
@@ -258,13 +244,11 @@ DiscardChanges = function()
     end
 
     wipe(changes)
-    GRA:Print(L["Discarded all member changes on %s."]:format(date("%x", GRA:DateToTime(dateString))))
+    GRA:Print(L["Discarded all attendance changes on %s."]:format(date("%x", GRA:DateToTime(dateString))))
 end
 
-function GRA:ShowAttendanceEditor(d, b)
-    dateButton = b
+function GRA:ShowAttendanceEditor(d)
     dateString = d
-    raidDateText:SetText("|cff80FF00" .. L["Raid Date: "] .. "|r" .. date("%x", GRA:DateToTime(d)))
     raidStartTime = GRA:GetRaidStartTime(d)
     raidEndTime = GRA:GetRaidEndTime(d)
     raidStartTimeEditBox:SetText(raidStartTime)
@@ -379,11 +363,6 @@ end
 
 GRA:RegisterEvent("GRA_RH_UPDATE", "AttendanceEditor_RaidHoursUpdate", function(d)
     if not attendanceEditor:IsShown() then return end
-    -- 改变Global RH并不会刷新此页面，因为 attendanceEditor not shown
-    -- 出勤编辑当前显示的日期必然是RH发生了变化的这一天，刷新即可
-    GRA:ShowAttendanceEditor(dateString, dateButton)
-end)
-
-attendanceEditor:SetScript("OnHide", function(self)
-    self:Hide()
+    -- Global RH changed, refresh editor
+    GRA:ShowAttendanceEditor(dateString)
 end)

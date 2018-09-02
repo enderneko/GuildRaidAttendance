@@ -123,16 +123,18 @@ select(2, ...).L = setmetatable({
 		<p>|cFF00CCFF/gra resetposition|r: reset the position of GRA main frame to center.</p>
 		<p>|cFF00CCFF/gra resetscale|r: reset the scale of GRA frames to their defaults.</p>
 	]],
-	["r80-beta"] = [[
-		<h1>Sorry for the late update.</h1>
+	["r81-release"] = [[
+		<h1>Finally, GRA comes out just before Uldir!</h1>
 		<p>It is highly recommended that you reset all GRA data before using it.</p>
 		<p>(Config > Profile > Reset Current Profile)</p>
+		<p>(Or simply search and delete GuildRaidAttendance.lua in your WTF folder.)</p>
 		<br/>
-		<h1>About The Next Version</h1>
-		<p>r81-release will be released before Uldir.</p>
-		<p>EPGP, DKP will be removed.</p>
-		<p>Record Loot may be removed. If you want to keep it, tell me.</p>
-		<p>The new PLoot Helper will be just like the former Loot Distribution tool.</p>
+		<h1>About This Version</h1>
+		<p>Help is outdated and still WIP.</p>
+		<p>EPGP, DKP and Loot Distribution Tool are disabled.</p>
+		<p>Raid Logs now has three tabs: summary, attendances(admin) and loots.</p>
+		<p>Currently, you can not edit or manually add boss details.</p>
+		<p>(PENDING) The new PLoot Helper will be just like the former Loot Distribution tool.</p>
 		<br/>
 		<h1>You can submit a ticket on GitHub or send me an email to do a Feature Request/Bug Report.</h1>
 		<h1>Thank you :)</h1>

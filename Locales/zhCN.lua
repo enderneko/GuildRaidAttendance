@@ -18,8 +18,8 @@ L["Announcements"] = "公告"
 L["Save All Changes"] = "保存所有更改"
 L["Discard All Changes"] = "放弃所有更改"
 L["Track This Raid"] = "记录此副本"
-L["Keep track of loots and attendances during this raid session?"] = "为此副本记录拾取与出勤？"
-L["Stop tracking loots and attendances?"] = "停止记录拾取与出勤？"
+L["Keep track of boss kills and attendances during this raid session?"] = "为此副本记录首领击杀与出勤？"
+L["Stop tracking boss kills and attendances?"] = "停止记录首领击杀与出勤？"
 L["Stop Tracking"] = "停止记录"
 L["Raid tracking has started."] = "副本记录已开始。"
 L["Raid tracking has stopped."] = "副本记录已停止。"
@@ -27,6 +27,7 @@ L["Resume last raid"] = "恢复上次的副本记录"
 L["Resumed last raid (%s)."] = "恢复上次的副本记录（%s）。"
 L["New version found (%s). Please visit %s to get the latest version."] = "发现新版本（%s）。请访问 %s 以获取最新版本。"
 L["In order to use GRA, your guild must have an admin.\nCheck \"Help\" in \"Config\" for further details."] = "要使用GRA，你的公会必须要有个管理员。\n查看“设置”中的“帮助”以获取更多信息。"
+L["Hover for more information."] = "指向此处以获取更多信息。"
 
 -------------------------------------------------------
 -- attendance sheet
@@ -78,6 +79,10 @@ L["Current: "] = "当前："
 L["No raid log"] = "无活动记录"
 L["Absentees"] = "缺勤者"
 L["Attendees"] = "出勤者"
+-- tabs
+L["Summary"] = "概略"
+L["Attendances"] = "出勤"
+L["Loots"] = "拾取"
 -- send
 L["Send To Raid"] = "发送至团队"
 L["Send selected raid logs data to raid/party members?"] = "将选中的活动记录数据发送给团队或小队成员？"
@@ -128,7 +133,6 @@ L["Guilty!"] = "有罪！"
 L["Record Loot"] = "记录拾取"
 L["Record it!"] = "记录！"
 -- attendance editor
-L["Attendance Editor"] = "出勤编辑"
 L["Raid Date: "] = "活动日期："
 L["Ignored"] = "忽略"
 L["Attendance Editor Help"] = "出勤编辑帮助"
@@ -138,6 +142,7 @@ L["Click on the last column: "] = "单击最后一列："
 L["Set notes (not available for alts)."] = "设置备注（小号不可用）。"
 L["Not available for alts"] = "小号不可用"
 L["Saved all attendance changes on %s."] = "%s 的所有出勤改动已保存。"
+L["Discarded all attendance changes on %s."] = "%s 的所有出勤改动已取消。"
 
 -------------------------------------------------------
 -- comm
@@ -195,7 +200,6 @@ L["Last updated time: "] = "最后更新时间："
 L["never"] = "从不"
 -- roster editor
 L["Roster Editor"] = "名单编辑"
-L["Hover here for more details."] = "指向此处以获取更多信息。"
 L["Edit Name"] = "修改名字"
 L["alt"] = "小号"
 L["none"] = "无"

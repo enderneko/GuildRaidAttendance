@@ -20,7 +20,12 @@ GRA_RaidLogs = {
 			{"DKP_C", dkp, itemLink, playerName, note},
 			{"DKP_P", value, reason(string), {playerName...}},
 			-- LC
-			{"GP", 0, reason(string)/itemLink, playerName, note},
+			{"LOOT", reason(string)/itemLink, playerName, note},
+		},
+		["bosses"] = {
+			{bossName(string), startTime(number), killedTime(number), {
+				[group] = {playerName, ...},
+			},
 		},
 	},
 }

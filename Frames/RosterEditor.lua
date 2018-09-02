@@ -1,6 +1,5 @@
 local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
-local LGN = LibStub:GetLibrary("LibGuildNotes")
 
 local class_roles = {
     ["DEATHKNIGHT"] = {"TANK", "DPS"},
@@ -41,7 +40,7 @@ end)
 tip:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
 
 local rosterText = tip:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-rosterText:SetText(gra.colors.chartreuse.s .. L["Hover here for more details."])
+rosterText:SetText(gra.colors.chartreuse.s .. L["Hover for more information."])
 rosterText:SetPoint("LEFT")
 
 local deleted, renamed, roleChanged, mainChanged = {}, {}, {}, {}
