@@ -1,3 +1,9 @@
+version r82-release
+------------------------
+    * Fixed Profiles button
+    * Fixed columns checkbox error
+    * Fixed New Raid Log
+
 version r81-release
 ------------------------
     + Added killed bosses details.

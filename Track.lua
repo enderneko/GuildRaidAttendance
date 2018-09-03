@@ -90,7 +90,7 @@ function GRA:StartTracking(instanceName, difficultyName)
 		
 		-- init date
 		if not _G[GRA_R_RaidLogs][raidDate] then
-			_G[GRA_R_RaidLogs][raidDate] = {["attendances"]={}, ["details"]={}, ["bosses"] = {}}
+			_G[GRA_R_RaidLogs][raidDate] = {["attendances"]={}, ["details"]={}, ["bosses"]={}}
 			-- init all members with "ABSENT" 
 			for n, t in pairs(_G[GRA_R_Roster]) do
 				_G[GRA_R_RaidLogs][raidDate]["attendances"][n] = {"ABSENT"}

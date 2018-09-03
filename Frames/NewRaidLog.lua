@@ -32,7 +32,7 @@ function GRA:NewRaidLog(parent)
         newBtn = GRA:CreateButton(newRaidLogFrame, L["Create"], "green", {45, 20})
         newBtn:SetPoint("LEFT", datePicker, "RIGHT", -1, 0)
         newBtn:SetScript("OnClick", function()
-            _G[GRA_R_RaidLogs][newLogDate] = {["attendances"]={}, ["details"]={}}
+            _G[GRA_R_RaidLogs][newLogDate] = {["attendances"]={}, ["details"]={}, ["bosses"]={}}
             -- manually edit attendance later
             GRA:FireEvent("GRA_RAIDLOGS", newLogDate)
             newRaidLogFrame:Hide()

@@ -123,9 +123,9 @@ select(2, ...).L = setmetatable({
 		<p>|cFF00CCFF/gra resetposition|r: reset the position of GRA main frame to center.</p>
 		<p>|cFF00CCFF/gra resetscale|r: reset the scale of GRA frames to their defaults.</p>
 	]],
-	["r81-release"] = [[
+	["r82-release"] = [[
 		<h1>Finally, GRA comes out just before Uldir!</h1>
-		<p>It is highly recommended that you reset all GRA data before using it.</p>
+		<p>Old LEGION raid logs are not supported. You have to reset GRA.</p>
 		<p>(Config > Profile > Reset Current Profile)</p>
 		<p>(Or simply search and delete GuildRaidAttendance.lua in your WTF folder.)</p>
 		<br/>
@@ -136,7 +136,7 @@ select(2, ...).L = setmetatable({
 		<p>Currently, you can not edit or manually add boss details.</p>
 		<p>(PENDING) The new PLoot Helper will be just like the former Loot Distribution tool.</p>
 		<br/>
-		<h1>You can submit a ticket on GitHub or send me an email to do a Feature Request/Bug Report.</h1>
+		<h1>You can submit a ticket on GitHub or send me an email to do a Feature Request / Bug Report.</h1>
 		<h1>Thank you :)</h1>
 	]],
 }, {

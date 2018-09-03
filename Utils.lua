@@ -144,6 +144,17 @@ function GRA:Copy(t)
 	return newTbl
 end
 
+-- function GRA:Copy(from, to)
+-- 	for k, v in pairs(from) do
+--         if type(v) == "table" then  
+--             to[k] = {}
+--             GRA:Copy(v, to[k])
+--         else  
+--             to[k] = v
+--         end  
+-- 	end
+-- end
+
 function GRA:Remove(t, v)
 	for i = 1, #t do
 		if t[i] == v then

@@ -358,9 +358,9 @@ appearanceBtn:SetScript("OnClick", function()
 	gra.appearanceFrame:Show()
 end)
 
-local lootDistrBtn = GRA:CreateButton(configFrame, L["PLoot Helper"], "red", {91, 20}, "GRA_FONT_SMALL")
-lootDistrBtn:SetPoint("LEFT", appearanceBtn, "RIGHT", -1, 0)
-lootDistrBtn:SetScript("OnClick", function()
+local pLootBtn = GRA:CreateButton(configFrame, L["PLoot Helper"], "red", {91, 20}, "GRA_FONT_SMALL")
+pLootBtn:SetPoint("LEFT", appearanceBtn, "RIGHT", -1, 0)
+pLootBtn:SetScript("OnClick", function()
 	gra.profilesFrame:Hide()
 	if gra.lootDistrConfigFrame:IsVisible() then
 		gra.lootDistrConfigFrame:Hide()
@@ -368,7 +368,7 @@ lootDistrBtn:SetScript("OnClick", function()
 		gra.lootDistrConfigFrame:Show()
 	end
 end)
-lootDistrBtn:SetEnabled(false) -- TODO: remake this module
+pLootBtn:SetEnabled(false) -- TODO: remake this module
 
 -- String: version
 local version = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
@@ -385,7 +385,7 @@ local memUsageTimer
 local profilesBtn = GRA:CreateButton(configFrame, L["Profiles"], "red", {57, 20}, "GRA_FONT_SMALL")
 profilesBtn:SetPoint("BOTTOMRIGHT", -5, 5)
 profilesBtn:SetScript("OnClick", function()
-	gra.lootDistrConfigFrame:Hide()
+	-- gra.lootDistrConfigFrame:Hide()
 	if gra.profilesFrame:IsVisible() then
 		gra.profilesFrame:Hide()
 	else
@@ -397,7 +397,7 @@ local anchorBtn = GRA:CreateButton(configFrame, L["Anchor"], "red", {57, 20}, "G
 anchorBtn:SetPoint("RIGHT", profilesBtn, "LEFT", -5, 0)
 anchorBtn:SetScript("OnClick", function()
 	GRA:ShowHidePopupsAnchor()
-	GRA:ShowHideFloatButtonsAnchor()
+	-- GRA:ShowHideFloatButtonsAnchor()
 end)
 
 local helpBtn = GRA:CreateButton(configFrame, L["Help"], "red", {57, 20}, "GRA_FONT_SMALL")

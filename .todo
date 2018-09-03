@@ -1,5 +1,4 @@
 General:
-    ☐ 将util分类，GRA.Util.DateUtil.function @low
     ☐ player detail frame (just view)
     ☐ import / export
     
@@ -21,6 +20,9 @@ Modules/Frames:
     Attendance:
         ☐ optimize attendance rate update
         ☐ AR30/60/90 sort by attendance @critical
+    Util:
+        ☐ 将util分类，GRA.Util.DateUtil.function @low
+        ☐ GRA:Copy @critical 
 
 Widgets:
     ScrollFrame:

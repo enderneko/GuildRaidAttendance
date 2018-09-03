@@ -903,6 +903,8 @@ local function CreateDateHeader()
 end
 
 function GRA:SetColumns()
+	if GRA:Getn(_G[GRA_R_Roster]) == 0 then return end
+	
 	-- set point left, align left
 	LPP:PixelPerfectPoint(gra.mainFrame)
 	-- re-set mainFrame width
