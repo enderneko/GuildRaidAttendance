@@ -23,7 +23,7 @@ GRA_RaidLogs = {
 			{"LOOT", reason(string)/itemLink, playerName, note},
 		},
 		["bosses"] = {
-			{bossName(string), startTime(number), killedTime(number), {
+			{bossName(string), difficultyID, startTime(number), killedTime(number), {
 				[group] = {playerName, ...},
 			},
 		},
@@ -38,10 +38,10 @@ GRA_Roster = {
 		["class"] = (string),
 		["role"] = (string),
 		["altOf"] = (string),
-		["att30"] = {present(number), absent(number)},
-		["att60"] = {present(number), absent(number)},
-		["att90"] = {present(number), absent(number)},
-		["attLifetime"] = {present(number), absent(number), late(number), onLeave(number)},
+		["att30"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
+		["att60"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
+		["att90"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
+		["attLifetime"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
 		["EP"] = (number),
 		["GP"] = (number),
 		["DKP_Current"] = (number),

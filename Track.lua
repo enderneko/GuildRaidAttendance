@@ -196,7 +196,7 @@ function eventFrame:ENCOUNTER_START(encounterID, encounterName, difficultyID, gr
 end
 
 function eventFrame:ENCOUNTER_END(encounterID, encounterName, difficultyID, groupSize, success)
-	if success then
+	if success == 1 then
 		if not encounterInfo[encounterID] or #encounterInfo[encounterID] == 0 then -- disconnected or wiped
 			encounterInfo[encounterID] = {encounterName, difficultyID, nil, time(), GRA:GetPlayersInRaid()}
 		else

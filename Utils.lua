@@ -98,6 +98,26 @@ function GRA:Calc(ex)
 	return status, result
 end
 
+function GRA:HexToRGB(color, a)
+	local r = tonumber("0x" .. string.sub(color, 1, 2))/255
+	local g = tonumber("0x" .. string.sub(color, 3, 4))/255
+	local b = tonumber("0x" .. string.sub(color, 5, 6))/255
+
+	if a then
+		return r, g, b, a
+	else
+		return r, g, b
+	end
+end
+
+function GRA:RGBToHex(r, g, b)
+	r = string.format("%x", r * 255)
+	g = string.format("%x", g * 255)
+	b = string.format("%x", b * 255)
+	return r .. g .. b
+end
+
+
 ------------------------------------------------
 -- Table
 ------------------------------------------------
@@ -164,6 +184,7 @@ function GRA:Remove(t, v)
 	end
 end
 
+-- TODO: 内部直接赋值，不需要再次赋值
 function GRA:RemoveElementsByKeys(tbl, keys) -- keys is a table
 	local newTbl = {}
 	for k, v in pairs(tbl) do

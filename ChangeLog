@@ -1,3 +1,10 @@
+version r83-release
+------------------------
+    * Fixed member deletion bugs (RosterEditor).
+    * Fixed ENCOUNTER_END popups.
+    * Fixed Attendances tab auto refresh.
+    + Added role count text in AttendanceFrame.
+
 version r82-release
 ------------------------
     * Fixed Profiles button

@@ -2,8 +2,8 @@
 ## Title: |cff80FF00Guild|r Raid Attendance
 ## Notes: Keeps track of raid loot and attendance for guild.
 ## Notes-zhCN: 记录公会活动出勤与拾取。
-## Version: r82-release
-## Author: fyhcslb
+## Version: r83-release
+## Author: fyhcslb/EnderNeko
 ## SavedVariables: GRA_A_RaidLogs, GRA_A_Roster, GRA_A_Config, GRA_A_Variables
 ## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Roster, GRA_Config, GRA_Variables
 

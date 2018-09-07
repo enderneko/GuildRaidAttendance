@@ -17,9 +17,13 @@ Modules/Frames:
         ✔ 新成员加入团队，如过raidlog正在显示，不应当刷新scroll，如果当前显示的为今天，那么仅刷新名单列表 @done(18-09-01 14:15)
         ☐ function to custom title for every log @critical
         ☐ export to csv
+        ✔ 导入新成员后attendances没有刷新 @done(18-09-07 15:18)
+    Import:
+        ☐ 删除后名字全都消失的bug @critical
     Attendance:
         ☐ optimize attendance rate update
         ☐ AR30/60/90 sort by attendance @critical
+        ✔ role count text @done(18-09-07 15:34)
     Util:
         ☐ 将util分类，GRA.Util.DateUtil.function @low
         ☐ GRA:Copy @critical 

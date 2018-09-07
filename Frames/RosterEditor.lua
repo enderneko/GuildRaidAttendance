@@ -117,7 +117,7 @@ local function Delete()
         -- delete details
         for _, name in pairs(names) do
             -- GRA:Debug(name)
-            -- 倒序删除！
+            -- 倒序删除！ details
             for i = #t["details"], 1, -1 do
                 local detail = t["details"][i]
                 -- if d == "20170824" then GRA:Debug(d .. ": (" .. i .. ") " .. detail[3]) end
@@ -126,8 +126,13 @@ local function Delete()
                     if #detail[4] == 0 then
                         table.remove(t["details"], i)
                     end
-                else -- GP/DKP_C
+                elseif detail[1] == "GP" or detail[1] == "DKP_C" then -- GP/DKP_C
                     if detail[4] == name then
+                        -- just delete this entry
+                        table.remove(t["details"], i)
+                    end
+                else -- LOOT
+                    if detail[3] == name then
                         -- just delete this entry
                         table.remove(t["details"], i)
                     end
@@ -135,6 +140,16 @@ local function Delete()
             end
         end
     end
+
+    -- check main-alt
+    for n, t in pairs(_G[GRA_R_Roster]) do
+        if t["altOf"] then
+            if GRA:GetIndex(names, t["altOf"]) then -- main is deleted
+                t["altOf"] = nil
+            end
+        end
+    end
+
     _G[GRA_R_Roster] = GRA:RemoveElementsByKeys(_G[GRA_R_Roster], names)
 end
 
@@ -164,9 +179,13 @@ local function Rename()
                         -- insert new
                         table.insert(detail[4], newName[1])
                     end
-                else -- GP/DKP_C
+                elseif detail[1] == "GP" or detail[1] == "DKP_C" then -- GP/DKP_C
                     if detail[4] == oldName then
                         detail[4] = newName[1]
+                    end
+                else -- LOOT
+                    if detail[3] == oldName then
+                        detail[3] = newName[1]
                     end
                 end
             end
@@ -201,8 +220,10 @@ local function SetMain()
             _G[GRA_R_Roster][n] = GRA:RemoveElementsByKeys(_G[GRA_R_Roster][n], {"altOf"})
         end
     end
-    -- calc AR
-    GRA:FireEvent("GRA_MAINALT")
+    if GRA:Getn(mainChanged) ~= 0 then
+        -- calc AR
+        GRA:FireEvent("GRA_MAINALT")
+    end
 end
 
 --------------------------------------------------
@@ -295,10 +316,8 @@ local function SaveChanges()
         wipe(roleChanged)
         wipe(mainChanged)
 
-        -- update sheet
-        GRA:ShowAttendanceSheet()
-        -- update current log
-        GRA:RefreshCurrentLog()
+        -- update sheet and log
+        GRA:FireEvent("GRA_ROSTER")
     end, true)
     confirm:SetPoint("LEFT", 5, 0)
 end

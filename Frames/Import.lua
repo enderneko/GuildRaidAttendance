@@ -278,7 +278,7 @@ importBtn:SetScript("OnClick", function()
 	
 	gra.configFrame:Show()
 	-- refresh the sheet now!
-	GRA:ShowAttendanceSheet()
+	GRA:FireEvent("GRA_ROSTER")
 end)
 
 selectAllBtn = GRA:CreateButton(importFrame, L["Select All"], "red", {68, 20}, "GRA_FONT_SMALL")

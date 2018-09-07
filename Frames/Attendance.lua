@@ -49,7 +49,25 @@ baseGPText:SetPoint("LEFT", minEPText, "RIGHT", 10, 0)
 local decayText = statusFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 -- decayText:SetPoint("LEFT", baseGPText, "RIGHT", 10, 0)
 
-function attendanceFrame:UpdateRaidInfoStrings()
+local tankIcon = "|TInterface\\AddOns\\GuildRaidAttendance\\Media\\Roles\\TANK.blp:0|t"
+local healerIcon = "|TInterface\\AddOns\\GuildRaidAttendance\\Media\\Roles\\HEALER.blp:0|t"
+local dpsIcon = "|TInterface\\AddOns\\GuildRaidAttendance\\Media\\Roles\\DPS.blp:0|t"
+local function UpdateMemberInfo()
+	local tank, healer, dps = 0, 0, 0
+	for n, t in pairs(_G[GRA_R_Roster]) do
+		if t["role"] == "TANK" then
+			tank = tank + 1
+		elseif t["role"] == "HEALER" then
+			healer = healer + 1
+		else -- DPS
+			dps = dps + 1
+		end
+	end
+	membersText:SetText("|cff80FF00" .. L["Members: "] .. "|r" .. GRA:Getn(_G[GRA_R_Roster]) .. "   "
+		.. tankIcon .. tank .. "  " .. healerIcon .. healer .. "  " .. dpsIcon .. dps)
+end
+
+function attendanceFrame:UpdateRaidInfoStrings() -- TODO: use event
 	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 		baseGPText:SetText("|cff80FF00" .. L["Base GP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][1])
 		minEPText:SetText("|cff80FF00" .. L["Min EP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][2])
@@ -63,7 +81,7 @@ end
 
 -- roster received
 GRA:RegisterEvent("GRA_R_DONE", "AttendanceFrame_RosterReceived", function()
-	membersText:SetText("|cff80FF00" .. L["Members: "] .. "|r" .. GRA:Getn(_G[GRA_R_Roster]))
+	UpdateMemberInfo()
 	attendanceFrame:UpdateRaidInfoStrings()
 end)
 
@@ -1931,7 +1949,7 @@ function GRA:ShowAttendanceSheet()
 		-- sort
 		SortSheet(GRA_Variables["sortKey"])
 
-		membersText:SetText("|cff80FF00" .. L["Members: "] .. "|r" .. GRA:Getn(_G[GRA_R_Roster]))
+		UpdateMemberInfo()
 		attendanceFrame:UpdateRaidInfoStrings()
 
 		if attendanceFrame.scrollFrame.mask then attendanceFrame.scrollFrame.mask:Hide() end
@@ -1981,6 +1999,10 @@ end
 
 GRA:RegisterEvent("GRA_MINI", "AttendanceFrame_MiniMode", function(enabled)
 	EnableMiniMode(enabled)
+	GRA:ShowAttendanceSheet()
+end)
+
+GRA:RegisterEvent("GRA_ROSTER", "AttendanceFrame_RosterUpdate", function()
 	GRA:ShowAttendanceSheet()
 end)
 

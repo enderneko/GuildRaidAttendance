@@ -1433,14 +1433,11 @@ end
 function GRA:CreateBossButton(parent, bossTable, font)
 	if not font then font = "GRA_FONT_TEXT" end
 
-	local hoverColor, borderColor, textColor
-	-- hoverColor = {1, .75, .80, .2}
-	-- borderColor = {1, .75, .80, .6}
-	-- textColor = {.1, .95, .2, 1}
+	local hoverColor, borderColor
 	hoverColor = {.98, .29, .62, .2}
 	borderColor = {.98, .29, .62, .6}
 	-- textColor = {1, .94, .86, 1}
-	textColor = {.73, .73, .73, 1}
+	-- textColor = {.73, .73, .73, 1}
 
 	local b = CreateFrame("Button", nil, parent)
 	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
@@ -1456,20 +1453,20 @@ function GRA:CreateBossButton(parent, bossTable, font)
 	b.difficultyText:SetWordWrap(false)
 	
 	b.bossText = b:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT2")
-	b.bossText:SetTextColor(1, .94, .86, 1)
+	b.bossText:SetTextColor(.96, .95, .65, 1)
 	b.bossText:SetPoint("LEFT", b.difficultyText, "RIGHT", 5, 0)
 	-- b.bossText:SetWidth(80)
 	b.bossText:SetJustifyH("LEFT")
 	b.bossText:SetWordWrap(false)
 
 	b.timeText = b:CreateFontString(nil, "OVERLAY", font)
-	b.timeText:SetTextColor(unpack(textColor))
-	b.timeText:SetPoint("TOPRIGHT", -5, -6)
+	b.timeText:SetTextColor(.73, .73, .73, 1)
+	b.timeText:SetPoint("TOPRIGHT", -5, -5)
 	b.timeText:SetJustifyH("LEFT")
 	b.timeText:SetWordWrap(false)
 
 	b.membersText = b:CreateFontString(nil, "OVERLAY", font)
-	b.membersText:SetTextColor(unpack(textColor))
+	b.membersText:SetTextColor(.73, .73, .73, .5)
 	b.membersText:SetPoint("BOTTOMLEFT", 5, 5)
 	b.membersText:SetPoint("BOTTOMRIGHT", -5, 5)
 	-- b.membersText:SetWidth(80)
@@ -1489,9 +1486,13 @@ function GRA:CreateBossButton(parent, bossTable, font)
 
 	local membersShort = ""
 	for g, gt in pairs(bossTable[5]) do
-		local info = "G" .. g .. ":"
+		local info = "|cffbababaG" .. g .. ":"
 		for _, n in pairs(gt) do
-			info = info .. string.sub(n, 1, 3) .. " "
+			local color = "|cff909090"
+			if _G[GRA_R_Roster][n] and RAID_CLASS_COLORS[_G[GRA_R_Roster][n]["class"]] then
+				color = "|c" .. RAID_CLASS_COLORS[_G[GRA_R_Roster][n]["class"]].colorStr
+			end
+			info = info .. color .. string.sub(n, 1, 3) .. " "
 		end
 		membersShort = membersShort .. info
 	end
@@ -1501,8 +1502,10 @@ function GRA:CreateBossButton(parent, bossTable, font)
 
 	b:SetScript("OnEnter", function()
 		b:SetBackdropColor(unpack(hoverColor))
+		b.membersText:SetAlpha(1)
+
 		GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
-		GRA_Tooltip:SetPoint("RIGHT", b, "LEFT", -2, 0)
+		GRA_Tooltip:SetPoint("LEFT", b, "RIGHT", 2, 0)
 		GRA_Tooltip:AddLine(L["Members In Raid"])
 		for g, gt in pairs(bossTable[5]) do
 			local line = _G["GROUP"..g.."_CHAT_TAG1"] .. " (" .. #gt .. "): "
@@ -1516,6 +1519,7 @@ function GRA:CreateBossButton(parent, bossTable, font)
 
 	b:SetScript("OnLeave", function()
 		b:SetBackdropColor(0, 0, 0, 0)
+		b.membersText:SetAlpha(.5)
 		GRA_Tooltip:Hide()
 	end)
 

@@ -54,6 +54,7 @@ listFrame.scrollFrame:SetScrollStep(15)
 local tabs, tabButtons = {}, {}
 local currentTab
 local function ShowTab(tabToShow, d)
+	if not d then d = sortedDates[selected] end
 	for n, tab in pairs(tabs) do
 		local b = tabButtons[n]
 		if n == tabToShow then
@@ -315,7 +316,7 @@ end
 
 -- ShowRaidSummary
 summaryTab.func = function(d)
-	GRA:Debug("|cffFFC0CBUpdate summary: |r" .. d)
+	GRA:Debug("|cffFF0000Update Summary: |r" .. d)
 
 	local t = _G[GRA_R_RaidLogs][d]
 	local attendeesString, absenteesString = "", ""
@@ -368,11 +369,13 @@ end
 
 -- ShowRaidAttendances
 attendancesTab.func = function(d)
+	GRA:Debug("|cff00FF00Update Attendances: |r" .. d)
 	GRA:ShowAttendanceEditor(d)
 end
 
 -- ShowRaidLoots
 lootsTab.func = function(d)
+	GRA:Debug("|cff0000FFUpdate Loots: |r" .. d)
 	lootsTab.scrollFrame:Reset()
 	
 	details = {}
@@ -689,19 +692,17 @@ raidLogsFrame:SetScript("OnShow", function()
 	end
 end)
 
--- for other frames, refresh current shown log!
-function GRA:RefreshCurrentLog()
-	if not init or updateRequired then return end
-	if raidLogsFrame:IsVisible() then
-		if dates[sortedDates[selected]] then dates[sortedDates[selected]]:Click() end
-	else
-		updateRequired = sortedDates[selected]
-	end
-end
-
 -----------------------------------------
 -- events
 -----------------------------------------
+GRA:RegisterEvent("GRA_ROSTER", "RaidLogsFrame_RosterUpdate", function()
+	if raidLogsFrame:IsVisible() then
+		ShowTab(currentTab)
+	else
+		updateRequired = sortedDates[selected]
+	end
+end)
+
 GRA:RegisterEvent("GRA_LOGS_DONE", "RaidLogsFrame_LogsReceived", function(count, dateStrings)
 	GRA:Print(L["%d raid logs have been received: %s"]:format(count, GRA:TableToString(dateStrings)))
 	-- show last of received dates
