@@ -1155,7 +1155,7 @@ ShowAR = function()
 		row.ar60 = tonumber(format("%.1f", att60[5]))
 		row.ar90 = tonumber(format("%.1f", att90[5]))
 		row.arLifetime = tonumber(format("%.1f", attLifetime[5]))
-		row.sitOutPercent = tonumber(format("%.1f", attLifetime[6] / attLifetime[1] * 100))
+		row.sitOutPercent = attLifetime[6] == 0 and 0 or tonumber(format("%.1f", attLifetime[6] / attLifetime[1] * 100))
 
 		row.ar30Grid:SetText(row.ar30 .. "%")
 		row.ar60Grid:SetText(row.ar60 .. "%")
@@ -1646,8 +1646,6 @@ local function UpdateGrid(g, d, name, altGs)
 	-- mark
 	if _G[GRA_R_RaidLogs][d]["attendances"][name] and _G[GRA_R_RaidLogs][d]["attendances"][name][2] then
 		g:ShowNoteMark(true)
-	else
-		g:ShowNoteMark(false)
 	end
 
 	-- tooltip
@@ -1750,12 +1748,14 @@ local function RefreshDetailsByDate(d)
 		g:SetAttendance(nil)
 		g:SetText("")
 		g:ShowNoteMark(false)
+		g:ShowSitOutMark(false)
 
 		if row.alts then
 			for _, alts in pairs(row.alts) do
 				alts.dateGrids[index]:SetAttendance(nil)
 				alts.dateGrids[index]:SetText("")
 				alts.dateGrids[index]:ShowNoteMark(false)
+				alts.dateGrids[index]:ShowSitOutMark(false)
 			end
 
 			g:SetScript("OnEnter", function()
