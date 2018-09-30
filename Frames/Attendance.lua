@@ -864,6 +864,20 @@ arLifetimeText:SetScript("OnClick", function(self, button)
 	end
 end)
 
+local sitOutText = GRA:CreateGrid(headerFrame, 50, "SR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out rate (lifetime)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out (lifetime)."])
+sitOutText:GetFontString():ClearAllPoints()
+sitOutText:GetFontString():SetPoint("BOTTOM", 0, 1)
+sitOutText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+sitOutText:SetScript("OnClick", function(self, button)
+	if button == "LeftButton" then
+		SortSheetBySR()
+		GRA:Print(L["Sort attendance sheet by sit-out rate (lifetime)."])
+	elseif button == "RightButton" then
+		SortSheetBySO()
+		GRA:Print(L["Sort attendance sheet by sit-out (lifetime)."])
+	end
+end)
+
 -- dates
 local dateGrids = {}
 local function CreateDateHeader()
@@ -1023,6 +1037,15 @@ function GRA:SetColumns()
 		arLifetimeText:Hide()
 	end
 
+	if GRA_Variables["columns"]["Sit_Out"] then
+		sitOutText:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
+		sitOutText:Show()
+		newWidth = newWidth + gra.size.grid_others - 1
+		lastColumn = sitOutText
+	else
+		sitOutText:Hide()
+	end
+
 	-- row SetColumns
 	for _, row in pairs(loaded) do
 		row:SetColumns()
@@ -1118,25 +1141,27 @@ ShowAR = function()
 		local att30 = _G[GRA_R_Roster][row.name]["att30"] or {0, 0, 0, 0, 0}
 		local att60 = _G[GRA_R_Roster][row.name]["att60"] or {0, 0, 0, 0, 0}
 		local att90 = _G[GRA_R_Roster][row.name]["att90"] or {0, 0, 0, 0, 0}
-		local attLifetime = _G[GRA_R_Roster][row.name]["attLifetime"] or {0, 0, 0, 0, 0}
+		local attLifetime = _G[GRA_R_Roster][row.name]["attLifetime"] or {0, 0, 0, 0, 0, 0}
 		
 		-- attendance count
 		row.att30 = att30[1]
 		row.att60 = att60[1]
 		row.att90 = att90[1]
 		row.attLifetime = attLifetime[1]
-		-- row.partlyLifeTime = attLifetime[3] or 0 -- no attLifetime[3] in previous version
+		row.sitOut = attLifetime[6]
 
 		-- attendance rate
-		row.ar30 = tonumber(format("%.1f", att30[5] or 0))
-		row.ar60 = tonumber(format("%.1f", att60[5] or 0))
-		row.ar90 = tonumber(format("%.1f", att90[5] or 0))
-		row.arLifetime = tonumber(format("%.1f", attLifetime[5] or 0))
+		row.ar30 = tonumber(format("%.1f", att30[5]))
+		row.ar60 = tonumber(format("%.1f", att60[5]))
+		row.ar90 = tonumber(format("%.1f", att90[5]))
+		row.arLifetime = tonumber(format("%.1f", attLifetime[5]))
+		row.sitOutPercent = tonumber(format("%.1f", attLifetime[6] / attLifetime[1] * 100))
 
 		row.ar30Grid:SetText(row.ar30 .. "%")
 		row.ar60Grid:SetText(row.ar60 .. "%")
 		row.ar90Grid:SetText(row.ar90 .. "%")
 		row.arLifetimeGrid:SetText(row.arLifetime .. "%")
+		row.sitOutGrid:SetText(row.sitOutPercent .. "%" )
 		
 		-- tooltip
 		row.ar30Grid:HookScript("OnEnter", function(self)
@@ -1210,7 +1235,19 @@ ShowAR = function()
 			GRA_Tooltip:Show()
 		end)
 		row.arLifetimeGrid:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
+
+		row.sitOutGrid:HookScript("OnEnter", function(self)
+			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
+			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
+			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
+			GRA_Tooltip:AddDoubleLine(L["Sit Out"] .. ": ", "|cff00e6ff" .. attLifetime[6])
+			GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. attLifetime[1])
+			GRA_Tooltip:Show()
+		end)
+		row.sitOutGrid:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
 	end
+
+	SortSheet(GRA_Variables["sortKey"])
 end
 
 local calcARProgressFrame
@@ -1296,39 +1333,6 @@ local function ShowCalcARProgressFrame(maxValue)
 	calcARProgressFrame.fadeIn:Play()
 end
 
--- get main-alt attendance (which joined first)
-local function GetMainAltAttendance(d, mainName)
-	local att, joinTime, leaveTime
-
-	if _G[GRA_R_RaidLogs][d]["attendances"][mainName] then
-		att = _G[GRA_R_RaidLogs][d]["attendances"][mainName][1]
-
-		if _G[GRA_R_RaidLogs][d]["attendances"][mainName][3] then
-			joinTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][3]
-			leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][4] or select(2, GRA:GetRaidEndTime(d))
-		end
-	end
-
-	if gra.mainAlt[mainName] then -- has alt
-		-- PRESENT or PARTLY
-		for _, altName in pairs(gra.mainAlt[mainName]) do
-			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
-				-- 大号没有出勤 or 小号先于大号进组
-				if not joinTime or joinTime > _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
-					att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
-					joinTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][3]
-				end
-				-- 小号后于大号退组
-				if _G[GRA_R_RaidLogs][d]["attendances"][altName][4] and leaveTime < _G[GRA_R_RaidLogs][d]["attendances"][altName][4] then
-					leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][4]
-				end
-			end
-		end
-	end
-
-	return att, joinTime, leaveTime
-end
-
 -- admin only, calculate AR
 CalcAR = function()
 	if gra.isAdmin == nil then -- wait for GRA_PERMISSION
@@ -1352,11 +1356,11 @@ CalcAR = function()
 	for n, t in pairs(_G[GRA_R_Roster]) do
 		if not t["altOf"] then -- ignore alts
 			playerAtts[n] = {
-				-- {present, absent, late/leaveEarly, onLeave, ar_minutes}
+				-- {present, absent, late/leaveEarly, onLeave, ar, sitOut}
 				["30"] = {0, 0, 0, 0, 0},
 				["60"] = {0, 0, 0, 0, 0},
 				["90"] = {0, 0, 0, 0, 0},
-				["lifetime"] = {0, 0, 0, 0, 0},
+				["lifetime"] = {0, 0, 0, 0, 0, 0},
 			}
 		end
 	end
@@ -1366,14 +1370,16 @@ CalcAR = function()
 	for d, l in pairs(_G[GRA_R_RaidLogs]) do
 		for name, t in pairs(l["attendances"]) do
 			if playerAtts[name] then -- exists in roster
-				local att = GetMainAltAttendance(d, name) -- add alt attendance to main
+				local att, _, _, ar, isSitOut = GRA:GetMainAltAttendance(d, name) -- add alt attendance to main
 				local dateOffset = GRA:DateOffset(d, today)
 				if att == "PRESENT" or att == "PARTLY" then
-					local ar = GRA:GetAttendanceRate(d, name)
 					playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
 					playerAtts[name]["lifetime"][5] = playerAtts[name]["lifetime"][5] + ar
 					if att == "PARTLY" then
 						playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
+					end
+					if isSitOut then
+						playerAtts[name]["lifetime"][6] = playerAtts[name]["lifetime"][6] + 1
 					end
 					
 					if dateOffset < 90 then
@@ -1430,7 +1436,7 @@ CalcAR = function()
 
 	for name, t in pairs(_G[GRA_R_Roster]) do
 		if playerAtts[name] then
-			-- update ar_minutes
+			-- update ar
 			playerAtts[name]["30"][5] = (playerAtts[name]["30"][5] == 0) and 0 or (playerAtts[name]["30"][5] / (playerAtts[name]["30"][1] + playerAtts[name]["30"][2]) * 100)
 			playerAtts[name]["60"][5] = (playerAtts[name]["60"][5] == 0) and 0 or (playerAtts[name]["60"][5] / (playerAtts[name]["60"][1] + playerAtts[name]["60"][2]) * 100)
 			playerAtts[name]["90"][5] = (playerAtts[name]["90"][5] == 0) and 0 or (playerAtts[name]["90"][5] / (playerAtts[name]["90"][1] + playerAtts[name]["90"][2]) * 100)
@@ -1445,11 +1451,6 @@ CalcAR = function()
 	end
 
 	ShowAR()
-
-	-- re-sort by attendance rate
-	-- if string.find(GRA_Variables["sortKey"], "ar") then
-		SortSheet(GRA_Variables["sortKey"])
-	-- end
 end
 
 -----------------------------------------
@@ -1578,7 +1579,7 @@ local function UpdateGrid(g, d, name, altGs)
 		g:SetText("")
 	end
 
-	local att, joinTime, leaveTime = GetMainAltAttendance(d, name)
+	local att, joinTime, leaveTime, _, isSitOut = GRA:GetMainAltAttendance(d, name)
 	if altGs then
 		-- 设置大号出勤状态
 		if _G[GRA_R_RaidLogs][d]["attendances"][name] then
@@ -1590,6 +1591,8 @@ local function UpdateGrid(g, d, name, altGs)
 				end
 			else  -- 大号有出勤
 				g:SetAttendance(att)
+				-- sit out mark
+				if isSitOut then g:ShowSitOutMark(true) end
 			end
 		else
 			g:SetAttendance("IGNORED")
@@ -1605,6 +1608,8 @@ local function UpdateGrid(g, d, name, altGs)
 
 			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
 				altG:SetAttendance(att)
+				-- sit out mark
+				if isSitOut then altG:ShowSitOutMark(true) end
 			else
 				altG:SetAttendance("IGNORED")
 			end
@@ -1634,6 +1639,8 @@ local function UpdateGrid(g, d, name, altGs)
 		end
 	else
 		g:SetAttendance(att)
+		-- sit out mark
+		if isSitOut then g:ShowSitOutMark(true) end
 	end
 
 	-- mark
@@ -1737,41 +1744,40 @@ local function RefreshDetailsByDate(d)
 	-- date not shown
 	if not index then return end
 
-	-- if no logs exist, deleted
-	if not _G[GRA_R_RaidLogs][d] then
-		-- empty grids and remove tooltips
-		for _, row in pairs(loaded) do
-			local g = row.dateGrids[index]
-			g:SetAttendance(nil)
-			g:SetText("")
-			g:ShowNoteMark(false)
+	-- empty grids and remove tooltips
+	for _, row in pairs(loaded) do
+		local g = row.dateGrids[index]
+		g:SetAttendance(nil)
+		g:SetText("")
+		g:ShowNoteMark(false)
 
-			if row.alts then
-				for _, alts in pairs(row.alts) do
-					alts.dateGrids[index]:SetAttendance(nil)
-					alts.dateGrids[index]:SetText("")
-					alts.dateGrids[index]:ShowNoteMark(false)
-				end
-
-				g:SetScript("OnEnter", function()
-					g:Highlight()
-					for _, alts in pairs(row.alts) do
-						alts.dateGrids[index]:Highlight()
-					end
-				end)
-				g:SetScript("OnLeave", function()
-					g:Unhighlight()
-					for _, alts in pairs(row.alts) do
-						alts.dateGrids[index]:Unhighlight()
-					end
-				end)
-			else
-				g:SetScript("OnEnter", g.Highlight)
-				g:SetScript("OnLeave", g.Unhighlight)
+		if row.alts then
+			for _, alts in pairs(row.alts) do
+				alts.dateGrids[index]:SetAttendance(nil)
+				alts.dateGrids[index]:SetText("")
+				alts.dateGrids[index]:ShowNoteMark(false)
 			end
+
+			g:SetScript("OnEnter", function()
+				g:Highlight()
+				for _, alts in pairs(row.alts) do
+					alts.dateGrids[index]:Highlight()
+				end
+			end)
+			g:SetScript("OnLeave", function()
+				g:Unhighlight()
+				for _, alts in pairs(row.alts) do
+					alts.dateGrids[index]:Unhighlight()
+				end
+			end)
+		else
+			g:SetScript("OnEnter", g.Highlight)
+			g:SetScript("OnLeave", g.Unhighlight)
 		end
-		return
 	end
+
+	-- if no logs exist, deleted
+	if not _G[GRA_R_RaidLogs][d] then return end
 
 	-- count on this day
 	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
@@ -1795,7 +1801,7 @@ local function RefreshDetailsByDate(d)
 	end
 end
 
-function GRA:RefreshSheetByDates(dates)
+local function RefreshSheetByDates(dates)
 	for _, d in pairs(dates) do
 		RefreshDetailsByDate(d)
 	end
@@ -1805,7 +1811,7 @@ GRA:RegisterEvent("GRA_ENTRY", "AttendanceSheet_DetailsRefresh", RefreshDetailsB
 GRA:RegisterEvent("GRA_ENTRY_MODIFY", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
 GRA:RegisterEvent("GRA_ENTRY_UNDO", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
 
--- raid logs (attendance) changed
+-- raid logs (attendance) changed -- TODO: create a flag : updateRequired
 local refreshTimer
 GRA:RegisterEvent("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
 	-- update ONCE EVERY 1S!!!
@@ -1818,17 +1824,13 @@ GRA:RegisterEvent("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
 		RefreshDetailsByDate(d)
 		CalcAR()
 		refreshTimer = nil
-
-		-- attendance rate may changed, re-sort
-		SortSheet(GRA_Variables["sortKey"])
 	end)
 end)
 
 -- raid logs deleted
 GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", function(dates)
-	GRA:RefreshSheetByDates(dates)
+	RefreshSheetByDates(dates)
 	CalcAR()
-	SortSheet(GRA_Variables["sortKey"])
 end)
 
 -- raid start time update
@@ -1859,7 +1861,7 @@ end)
 
 -- refresh on raid logs received
 GRA:RegisterEvent("GRA_LOGS_DONE", "AttendanceFrame_LogsReceived", function(count, dates)
-	GRA:RefreshSheetByDates(dates)
+	RefreshSheetByDates(dates)
 	-- refresh attendance rate
 	ShowAR()
 end)
@@ -1940,14 +1942,11 @@ function GRA:ShowAttendanceSheet()
 		LoadSheet()
 		-- after sheet row loaded set columns and WIDTH!!!
 		GRA:SetColumns()
-		-- load attendance rate
+		-- load attendance rate and sort
 		ShowAR()
 
 		headerFrame:Show()
 		statusFrame:Show()
-
-		-- sort
-		SortSheet(GRA_Variables["sortKey"])
 
 		UpdateMemberInfo()
 		attendanceFrame:UpdateRaidInfoStrings()
@@ -2024,10 +2023,7 @@ attendanceFrame:SetScript("OnShow", function()
 
 	datePicker:SetDate(_G[GRA_R_Config]["startDate"])
 	
-	-- TODO: don't sort every time
 	if #loaded ~= 0 then -- already loaded
-		-- sort on show!
-		SortSheet(GRA_Variables["sortKey"])
 		return
 	end
 

@@ -267,7 +267,7 @@ importBtn:SetScript("OnClick", function()
 					_G[GRA_R_Roster][n] = {["class"]=t.class, ["role"]="DPS"}
 				end
 			else
-				GRA:Print(L["Failed to import player %s, it's not in your guild."]:format(GRA:GetClassColoredName(n, t.class)))
+				GRA:Print(L["Failed to import, %s is not in your guild."]:format(GRA:GetClassColoredName(n, t.class)))
 			end
 		elseif _G[GRA_R_Roster][n] then  -- already exists, t.checked = false, then delete it
 			_G[GRA_R_Roster] = GRA:RemoveElementsByKeys(_G[GRA_R_Roster], {n})

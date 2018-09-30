@@ -114,7 +114,7 @@ dkpOptionsBtn:SetEnabled(true)
 -----------------------------------------
 local sheetSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 sheetSection:SetText("|cff80FF00"..L["Attendance Sheet"].."|r")
-sheetSection:SetPoint("TOPLEFT", 5, -90)
+sheetSection:SetPoint("TOPLEFT", 5, -85)
 GRA:CreateSeperator(configFrame, sheetSection)
 
 local sheetText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
@@ -168,26 +168,36 @@ local ar30CB = GRA:CreateCheckButton(daysFrame, L["30 days"], nil, function(chec
 	GRA_Variables["columns"]["AR_30"] = checked
 	GRA:SetColumns()
 end, "GRA_FONT_SMALL")
+
 local ar60CB = GRA:CreateCheckButton(daysFrame, L["60 days"], nil, function(checked)
 	GRA_Variables["columns"]["AR_60"] = checked
 	GRA:SetColumns()
 end, "GRA_FONT_SMALL")
+
 local ar90CB = GRA:CreateCheckButton(daysFrame, L["90 days"], nil, function(checked)
 	GRA_Variables["columns"]["AR_90"] = checked
 	GRA:SetColumns()
 end, "GRA_FONT_SMALL")
+
 local arCB = GRA:CreateCheckButton(daysFrame, L["Lifetime"], nil, function(checked)
 	GRA_Variables["columns"]["AR_Lifetime"] = checked
 	GRA:SetColumns()
 end, "GRA_FONT_SMALL")
-ar30CB:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -19)
+
+local sitOutCB = GRA:CreateCheckButton(daysFrame, L["Sit Out"], nil, function(checked)
+	GRA_Variables["columns"]["Sit_Out"] = checked
+	GRA:SetColumns()
+end, "GRA_FONT_SMALL")
+
+ar30CB:SetPoint("TOPLEFT", columnText, "BOTTOMLEFT", 0, -4)
 ar60CB:SetPoint("LEFT", ar30CB, "RIGHT", 67, 0)
-ar90CB:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -39)
+ar90CB:SetPoint("TOPLEFT", columnText, "BOTTOMLEFT", 0, -24)
 arCB:SetPoint("LEFT", ar90CB, "RIGHT", 67, 0)
+sitOutCB:SetPoint("TOPLEFT", columnText, "BOTTOMLEFT", 0, -44)
 
 -- raid hours
 local raidHoursTitle = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-raidHoursTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -66)
+raidHoursTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -86)
 raidHoursTitle:SetText(L["Raid Hours"] .. ": ")
 
 local raidHoursText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
@@ -221,7 +231,7 @@ RSTComfirmBtn:SetScript("OnClick", function()
 	GRA:FireEvent("GRA_RH_UPDATE")
 	raidStartTimeEditBox:SetText(startTime)
 
-	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Raid hours has been updated."], "TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -85)
+	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Raid hours has been updated."], "TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -105)
 	raidStartTimeEditBox:ClearFocus()
 	RSTComfirmBtn:Hide()
 end)
@@ -358,7 +368,7 @@ appearanceBtn:SetScript("OnClick", function()
 	gra.appearanceFrame:Show()
 end)
 
-local pLootBtn = GRA:CreateButton(configFrame, L["PLoot Helper"], "red", {91, 20}, "GRA_FONT_SMALL")
+local pLootBtn = GRA:CreateButton(configFrame, L["null"], "red", {91, 20}, "GRA_FONT_SMALL")
 pLootBtn:SetPoint("LEFT", appearanceBtn, "RIGHT", -1, 0)
 pLootBtn:SetScript("OnClick", function()
 	gra.profilesFrame:Hide()
@@ -473,16 +483,19 @@ local function EnableMiniMode(f)
 		ar60CB:SetEnabled(not f)
 		ar90CB:SetEnabled(not f)
 		arCB:SetEnabled(not f)
+		sitOutCB:SetEnabled(not f)
 
 		if f then
 			ar30CB:SetChecked(true)
 			ar60CB:SetChecked(true)
 			ar90CB:SetChecked(true)
 			arCB:SetChecked(true)
+			sitOutCB:SetChecked(true)
 			GRA_Variables["columns"]["AR_30"] = true
 			GRA_Variables["columns"]["AR_60"] = true
 			GRA_Variables["columns"]["AR_90"] = true
 			GRA_Variables["columns"]["AR_Lifetime"] = true
+			GRA_Variables["columns"]["Sit_Out"] = true
 			GRA:SetColumns()
 		end
 	end
@@ -506,6 +519,7 @@ configFrame:SetScript("OnShow", function(self)
 	ar60CB:SetChecked(GRA_Variables["columns"]["AR_60"])
 	ar90CB:SetChecked(GRA_Variables["columns"]["AR_90"])
 	arCB:SetChecked(GRA_Variables["columns"]["AR_Lifetime"])
+	sitOutCB:SetChecked(GRA_Variables["columns"]["Sit_Out"])
 
 	-- misc
 	version:SetText(L["Version"] .. ": |cff0080FF" .. gra.version)

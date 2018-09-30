@@ -13,10 +13,10 @@ attendanceEditor:Hide()
 
 local tipText1 = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 tipText1:SetPoint("TOPLEFT", 5, -5)
-tipText1:SetText("|cff66d400" .. L["Double-click on the second column: "] .. gra.colors.grey.s .. L["Select attendance status."])
+tipText1:SetText("|cff70dd00" .. L["Double-click on the second column: "] .. gra.colors.grey.s .. L["Select attendance status."])
 local tipText2 = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 tipText2:SetPoint("TOPLEFT", tipText1, "BOTTOMLEFT", 0, -3)
-tipText2:SetText("|cff53d400" .. L["Click on the last column: "] .. gra.colors.grey.s .. L["Set notes (not available for alts)."])
+tipText2:SetText("|cff70dd00" .. L["Click on the last column: "] .. gra.colors.grey.s .. L["Set notes (not available for alts)."])
 
 -- raid end time
 local raidEndTimeEditBox = GRA:CreateEditBox(attendanceEditor, 70, 20, false, "GRA_FONT_SMALL")
@@ -125,7 +125,7 @@ local function SortAttendanceEditor()
         else -- IGNORED
             att = 4
         end
-        table.insert(sorted, {n, att, row.joinTime, row.leaveTime, _G[GRA_R_Roster][n]["class"]})
+        table.insert(sorted, {n, att, row.isSitOut and 1 or 0, row.joinTime, row.leaveTime, _G[GRA_R_Roster][n]["class"]})
     end
     table.sort(sorted, function(a, b)
         if a[2] ~= b[2] then
@@ -133,9 +133,11 @@ local function SortAttendanceEditor()
         elseif a[3] ~= b[3] then
             return a[3] < b[3]
         elseif a[4] ~= b[4] then
-            return a[4] > b[4]
-        elseif a[5] ~= b[5] then
-            return GRA:GetIndex(gra.CLASS_ORDER, a[5]) < GRA:GetIndex(gra.CLASS_ORDER, b[5])
+            return a[4] < b[4]
+        elseif a[4] ~= b[4] then
+            return a[5] > b[5]
+        elseif a[6] ~= b[6] then
+            return GRA:GetIndex(gra.CLASS_ORDER, a[6]) < GRA:GetIndex(gra.CLASS_ORDER, b[6])
         else
             return a[1] < b[1]
         end 
@@ -172,8 +174,10 @@ local function CheckAttendances(d)
     attendances = {}
     for n, _ in pairs(_G[GRA_R_Roster]) do
         if _G[GRA_R_RaidLogs][d]["attendances"][n] then -- present/absent/partly/onleave
-            if _G[GRA_R_RaidLogs][d]["attendances"][n][3] then -- present/partly
-                attendances[n] = {"PRESENT", _G[GRA_R_RaidLogs][d]["attendances"][n][2], _G[GRA_R_RaidLogs][d]["attendances"][n][3], _G[GRA_R_RaidLogs][d]["attendances"][n][4] or select(2, GRA:GetRaidEndTime(d))}
+            if _G[GRA_R_RaidLogs][d]["attendances"][n][3] then -- present/partly -> present
+                local isSitOut
+                if _G[GRA_R_RaidLogs][d]["attendances"][n][5] then isSitOut = true else isSitOut = false end
+                attendances[n] = {"PRESENT", _G[GRA_R_RaidLogs][d]["attendances"][n][2], _G[GRA_R_RaidLogs][d]["attendances"][n][3], _G[GRA_R_RaidLogs][d]["attendances"][n][4] or select(2, GRA:GetRaidEndTime(d)), isSitOut}
             else -- absent/onleave
                 attendances[n] = {_G[GRA_R_RaidLogs][d]["attendances"][n][1], _G[GRA_R_RaidLogs][d]["attendances"][n][2]}
             end
@@ -188,12 +192,13 @@ local function CheckPlayerAttendance(row)
     local changed = false
     local name = row.name
     -- attendance/note/joinTime changed
-    if row.attendance ~= attendances[name][1] or row.note ~= attendances[name][2] or row.joinTime ~= attendances[name][3] or row.leaveTime ~= attendances[name][4] then 
+    if row.attendance ~= attendances[name][1] or row.note ~= attendances[name][2] or row.joinTime ~= attendances[name][3] or row.leaveTime ~= attendances[name][4] or row.isSitOut ~= attendances[name][5] then 
         if not changes[name] then changes[name] = {} end
         changes[name][1] = row.attendance
         changes[name][2] = row.note
         changes[name][3] = row.joinTime
         changes[name][4] = row.leaveTime
+        changes[name][5] = row.isSitOut
         changed = true
     else
         changes = GRA:RemoveElementsByKeys(changes, {name})
@@ -210,7 +215,11 @@ SaveChanges = function()
         if t[1] == "IGNORED" then -- delete
             _G[GRA_R_RaidLogs][dateString]["attendances"] = GRA:RemoveElementsByKeys(_G[GRA_R_RaidLogs][dateString]["attendances"], {n})
         elseif t[1] == "PRESENT" then -- PRESENT
-            _G[GRA_R_RaidLogs][dateString]["attendances"][n] = {GRA:CheckAttendanceStatus(t[3], select(2, GRA:GetRaidStartTime(dateString)), t[4], select(2, GRA:GetRaidEndTime(dateString))), t[2], t[3], t[4]}
+            if t[5] then
+                _G[GRA_R_RaidLogs][dateString]["attendances"][n] = {GRA:CheckAttendanceStatus(t[3], select(2, GRA:GetRaidStartTime(dateString)), t[4], select(2, GRA:GetRaidEndTime(dateString))), t[2], t[3], t[4], true}
+            else
+                _G[GRA_R_RaidLogs][dateString]["attendances"][n] = {GRA:CheckAttendanceStatus(t[3], select(2, GRA:GetRaidStartTime(dateString)), t[4], select(2, GRA:GetRaidEndTime(dateString))), t[2], t[3], t[4]}
+            end
         else -- ABSENT, ONLEAVE
             if t[2] then
                 _G[GRA_R_RaidLogs][dateString]["attendances"][n] = {t[1], t[2]}
@@ -236,7 +245,7 @@ end
 DiscardChanges = function()
     if GRA:Getn(changes) == 0 then return end
     for n, _ in pairs(changes) do
-        rows[n]:SetRowInfo(attendances[n][1], attendances[n][2], attendances[n][3], attendances[n][4])
+        rows[n]:SetRowInfo(attendances[n][1], attendances[n][2], attendances[n][3], attendances[n][4], attendances[n][5])
         rows[n].joinTimeEditBox:ClearFocus()
         rows[n].leaveTimeEditBox:ClearFocus()
         rows[n].noteEditBox:ClearFocus()
@@ -260,7 +269,7 @@ function GRA:ShowAttendanceEditor(d)
     -- check attendances from _G[GRA_R_RaidLogs][d]
     CheckAttendances(d)
     for n, t in pairs(attendances) do
-        local row = GRA:CreateRow_AttendanceEditor(scroll.content, attendanceEditor:GetWidth(), n, t[1], t[2], t[3], t[4])
+        local row = GRA:CreateRow_AttendanceEditor(scroll.content, attendanceEditor:GetWidth(), n, t[1], t[2], t[3], t[4], t[5])
         scroll:SetWidgetAutoWidth(row)
         rows[n] = row
         row.name = n
@@ -274,7 +283,17 @@ function GRA:ShowAttendanceEditor(d)
                     ["onClick"] = function()
                         local joinTime = GRA:DateToTime(dateString..raidStartTime, true)
                         local leaveTime = GRA:DateToTime(dateString..raidEndTime, true)
-                        row:SetRowInfo("PRESENT", row.note, row.joinTime or joinTime, row.leaveTime or leaveTime)
+                        row:SetRowInfo("PRESENT", row.note, row.joinTime or joinTime, row.leaveTime or leaveTime, false)
+                        CheckPlayerAttendance(row)
+                    end
+                },
+                {
+                    ["text"] = L["Sit Out"],
+                    ["color"] = "blue",
+                    ["onClick"] = function()
+                        local joinTime = GRA:DateToTime(dateString..raidStartTime, true)
+                        local leaveTime = GRA:DateToTime(dateString..raidEndTime, true)
+                        row:SetRowInfo("PRESENT", row.note, row.joinTime or joinTime, row.leaveTime or leaveTime, true)
                         CheckPlayerAttendance(row)
                     end
                 },

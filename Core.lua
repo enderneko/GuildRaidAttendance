@@ -44,7 +44,7 @@ gra.colors = {
 	grey = {s = "|cCCB2B2B2"},
 	yellow = {s = "|cFFFFD100"},
 	firebrick = {s = "|cFFFF3030", t = {1, .19, .19, .7}},
-	skyblue = {s = "|cFF00CCFF"},
+	skyblue = {s = "|cFF00CCFF", t = {0, .8, 1, 1}},
 	chartreuse = {s = "|cFF80FF00", t = {.5, 1, 0, 1}},
 }
 
@@ -326,6 +326,7 @@ function frame:ADDON_LOADED(arg1)
 				["AR_60"] = false,
 				["AR_90"] = false,
 				["AR_Lifetime"] = false,
+				["Sit_Out"] = false,
 			}
 		end
 

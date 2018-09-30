@@ -1,3 +1,11 @@
+version r84-release
+------------------------
+    * Fixed a main-alt leaveTime bug.
+    * Fixed main-alt attendance.
+    * Fixed attendance sheet grids highlight and update.
+    + Added "Sit Out" attendance state.
+    + Added roster invitaion.
+
 version r83-release
 ------------------------
     * Fixed member deletion bugs (RosterEditor).

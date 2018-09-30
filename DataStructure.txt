@@ -8,7 +8,7 @@ GRA_RaidLogs = {
 		["startTime"] = (number),
 		["endTime"] = (number),
 		["attendances"] = {
-			playerName(string) = {"PRESENT"/"PARTLY"/"ONLEAVE"/"ABSENT", note(string), joinTime(number), leaveTime(number)},
+			playerName(string) = {"PRESENT"/"PARTLY"/"ONLEAVE"/"ABSENT", note(string), joinTime(number), leaveTime(number), isSitOut(boolean)},
 		},
 		["details"] = {
 			-- EPGP
@@ -23,8 +23,8 @@ GRA_RaidLogs = {
 			{"LOOT", reason(string)/itemLink, playerName, note},
 		},
 		["bosses"] = {
-			{bossName(string), difficultyID, startTime(number), killedTime(number), {
-				[group] = {playerName, ...},
+			{bossName(string), difficultyID, startTime(number), killedTime(number),
+				{[group] = {playerName, ...},}
 			},
 		},
 	},
@@ -41,7 +41,7 @@ GRA_Roster = {
 		["att30"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
 		["att60"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
 		["att90"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
-		["attLifetime"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
+		["attLifetime"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number), sitOut(number)},
 		["EP"] = (number),
 		["GP"] = (number),
 		["DKP_Current"] = (number),
@@ -81,6 +81,7 @@ GRA_Variables = {
 		["AR_90"] = (boolean),
 		["AR_30"] = (boolean),
 		["AR_Lifetime"] = (boolean),
+		["Sit_Out"] = (boolean),
 	},
 }
 

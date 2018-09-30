@@ -127,6 +127,9 @@ buttons["raidLogsBtn"]:SetScript("OnClick", function()
 	gra.raidLogsFrame:Show()
 end)
 
+-----------------------------------------
+-- top buttons
+-----------------------------------------
 -- track button, change text and color OnClick
 local trackBtn = GRA:CreateButton(gra.mainFrame.header, "TRACK", nil, {60, 22}, "GRA_FONT_PIXEL")
 trackBtn:SetPoint("LEFT", gra.mainFrame.header)
@@ -153,9 +156,35 @@ GRA:RegisterEvent("GRA_TRACK",  "Main_TrackStatus", function(raidDate)
 	end
 end)
 
+-- invite button
+local inviteBtn = GRA:CreateButton(gra.mainFrame.header, "INVITE", "red-hover", {60, 22}, "GRA_FONT_PIXEL")
+inviteBtn:SetPoint("LEFT", trackBtn, "RIGHT", -1, 0)
+inviteBtn:Hide()
+
+inviteBtn:SetScript("OnClick", function()
+	ConvertToRaid()
+	inviteBtn:RegisterEvent("GROUP_ROSTER_UPDATE")
+	
+	local onlineMembers = GRA:GetGuildOnlineRoster()
+	for n, _ in pairs(_G[GRA_R_Roster]) do
+		if onlineMembers[n] and not(UnitInParty(GRA:GetShortName(n)) or UnitInRaid(GRA:GetShortName(n))) then
+			InviteUnit(n)
+		end
+	end
+	wipe(onlineMembers)
+end)
+
+inviteBtn:SetScript("OnEvent", function()
+	if not IsInRaid() then
+		ConvertToRaid()
+		inviteBtn:UnregisterEvent("GROUP_ROSTER_UPDATE")
+	end
+end)
+
 GRA:RegisterEvent("GRA_PERMISSION", "MainFrame_CheckPermissions", function(isAdmin)
 	if isAdmin then
 		trackBtn:Show()
+		inviteBtn:Show()
 	end
 end)
 

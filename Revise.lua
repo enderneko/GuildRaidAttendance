@@ -75,5 +75,16 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 			_G[GRA_R_Config]["raidInfo"]["endTime"] = "23:00"
 		end
 		]]
+
+		-- r84-release
+		for n, t in pairs(_G[GRA_R_Roster]) do
+			if t["attLifetime"] and #t["attLifetime"] == 5 then
+				table.insert(t["attLifetime"], 0)
+			end
+		end
+
+		if type(GRA_Variables["columns"]["Sit_Out"]) ~= "boolean" then
+			GRA_Variables["columns"]["Sit_Out"] = false
+		end
     end
 end)
