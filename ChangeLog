@@ -1,10 +1,16 @@
+version r85-release
+------------------------
+    * Fixed roster transmission.
+    * Guild roster with different ranks are now seperated by blank line. (Import Frame)
+    * Fixed Sit Out sort.
+
 version r84-release
 ------------------------
     * Fixed a main-alt leaveTime bug.
     * Fixed main-alt attendance.
     * Fixed attendance sheet grids highlight and update.
     + Added "Sit Out" attendance state.
-    + Added roster invitaion.
+    + Added roster invitation.
 
 version r83-release
 ------------------------

@@ -58,12 +58,13 @@ end
 
 -- send roster data and raidInfo to raid members
 function GRA:SendRosterToRaid()
-    Comm:SendCommMessage("GRA_R_ASK", "", "RAID", nil, "ALERT")
+    UpdateSendChannel()
+    Comm:SendCommMessage("GRA_R_ASK", " ", sendChannel, nil, "ALERT")
     sendRosterPopup = nil
     gra.sending = true
 
     local encoded = TableToString({_G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"]})
-    UpdateSendChannel()
+    
     -- send roster
     Comm:SendCommMessage("GRA_R_SEND", encoded, sendChannel, nil, "BULK", function(arg, done, total)
         if not sendRosterPopup then
@@ -144,7 +145,8 @@ end
 function GRA:SendLogsToRaid(selectedDates)
     dates = selectedDates
     local encoded = TableToString(selectedDates)
-    Comm:SendCommMessage("GRA_LOGS_ASK", encoded, "RAID", nil, "ALERT")
+    UpdateSendChannel()
+    Comm:SendCommMessage("GRA_LOGS_ASK", encoded, sendChannel, nil, "ALERT")
     sendLogsPopup = nil
     gra.sending = true
 
@@ -154,7 +156,7 @@ function GRA:SendLogsToRaid(selectedDates)
     end
     -- TODO: send AR only, not all _G[GRA_R_Roster]
     encoded = TableToString({t, _G[GRA_R_Roster]})
-    UpdateSendChannel()
+    
     -- send logs
     Comm:SendCommMessage("GRA_LOGS_SEND", encoded, sendChannel, nil, "BULK", function(arg, done, total)
         if not sendLogsPopup then

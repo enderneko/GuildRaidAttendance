@@ -195,7 +195,7 @@ function GRA:RemoveElementsByKeys(tbl, keys) -- keys is a table
 	return newTbl
 end
 
-function GRA:Sort(t, k1, order1, k2, order2)
+function GRA:Sort(t, k1, order1, k2, order2, k3, order3)
 	table.sort(t, function(a, b)
 		if a[k1] ~= b[k1] then
 			if order1 == "ascending" then
@@ -203,11 +203,17 @@ function GRA:Sort(t, k1, order1, k2, order2)
 			else -- "descending"
 				return a[k1] > b[k1]
 			end
-		else
+		elseif k2 and order2 and a[k2] ~= b[k2] then
 			if order2 == "ascending" then
 				return a[k2] < b[k2]
 			else -- "descending"
 				return a[k2] > b[k2]
+			end
+		elseif k3 and order3 and a[k3] ~= b[k3] then
+			if order3 == "ascending" then
+				return a[k3] < b[k3]
+			else -- "descending"
+				return a[k3] > b[k3]
 			end
 		end
 	end)
@@ -259,9 +265,10 @@ function GRA:GetGuildRoster(rank)
 		if rankIndex <= rank - 1 then
 			table.insert(roster, {["name"] = fullName, ["class"] = class, ["rankIndex"] = rankIndex})
 		else
+			break
 			-- sort and return
-			GRA:Sort(roster, "rankIndex", "ascending", "name", "ascending")
-			return roster
+			-- GRA:Sort(roster, "rankIndex", "ascending", "name", "ascending")
+			-- return roster
 		end
 	end
 	return roster

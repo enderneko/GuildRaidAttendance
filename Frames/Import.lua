@@ -79,11 +79,16 @@ local guildRanks = {}
 local selectedRank
 -- guild roster list
 local cbs_guild = {} -- contains all checkbuttons (roster)
+local currentGuildRank = {} -- sorted
+
 RefreshGuildRoster = function()
+	wipe(currentGuildRank)
 	guildFrame.scrollFrame:Reset()
 	-- roster above selected rank {"name", "class"}
 	local roster = GRA:GetGuildRoster(GRA:GetIndex(guildRanks, rankDropDown.selected))
-	local last = nil
+	GRA:Sort(roster, "rankIndex", "ascending", "class", "ascending", "name", "ascending")
+
+	local last, lastRank
 	-- create
 	for i = 1, #roster do
 		local playerName = roster[i].name
@@ -106,8 +111,13 @@ RefreshGuildRoster = function()
 		if i == 1 then
 			cbs_guild[playerName]:SetPoint("TOPLEFT", 5, 0)
 		else
-			cbs_guild[playerName]:SetPoint("TOP", last, "BOTTOM")
+			if lastRank ~= roster[i].rankIndex then
+				cbs_guild[playerName]:SetPoint("TOP", last, "BOTTOM", 0, -16)
+			else
+				cbs_guild[playerName]:SetPoint("TOP", last, "BOTTOM")
+			end
 		end
+		lastRank = roster[i].rankIndex
 		last = cbs_guild[playerName]
 	end
 end

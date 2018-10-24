@@ -101,7 +101,7 @@ local function SetRowPoints()
 	attendanceFrame.scrollFrame:ResetScroll()
 end
 
-local SortSheetByName, SortSheetByClass, SortSheetByATT, SortSheetByAR, SortSheetByATT30, SortSheetByAR30, SortSheetByAR60, SortSheetByAR90, SortSheetByPR, SortSheetByEP, SortSheetByGP, SortSheetByCurrentDKP, SortSheetBySpentDKP, SortSheetByTotalDKP
+local SortSheetByName, SortSheetByClass, SortSheetByATT, SortSheetByAR, SortSheetByATT30, SortSheetByAR30, SortSheetByAR60, SortSheetByAR90, SortSheetBySR, SortSheetBySO, SortSheetByPR, SortSheetByEP, SortSheetByGP, SortSheetByCurrentDKP, SortSheetBySpentDKP, SortSheetByTotalDKP
 
 SortSheetByName = function()
 	table.sort(loaded, function(a, b) return a.name < b.name end)
@@ -476,6 +476,36 @@ SortSheetByAR90 = function()
 	GRA_Variables["sortKey"] = "ar90"
 end
 
+SortSheetBySR = function()
+	-- sr so name
+	table.sort(loaded, function(a, b)
+		if a.sitOutPercent ~= b.sitOutPercent then
+			return a.sitOutPercent > b.sitOutPercent
+		elseif a.sitOut ~= b.sitOut then
+			return a.sitOut > b.sitOut
+		else
+			return a.name < b.name
+		end
+	end)
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "sr"
+end
+
+SortSheetBySO = function()
+	-- so sr name
+	table.sort(loaded, function(a, b)
+		if a.sitOut ~= b.sitOut then
+			return a.sitOut > b.sitOut
+		elseif a.sitOutPercent ~= b.sitOutPercent then
+			return a.sitOutPercent > b.sitOutPercent
+		else
+			return a.name < b.name
+		end
+	end)
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "so"
+end
+
 SortSheetByPR = function()
 	-- pr ar ep gp name
 	table.sort(loaded, function(a, b)
@@ -611,6 +641,10 @@ local function SortSheet(key)
 		SortSheetByAR60()
 	elseif key == "ar90" then
 		SortSheetByAR90()
+	elseif key == "sr" then
+		SortSheetBySR()
+	elseif key == "so" then
+		SortSheetBySO()
 	end
 end
 
@@ -820,7 +854,7 @@ totalText:SetScript("OnClick", function()
 end)
 
 -- attendance rate
-local ar30Text = GRA:CreateGrid(headerFrame, 50, "AR 30", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by attendance rate (30 days)."])
+local ar30Text = GRA:CreateGrid(headerFrame, 50, "AR 30", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (30 days)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (30 days)."])
 ar30Text:GetFontString():ClearAllPoints()
 ar30Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar30Text:RegisterForClicks("LeftButtonUp", "RightButtonUp")
