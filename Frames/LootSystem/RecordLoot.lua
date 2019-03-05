@@ -121,7 +121,7 @@ function GRA:ShowRecordLootFrame(d, link, note, looter, index, floatBtn)
         looterDropDown:SetSelected("")
     end
 
-    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToTime(d)))
+    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToSeconds(d)))
 
     recordLootFrame:Show()
 end

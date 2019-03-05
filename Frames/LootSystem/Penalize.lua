@@ -194,7 +194,7 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, index)
 
     penalizeBtn:SetText(L["Guilty!"] .. " (" .. #pSelected .. ")")
 
-    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToTime(d)))
+    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToSeconds(d)))
 
     penalizeFrame:Show()
 end

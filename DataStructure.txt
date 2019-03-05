@@ -8,7 +8,7 @@ GRA_RaidLogs = {
 		["startTime"] = (number),
 		["endTime"] = (number),
 		["attendances"] = {
-			playerName(string) = {"PRESENT"/"PARTLY"/"ONLEAVE"/"ABSENT", note(string), joinTime(number), leaveTime(number), isSitOut(boolean)},
+			playerName(string) = {"PRESENT"/"PARTIAL"/"ONLEAVE"/"ABSENT", note(string), joinTime(number), leaveTime(number), isSitOut(boolean)},
 		},
 		["details"] = {
 			-- EPGP
@@ -67,6 +67,7 @@ GRA_Config = {
 	["enableLootDistr"] = (boolean),
 	["replies"] = {reply1, reply2, reply3, ...},
 	["notes"] = {note1, note2, note3, ...},
+	["revise"] = (string),
 }
 
 ╔========================╗

@@ -36,7 +36,7 @@ function GRA:NewRaidLog(parent)
             -- manually edit attendance later
             GRA:FireEvent("GRA_RAIDLOGS", newLogDate)
             newRaidLogFrame:Hide()
-            GRA:Print(L["New raid log"] .. ": " .. date("%x", GRA:DateToTime(newLogDate)))
+            GRA:Print(L["New raid log"] .. ": " .. date("%x", GRA:DateToSeconds(newLogDate)))
         end)
         
         cancelBtn = GRA:CreateButton(newRaidLogFrame, L["Cancel"], "red", {45, 20})

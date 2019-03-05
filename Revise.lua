@@ -60,12 +60,12 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 		-- r79-release startTime string -> number
 		for d, t in pairs(_G[GRA_R_RaidLogs]) do
 			if type(t["startTime"]) == "string" then
-				t["startTime"] = GRA:DateToTime(d .. t["startTime"], true)
+				t["startTime"] = GRA:DateToSeconds(d .. t["startTime"], true)
 			end
-			-- change LATE -> PARTLY
+			-- change LATE -> PARTIAL
 			for n, att in pairs(t["attendances"]) do
 				if att[1] == "LATE" then
-					att[1] = "PARTLY"
+					att[1] = "PARTIAL"
 				end
 			end
 		end
@@ -74,7 +74,6 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 		if type(_G[GRA_R_Config]["raidInfo"]["endTime"]) ~= "string" then
 			_G[GRA_R_Config]["raidInfo"]["endTime"] = "23:00"
 		end
-		]]
 
 		-- r84-release
 		for n, t in pairs(_G[GRA_R_Roster]) do
@@ -85,6 +84,19 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 
 		if type(GRA_Variables["columns"]["Sit_Out"]) ~= "boolean" then
 			GRA_Variables["columns"]["Sit_Out"] = false
+		end
+		]]
+
+		-- r86-release
+		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r86-release" then
+			for _, t in pairs(_G[GRA_R_RaidLogs]) do
+				for _, att in pairs(t["attendances"]) do
+					if att[1] == "PARTIAL" then
+						att[1] = "PARTIAL"
+					end
+				end
+			end
+			_G[GRA_R_Config]["revise"] = "r86-release"
 		end
     end
 end)

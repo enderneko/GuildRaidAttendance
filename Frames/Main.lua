@@ -85,7 +85,7 @@ local configBtn = GRA:CreateButton(gra.mainFrame, L["Config"], "red", {55, 20}, 
 configBtn:SetPoint("BOTTOMRIGHT", -8, 5)
 configBtn:SetScript("OnClick", function()
 	gra.importFrame:Hide()
-	-- gra.epgpOptionsFrame:Hide()
+	gra.epgpOptionsFrame:Hide()
 	-- gra.dkpOptionsFrame:Hide()
 	gra.rosterEditorFrame:Hide()
 	gra.appearanceFrame:Hide()
@@ -166,8 +166,10 @@ inviteBtn:SetScript("OnClick", function()
 	inviteBtn:RegisterEvent("GROUP_ROSTER_UPDATE")
 	
 	local onlineMembers = GRA:GetGuildOnlineRoster()
+	local myName = strjoin("-", UnitFullName("player"))
+
 	for n, _ in pairs(_G[GRA_R_Roster]) do
-		if onlineMembers[n] and not(UnitInParty(GRA:GetShortName(n)) or UnitInRaid(GRA:GetShortName(n))) then
+		if n ~= myName and onlineMembers[n] and not(UnitInParty(GRA:GetShortName(n)) or UnitInRaid(GRA:GetShortName(n))) then
 			InviteUnit(n)
 		end
 	end

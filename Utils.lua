@@ -184,7 +184,6 @@ function GRA:Remove(t, v)
 	end
 end
 
--- TODO: 内部直接赋值，不需要再次赋值
 function GRA:RemoveElementsByKeys(tbl, keys) -- keys is a table
 	local newTbl = {}
 	for k, v in pairs(tbl) do
@@ -521,7 +520,7 @@ function GRA:NextDate(d, offset)
 end
 
 -- 2017033112:30
-function GRA:DateToTime(s, hasTime)
+function GRA:DateToSeconds(s, hasTime)
 	local y = tonumber(string.sub(s, 1, 4))
 	local M = tonumber(string.sub(s, 5, 6))
 	local d = tonumber(string.sub(s, 7, 8))
@@ -545,7 +544,7 @@ function GRA:GetRaidStartTime(d)
 		if _G[GRA_R_RaidLogs][d]["startTime"] then -- has startTime
 			return GRA:SecondsToTime(_G[GRA_R_RaidLogs][d]["startTime"]), _G[GRA_R_RaidLogs][d]["startTime"]
 		else
-			return _G[GRA_R_Config]["raidInfo"]["startTime"], GRA:DateToTime(d .. _G[GRA_R_Config]["raidInfo"]["startTime"], true)
+			return _G[GRA_R_Config]["raidInfo"]["startTime"], GRA:DateToSeconds(d .. _G[GRA_R_Config]["raidInfo"]["startTime"], true)
 		end
 	else
 		return _G[GRA_R_Config]["raidInfo"]["startTime"]
@@ -557,7 +556,10 @@ function GRA:GetRaidEndTime(d)
 		if _G[GRA_R_RaidLogs][d]["endTime"] then -- has endTime
 			return GRA:SecondsToTime(_G[GRA_R_RaidLogs][d]["endTime"]), _G[GRA_R_RaidLogs][d]["endTime"]
 		else
-			return _G[GRA_R_Config]["raidInfo"]["endTime"], GRA:DateToTime(d .. _G[GRA_R_Config]["raidInfo"]["endTime"], true)
+			if _G[GRA_R_Config]["raidInfo"]["startTime"] > _G[GRA_R_Config]["raidInfo"]["endTime"] then -- 21:00-00:00(the next day)
+				d = d + 1
+			end
+			return _G[GRA_R_Config]["raidInfo"]["endTime"], GRA:DateToSeconds(d .. _G[GRA_R_Config]["raidInfo"]["endTime"], true)
 		end
 	else
 		return _G[GRA_R_Config]["raidInfo"]["endTime"]
@@ -566,11 +568,11 @@ end
 
 function GRA:CheckAttendanceStatus(joinTime, startTime, leaveTime, endTime)
 	if joinTime and startTime and (joinTime > startTime) then
-		return "PARTLY" -- no need to check leaveTime
+		return "PARTIAL" -- no need to check leaveTime
 	end
 
 	if leaveTime and endTime and (leaveTime < endTime) then
-		return "PARTLY"
+		return "PARTIAL"
 	end
 
 	return "PRESENT"
@@ -611,7 +613,7 @@ function GRA:GetMainAltAttendance(d, mainName)
 	end
 
 	if gra.mainAlt[mainName] then -- has alt
-		-- PRESENT or PARTLY
+		-- PRESENT or PARTIAL
 		for _, altName in pairs(gra.mainAlt[mainName]) do
 			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
 				-- 大号没有出勤 or 小号先于大号进组
@@ -638,7 +640,7 @@ function GRA:UpdateAttendance(d)
 	if d then
 		-- start/end time changed for this day
 		for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendances"]) do
-			if t[3] then -- PRESENT or PARTLY
+			if t[3] then -- PRESENT or PARTIAL
 				t[1] = GRA:CheckAttendanceStatus(t[3], select(2, GRA:GetRaidStartTime(d)), t[4], select(2, GRA:GetRaidEndTime(d)))
 			end
 		end
@@ -653,7 +655,7 @@ function GRA:UpdateAttendance(d)
 end
 
 function GRA:DateOffset(d1, d2)
-	local t1, t2 = GRA:DateToTime(d1), GRA:DateToTime(d2)
+	local t1, t2 = GRA:DateToSeconds(d1), GRA:DateToSeconds(d2)
 	local offset = abs(t1 - t2) / (3600 * 24)
 	return offset
 end

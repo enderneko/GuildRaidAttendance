@@ -225,7 +225,7 @@ function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
     awardFrame.header.text:SetText(L[system .. " Award"])
     UpdateAwardBtnText()
 
-    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToTime(d)))
+    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToSeconds(d)))
 
     awardFrame:Show()
 end

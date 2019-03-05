@@ -84,6 +84,7 @@ L["Attendees"] = "出勤者"
 L["Summary"] = "概略"
 L["Attendances"] = "出勤"
 L["Loots"] = "拾取"
+L["Details"] = "详情"
 -- send
 L["Send To Raid"] = "发送至团队"
 L["Send selected raid logs data to raid/party members?"] = "将选中的活动记录数据发送给团队或小队成员？"

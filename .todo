@@ -1,6 +1,7 @@
 General:
     ☐ player detail frame (just view)
     ☐ import / export
+    ✔ 群体邀请，排除自己 @critical @done(19-03-04 17:44)
     
 Modules/Frames:
     Config:
@@ -10,7 +11,7 @@ Modules/Frames:
     Loot System:
         ✔ remove them @done(18-08-31 12:43)
     Distribution Tool:
-        ☐ add ploot support @low
+        ✘ add ploot support @cancelled(19-03-04 17:46)
     Help:
         ☐ a lot of tutorials to add @high
     Raid Log:
@@ -26,7 +27,8 @@ Modules/Frames:
         ✔ role count text @done(18-09-07 15:34)
     Util:
         ☐ 将util分类，GRA.Util.DateUtil.function @low
-        ☐ GRA:Copy @critical 
+        ✔ GRA:Copy @critical @done(19-03-04 17:46)
+        ☐ GRA:RemoveElementsByKeys 内部直接赋值，不需要再次赋值 @critical 
 
 Widgets:
     ScrollFrame:

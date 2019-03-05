@@ -1,7 +1,13 @@
 version r85-release
 ------------------------
+    * Fixed attendance rate calculation.
+    * Fixed mass invitation.
+    * EPGP is back!
+
+version r85-release
+------------------------
     * Fixed roster transmission.
-    * Guild roster with different ranks are now seperated by blank line. (Import Frame)
+    * Guild roster with different ranks are now separated by blank line. (Import Frame)
     * Fixed Sit Out sort.
 
 version r84-release

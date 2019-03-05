@@ -25,7 +25,7 @@ local function RaidRosterUpdate()
 			if _G[GRA_R_Roster][playerName] and _G[GRA_R_RaidLogs][raidDate]["attendances"][playerName] then
 				-- only log players in roster, and record joinTime
 				if not _G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][3] then
-					-- check attendance (PRESENT or PARTLY)
+					-- check attendance (PRESENT or PARTIAL)
 					local joinTime = time()
 					local att = GRA:CheckAttendanceStatus(joinTime, select(2, GRA:GetRaidStartTime(raidDate)))
 					-- keep it logged
@@ -85,7 +85,7 @@ function GRA:StartTracking(instanceName, difficultyName)
 		else
 			-- resume last raid
 			raidDate = _G[GRA_R_Config]["lastRaidDate"]
-			GRA:Print(L["Resumed last raid (%s)."]:format(date("%x", GRA:DateToTime(raidDate))))
+			GRA:Print(L["Resumed last raid (%s)."]:format(date("%x", GRA:DateToSeconds(raidDate))))
 		end
 		
 		-- init date

@@ -168,7 +168,7 @@ function GRA:ShowCreditFrame(d, link, value, looter, note, index, floatBtn)
         creditBtn:SetText(L["Credit " .. system])
     end
 
-    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToTime(d)))
+    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToSeconds(d)))
 
     creditFrame:Show()
 end

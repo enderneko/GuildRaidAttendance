@@ -87,19 +87,19 @@ sendRosterBtn:SetScript("OnClick", function()
 	confirm:SetPoint("TOPRIGHT", sendRosterBtn)
 end)
 
-local exportBtn = GRA:CreateButton(rosterAdminFrame, L["Export to CSV (WIP)"], "red", {configFrame:GetWidth()-10, 20}, "GRA_FONT_SMALL")
+local exportBtn = GRA:CreateButton(rosterAdminFrame, L["Export (WIP)"], "red", {91, 20}, "GRA_FONT_SMALL")
 exportBtn:SetPoint("TOPLEFT", editBtn, "BOTTOMLEFT", 0, -5)
 exportBtn:SetEnabled(false)
 
---[[
 local epgpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["EPGP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
-epgpOptionsBtn:SetPoint("TOPLEFT", editBtn, "BOTTOMLEFT", 0, -5)
+epgpOptionsBtn:SetPoint("LEFT", exportBtn, "RIGHT", -1, 0)
 epgpOptionsBtn:SetScript("OnClick", function()
 	configFrame:Hide()
 	gra.epgpOptionsFrame:Show()
 end)
 epgpOptionsBtn:SetEnabled(true)
 
+--[[
 local dkpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["DKP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
 dkpOptionsBtn:SetPoint("LEFT", epgpOptionsBtn, "RIGHT", -1, 0)
 dkpOptionsBtn:SetScript("OnClick", function()
@@ -368,9 +368,9 @@ appearanceBtn:SetScript("OnClick", function()
 	gra.appearanceFrame:Show()
 end)
 
-local pLootBtn = GRA:CreateButton(configFrame, L["null"], "red", {91, 20}, "GRA_FONT_SMALL")
-pLootBtn:SetPoint("LEFT", appearanceBtn, "RIGHT", -1, 0)
-pLootBtn:SetScript("OnClick", function()
+local lootDistrBtn = GRA:CreateButton(configFrame, L["Loot Distr"], "red", {91, 20}, "GRA_FONT_SMALL")
+lootDistrBtn:SetPoint("LEFT", appearanceBtn, "RIGHT", -1, 0)
+lootDistrBtn:SetScript("OnClick", function()
 	gra.profilesFrame:Hide()
 	if gra.lootDistrConfigFrame:IsVisible() then
 		gra.lootDistrConfigFrame:Hide()
@@ -378,7 +378,7 @@ pLootBtn:SetScript("OnClick", function()
 		gra.lootDistrConfigFrame:Show()
 	end
 end)
-pLootBtn:SetEnabled(false) -- TODO: remake this module
+lootDistrBtn:SetEnabled(false) -- TODO: re-code this module
 
 -- String: version
 local version = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")

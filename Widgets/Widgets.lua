@@ -385,7 +385,7 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 	local yearSet, monthSet, daySet, year, month, numDays, firstWeekday
 	
 	function datePicker:SetDate(d)
-		local t, tbl = GRA:DateToTime(d)
+		local t, tbl = GRA:DateToSeconds(d)
 		datePicker:SetText(date("%x", t))
 		numDays, firstWeekday = GRA:GetAbsMonthInfo(tbl.month, tbl.year)
 		yearSet, monthSet, daySet = tbl.year, tbl.month, tbl.day
@@ -589,7 +589,7 @@ function GRA:CreateGrid(frame, width, text, color, highlight, ...)
 				-- tex:SetPoint("CENTER")
 			elseif att == "PRESENT" then
 				grid:SetBackdropColor(0, 1, 0, .2)
-			elseif att == "PARTLY" then
+			elseif att == "PARTIAL" then
 				grid:SetBackdropColor(1, 1, 0, .2)
 			elseif att == "ABSENT" then
 				grid:SetBackdropColor(1, 0, 0, .2)
@@ -998,7 +998,7 @@ function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, j
 		row.note = nt
 		row.isSitOut = iSO
 
-		if att == "PRESENT" or att == "PARTLY" then
+		if att == "PRESENT" or att == "PARTIAL" then
 			row.attendance = "PRESENT"
 			if iSO then
 				attendanceText = L["Sit Out"]

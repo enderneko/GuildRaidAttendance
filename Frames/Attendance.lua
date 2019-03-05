@@ -164,8 +164,8 @@ SortSheetByATT = function()
 		table.sort(loaded, function(a, b)
 			if a.attLifetime ~= b.attLifetime then
 				return a.attLifetime > b.attLifetime
-			-- elseif a.partlyLifeTime ~= b.partlyLifeTime then
-			-- 	return a.partlyLifeTime < b.partlyLifeTime
+			-- elseif a.partialLifeTime ~= b.partialLifeTime then
+			-- 	return a.partialLifeTime < b.partialLifeTime
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
 			elseif a.pr ~= b.pr then
@@ -1406,10 +1406,10 @@ CalcAR = function()
 			if playerAtts[name] then -- exists in roster
 				local att, _, _, ar, isSitOut = GRA:GetMainAltAttendance(d, name) -- add alt attendance to main
 				local dateOffset = GRA:DateOffset(d, today)
-				if att == "PRESENT" or att == "PARTLY" then
+				if att == "PRESENT" or att == "PARTIAL" then
 					playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
 					playerAtts[name]["lifetime"][5] = playerAtts[name]["lifetime"][5] + ar
-					if att == "PARTLY" then
+					if att == "PARTIAL" then
 						playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
 					end
 					if isSitOut then
@@ -1419,21 +1419,21 @@ CalcAR = function()
 					if dateOffset < 90 then
 						playerAtts[name]["90"][1] = playerAtts[name]["90"][1] + 1
 						playerAtts[name]["90"][5] = playerAtts[name]["90"][5] + ar
-						if att == "PARTLY" then
+						if att == "PARTIAL" then
 							playerAtts[name]["90"][3] = playerAtts[name]["90"][3] + 1
 					end
 					end
 					if dateOffset < 60 then
 						playerAtts[name]["60"][1] = playerAtts[name]["60"][1] + 1
 						playerAtts[name]["60"][5] = playerAtts[name]["60"][5] + ar
-						if att == "PARTLY" then
+						if att == "PARTIAL" then
 							playerAtts[name]["60"][3] = playerAtts[name]["60"][3] + 1
 					end
 					end
 					if dateOffset < 30 then
 						playerAtts[name]["30"][1] = playerAtts[name]["30"][1] + 1
 						playerAtts[name]["30"][5] = playerAtts[name]["30"][5] + ar
-						if att == "PARTLY" then
+						if att == "PARTIAL" then
 							playerAtts[name]["30"][3] = playerAtts[name]["30"][3] + 1
 						end
 					end
@@ -1692,7 +1692,7 @@ local function UpdateGrid(g, d, name, altGs)
 
 		local blankLine = false
 		-- join time
-		if att == "PRESENT" or att == "PARTLY" then
+		if att == "PRESENT" or att == "PARTIAL" then
 			GRA_Tooltip:AddLine(GRA:SecondsToTime(joinTime) .. " - " .. (GRA:SecondsToTime(leaveTime)))
 			GRA_Tooltip:Show()
 			blankLine = true
