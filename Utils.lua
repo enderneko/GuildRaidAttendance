@@ -307,6 +307,10 @@ function GRA:GetClassColoredName(fullName, class)
 	end
 end
 
+function GRA:GetRealmName()
+	return string.gsub(GetRealmName(), " ", "")
+end
+
 function GRA:GetPlayersInRaid()
 	if IsInRaid() then
 		local raidInfo = {}
@@ -314,7 +318,7 @@ function GRA:GetPlayersInRaid()
 			local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML, combatRole = GetRaidRosterInfo(i)
 			if name then
 				if not raidInfo[subgroup] then raidInfo[subgroup] = {} end
-				if not string.find(name, "-") then name = name .. "-" .. GetRealmName() end
+				if not string.find(name, "-") then name = name .. "-" .. GRA:GetRealmName() end
 				table.insert(raidInfo[subgroup], name)
 			 end
 		end

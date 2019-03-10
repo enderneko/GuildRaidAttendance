@@ -1,3 +1,9 @@
+version r87-release
+------------------------
+    * Fixed realm names that contain whitespaces.
+    * Fixed two typos: UNKOWN -> UNKNOWN, PARTIAL -> PARTLY.
+    * Updated bosses in raid logs.
+
 version r86-release
 ------------------------
     * Fixed attendance rate calculation.

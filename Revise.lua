@@ -88,15 +88,42 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 		]]
 
 		-- r86-release
-		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r86-release" then
+		-- if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r86-release" then
+		-- 	for _, t in pairs(_G[GRA_R_RaidLogs]) do
+		-- 		for _, att in pairs(t["attendances"]) do
+		-- 			if att[1] == "PARTLY" then
+		-- 				att[1] = "PARTIAL"
+		-- 			end
+		-- 		end
+		-- 	end
+		-- 	_G[GRA_R_Config]["revise"] = "r86-release"
+		-- end
+
+		-- r87-release
+		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r87-release" then
 			for _, t in pairs(_G[GRA_R_RaidLogs]) do
+				-- fix typo in r86-release
 				for _, att in pairs(t["attendances"]) do
-					if att[1] == "PARTIAL" then
+					if att[1] == "PARTLY" then
 						att[1] = "PARTIAL"
 					end
 				end
+				
+				-- add duration and wipes
+				for _, bt in ipairs(t["bosses"]) do
+					if #bt == 5 then
+						-- duration
+						if bt[3] then
+							table.insert(bt, 3, bt[4]-bt[3])
+						else
+							table.insert(bt, 3, nil)
+						end
+						-- wipes
+						table.insert(bt, 6, 0)
+					end
+				end
 			end
-			_G[GRA_R_Config]["revise"] = "r86-release"
+			_G[GRA_R_Config]["revise"] = "r87-release"
 		end
     end
 end)

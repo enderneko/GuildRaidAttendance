@@ -113,7 +113,7 @@ buttons["attendanceSheetBtn"]:SetScript("OnClick", function()
 	HighlightButton("attendanceSheetBtn")
 	lastFrame = gra.attendanceFrame
 	gra.attendanceFrame:Show()
-	gra.announcementsFrame:Hide()
+	gra.calenderFrame:Hide()
 	gra.raidLogsFrame:Hide()
 end)
 
@@ -123,9 +123,19 @@ buttons["raidLogsBtn"]:SetScript("OnClick", function()
 	HighlightButton("raidLogsBtn")
 	lastFrame = gra.raidLogsFrame
 	gra.attendanceFrame:Hide()
-	gra.announcementsFrame:Hide()
+	gra.calenderFrame:Hide()
 	gra.raidLogsFrame:Show()
 end)
+
+-- buttons["calenderBtn"] = GRA:CreateButton(gra.mainFrame, L["Calender"], "red", {100, 20}, "GRA_FONT_SMALL")
+-- buttons["calenderBtn"]:SetPoint("LEFT", buttons["raidLogsBtn"], "RIGHT", 5, 0)
+-- buttons["calenderBtn"]:SetScript("OnClick", function()
+-- 	HighlightButton("calenderBtn")
+-- 	lastFrame = gra.calenderFrame
+-- 	gra.attendanceFrame:Hide()
+-- 	gra.raidLogsFrame:Hide()
+-- 	gra.calenderFrame:Show()
+-- end)
 
 -----------------------------------------
 -- top buttons

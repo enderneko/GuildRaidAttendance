@@ -2,6 +2,7 @@ General:
     ☐ player detail frame (just view)
     ☐ import / export
     ✔ 群体邀请，排除自己 @critical @done(19-03-04 17:44)
+    ☐ start tracking 可以选择记录到的日期，不仅限于"resume last raid"
     
 Modules/Frames:
     Config:

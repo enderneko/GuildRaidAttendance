@@ -173,7 +173,7 @@ RefreshGroupRoster = function()
 	for i = 1, GetNumGroupMembers("LE_PARTY_CATEGORY_HOME") do
 		local playerName, _, _, _, _, classFileName = GetRaidRosterInfo(i)
 		if playerName then
-			if not string.find(playerName, "-") then playerName = playerName .. "-" .. GetRealmName() end
+			if not string.find(playerName, "-") then playerName = playerName .. "-" .. GRA:GetRealmName() end
 			
 			table.insert(currentInGroup, {playerName, classFileName})
 			if not cbs_group[playerName] then

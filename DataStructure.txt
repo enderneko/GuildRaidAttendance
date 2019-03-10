@@ -23,7 +23,7 @@ GRA_RaidLogs = {
 			{"LOOT", reason(string)/itemLink, playerName, note},
 		},
 		["bosses"] = {
-			{bossName(string), difficultyID, startTime(number), killedTime(number),
+			{bossName(string), difficultyID, duration(number), firstPullTime(number), endTime(number), wipes(number),
 				{[group] = {playerName, ...},}
 			},
 		},

@@ -55,7 +55,7 @@ local tabs, tabButtons = {}, {}
 local currentTab
 local function ShowTab(tabToShow, d)
 	if not d then d = sortedDates[selected] end
-	GRA:Debug("|cffFFC0CBShowTab: " .. tabToShow .. "-" .. d)
+	GRA:Debug("|cffFFC0CBShowTab:|r " .. tabToShow .. " " .. d)
 	for n, tab in pairs(tabs) do
 		local b = tabButtons[n]
 		if n == tabToShow then
@@ -301,8 +301,6 @@ end
 
 -- ShowRaidSummary
 summaryTab.func = function(d)
-	GRA:Debug("|cffFF0000Update Summary: |r" .. d)
-
 	local t = _G[GRA_R_RaidLogs][d]
 	local attendeesString, absenteesString = "", ""
 
@@ -354,13 +352,11 @@ end
 
 -- ShowRaidAttendances
 attendancesTab.func = function(d)
-	GRA:Debug("|cff00FF00Update Attendances: |r" .. d)
 	GRA:ShowAttendanceEditor(d)
 end
 
 -- Show Details/Loots
 detailsTab.func = function(d)
-	GRA:Debug("|cff3333FFUpdate Details: |r" .. d)
 	detailsTab.scrollFrame:Reset()
 	
 	details = {}
@@ -622,8 +618,6 @@ local function PrepareRaidLogs()
 		bossesFrame.scrollFrame:Reset()
 		gra.attendanceEditor.scrollFrame:Reset()
 		detailsTab.scrollFrame:Reset()
-		-- update detailsTab title
-		tabButtons["details"]:SetText(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" and L["Details"] or L["Loots"])
 
 		newRaidLogBtn:SetFrameLevel(127)
 	else
@@ -632,6 +626,9 @@ local function PrepareRaidLogs()
 		LoadDateList()
 		-- if not sortedDates[selected] then selected = #sortedDates end
 	end
+
+	-- update detailsTab title
+	tabButtons["details"]:SetText(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" and L["Details"] or L["Loots"])
 end
 
 -- update list and scroll

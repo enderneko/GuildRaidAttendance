@@ -1523,18 +1523,15 @@ function GRA:CreateBossButton(parent, bossTable, font)
 	b.membersText:SetWordWrap(false)
 
 	-- set text -------------------------------
-	b.bossText:SetText(bossTable[1])
+	b.bossText:SetText(bossTable[1] .. (bossTable[3] and string.format(" (%d:%.2d)", bossTable[3]/60%60, bossTable[3]%60) or ""))
 	b.difficultyText:SetText(GRA:GetDifficultyInfo(bossTable[2]))
-	if bossTable[3] then -- has starttime
-		local duration = bossTable[4] - bossTable[3]
-		b.timeText:SetText(string.format("%d:%.2d", duration/60%60, duration%60)
-			.. " (" .. date("%H:%M:%S", bossTable[3]) .. " - " .. date("%H:%M:%S", bossTable[4]) .. ")")
-	else
-		b.timeText:SetText(_G.UNKOWN .. " - " .. date("%H:%M:%S", bossTable[4]))
-	end
+	
+	local startTime = bossTable[4] and date("%H:%M:%S", bossTable[4]) or _G.UNKNOWN
+	local wipes = (bossTable[6] ~= 0) and (bossTable[6] .. " " .. L["wipes"] .. ", ") or ""
+	b.timeText:SetText(wipes .. startTime .. " - " .. date("%H:%M:%S", bossTable[5]))
 
 	local membersShort = ""
-	for g, gt in pairs(bossTable[5]) do
+	for g, gt in pairs(bossTable[7]) do
 		local info = "|cffbababaG" .. g .. ":"
 		for _, n in pairs(gt) do
 			local color = "|cff909090"
@@ -1556,7 +1553,7 @@ function GRA:CreateBossButton(parent, bossTable, font)
 		GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
 		GRA_Tooltip:SetPoint("LEFT", b, "RIGHT", 2, 0)
 		GRA_Tooltip:AddLine(L["Members In Raid"])
-		for g, gt in pairs(bossTable[5]) do
+		for g, gt in pairs(bossTable[7]) do
 			local line = _G["GROUP"..g.."_CHAT_TAG1"] .. " (" .. #gt .. "): "
 			for _, n in pairs(gt) do
 				line = line .. GRA:GetClassColoredName(n) .. " "

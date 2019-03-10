@@ -293,7 +293,7 @@ end
 --------------------------------------------------------
 local function SetMemberResponse(playerName, playerClassID, playerSpecID, itemSig, responseIndex, g1, g2, note)
     if not frames[itemSig] then return end -- session already ended
-    if not string.find(playerName, "-") then playerName = playerName .. "-" .. GetRealmName() end
+    if not string.find(playerName, "-") then playerName = playerName .. "-" .. GRA:GetRealmName() end
     local row = frames[itemSig]["rows"][playerName] or CreateRow(playerName, playerClassID, playerSpecID, itemSig)
     
     row.responseIndex = responseIndex -- response index

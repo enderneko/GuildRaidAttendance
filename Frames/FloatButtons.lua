@@ -56,7 +56,7 @@ end
 
 local raidDate
 local function CreateItemButton(itemLink, looter)
-    if not string.find(looter, "-") then looter = looter .. "-" .. GetRealmName() end
+    if not string.find(looter, "-") then looter = looter .. "-" .. GRA:GetRealmName() end
 
     local b = GRA:CreateIconButton(nil, 29, 29)
     b:SetScale(GRA:GetScale())

@@ -8,7 +8,6 @@ eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 local raidDate = nil
 local encounterInfo = {}
 
--- local function UpdateLeaveTime()
 local function RaidRosterUpdate()
 	-- 意外删除了刚刚创建的记录，再次询问
 	if not _G[GRA_R_RaidLogs][raidDate] then GRA:StartTracking() return end
@@ -20,7 +19,7 @@ local function RaidRosterUpdate()
 		-- name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(index)
 		local playerName, _, _, _, _, classFileName = GetRaidRosterInfo(i)
 		if playerName then
-			if not string.find(playerName, "-") then playerName = playerName .. "-" .. string.gsub(GetRealmName(), " ", "") end
+			if not string.find(playerName, "-") then playerName = playerName .. "-" .. GRA:GetRealmName() end
 			
 			if _G[GRA_R_Roster][playerName] and _G[GRA_R_RaidLogs][raidDate]["attendances"][playerName] then
 				-- only log players in roster, and record joinTime
@@ -192,30 +191,69 @@ end
 
 function eventFrame:ENCOUNTER_START(encounterID, encounterName, difficultyID, groupSize)
 	-- local name, groupType, isHeroic, isChallengeMode, displayHeroic, displayMythic, toggleDifficultyID = GetDifficultyInfo(difficultyID)
-	encounterInfo[encounterID] = {encounterName, difficultyID, time()}
+	encounterID = encounterID..difficultyID
+	local startTime = time()
+	if not encounterInfo[encounterID] then -- first pull
+		encounterInfo[encounterID] = {encounterName, difficultyID, startTime, startTime, nil, 0}
+	else -- pull after wipe
+		encounterInfo[encounterID][3] = startTime
+	end
 end
 
 function eventFrame:ENCOUNTER_END(encounterID, encounterName, difficultyID, groupSize, success)
-	if success == 1 then
-		if not encounterInfo[encounterID] or #encounterInfo[encounterID] == 0 then -- disconnected or wiped
-			encounterInfo[encounterID] = {encounterName, difficultyID, nil, time(), GRA:GetPlayersInRaid()}
-		else
-			encounterInfo[encounterID][4] = time() -- end time
-			encounterInfo[encounterID][5] = GRA:GetPlayersInRaid()
+	encounterID = encounterID .. difficultyID
+
+	-- search in SV
+	local index = 0
+	for i, bt in ipairs(_G[GRA_R_RaidLogs][raidDate]["bosses"]) do
+		if bt[1] == encounterName and bt[2] == difficultyID then
+			index = i
+			break
 		end
-		
-		local popup = GRA:CreatePopupWithButton(gra.colors.chartreuse.s .. L["Save encounter info?"] .. "|r\n" .. encounterInfo[encounterID][1], function()
-			-- 点击发生在退队后，encounterInfo已被清空
-			if encounterInfo[encounterID] then
-				table.insert(_G[GRA_R_RaidLogs][raidDate]["bosses"], GRA:Copy(encounterInfo[encounterID]))
-				GRA:FireEvent("GRA_BOSS", raidDate)
-				wipe(encounterInfo[encounterID])
+	end
+
+	local endTime = time()
+	if not encounterInfo[encounterID] then -- disconnected
+		if index == 0 then -- not in SV, create new
+			encounterInfo[encounterID] = {encounterName, difficultyID, nil, nil, endTime, 0}
+		else -- load from SV
+			encounterInfo[encounterID] = _G[GRA_R_RaidLogs][raidDate]["bosses"][index]
+		end
+	else
+		if index ~= 0 then
+			-- MUST restore start time and wipe count (可能在重载之后开始战斗)
+			encounterInfo[encounterID][4] = _G[GRA_R_RaidLogs][raidDate]["bosses"][index][4]
+			encounterInfo[encounterID][6] = _G[GRA_R_RaidLogs][raidDate]["bosses"][index][6]
+		end
+		encounterInfo[encounterID][3] = endTime - encounterInfo[encounterID][3] -- duration
+	end
+
+	-- update end time and members, always available!
+	encounterInfo[encounterID][5] = endTime
+	encounterInfo[encounterID][7] = GRA:GetPlayersInRaid()
+	
+	-- wipe
+	if success == 0 then
+		if encounterInfo[encounterID][3] then
+			if encounterInfo[encounterID][3] >= 30 then -- has duration of this pull and fight duration >= 30
+				encounterInfo[encounterID][6] = encounterInfo[encounterID][6] + 1
 			end
-		end, function()
-			if encounterInfo[encounterID] then
-				wipe(encounterInfo[encounterID])
-			end
-		end)
+		else -- no start time, consider as wipe
+			encounterInfo[encounterID][6] = encounterInfo[encounterID][6] + 1
+		end
+		encounterInfo[encounterID][3] = nil
+	end
+
+	-- save, no matter kill or not
+	if index == 0 then
+		table.insert(_G[GRA_R_RaidLogs][raidDate]["bosses"], GRA:Copy(encounterInfo[encounterID]))
+	else
+		_G[GRA_R_RaidLogs][raidDate]["bosses"][index] = {unpack(encounterInfo[encounterID])}
+	end
+	GRA:FireEvent("GRA_BOSS", raidDate)
+
+	if success == 1 then
+		wipe(encounterInfo[encounterID])
 	end
 end
 
