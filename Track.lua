@@ -20,7 +20,7 @@ local function RaidRosterUpdate()
 		-- name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(index)
 		local playerName, _, _, _, _, classFileName = GetRaidRosterInfo(i)
 		if playerName then
-			if not string.find(playerName, "-") then playerName = playerName .. "-" .. GetRealmName() end
+			if not string.find(playerName, "-") then playerName = playerName .. "-" .. string.gsub(GetRealmName(), " ", "") end
 			
 			if _G[GRA_R_Roster][playerName] and _G[GRA_R_RaidLogs][raidDate]["attendances"][playerName] then
 				-- only log players in roster, and record joinTime
