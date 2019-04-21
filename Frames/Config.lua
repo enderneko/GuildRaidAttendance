@@ -87,9 +87,11 @@ sendRosterBtn:SetScript("OnClick", function()
 	confirm:SetPoint("TOPRIGHT", sendRosterBtn)
 end)
 
-local exportBtn = GRA:CreateButton(rosterAdminFrame, L["Export (WIP)"], "red", {91, 20}, "GRA_FONT_SMALL")
+local exportBtn = GRA:CreateButton(rosterAdminFrame, L["Export CSV"], "red", {91, 20}, "GRA_FONT_SMALL")
 exportBtn:SetPoint("TOPLEFT", editBtn, "BOTTOMLEFT", 0, -5)
-exportBtn:SetEnabled(false)
+exportBtn:SetScript("OnClick", function()
+	GRA:ShowExportFrame()
+end)
 
 local epgpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["EPGP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
 epgpOptionsBtn:SetPoint("LEFT", exportBtn, "RIGHT", -1, 0)
@@ -127,7 +129,7 @@ sheetText:SetWordWrap(false)
 
 -- if sheetText:IsTruncated() then print("") end
 
--- Weekdays -------------------------------
+-- Weekdays -----------------------------
 local daysFrame = CreateFrame("Frame", nil, configFrame)
 -- GRA:StylizeFrame(daysFrame)
 daysFrame:SetSize(configFrame:GetWidth()-10, 42)
@@ -157,9 +159,32 @@ for i = 1, 7 do
 	end
 	temp = (temp == 7) and 1 or (temp + 1)
 end
--------------------------------------------
+-----------------------------------------
 
--- columns
+local setBtn = GRA:CreateButton(configFrame, "", nil, {18, 18}, "GRA_FONT_SMALL")
+-- setBtn:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -2)
+setBtn:SetPoint("BOTTOMRIGHT", daysFrame, -27, 3)
+setBtn:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrow]])
+setBtn:SetPushedTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrowPushed]])
+setBtn:SetDisabledTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrowDisabled]])
+setBtn:SetScript("OnClick", function()
+	local temp = {}
+	for i = 1, 7 do
+		if days[i]:GetChecked() then -- checked
+			table.insert(temp, i)
+		end
+	end
+	if #temp == 0 then -- select none
+		temp = {gra.RAID_LOCKOUTS_RESET}
+		days[gra.RAID_LOCKOUTS_RESET]:SetChecked(true) -- force
+	end 
+	_G[GRA_R_Config]["raidInfo"]["days"] = temp
+	GRA:Debug("raidInfo: " .. GRA:TableToString(temp))
+
+	GRA:ShowAttendanceSheet()
+end)
+
+-- columns ------------------------------
 local columnText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 columnText:SetText(L["Attendance Rate Columns"])
 columnText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -4)
@@ -195,9 +220,34 @@ ar90CB:SetPoint("TOPLEFT", columnText, "BOTTOMLEFT", 0, -24)
 arCB:SetPoint("LEFT", ar90CB, "RIGHT", 67, 0)
 sitOutCB:SetPoint("TOPLEFT", columnText, "BOTTOMLEFT", 0, -44)
 
--- raid hours
+-- AR calculation -----------------------
+local arCalculationText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+arCalculationText:Hide()
+arCalculationText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -82)
+arCalculationText:SetText(L["AR Calculation Method"] .. ": ")
+
+local arcmBtn2 = GRA:CreateButton(configFrame, L["B"], nil, {25, 18}, "GRA_FONT_SMALL", false,
+	L["Method B"], L["AR = PRESENT / ALL RAID DAYS"])
+arcmBtn2:Hide()
+arcmBtn2:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -78) -- not point to arCalculationText to make pixelperfectpoint
+
+local arcmBtn1 = GRA:CreateButton(configFrame, L["A"], nil, {25, 18}, "GRA_FONT_SMALL", false,
+	L["Method A"], L["AR = PRESENT / (PRESENT + ABSENT)"])
+arcmBtn1:Hide()
+arcmBtn1:SetPoint("RIGHT", arcmBtn2, "LEFT", 1, 0)
+
+local function SetARCalculationMethod(method)
+	if _G[GRA_R_Config]["arCalculationMethod"] ~= method then
+		_G[GRA_R_Config]["arCalculationMethod"] = method
+		GRA:FireEvent("GRA_ARCM", method)
+		GRA:Print(L["Attendance rate calculation method has been changed."])
+	end
+end
+local arcms = GRA:CreateButtonGroup(SetARCalculationMethod, arcmBtn1, arcmBtn2)
+
+-- raid hours ---------------------------
 local raidHoursTitle = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-raidHoursTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -86)
+raidHoursTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -82)
 raidHoursTitle:SetText(L["Raid Hours"] .. ": ")
 
 local raidHoursText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
@@ -205,20 +255,20 @@ raidHoursText:Hide()
 -- raidHoursText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -6)
 raidHoursText:SetPoint("LEFT", raidHoursTitle, "RIGHT", 5, 0)
 
-local raidEndTimeEditBox = GRA:CreateEditBox(configFrame, 50, 20, false, "GRA_FONT_SMALL")
+local raidEndTimeEditBox = GRA:CreateEditBox(configFrame, 49, 20, false, "GRA_FONT_SMALL")
 raidEndTimeEditBox:Hide()
 raidEndTimeEditBox:SetJustifyH("CENTER")
-raidEndTimeEditBox:SetPoint("RIGHT", raidHoursTitle, "LEFT", configFrame:GetWidth()-10, 0)
+raidEndTimeEditBox:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -78) -- not point to raidHoursTitle to make pixelperfectpoint
 
 local raidHoursTo = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 raidHoursTo:SetText("-")
 raidHoursTo:Hide()
 raidHoursTo:SetPoint("RIGHT", raidEndTimeEditBox, "LEFT", -3, 0)
 
-local raidStartTimeEditBox = GRA:CreateEditBox(configFrame, 50, 20, false, "GRA_FONT_SMALL")
+local raidStartTimeEditBox = GRA:CreateEditBox(configFrame, 49, 20, false, "GRA_FONT_SMALL")
 raidStartTimeEditBox:Hide()
 raidStartTimeEditBox:SetJustifyH("CENTER")
-raidStartTimeEditBox:SetPoint("RIGHT", raidHoursTo, "LEFT", -3, 0)
+raidStartTimeEditBox:SetPoint("RIGHT", raidEndTimeEditBox, "LEFT", -12, 0)
 
 local RSTComfirmBtn = GRA:CreateButton(raidStartTimeEditBox, L["OK"], "blue", {50, 15}, "GRA_FONT_SMALL")
 RSTComfirmBtn:SetPoint("TOP", raidStartTimeEditBox, "BOTTOM", 0, 1)
@@ -330,35 +380,12 @@ local function RefreshRaidSchedule()
 	end
 end
 
-local setBtn = GRA:CreateButton(configFrame, "", nil, {18, 18}, "GRA_FONT_SMALL")
--- setBtn:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -2)
-setBtn:SetPoint("BOTTOMRIGHT", daysFrame, -27, 3)
-setBtn:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrow]])
-setBtn:SetPushedTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrowPushed]])
-setBtn:SetDisabledTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrowDisabled]])
-setBtn:SetScript("OnClick", function()
-	local temp = {}
-	for i = 1, 7 do
-		if days[i]:GetChecked() then -- checked
-			table.insert(temp, i)
-		end
-	end
-	if #temp == 0 then -- select none
-		temp = {gra.RAID_LOCKOUTS_RESET}
-		days[gra.RAID_LOCKOUTS_RESET]:SetChecked(true) -- force
-	end 
-	_G[GRA_R_Config]["raidInfo"]["days"] = temp
-	GRA:Debug("raidInfo: " .. GRA:TableToString(temp))
-
-	GRA:ShowAttendanceSheet()
-end)
-
 -----------------------------------------
 -- misc
 -----------------------------------------
 local miscSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 miscSection:SetText("|cff80FF00"..L["Misc"].."|r")
-miscSection:SetPoint("TOPLEFT", 5, -280)
+miscSection:SetPoint("TOPLEFT", 5, -295)
 GRA:CreateSeperator(configFrame, miscSection)
 
 local appearanceBtn = GRA:CreateButton(configFrame, L["Appearance"], "red", {91, 20}, "GRA_FONT_SMALL")
@@ -378,15 +405,15 @@ lootDistrBtn:SetScript("OnClick", function()
 		gra.lootDistrConfigFrame:Show()
 	end
 end)
-lootDistrBtn:SetEnabled(false) -- TODO: re-code this module
+lootDistrBtn:SetEnabled(false)
 
 -- String: version
 local version = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-version:SetPoint("TOPLEFT", miscSection, 0, -50)
+version:SetPoint("TOPLEFT", miscSection, 0, -45)
 
 -- String: memUsage
 local memUsage = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-memUsage:SetPoint("TOPLEFT", miscSection, 0, -65)
+memUsage:SetPoint("TOPLEFT", miscSection, 0, -60)
 local memUsageTimer
 
 -----------------------------------------
@@ -429,6 +456,13 @@ GRA:RegisterEvent("GRA_PERMISSION", "ConfigFrame_CheckPermissions", function(isA
 	if isAdmin then
 		rosterAdminFrame:Show()
 		rosterUserFrame:Hide()
+		arCalculationText:Show()
+		arcmBtn1:Show()
+		arcmBtn2:Show()
+		raidHoursTitle:ClearAllPoints()
+		raidHoursTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -102)
+		raidEndTimeEditBox:ClearAllPoints()
+		raidEndTimeEditBox:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -98)
 		raidStartTimeEditBox:Show()
 		raidEndTimeEditBox:Show()
 		raidHoursTo:Show()
@@ -436,6 +470,11 @@ GRA:RegisterEvent("GRA_PERMISSION", "ConfigFrame_CheckPermissions", function(isA
 	else -- is not admin
 		rosterUserFrame:Show()
 		rosterAdminFrame:Hide()
+		arCalculationText:Hide()
+		arcmBtn1:Hide()
+		arcmBtn2:Hide()
+		raidHoursTitle:ClearAllPoints()
+		raidHoursTitle:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -82)
 		raidHoursText:Show()
 		raidStartTimeEditBox:Hide()
 		raidEndTimeEditBox:Hide()
@@ -514,6 +553,7 @@ configFrame:SetScript("OnShow", function(self)
 	rosterUserMinimalModeCB:SetChecked(GRA_Variables["minimalMode"])
 
 	RefreshRaidSchedule()
+	arcms.HighlightButton(_G[GRA_R_Config]["arCalculationMethod"])
 
 	ar30CB:SetChecked(GRA_Variables["columns"]["AR_30"])
 	ar60CB:SetChecked(GRA_Variables["columns"]["AR_60"])

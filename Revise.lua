@@ -125,5 +125,19 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 			end
 			_G[GRA_R_Config]["revise"] = "r87-release"
 		end
+
+		-- r88-release
+		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r88-release" then
+			for _, t in pairs(_G[GRA_R_RaidLogs]) do
+				-- fix attendances structure
+				for _, att in pairs(t["attendances"]) do
+					if att[4] == true or att[4] == false then
+						att[5] = att[4]
+						att[4] = nil
+					end
+				end
+			end
+			_G[GRA_R_Config]["revise"] = "r88-release"
+		end
     end
 end)

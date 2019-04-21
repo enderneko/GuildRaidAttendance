@@ -34,7 +34,7 @@ local function RaidRosterUpdate()
 
 				-- re-join group, delete leaveTime if exists
 				if _G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][4] then
-					table.remove(_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName], 4)
+					_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][4] = nil
 					-- update att
 					_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][1] = GRA:CheckAttendanceStatus(_G[GRA_R_RaidLogs][raidDate]["attendances"][playerName][3], select(2, GRA:GetRaidStartTime(raidDate)))
 					updateNeeded = true

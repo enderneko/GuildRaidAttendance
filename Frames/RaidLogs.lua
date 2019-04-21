@@ -45,7 +45,7 @@ listFrame:SetPoint("TOPLEFT", 0, -16)
 listFrame:SetPoint("BOTTOMRIGHT", raidLogsFrame, "BOTTOMLEFT", 70, 24)
 -- listFrame:SetPoint("TOPRIGHT", raidLogsFrame, "TOPLEFT", 100, 0)
 -- listFrame:SetHeight(300)
-GRA:CreateScrollFrame(listFrame, 0, 0)
+GRA:CreateScrollFrame(listFrame)
 listFrame.scrollFrame:SetScrollStep(15)
 
 -----------------------------------------
@@ -142,10 +142,12 @@ addBossBtn:SetPoint("BOTTOMRIGHT", statusFrame)
 addBossBtn:Hide()
 addBossBtn:SetEnabled(false)
 
-local exportBtn = GRA:CreateButton(summaryTab, L["Export to CSV"], "blue", {100, 20})
+local exportBtn = GRA:CreateButton(summaryTab, L["Export CSV"], "blue", {100, 20})
 exportBtn:SetPoint("RIGHT", addBossBtn, "LEFT", -5, 0)
 exportBtn:Hide()
-exportBtn:SetEnabled(false)
+exportBtn:SetScript("OnClick", function()
+	GRA:ShowExportFrame(sortedDates[selected])
+end)
 
 -----------------------------------------
 -- attendances
@@ -290,8 +292,8 @@ end)
 -- tab content functions
 -----------------------------------------
 local function SortByClass(a, b)
-	local classA = _G[GRA_R_Roster][a] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][a]["class"]) or "99"
-	local classB = _G[GRA_R_Roster][b] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][b]["class"]) or "99"
+	local classA = _G[GRA_R_Roster][a] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][a]["class"]) or 99
+	local classB = _G[GRA_R_Roster][b] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][b]["class"]) or 99
 	if classA ~= classB then
 		return 	classA < classB
 	else

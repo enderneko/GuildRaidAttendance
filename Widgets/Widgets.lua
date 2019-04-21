@@ -81,7 +81,7 @@ function GRA:CreateMovableFrame(title, name, width, height, font, frameStrata, f
 	header:SetClampedToScreen(true)
 	header:RegisterForDrag("LeftButton")
 	header:SetScript("OnDragStart", function() f:StartMoving() end)
-	header:SetScript("OnDragStop", function() f:StopMovingOrSizing() end)
+	header:SetScript("OnDragStop", function() f:StopMovingOrSizing() LPP:PixelPerfectPoint(f) end)
 	header:SetPoint("LEFT")
 	header:SetPoint("RIGHT")
 	header:SetPoint("BOTTOM", f, "TOP", 0, -1)
@@ -102,21 +102,73 @@ function GRA:CreateMovableFrame(title, name, width, height, font, frameStrata, f
 end
 
 -----------------------------------------
+-- change frame size with animation
+-----------------------------------------
+function GRA:ChangeSizeWithAnimation(frame, targetWidth, targetHeight, startFunc, endFunc)
+    if startFunc then startFunc() end
+	
+	local currentHeight = frame:GetHeight()
+	local currentWidth = frame:GetWidth()
+	targetWidth = targetWidth or currentWidth
+	targetHeight = targetHeight or currentHeight
+
+	local diffH = (targetHeight - currentHeight) / 6
+	local diffW = (targetWidth - currentWidth) / 6
+	
+	local animationTimer
+	animationTimer = C_Timer.NewTicker(.025, function()
+		if diffW ~= 0 then
+			if diffW > 0 then
+				currentWidth = math.min(currentWidth + diffW, targetWidth)
+			else
+				currentWidth = math.max(currentWidth + diffW, targetWidth)
+			end
+			frame:SetWidth(currentWidth)
+		end
+
+		if diffH ~= 0 then
+			if diffH > 0 then
+				currentHeight = math.min(currentHeight + diffH, targetHeight)
+			else
+				currentHeight = math.max(currentHeight + diffH, targetHeight)
+			end
+			frame:SetHeight(currentHeight)
+		end
+
+        if currentWidth == targetWidth and currentHeight == targetHeight then
+            animationTimer:Cancel()
+            animationTimer = nil
+			if endFunc then endFunc() end
+			LPP:PixelPerfectPoint(frame)
+        end
+    end)
+end
+
+-----------------------------------------
 -- SetTooltip
 -----------------------------------------
-local function SetTooltip(widget, x, y, ...)
+local function SetTooltip(widget, anchor, x, y, ...)
 	local tooltips = {...}
+
+	widget.ShowTooltip = function()
+		GRA_Tooltip:SetOwner(widget, anchor or "ANCHOR_TOP", x or 0, y or 0)
+		GRA_Tooltip:AddLine(tooltips[1])
+		for i = 2, #tooltips do
+			GRA_Tooltip:AddLine("|cffffffff" .. tooltips[i])
+		end
+		GRA_Tooltip:Show()
+	end
+
+	widget.HideTooltip = function()
+		GRA_Tooltip:Hide()
+	end
+
 	if #tooltips ~= 0 then
 		widget:HookScript("OnEnter", function(self)
-			GRA_Tooltip:SetOwner(self, "ANCHOR_TOPLEFT", x or 0, y or 0)
-			GRA_Tooltip:AddLine(tooltips[1])
-			for i = 2, #tooltips do
-				GRA_Tooltip:AddLine("|cffffffff" .. tooltips[i])
-			end
-			GRA_Tooltip:Show()
+			self.ShowTooltip()
 		end)
 		widget:HookScript("OnLeave", function(self)
-			GRA_Tooltip:Hide()
+			self.HideTooltip()
 		end)
 	end
 end
@@ -265,9 +317,50 @@ function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
 	-- click sound
 	b:SetScript("PostClick", function() PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON) end)
 
-	SetTooltip(b, 0, 1, ...)
+	SetTooltip(b, "ANCHOR_TOP", 0, 1, ...)
 
 	return b
+end
+
+-----------------------------------------
+-- button group
+-----------------------------------------
+function GRA:CreateButtonGroup(func, ...)
+	local buttons = {...}
+	local function HighlightButton(name)
+		for _, b in ipairs(buttons) do
+			if name == b.name then
+				b:SetBackdropColor(unpack(b.hoverColor))
+				b:SetScript("OnEnter", function()
+					if b.ShowTooltip then b.ShowTooltip() end
+				end)
+				b:SetScript("OnLeave", function()
+					if b.HideTooltip then b.HideTooltip() end
+				end)
+			else
+				b:SetBackdropColor(unpack(b.color))
+				b:SetScript("OnEnter", function() 
+					if b.ShowTooltip then b.ShowTooltip() end
+					b:SetBackdropColor(unpack(b.hoverColor))
+				end)
+				b:SetScript("OnLeave", function() 
+					if b.HideTooltip then b.HideTooltip() end
+					b:SetBackdropColor(unpack(b.color))
+				end)
+			end
+		end
+	end
+	buttons.HighlightButton = HighlightButton
+
+	for _, b in ipairs(buttons) do
+		b.name = b:GetText()
+		b:SetScript("OnClick", function()
+			HighlightButton(b.name)
+			func(b.name)
+		end)
+	end
+
+	return buttons
 end
 
 -----------------------------------------
@@ -328,7 +421,7 @@ function GRA:CreateCheckButton(parent, label, color, onClick, font, ...)
 	cb:SetCheckedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-Checked-16x16]])
 	cb:SetDisabledCheckedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-DisabledChecked-16x16]])
 	
-	SetTooltip(cb, 0, 0, ...)
+	SetTooltip(cb, "ANCHOR_TOPLEFT", 0, 0, ...)
 
 	return cb
 end
@@ -374,6 +467,68 @@ function GRA:CreateSlider(parent, unit, low, high, length, step, onValueChangedF
 	end)
 	
 	return slider
+end
+
+-----------------------------------------
+-- progress bar
+-----------------------------------------
+function GRA:CreateProgressBar(frame, width, height, maxValue, func, showText, texture, color)
+	local bar = CreateFrame("StatusBar", nil, frame)
+
+	if not color then color = {.5, 1, 0, .8} end
+	if not texture then
+		bar:SetStatusBarTexture(bar:CreateTexture())
+		bar:GetStatusBarTexture():SetColorTexture(unpack(color))
+	else
+		bar:SetStatusBarTexture(texture)
+		bar:SetStatusBarColor(unpack(color))
+	end
+	
+	bar:GetStatusBarTexture():SetHorizTile(false)
+	bar:SetWidth(width)
+	bar:SetHeight(height)
+	bar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = -1})
+	bar:SetBackdropColor(.07, .07, .07, .9)
+	bar:SetBackdropBorderColor(0, 0, 0, 1)
+
+	if showText then
+		bar.text = bar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+		bar.text:SetJustifyH("CENTER")
+		bar.text:SetJustifyV("MIDDLE")
+		bar.text:SetPoint("CENTER")
+		bar.text:SetText("0%")
+	end
+
+	bar:SetMinMaxValues(0, maxValue)
+	bar:SetValue(0)
+	LSSB:SmoothBar(bar) -- smooth progress bar
+
+	function bar:SetMaxValue(m)
+		maxValue = m
+		bar:SetMinMaxValues(0, m)
+	end
+	
+	function bar:Reset()
+		LSSB:ResetBar(bar) -- disable smooth
+		bar:SetValue(0)
+		LSSB:SmoothBar(bar) -- re-enable smooth
+	end
+
+	bar:SetScript("OnValueChanged", function(self, value)
+		if showText then
+			bar.text:SetText(format("%d%%", value / maxValue * 100))
+		end
+		
+		if value == maxValue then
+			if func then func() end
+		end
+	end)
+
+	bar:SetScript("OnHide", function()
+		bar:SetValue(0)
+	end)
+
+	return bar
 end
 
 -----------------------------------------
@@ -631,7 +786,7 @@ function GRA:CreateGrid(frame, width, text, color, highlight, ...)
 	-- grid.onEnter = grid:GetScript("OnEnter")
 	-- grid.onLeave = grid:GetScript("OnLeave")
 
-	SetTooltip(grid, 0, 0, ...)
+	SetTooltip(grid, "ANCHOR_TOPLEFT", 0, 0, ...)
 
 	return grid
 end

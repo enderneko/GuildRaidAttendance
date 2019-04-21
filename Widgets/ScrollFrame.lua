@@ -5,8 +5,8 @@ local GRA, gra = unpack(select(2, ...))
 function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 	-- create scrollFrame & scrollbar seperately (instead of UIPanelScrollFrameTemplate), in order to custom it
 	local scrollFrame = CreateFrame("ScrollFrame", nil, parent)
-	if not top then top = 0 end
-	if not bottom then bottom = 0 end
+	top = top or 0
+	bottom = bottom or 0
 	scrollFrame:SetPoint("TOPLEFT", 0, top) 
 	scrollFrame:SetPoint("BOTTOMRIGHT", 0, bottom)
 
@@ -170,6 +170,170 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 	-- "invisible" widgets should be hidden, then the scroll range is NOT accurate!
 	-- scrollFrame:SetScript("OnScrollRangeChanged", function(self, xOffset, yOffset) end)
 	
+	-- dragging and scrolling
+	scrollThumb:SetScript("OnMouseDown", function(self, button)
+		if button ~= 'LeftButton' then return end
+		local offsetY = select(5, scrollThumb:GetPoint(1))
+		local mouseY = select(2, GetCursorPosition())
+		local currentScroll = scrollFrame:GetVerticalScroll()
+		self:SetScript("OnUpdate", function(self)
+			--------------------- y offset before dragging + mouse offset
+			local newOffsetY = offsetY + (select(2, GetCursorPosition()) - mouseY)
+			
+			-- even scrollThumb:SetPoint is already done in OnVerticalScroll, but it's useful in some cases.
+			if newOffsetY >= 0 then -- @top
+				scrollThumb:SetPoint("TOP")
+				newOffsetY = 0
+			elseif (-newOffsetY) + scrollThumb:GetHeight() >= scrollbar:GetHeight() then -- @bottom
+				scrollThumb:SetPoint("TOP", 0, -(scrollbar:GetHeight() - scrollThumb:GetHeight()))
+				newOffsetY = -(scrollbar:GetHeight() - scrollThumb:GetHeight())
+			else
+				scrollThumb:SetPoint("TOP", 0, newOffsetY)
+			end
+			-- GRA:Debug(newOffsetY)
+			-- local vs = GRA:Round((-newOffsetY / (scrollbar:GetHeight()-scrollThumb:GetHeight())) * scrollFrame:GetVerticalScrollRange())
+			local vs = (-newOffsetY / (scrollbar:GetHeight()-scrollThumb:GetHeight())) * scrollFrame:GetVerticalScrollRange()
+			-- condition 0.99999 with GRA:Round?
+			-- if scrollFrame:GetVerticalScrollRange() - vs <= 1 then vs = scrollFrame:GetVerticalScrollRange() end
+			scrollFrame:SetVerticalScroll(vs)
+		end)
+	end)
+
+	scrollThumb:SetScript("OnMouseUp", function(self)
+		self:SetScript("OnUpdate", nil)
+	end)
+	
+	scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
+		local scrollP = scrollFrame:GetVerticalScroll()/scrollFrame:GetVerticalScrollRange()
+		local yoffset = -((scrollbar:GetHeight()-scrollThumb:GetHeight())*scrollP)
+		scrollThumb:SetPoint("TOP", 0, yoffset)
+
+		-- afterScroll = scrollFrame:GetVerticalScroll() -- TODO: remove
+	end)
+	
+	local step = 25
+	
+	function scrollFrame:SetScrollStep(s)
+		step = s
+	end
+	
+	-- enable mouse wheel scroll
+	scrollFrame:EnableMouseWheel(true)
+	scrollFrame:SetScript("OnMouseWheel", function(self, delta)
+		if delta == 1 then -- scroll up
+			scrollFrame:VerticalScroll(-step)
+		elseif delta == -1 then -- scroll down
+			scrollFrame:VerticalScroll(step)
+		end
+	end)
+	
+	return scrollFrame
+end
+
+-----------------------------------------------------------------------------------
+-- create scroll frame with editbox
+-----------------------------------------------------------------------------------
+function GRA:CreateScrollEditBox(parent, top, bottom)
+	-- create scrollFrame & scrollbar seperately (instead of UIPanelScrollFrameTemplate), in order to custom it
+	local scrollFrame = CreateFrame("ScrollFrame", nil, parent)
+	top = top or 0
+	bottom = bottom or 0
+	scrollFrame:SetPoint("TOPLEFT", 0, top) 
+	scrollFrame:SetPoint("BOTTOMRIGHT", 0, bottom)
+
+	parent.scrollFrame = scrollFrame
+	
+	-- editBox
+	local editBox = CreateFrame("EditBox", nil, parent)
+	parent.editBox = editBox
+	editBox:SetFontObject("GRA_FONT_TEXT")
+	editBox:SetJustifyH("LEFT")
+	editBox:SetJustifyV("CENTER")
+	editBox:SetMultiLine(true)
+	editBox:SetMaxLetters(0)
+	editBox:SetTextInsets(5, 5, 5, 5)
+	editBox:SetAutoFocus(true) -- FIXME: if false, a huge cursor will show
+	editBox:SetScript("OnMouseUp", function() editBox:HighlightText() end)
+	-- editBox:SetScript("OnEscapePressed", function() editBox:ClearFocus() end)
+	editBox:SetScript("OnEditFocusGained", function() editBox:HighlightText() end)
+	editBox:SetScript("OnEditFocusLost", function() editBox:HighlightText(0, 0) end)
+	editBox:SetWidth(scrollFrame:GetWidth())
+	editBox:SetHeight(20)
+	scrollFrame:SetScrollChild(editBox)
+	
+	-- scrollbar
+	local scrollbar = CreateFrame("Frame", nil, scrollFrame)
+	scrollbar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 2, 0)
+	scrollbar:SetPoint("BOTTOMRIGHT", scrollFrame, 7, 0)
+	scrollbar:Hide()
+	GRA:StylizeFrame(scrollbar, {.1, .1, .1, .8})
+	scrollFrame.scrollbar = scrollbar
+	
+	-- scrollbar thumb
+	local scrollThumb = CreateFrame("Frame", nil, scrollbar)
+	scrollThumb:SetWidth(5) -- scrollbar's width is 5
+	scrollThumb:SetHeight(scrollbar:GetHeight())
+	scrollThumb:SetPoint("TOP")
+	GRA:StylizeFrame(scrollThumb, {.5, 1, 0, .8})
+	scrollThumb:EnableMouse(true)
+	scrollThumb:SetMovable(true)
+	scrollThumb:SetHitRectInsets(-5, -5, 0, 0) -- Frame:SetHitRectInsets(left, right, top, bottom)
+	
+	-- reset to top, useful when used with DropDownMenu
+	function scrollFrame:ResetScroll()
+		scrollFrame:SetVerticalScroll(0)
+	end
+	
+	-- local scrollRange -- ACCURATE scroll range, for SetVerticalScroll(), instead of scrollFrame:GetVerticalScrollRange()
+	function scrollFrame:VerticalScroll(step)
+		local scroll = scrollFrame:GetVerticalScroll() + step
+		-- if CANNOT SCROLL then scroll = -25/25, scrollFrame:GetVerticalScrollRange() = 0
+		-- then scrollFrame:SetVerticalScroll(0) and scrollFrame:SetVerticalScroll(scrollFrame:GetVerticalScrollRange()) ARE THE SAME
+		if scroll <= 0 then
+			scrollFrame:SetVerticalScroll(0)
+		elseif  scroll >= scrollFrame:GetVerticalScrollRange() then
+			scrollFrame:SetVerticalScroll(scrollFrame:GetVerticalScrollRange())
+		else
+			scrollFrame:SetVerticalScroll(scroll)
+		end
+	end
+
+	-- check if it can scroll
+	editBox:SetScript("OnSizeChanged", function()
+		-- set thumb height (%)
+		local p = scrollFrame:GetHeight() / editBox:GetHeight()
+		p = tonumber(string.format("%.3f", p))
+		if p < 1 then -- can scroll
+			-- scrollThumb:SetHeight(GRA:Round(scrollbar:GetHeight()*p))
+			scrollThumb:SetHeight(scrollbar:GetHeight()*p)
+			-- space for scrollbar
+			scrollFrame:SetPoint("BOTTOMRIGHT", parent, -7, bottom)
+			scrollbar:Show()
+		else
+			scrollFrame:SetPoint("BOTTOMRIGHT", parent, 0, bottom)
+			scrollbar:Hide()
+		end
+	end)
+
+	-- on width changed, make the same change to widgets
+	scrollFrame:SetScript("OnSizeChanged", function()
+		-- update editbox width
+		editBox:SetWidth(scrollFrame:GetWidth())
+
+		local p = scrollFrame:GetHeight() / editBox:GetHeight()
+		p = tonumber(string.format("%.3f", p))
+		if p < 1 then -- can scroll
+			-- scrollThumb:SetHeight(GRA:Round(scrollbar:GetHeight()*p))
+			scrollThumb:SetHeight(scrollbar:GetHeight()*p)
+			-- space for scrollbar
+			scrollFrame:SetPoint("BOTTOMRIGHT", parent, -7, bottom)
+			scrollbar:Show()
+		else
+			scrollFrame:SetPoint("BOTTOMRIGHT", parent, 0, bottom)
+			scrollbar:Hide()
+		end
+	end)
+
 	-- dragging and scrolling
 	scrollThumb:SetScript("OnMouseDown", function(self, button)
 		if button ~= 'LeftButton' then return end

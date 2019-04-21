@@ -523,6 +523,12 @@ function GRA:NextDate(d, offset)
 	return date("%Y%m%d", sec)
 end
 
+function GRA:DateOffset(d1, d2)
+	local t1, t2 = GRA:DateToSeconds(d1), GRA:DateToSeconds(d2)
+	local offset = abs(t1 - t2) / (3600 * 24)
+	return offset
+end
+
 -- 2017033112:30
 function GRA:DateToSeconds(s, hasTime)
 	local y = tonumber(string.sub(s, 1, 4))
@@ -601,18 +607,33 @@ local function GetAttendanceRate(d, joinTime, leaveTime)
 	end
 end
 
+-- count player loots
+local function GetLoots(d, name)
+	local loots = 0
+	for _, t in pairs(_G[GRA_R_RaidLogs][d]["details"]) do
+		-- TODO: add support for EPGP and DKP
+		if t[1] == "LOOT" and t[3] == name then
+			loots = loots + 1
+		end
+	end
+	return loots
+end
+
 -- get main-alt attendance (which joined first)
 function GRA:GetMainAltAttendance(d, mainName)
 	local att, joinTime, leaveTime, isSitOut
+	local loots = 0
 
 	if _G[GRA_R_RaidLogs][d]["attendances"][mainName] then
 		att = _G[GRA_R_RaidLogs][d]["attendances"][mainName][1]
 
-		if _G[GRA_R_RaidLogs][d]["attendances"][mainName][3] then
+		if _G[GRA_R_RaidLogs][d]["attendances"][mainName][3] then -- 大号有出勤
 			joinTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][3]
 			leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][mainName][4] or select(2, GRA:GetRaidEndTime(d))
 			-- main sit out
 			if _G[GRA_R_RaidLogs][d]["attendances"][mainName][5] then isSitOut = true end
+			-- main loots
+			loots = loots + GetLoots(d, mainName)
 		end
 	end
 
@@ -627,16 +648,18 @@ function GRA:GetMainAltAttendance(d, mainName)
 				end
 				-- 小号后于大号退组
 				if _G[GRA_R_RaidLogs][d]["attendances"][altName][4] and (not leaveTime or leaveTime < _G[GRA_R_RaidLogs][d]["attendances"][altName][4]) then
-					leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][4] or leaveTime
+					leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][4]
 				end
 				-- alt sit out
 				if _G[GRA_R_RaidLogs][d]["attendances"][altName][5] then isSitOut = true end
+				-- alt loots
+				loots = loots + GetLoots(d, altName)
 			end
 		end
 		if not leaveTime then leaveTime = select(2, GRA:GetRaidEndTime(d)) end
 	end
 
-	return att, joinTime, leaveTime, GetAttendanceRate(d, joinTime, leaveTime), isSitOut
+	return att, joinTime, leaveTime, GetAttendanceRate(d, joinTime, leaveTime), isSitOut, loots
 end
 
 -- update attendances when raid hours changed
@@ -658,8 +681,177 @@ function GRA:UpdateAttendance(d)
 	end
 end
 
-function GRA:DateOffset(d1, d2)
-	local t1, t2 = GRA:DateToSeconds(d1), GRA:DateToSeconds(d2)
-	local offset = abs(t1 - t2) / (3600 * 24)
-	return offset
+-- calc AR and Loots
+function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
+	local logsNumber = 0
+	for d, _ in pairs(_G[GRA_R_RaidLogs]) do
+		if from and to then
+			if d >= from and d <= to then
+				logsNumber = logsNumber + 1
+			end
+		else
+			logsNumber = logsNumber + 1
+		end
+	end
+
+	if logsNumber ~= 0 then
+		if progressBar then progressBar:SetMaxValue(logsNumber) end
+		GRA:Debug("|cff1E90FFCalculating attendance rate:|r " .. logsNumber)
+	end
+
+	local today = GRA:Date()
+	local playerAtts, playerLoots, dates = {}, {}, {}
+	for n, t in pairs(_G[GRA_R_Roster]) do
+		if not t["altOf"] then -- ignore alts
+			playerAtts[n] = {
+				-- {present, absent, late/leaveEarly, onLeave, ar, sitOut}
+				["30"] = {0, 0, 0, 0, 0},
+				["60"] = {0, 0, 0, 0, 0},
+				["90"] = {0, 0, 0, 0, 0},
+				["lifetime"] = {0, 0, 0, 0, 0, 0},
+				["dailyAttendance"] = {}, -- joinTime / leaveTime
+			}
+			playerLoots[n] = 0
+		end
+	end
+
+	local n = 1
+	-- calc
+	if from and to then
+		for d, l in pairs(_G[GRA_R_RaidLogs]) do
+			if d >= from and d <= to then
+				-- store dates for Export.lua
+				table.insert(dates, d)
+				for name, t in pairs(l["attendances"]) do
+					if playerAtts[name] then -- exists in roster
+						local att, joinTime, leaveTime, ar, isSitOut, loots = GRA:GetMainAltAttendance(d, name) -- add alt attendance to main
+						if att == "PRESENT" or att == "PARTIAL" then
+							playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
+							playerAtts[name]["lifetime"][5] = playerAtts[name]["lifetime"][5] + ar
+							if att == "PARTIAL" then
+								playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
+							end
+							if isSitOut then
+								playerAtts[name]["lifetime"][6] = playerAtts[name]["lifetime"][6] + 1
+							end
+							playerLoots[name] = playerLoots[name] + loots
+							-- joinTime & leaveTime
+							playerAtts[name]["dailyAttendance"][d] = {joinTime, leaveTime}
+						else -- ABSENT or ONLEAVE
+							playerAtts[name]["lifetime"][2] = playerAtts[name]["lifetime"][2] + 1
+							if att == "ONLEAVE" then
+								playerAtts[name]["lifetime"][4] = playerAtts[name]["lifetime"][4] + 1
+							end
+						end
+					end
+				end
+
+				if progressBar then
+					progressBar:SetValue(n)
+					n = n + 1
+				end
+			end
+		end
+
+	else
+		for d, l in pairs(_G[GRA_R_RaidLogs]) do
+			for name, t in pairs(l["attendances"]) do
+				if playerAtts[name] then -- exists in roster
+					local att, _, _, ar, isSitOut, loots = GRA:GetMainAltAttendance(d, name) -- add alt attendance to main
+					local dateOffset = GRA:DateOffset(d, today)
+					if att == "PRESENT" or att == "PARTIAL" then
+						playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
+						playerAtts[name]["lifetime"][5] = playerAtts[name]["lifetime"][5] + ar
+						if att == "PARTIAL" then
+							playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
+						end
+						if isSitOut then
+							playerAtts[name]["lifetime"][6] = playerAtts[name]["lifetime"][6] + 1
+						end
+						
+						if dateOffset < 90 then
+							playerAtts[name]["90"][1] = playerAtts[name]["90"][1] + 1
+							playerAtts[name]["90"][5] = playerAtts[name]["90"][5] + ar
+							if att == "PARTIAL" then
+								playerAtts[name]["90"][3] = playerAtts[name]["90"][3] + 1
+						end
+						end
+						if dateOffset < 60 then
+							playerAtts[name]["60"][1] = playerAtts[name]["60"][1] + 1
+							playerAtts[name]["60"][5] = playerAtts[name]["60"][5] + ar
+							if att == "PARTIAL" then
+								playerAtts[name]["60"][3] = playerAtts[name]["60"][3] + 1
+						end
+						end
+						if dateOffset < 30 then
+							playerAtts[name]["30"][1] = playerAtts[name]["30"][1] + 1
+							playerAtts[name]["30"][5] = playerAtts[name]["30"][5] + ar
+							if att == "PARTIAL" then
+								playerAtts[name]["30"][3] = playerAtts[name]["30"][3] + 1
+							end
+						end
+						playerLoots[name] = playerLoots[name] + loots
+					else -- ABSENT or ONLEAVE
+						playerAtts[name]["lifetime"][2] = playerAtts[name]["lifetime"][2] + 1
+						if att == "ONLEAVE" then
+							playerAtts[name]["lifetime"][4] = playerAtts[name]["lifetime"][4] + 1
+						end
+
+						if dateOffset < 90 then
+							playerAtts[name]["90"][2] = playerAtts[name]["90"][2] + 1
+							if att == "ONLEAVE" then
+								playerAtts[name]["90"][4] = playerAtts[name]["90"][4] + 1
+							end
+						end
+						if dateOffset < 60 then
+							playerAtts[name]["60"][2] = playerAtts[name]["60"][2] + 1
+							if att == "ONLEAVE" then
+								playerAtts[name]["60"][4] = playerAtts[name]["60"][4] + 1
+							end
+						end
+						if dateOffset < 30 then
+							playerAtts[name]["30"][2] = playerAtts[name]["30"][2] + 1
+							if att == "ONLEAVE" then
+								playerAtts[name]["30"][4] = playerAtts[name]["30"][4] + 1
+							end
+						end
+					end
+				end
+			end
+
+			if progressBar then
+				progressBar:SetValue(n)
+				n = n + 1
+			end
+		end
+	end
+
+	for name, t in pairs(_G[GRA_R_Roster]) do
+		if playerAtts[name] then
+			-- calc ar
+			if _G[GRA_R_Config]["arCalculationMethod"] == "A" then -- method A: AR = PRESENT / (PRESENT + ABSENT)
+				playerAtts[name]["30"][5] = (playerAtts[name]["30"][5] == 0) and 0 or (playerAtts[name]["30"][5] / (playerAtts[name]["30"][1] + playerAtts[name]["30"][2]) * 100)
+				playerAtts[name]["60"][5] = (playerAtts[name]["60"][5] == 0) and 0 or (playerAtts[name]["60"][5] / (playerAtts[name]["60"][1] + playerAtts[name]["60"][2]) * 100)
+				playerAtts[name]["90"][5] = (playerAtts[name]["90"][5] == 0) and 0 or (playerAtts[name]["90"][5] / (playerAtts[name]["90"][1] + playerAtts[name]["90"][2]) * 100)
+				playerAtts[name]["lifetime"][5] = (playerAtts[name]["lifetime"][5] == 0) and 0 or (playerAtts[name]["lifetime"][5] / (playerAtts[name]["lifetime"][1] + playerAtts[name]["lifetime"][2]) * 100)
+			else -- method B: AR = PRESENT / ALL RAID DAYS
+				playerAtts[name]["30"][5] = (playerAtts[name]["30"][5] == 0) and 0 or (playerAtts[name]["30"][5] / logsNumber * 100)
+				playerAtts[name]["60"][5] = (playerAtts[name]["60"][5] == 0) and 0 or (playerAtts[name]["60"][5] / logsNumber * 100)
+				playerAtts[name]["90"][5] = (playerAtts[name]["90"][5] == 0) and 0 or (playerAtts[name]["90"][5] / logsNumber * 100)
+				playerAtts[name]["lifetime"][5] = (playerAtts[name]["lifetime"][5] == 0) and 0 or (playerAtts[name]["lifetime"][5] / logsNumber * 100)
+			end
+
+			-- save
+			if saveToSV then
+				t["att30"] = playerAtts[name]["30"]
+				t["att60"] = playerAtts[name]["60"]
+				t["att90"] = playerAtts[name]["90"]
+				t["attLifetime"] = playerAtts[name]["lifetime"]
+				t["loots"] = playerLoots[name]
+			end
+		end
+	end
+
+	table.sort(dates)
+	return playerAtts, playerLoots, dates
 end

@@ -112,7 +112,7 @@ local raidHours = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SM
 raidHours:SetPoint("RIGHT", raidStartTimeEditBox, "LEFT", -3, 0)
 raidHours:SetText(gra.colors.chartreuse.s .. L["Raid Hours"] .. ": ")
 
-local scroll = GRA:CreateScrollFrame(attendanceEditor, -34, 0)
+local scroll = GRA:CreateScrollFrame(attendanceEditor, -34)
 GRA:StylizeFrame(scroll, {0, 0, 0, 0})
 scroll:SetScrollStep(19)
 

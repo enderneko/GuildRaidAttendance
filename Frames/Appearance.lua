@@ -61,6 +61,7 @@ function GRA:GetCursorPosition()
     return x / GRA:GetScale(), y / GRA:GetScale()
 end
 
+-- frame.scaleFactor is required if want to LPP to TOPLEFT
 function GRA:SetScale(factor)
     GRA_A_Variables["scaleFactor"] = factor
     local scale = LPP:GetPixelPerfectScale() * factor
@@ -71,13 +72,14 @@ function GRA:SetScale(factor)
     GRA_RecordLootTooltip:SetScale(scale)
     GRA_CreditTooltip:SetScale(scale)
     -- frames
-    gra.mainFrame:SetScale(scale)
-    gra.awardFrame:SetScale(scale)
-    gra.creditFrame:SetScale(scale)
-    gra.penalizeFrame:SetScale(scale)
-    gra.recordLootFrame:SetScale(scale)
-    gra.helpFrame:SetScale(scale)
-    gra.aboutFrame:SetScale(scale)
+    gra.mainFrame:SetScale(scale)           -- gra.mainFrame.scaleFactor = factor
+    gra.awardFrame:SetScale(scale)          -- gra.awardFrame.scaleFactor = factor
+    gra.creditFrame:SetScale(scale)         -- gra.creditFrame.scaleFactor = factor
+    gra.penalizeFrame:SetScale(scale)       -- gra.penalizeFrame.scaleFactor = factor
+    gra.recordLootFrame:SetScale(scale)     -- gra.recordLootFrame.scaleFactor = factor
+    gra.helpFrame:SetScale(scale)           -- gra.helpFrame.scaleFactor = factor
+    gra.aboutFrame:SetScale(scale)          -- gra.aboutFrame.scaleFactor = factor
+    gra.exportFrame:SetScale(scale)         gra.exportFrame.scaleFactor = factor
     -- loot distr
     -- gra.distributionFrame:SetScale(scale)
     -- gra.lootFrame:SetScale(scale)

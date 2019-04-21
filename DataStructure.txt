@@ -42,6 +42,7 @@ GRA_Roster = {
 		["att60"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
 		["att90"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number)},
 		["attLifetime"] = {present(number), absent(number), late/leaveEarly(number), onLeave(number), ar_minutes(number), sitOut(number)},
+		["loots"] = (number),
 		["EP"] = (number),
 		["GP"] = (number),
 		["DKP_Current"] = (number),
@@ -68,6 +69,7 @@ GRA_Config = {
 	["replies"] = {reply1, reply2, reply3, ...},
 	["notes"] = {note1, note2, note3, ...},
 	["revise"] = (string),
+	["arCalculationMethod"] = "A"/"B,
 }
 
 ╔========================╗

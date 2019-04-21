@@ -1,6 +1,6 @@
 General:
     ☐ player detail frame (just view)
-    ☐ import / export
+    ✔ import / export @done(19-04-22 01:08)
     ✔ 群体邀请，排除自己 @critical @done(19-03-04 17:44)
     ☐ start tracking 可以选择记录到的日期，不仅限于"resume last raid"
     
@@ -8,7 +8,7 @@ Modules/Frames:
     Config:
         ☐ help button glow @high
         ✔ remove loot system buttons @done(18-08-31 12:43)
-        ☐ export to csv
+        ✔ export to csv @done(19-04-22 01:09)
     Loot System:
         ✔ remove them @done(18-08-31 12:43)
     Distribution Tool:
@@ -18,12 +18,13 @@ Modules/Frames:
     Raid Log:
         ✔ 新成员加入团队，如过raidlog正在显示，不应当刷新scroll，如果当前显示的为今天，那么仅刷新名单列表 @done(18-09-01 14:15)
         ☐ function to custom title for every log @critical
-        ☐ export to csv
+        ✔ export to csv @done(19-04-22 01:09)
         ✔ 导入新成员后attendances没有刷新 @done(18-09-07 15:18)
+        ☐ add / edit boss
     Import:
         ☐ 删除后名字全都消失的bug @critical
     Attendance:
-        ☐ optimize attendance rate update
+        ✔ optimize attendance rate update @done(19-04-22 01:08)
         ☐ AR30/60/90 sort by attendance @critical
         ✔ role count text @done(18-09-07 15:34)
     Util:
@@ -34,6 +35,9 @@ Modules/Frames:
 Widgets:
     ScrollFrame:
         ✔ check widgets in scrollchild visibility @done(18-08-31 12:44)
+        ☐ scroll editbox huge cursor defect @low
+    ButtonGroup:
+        ☐ update all old button groups @low
 
 Appearance:
     ☐ larger font and frame, add GRA:Resize() in Appearance.lua

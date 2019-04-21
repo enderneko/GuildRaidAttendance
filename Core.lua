@@ -41,7 +41,7 @@ gra.CLASS_ORDER = {"DEATHKNIGHT", "DEMONHUNTER", "DRUID", "HUNTER", "MAGE", "MON
 -- color
 -----------------------------------------
 gra.colors = {
-	grey = {s = "|cCCB2B2B2"},
+	grey = {s = "|cCCB2B2B2", t = {.7, .7, .7, .8}},
 	yellow = {s = "|cFFFFD100"},
 	firebrick = {s = "|cFFFF3030", t = {1, .19, .19, .7}},
 	skyblue = {s = "|cFF00CCFF", t = {0, .8, 1, 1}},
@@ -284,9 +284,7 @@ function frame:ADDON_LOADED(arg1)
 
 		-- scale
 		if type(GRA_A_Variables["scaleFactor"]) ~= "number" then GRA_A_Variables["scaleFactor"] = 1 end
-		if GRA_A_Variables["scaleFactor"] ~= 1 then
-			GRA:SetScale(GRA_A_Variables["scaleFactor"])
-		end
+		GRA:SetScale(GRA_A_Variables["scaleFactor"])
 
 		-- size
 		if type(GRA_A_Variables["size"]) ~= "string" then GRA_A_Variables["size"] = "normal" end
@@ -345,6 +343,10 @@ function frame:ADDON_LOADED(arg1)
 		-- quick notes
 		if type(_G[GRA_R_Config]["notes"]) ~= "table" then
 			_G[GRA_R_Config]["notes"] = {"BiS", "4p", "2p"}
+		end
+		-- attendance rate calculation method
+		if type(_G[GRA_R_Config]["arCalculationMethod"]) ~= "string" then
+			_G[GRA_R_Config]["arCalculationMethod"] = "A"
 		end
 
 		gra.version = GetAddOnMetadata(addonName, "version")

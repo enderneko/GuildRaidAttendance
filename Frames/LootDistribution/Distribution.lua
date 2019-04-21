@@ -427,7 +427,7 @@ local function CreateItemFrame(itemSig, itemLink, count)
     end)
 
     -- scroll frame
-    f.scrollFrame = GRA:CreateScrollFrame(f, -71, 0)
+    f.scrollFrame = GRA:CreateScrollFrame(f, -71)
     f.scrollFrame:SetScrollStep(19)
 
     -- header

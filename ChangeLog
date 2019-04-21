@@ -1,3 +1,15 @@
+version r88-release
+------------------------
+    + Implemented Export CSV functionality.
+    + Added a new attendance rate calculation method.
+    + Added GRA:CreateButtonGroup in Widgets.lua.
+    + Added GRA:ChangeSizeWithAnimation in Widgets.lua.
+    + Added GRA:CreateProgressBar in Widgets.lua.
+    + Added number of loots to GRA_Roster table.
+    * Moved Calc func from Attendance.lua to Utils.lua.
+    * Fixed an error in Track.lua that caused the indices of elements in player attendance table to be incorrect.
+    * LibPixelPerfect:PixelPerfectPoint now supports TOPLEFT point.
+
 version r87-release
 ------------------------
     * Fixed realm names that contain whitespaces.

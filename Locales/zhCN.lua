@@ -109,6 +109,8 @@ L["Delete selected raid logs."] = "删除选中的记录。"
 L["Delete selected raid logs?"] = "删除选中的记录？"
 L["This will affect attendance rate!"] = "这将影响出勤率！"
 L["Deleted raid logs: "] = "已删除的记录："
+-- boss
+-- L["Add Boss"]
 
 L["Delete this entry?"] = "删除此项？"
 L["Delete this entry and undo changes to %s?"] = "删除此项并返还 %s？"
@@ -188,7 +190,6 @@ L["Import"] = "导入"
 L["Guild"] = "公会"
 L["Group"] = "队伍"
 L["Failed to import, %s is not in your guild."] = "导入玩家失败，%s 不在你的公会里。"
--- L["Export"] = "导出"
 L["Send"] = "发送"
 L["Guild Rank:"] = "公会级别:"
 L["EPGP Options"] = "EPGP 选项"
@@ -233,6 +234,10 @@ L["30 days"] = "30 天"
 L["60 days"] = "60 天"
 L["90 days"] = "90 天"
 L["Lifetime"] = "总出勤率"
+-- L["AR Calculation Method"]
+-- L["Attendance rate calculation method has been changed."]
+-- L["AR = PRESENT / (PRESENT + ABSENT)"]
+-- L["AR = PRESENT / ALL RAID DAYS"]
 L["Raid Start Time"] = "活动开始时间"
 L["Raid End Time"] = "活动结束时间"
 L["Raid Hours"] = "活动时间"
@@ -317,6 +322,11 @@ L["Check to use DKP system for your raid team."] = "勾选此项将为你的团�
 L["DKP system stores its data in officer notes.\nYou'd better back up your officer notes before using DKP.\nAnd you should revoke the privilege to edit officer note from most of guild members."] = "DKP存放在官员备注中。\n在使用DKP系统前你们最好备份好自己的官员备注。\n你应当收回大部分人编辑官员备注的权限。"
 L["Reset DKP"] = "重置 DKP"
 L["Reset DKP?"] = "重置 DKP？"
+
+-------------------------------------------------------
+-- export
+-------------------------------------------------------
+L["Export CSV"] = "导出CSV"
 
 -------------------------------------------------------
 -- loot distribution

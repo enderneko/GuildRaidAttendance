@@ -1,7 +1,7 @@
 local GRA, gra = unpack(select(2, ...))
 
 ------------------------------------------------
--- drop down menu 2017-07-28 06:23:35
+-- drop down menu 2019-04-21 22:48:12
 ------------------------------------------------
 function GRA:CreateDropDownMenu(parent, width)
 	local menu = CreateFrame("Frame", nil, parent)
@@ -154,8 +154,17 @@ function GRA:CreateDropDownMenu(parent, width)
 		-- re-set current selected text
 		menu:SetSelected(item.text)
 	end
+
+	function menu:Close()
+		list:Hide()
+	end
 	
 	function menu:SetEnabled(f)
+		if f then
+			menu.text:SetTextColor(1, 1, 1, 1)
+		else
+			menu.text:SetTextColor(unpack(gra.colors.grey.t))
+		end
 		menu.button:SetEnabled(f)
 	end
 	
@@ -174,7 +183,7 @@ end
 ------------------------------------------------
 -- scrolled drop down menu 2017-06-19 04:09:59
 ------------------------------------------------
-function GRA:CreateScrollDropDownMenu(parent, width, height)
+function GRA:CreateScrollDropDownMenu(parent, width)
 	local menu = CreateFrame("Frame", nil, parent)
 	menu:SetSize(width, 20)
 	menu:EnableMouse(true)
@@ -317,8 +326,17 @@ function GRA:CreateScrollDropDownMenu(parent, width, height)
 		if list:IsShown() then list:Hide() else list:Show() end
 	end)
 
+	function menu:Close()
+		list:Hide()
+	end
+	
 	function menu:SetEnabled(f)
-		menu.button:SetEnabled(f)
+		if f then
+			menu.text:SetTextColor(1, 1, 1, 1)
+		else
+			menu.text:SetTextColor(unpack(gra.colors.grey.t))
+		end
+		button:SetEnabled(f)
 	end
 
 	-- function menu:ShowDropDown()

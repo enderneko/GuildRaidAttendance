@@ -479,8 +479,8 @@ end
 SortSheetBySR = function()
 	-- sr so name
 	table.sort(loaded, function(a, b)
-		if a.sitOutPercent ~= b.sitOutPercent then
-			return a.sitOutPercent > b.sitOutPercent
+		if a.sitOutRate ~= b.sitOutRate then
+			return a.sitOutRate > b.sitOutRate
 		elseif a.sitOut ~= b.sitOut then
 			return a.sitOut > b.sitOut
 		else
@@ -496,8 +496,8 @@ SortSheetBySO = function()
 	table.sort(loaded, function(a, b)
 		if a.sitOut ~= b.sitOut then
 			return a.sitOut > b.sitOut
-		elseif a.sitOutPercent ~= b.sitOutPercent then
-			return a.sitOutPercent > b.sitOutPercent
+		elseif a.sitOutRate ~= b.sitOutRate then
+			return a.sitOutRate > b.sitOutRate
 		else
 			return a.name < b.name
 		end
@@ -1189,13 +1189,13 @@ ShowAR = function()
 		row.ar60 = tonumber(format("%.1f", att60[5]))
 		row.ar90 = tonumber(format("%.1f", att90[5]))
 		row.arLifetime = tonumber(format("%.1f", attLifetime[5]))
-		row.sitOutPercent = attLifetime[6] == 0 and 0 or tonumber(format("%.1f", attLifetime[6] / attLifetime[1] * 100))
+		row.sitOutRate = attLifetime[6] == 0 and 0 or tonumber(format("%.1f", attLifetime[6] / attLifetime[1] * 100))
 
 		row.ar30Grid:SetText(row.ar30 .. "%")
 		row.ar60Grid:SetText(row.ar60 .. "%")
 		row.ar90Grid:SetText(row.ar90 .. "%")
 		row.arLifetimeGrid:SetText(row.arLifetime .. "%")
-		row.sitOutGrid:SetText(row.sitOutPercent .. "%" )
+		row.sitOutGrid:SetText(row.sitOutRate .. "%" )
 		
 		-- tooltip
 		row.ar30Grid:HookScript("OnEnter", function(self)
@@ -1285,34 +1285,13 @@ ShowAR = function()
 end
 
 local calcARProgressFrame
-local function ShowCalcARProgressFrame(maxValue)
+local function ShowCalcARProgressFrame()
 	if not calcARProgressFrame then
 		calcARProgressFrame = CreateFrame("Frame", nil, attendanceFrame.scrollFrame)
 		GRA:StylizeFrame(calcARProgressFrame, {.1, .1, .1, .95}, {0, 0, 0, 0})
 		calcARProgressFrame:SetSize(156, 18)
 		calcARProgressFrame:SetPoint("BOTTOMLEFT", attendanceFrame.scrollFrame, 1, 1)
 		calcARProgressFrame:Hide()
-
-		local bar = CreateFrame("StatusBar", nil, calcARProgressFrame)
-		calcARProgressFrame.bar = bar
-		LSSB:SmoothBar(bar) -- smooth progress bar
-		bar.tex = bar:CreateTexture()
-		bar.tex:SetColorTexture(.5, 1, 0, .8)
-		bar:SetStatusBarTexture(bar.tex)
-		bar:GetStatusBarTexture():SetHorizTile(false)
-		bar:SetHeight(2)
-		bar:SetWidth(155)
-		bar:SetPoint("BOTTOMLEFT")
-		-- bar:SetPoint("BOTTOMRIGHT", frame, -5, 5)
-		bar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = -1})
-		bar:SetBackdropColor(.07, .07, .07, .9)
-		bar:SetBackdropBorderColor(0, 0, 0, 1)
-
-		bar.text = bar:CreateFontString(nil, "OVERLAY", "GRA_FONT_PIXEL")
-		bar.text:SetJustifyH("RIGHT")
-		bar.text:SetJustifyV("MIDDLE")
-		bar.text:SetPoint("BOTTOMLEFT", bar, "TOPLEFT", 2, 2)
-		bar.text:SetText(L["Updating attendance rate..."])
 
 		-- fade-in effect
 		calcARProgressFrame.fadeIn = calcARProgressFrame:CreateAnimationGroup()
@@ -1327,6 +1306,7 @@ local function ShowCalcARProgressFrame(maxValue)
 		fadeOutAlpha:SetFromAlpha(1)
 		fadeOutAlpha:SetToAlpha(0)
 		fadeOutAlpha:SetDuration(.3)
+		fadeOutAlpha:SetStartDelay(3)
 
 		calcARProgressFrame.fadeIn:SetScript("OnPlay", function()
 			calcARProgressFrame.fadeOut:Stop() -- if hiding
@@ -1337,37 +1317,27 @@ local function ShowCalcARProgressFrame(maxValue)
 			calcARProgressFrame:Hide()
 		end)
 
-		calcARProgressFrame:SetScript("OnHide", function()
-			-- LSSB:ResetBar(bar) -- disable smooth
-			-- bar:SetValue(0)
-			-- LSSB:SmoothBar(bar) -- re-enable smooth
+		calcARProgressFrame.bar = GRA:CreateProgressBar(calcARProgressFrame, 155, 2, 0, function()
+			calcARProgressFrame.fadeOut:Play()
 		end)
+		calcARProgressFrame.bar:SetPoint("BOTTOMLEFT")
+
+		calcARProgressFrame.text = calcARProgressFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_PIXEL")
+		calcARProgressFrame.text:SetJustifyH("RIGHT")
+		calcARProgressFrame.text:SetJustifyV("MIDDLE")
+		calcARProgressFrame.text:SetPoint("BOTTOMLEFT", calcARProgressFrame.bar, "TOPLEFT", 2, 2)
+		calcARProgressFrame.text:SetText(L["Updating attendance rate..."])
 
 		function calcARProgressFrame:SetValue(value)
-			bar:SetValue(value)
+			calcARProgressFrame.bar:SetValue(value)
 		end
 	end
 
-	calcARProgressFrame.bar:SetMinMaxValues(0, maxValue)
-	LSSB:ResetBar(calcARProgressFrame.bar) -- disable smooth
-	calcARProgressFrame.bar:SetValue(0)
-	LSSB:SmoothBar(calcARProgressFrame.bar) -- re-enable smooth
-	calcARProgressFrame.bar:SetScript("OnValueChanged", function(self, value)
-		-- print(value)
-		if value == maxValue then
-			calcARProgressFrame.timer = C_Timer.After(3, function()
-				calcARProgressFrame.fadeOut:Play()
-			end)
-		end
-	end)
-
-	if calcARProgressFrame.timer then
-		calcARProgressFrame.timer:Cancel()
-	end
 	calcARProgressFrame.fadeIn:Play()
 end
 
 -- admin only, calculate AR
+local updateRequired
 CalcAR = function()
 	if gra.isAdmin == nil then -- wait for GRA_PERMISSION
 		GRA:RegisterEvent("GRA_PERMISSION", "CalcAR_CheckPermission", function()
@@ -1378,112 +1348,10 @@ CalcAR = function()
 		return
 	end
 	
-	if GRA:Getn(_G[GRA_R_RaidLogs]) ~= 0 then
-		ShowCalcARProgressFrame(GRA:Getn(_G[GRA_R_RaidLogs]))
-		GRA:Debug("|cff1E90FFCalculating attendance rate...")
-	else
-		GRA:Debug("|cff1E90FFClear attendance rate...")
-	end
-
-	local today = GRA:Date()
-	local playerAtts = {}
-	for n, t in pairs(_G[GRA_R_Roster]) do
-		if not t["altOf"] then -- ignore alts
-			playerAtts[n] = {
-				-- {present, absent, late/leaveEarly, onLeave, ar, sitOut}
-				["30"] = {0, 0, 0, 0, 0},
-				["60"] = {0, 0, 0, 0, 0},
-				["90"] = {0, 0, 0, 0, 0},
-				["lifetime"] = {0, 0, 0, 0, 0, 0},
-			}
-		end
-	end
-
-	local n = 1
-	-- calc
-	for d, l in pairs(_G[GRA_R_RaidLogs]) do
-		for name, t in pairs(l["attendances"]) do
-			if playerAtts[name] then -- exists in roster
-				local att, _, _, ar, isSitOut = GRA:GetMainAltAttendance(d, name) -- add alt attendance to main
-				local dateOffset = GRA:DateOffset(d, today)
-				if att == "PRESENT" or att == "PARTIAL" then
-					playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
-					playerAtts[name]["lifetime"][5] = playerAtts[name]["lifetime"][5] + ar
-					if att == "PARTIAL" then
-						playerAtts[name]["lifetime"][3] = playerAtts[name]["lifetime"][3] + 1
-					end
-					if isSitOut then
-						playerAtts[name]["lifetime"][6] = playerAtts[name]["lifetime"][6] + 1
-					end
-					
-					if dateOffset < 90 then
-						playerAtts[name]["90"][1] = playerAtts[name]["90"][1] + 1
-						playerAtts[name]["90"][5] = playerAtts[name]["90"][5] + ar
-						if att == "PARTIAL" then
-							playerAtts[name]["90"][3] = playerAtts[name]["90"][3] + 1
-					end
-					end
-					if dateOffset < 60 then
-						playerAtts[name]["60"][1] = playerAtts[name]["60"][1] + 1
-						playerAtts[name]["60"][5] = playerAtts[name]["60"][5] + ar
-						if att == "PARTIAL" then
-							playerAtts[name]["60"][3] = playerAtts[name]["60"][3] + 1
-					end
-					end
-					if dateOffset < 30 then
-						playerAtts[name]["30"][1] = playerAtts[name]["30"][1] + 1
-						playerAtts[name]["30"][5] = playerAtts[name]["30"][5] + ar
-						if att == "PARTIAL" then
-							playerAtts[name]["30"][3] = playerAtts[name]["30"][3] + 1
-						end
-					end
-				else -- ABSENT or ONLEAVE
-					playerAtts[name]["lifetime"][2] = playerAtts[name]["lifetime"][2] + 1
-					if att == "ONLEAVE" then
-						playerAtts[name]["lifetime"][4] = playerAtts[name]["lifetime"][4] + 1
-					end
-
-					if dateOffset < 90 then
-						playerAtts[name]["90"][2] = playerAtts[name]["90"][2] + 1
-						if att == "ONLEAVE" then
-							playerAtts[name]["90"][4] = playerAtts[name]["90"][4] + 1
-						end
-					end
-					if dateOffset < 60 then
-						playerAtts[name]["60"][2] = playerAtts[name]["60"][2] + 1
-						if att == "ONLEAVE" then
-							playerAtts[name]["60"][4] = playerAtts[name]["60"][4] + 1
-						end
-					end
-					if dateOffset < 30 then
-						playerAtts[name]["30"][2] = playerAtts[name]["30"][2] + 1
-						if att == "ONLEAVE" then
-							playerAtts[name]["30"][4] = playerAtts[name]["30"][4] + 1
-						end
-					end
-				end
-			end
-		end
-		calcARProgressFrame:SetValue(n)
-		n = n + 1
-	end
-
-	for name, t in pairs(_G[GRA_R_Roster]) do
-		if playerAtts[name] then
-			-- update ar
-			playerAtts[name]["30"][5] = (playerAtts[name]["30"][5] == 0) and 0 or (playerAtts[name]["30"][5] / (playerAtts[name]["30"][1] + playerAtts[name]["30"][2]) * 100)
-			playerAtts[name]["60"][5] = (playerAtts[name]["60"][5] == 0) and 0 or (playerAtts[name]["60"][5] / (playerAtts[name]["60"][1] + playerAtts[name]["60"][2]) * 100)
-			playerAtts[name]["90"][5] = (playerAtts[name]["90"][5] == 0) and 0 or (playerAtts[name]["90"][5] / (playerAtts[name]["90"][1] + playerAtts[name]["90"][2]) * 100)
-			playerAtts[name]["lifetime"][5] = (playerAtts[name]["lifetime"][5] == 0) and 0 or (playerAtts[name]["lifetime"][5] / (playerAtts[name]["lifetime"][1] + playerAtts[name]["lifetime"][2]) * 100)
-
-			-- save
-			t["att30"] = playerAtts[name]["30"]
-			t["att60"] = playerAtts[name]["60"]
-			t["att90"] = playerAtts[name]["90"]
-			t["attLifetime"] = playerAtts[name]["lifetime"]
-		end
-	end
-
+	ShowCalcARProgressFrame()
+	GRA:CalcAtendanceRateAndLoots(nil, nil, calcARProgressFrame.bar, true)
+	updateRequired = nil
+	
 	ShowAR()
 end
 
@@ -1763,7 +1631,7 @@ local function LoadRowDetails(row)
 end
 
 -- update grids after awarding ep or crediting ep or changing attendance
-local function RefreshDetailsByDate(d)
+local function RefreshSheetByDate(d)
 	local index
 	-- get index
 	for k, g in pairs(dateGrids) do
@@ -1837,34 +1705,42 @@ end
 
 local function RefreshSheetByDates(dates)
 	for _, d in pairs(dates) do
-		RefreshDetailsByDate(d)
+		RefreshSheetByDate(d)
 	end
 end
 
-GRA:RegisterEvent("GRA_ENTRY", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
-GRA:RegisterEvent("GRA_ENTRY_MODIFY", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
-GRA:RegisterEvent("GRA_ENTRY_UNDO", "AttendanceSheet_DetailsRefresh", RefreshDetailsByDate)
+GRA:RegisterEvent("GRA_ENTRY", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
+GRA:RegisterEvent("GRA_ENTRY_MODIFY", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
+GRA:RegisterEvent("GRA_ENTRY_UNDO", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
 
--- raid logs (attendance) changed -- TODO: create a flag : updateRequired
+-- raid logs (attendance) changed
 local refreshTimer
 GRA:RegisterEvent("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
-	-- update ONCE EVERY 1S!!!
-	if refreshTimer then
-		refreshTimer:Cancel()
-		refreshTimer = nil
-	end
+	if attendanceFrame:IsVisible() then
+		-- update ONCE EVERY 1S!!!
+		if refreshTimer then
+			refreshTimer:Cancel()
+			refreshTimer = nil
+		end
 
-	refreshTimer = C_Timer.NewTimer(1, function()
-		RefreshDetailsByDate(d)
-		CalcAR()
-		refreshTimer = nil
-	end)
+		refreshTimer = C_Timer.NewTimer(1, function()
+			RefreshSheetByDate(d)
+			CalcAR()
+			refreshTimer = nil
+		end)
+	else
+		updateRequired = d
+	end
 end)
 
 -- raid logs deleted
 GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", function(dates)
-	RefreshSheetByDates(dates)
-	CalcAR()
+	if attendanceFrame:IsVisible() then
+		RefreshSheetByDates(dates)
+		CalcAR()
+	else
+		updateRequired = dates
+	end
 end)
 
 -- raid start time update
@@ -1872,7 +1748,7 @@ GRA:RegisterEvent("GRA_RH_UPDATE", "AttendanceSheet_RaidHoursUpdate", function(d
 	GRA:Debug("|cff66CD00GRA_RH_UPDATE:|r " .. (d or "GLOBAL"))
 	GRA:UpdateAttendance(d)
 	if d then
-		RefreshDetailsByDate(d)
+		RefreshSheetByDate(d)
 	else -- update all
 		GRA:ShowAttendanceSheet()
 	end
@@ -1889,7 +1765,7 @@ GRA:RegisterEvent("GRA_SYSTEM", "AttendanceSheet_SystemChanged", function(system
 	gps, eps = {}, {}
 	todaysGP, todaysEP = {}, {}
 	for _, dateGrid in pairs(dateGrids) do
-		RefreshDetailsByDate(dateGrid.date)
+		RefreshSheetByDate(dateGrid.date)
 	end
 end)
 
@@ -1902,6 +1778,15 @@ end)
 
 GRA:RegisterEvent("GRA_MAINALT", "AttendanceFrame_MainAltChanged", function()
 	CalcAR()
+end)
+
+-- attendance rate calculation method changed
+GRA:RegisterEvent("GRA_ARCM", "AttendanceFrame_ARCMChanged", function()
+	if attendanceFrame:IsVisible() then
+		CalcAR()
+	else
+		updateRequired = true
+	end
 end)
 
 -----------------------------------------
@@ -2057,6 +1942,16 @@ attendanceFrame:SetScript("OnShow", function()
 
 	datePicker:SetDate(_G[GRA_R_Config]["startDate"])
 	
+	if updateRequired then
+		print(type(updateRequired))
+		if type(updateRequired) == "table" then
+			RefreshSheetByDates(updateRequired)
+		elseif type(updateRequired) == "string" then
+			RefreshSheetByDate(updateRequired)
+		end
+		CalcAR()
+	end
+
 	if #loaded ~= 0 then -- already loaded
 		return
 	end
