@@ -524,9 +524,9 @@ function GRA:CreateProgressBar(frame, width, height, maxValue, func, showText, t
 		end
 	end)
 
-	bar:SetScript("OnHide", function()
-		bar:SetValue(0)
-	end)
+	-- bar:SetScript("OnHide", function()
+	-- 	bar:SetValue(0)
+	-- end)
 
 	return bar
 end

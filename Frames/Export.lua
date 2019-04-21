@@ -363,6 +363,7 @@ progressBar:SetAllPoints(generateBtn)
 progressBar.fadeOut = progressBar:CreateAnimationGroup()
 progressBar.fadeOut:SetScript("OnFinished", function()
     progressBar:Hide()
+    progressBar:Reset()
     GRA:ChangeSizeWithAnimation(exportFrame, nil, HEIGHT_EXPAND, function() generateBtn:SetEnabled(false) end, function() generateBtn:SetEnabled(true) end)
     -- re-enable
     SetWidgetsEnabled(true)
@@ -390,6 +391,7 @@ exportFrame:SetScript("OnHide", function()
     -- reset button and bar
     generateBtn:Show()
     progressBar:Hide()
+    progressBar:Reset()
     -- reset dropdown, cbs
     Reset()
     -- reset others

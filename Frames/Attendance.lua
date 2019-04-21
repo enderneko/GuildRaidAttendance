@@ -1333,6 +1333,7 @@ local function ShowCalcARProgressFrame()
 		end
 	end
 
+	calcARProgressFrame.bar:Reset()
 	calcARProgressFrame.fadeIn:Play()
 end
 
