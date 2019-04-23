@@ -683,13 +683,19 @@ end
 
 -- calc AR and Loots
 function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
-	local logsNumber = 0
+	local today = GRA:Date()
+	local logsNumber, logsNumber30, logsNumber60, logsNumber90 = 0, 0, 0, 0
+
 	for d, _ in pairs(_G[GRA_R_RaidLogs]) do
 		if from and to then
 			if d >= from and d <= to then
 				logsNumber = logsNumber + 1
 			end
 		else
+			local dateOffset = GRA:DateOffset(d, today)
+			if dateOffset < 30 then logsNumber30 = logsNumber30 + 1 end
+			if dateOffset < 60 then logsNumber60 = logsNumber60 + 1 end
+			if dateOffset < 90 then logsNumber90 = logsNumber90 + 1 end
 			logsNumber = logsNumber + 1
 		end
 	end
@@ -699,7 +705,6 @@ function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
 		GRA:Debug("|cff1E90FFCalculating attendance rate:|r " .. logsNumber)
 	end
 
-	local today = GRA:Date()
 	local playerAtts, playerLoots, dates = {}, {}, {}
 	for n, t in pairs(_G[GRA_R_Roster]) do
 		if not t["altOf"] then -- ignore alts
@@ -755,10 +760,10 @@ function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
 
 	else
 		for d, l in pairs(_G[GRA_R_RaidLogs]) do
+			local dateOffset = GRA:DateOffset(d, today)
 			for name, t in pairs(l["attendances"]) do
 				if playerAtts[name] then -- exists in roster
 					local att, _, _, ar, isSitOut, loots = GRA:GetMainAltAttendance(d, name) -- add alt attendance to main
-					local dateOffset = GRA:DateOffset(d, today)
 					if att == "PRESENT" or att == "PARTIAL" then
 						playerAtts[name]["lifetime"][1] = playerAtts[name]["lifetime"][1] + 1
 						playerAtts[name]["lifetime"][5] = playerAtts[name]["lifetime"][5] + ar
@@ -774,14 +779,14 @@ function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
 							playerAtts[name]["90"][5] = playerAtts[name]["90"][5] + ar
 							if att == "PARTIAL" then
 								playerAtts[name]["90"][3] = playerAtts[name]["90"][3] + 1
-						end
+							end
 						end
 						if dateOffset < 60 then
 							playerAtts[name]["60"][1] = playerAtts[name]["60"][1] + 1
 							playerAtts[name]["60"][5] = playerAtts[name]["60"][5] + ar
 							if att == "PARTIAL" then
 								playerAtts[name]["60"][3] = playerAtts[name]["60"][3] + 1
-						end
+							end
 						end
 						if dateOffset < 30 then
 							playerAtts[name]["30"][1] = playerAtts[name]["30"][1] + 1
@@ -835,9 +840,9 @@ function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
 				playerAtts[name]["90"][5] = (playerAtts[name]["90"][5] == 0) and 0 or (playerAtts[name]["90"][5] / (playerAtts[name]["90"][1] + playerAtts[name]["90"][2]) * 100)
 				playerAtts[name]["lifetime"][5] = (playerAtts[name]["lifetime"][5] == 0) and 0 or (playerAtts[name]["lifetime"][5] / (playerAtts[name]["lifetime"][1] + playerAtts[name]["lifetime"][2]) * 100)
 			else -- method B: AR = PRESENT / ALL RAID DAYS
-				playerAtts[name]["30"][5] = (playerAtts[name]["30"][5] == 0) and 0 or (playerAtts[name]["30"][5] / logsNumber * 100)
-				playerAtts[name]["60"][5] = (playerAtts[name]["60"][5] == 0) and 0 or (playerAtts[name]["60"][5] / logsNumber * 100)
-				playerAtts[name]["90"][5] = (playerAtts[name]["90"][5] == 0) and 0 or (playerAtts[name]["90"][5] / logsNumber * 100)
+				playerAtts[name]["30"][5] = (playerAtts[name]["30"][5] == 0) and 0 or (playerAtts[name]["30"][5] / logsNumber30 * 100)
+				playerAtts[name]["60"][5] = (playerAtts[name]["60"][5] == 0) and 0 or (playerAtts[name]["60"][5] / logsNumber60 * 100)
+				playerAtts[name]["90"][5] = (playerAtts[name]["90"][5] == 0) and 0 or (playerAtts[name]["90"][5] / logsNumber90 * 100)
 				playerAtts[name]["lifetime"][5] = (playerAtts[name]["lifetime"][5] == 0) and 0 or (playerAtts[name]["lifetime"][5] / logsNumber * 100)
 			end
 
