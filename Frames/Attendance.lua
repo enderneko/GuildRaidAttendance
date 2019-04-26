@@ -101,7 +101,7 @@ local function SetRowPoints()
 	attendanceFrame.scrollFrame:ResetScroll()
 end
 
-local SortSheetByName, SortSheetByClass, SortSheetByATT, SortSheetByAR, SortSheetByATT30, SortSheetByAR30, SortSheetByAR60, SortSheetByAR90, SortSheetBySR, SortSheetBySO, SortSheetByPR, SortSheetByEP, SortSheetByGP, SortSheetByCurrentDKP, SortSheetBySpentDKP, SortSheetByTotalDKP
+local SortSheetByName, SortSheetByClass, SortSheetByATT, SortSheetByATT30, SortSheetByATT60, SortSheetByATT90, SortSheetByAR, SortSheetByAR30, SortSheetByAR60, SortSheetByAR90, SortSheetBySR, SortSheetBySO, SortSheetByPR, SortSheetByEP, SortSheetByGP, SortSheetByCurrentDKP, SortSheetBySpentDKP, SortSheetByTotalDKP
 
 SortSheetByName = function()
 	table.sort(loaded, function(a, b) return a.name < b.name end)
@@ -302,12 +302,14 @@ SortSheetByATT30 = function()
 			end
 		end)
 	else
-		-- att ar ar30 name
+		-- att30 ar30 ar name
 		table.sort(loaded, function(a, b)
 			if a.att30 ~= b.att30 then
 				return a.att30 > b.att30
 			elseif a.ar30 ~= b.ar30 then
 				return a.ar30 > b.ar30
+			elseif a.arLifetime ~= b.arLifetime then
+				return a.arLifetime > b.arLifetime
 			else
 				return a.name < b.name
 			end
@@ -315,6 +317,40 @@ SortSheetByATT30 = function()
 	end
 	SetRowPoints()
 	GRA_Variables["sortKey"] = "att30"
+end
+
+SortSheetByATT60 = function()
+	-- att60 ar60 ar name
+	table.sort(loaded, function(a, b)
+		if a.att60 ~= b.att60 then
+			return a.att60 > b.att60
+		elseif a.ar60 ~= b.ar60 then
+			return a.ar60 > b.ar60
+		elseif a.arLifetime ~= b.arLifetime then
+			return a.arLifetime > b.arLifetime
+		else
+			return a.name < b.name
+		end
+	end)
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "att60"
+end
+
+SortSheetByATT90 = function()
+	-- att90 ar90 ar name
+	table.sort(loaded, function(a, b)
+		if a.att90 ~= b.att90 then
+			return a.att90 > b.att90
+		elseif a.ar90 ~= b.ar90 then
+			return a.ar90 > b.ar90
+		elseif a.arLifetime ~= b.arLifetime then
+			return a.arLifetime > b.arLifetime
+		else
+			return a.name < b.name
+		end
+	end)
+	SetRowPoints()
+	GRA_Variables["sortKey"] = "att90"
 end
 
 SortSheetByAR30 = function()
@@ -631,12 +667,16 @@ local function SortSheet(key)
 		SortSheetByName()
 	elseif key == "att" then
 		SortSheetByATT()
+	elseif key == "att30" then
+		SortSheetByATT30()
+	elseif key == "att60" then
+		SortSheetByATT60()
+	elseif key == "att90" then
+		SortSheetByATT90()
 	elseif key == "ar" then
 		SortSheetByAR()
 	elseif key == "ar30" then
 		SortSheetByAR30()
-	elseif key == "att30" then
-		SortSheetByATT30()
 	elseif key == "ar60" then
 		SortSheetByAR60()
 	elseif key == "ar90" then
@@ -868,20 +908,30 @@ ar30Text:SetScript("OnClick", function(self, button)
 	end
 end)
 
-local ar60Text = GRA:CreateGrid(headerFrame, 50, "AR 60", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by attendance rate (60 days)."])
+local ar60Text = GRA:CreateGrid(headerFrame, 50, "AR 60", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (60 days)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (60 days)."])
 ar60Text:GetFontString():ClearAllPoints()
 ar60Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar60Text:SetScript("OnClick", function()
-	SortSheetByAR60()
-	GRA:Print(L["Sort attendance sheet by attendance rate (60 days)."])
+	if button == "LeftButton" then
+		SortSheetByAR60()
+		GRA:Print(L["Sort attendance sheet by attendance rate (60 days)."])
+	elseif button == "RightButton" then
+		SortSheetByATT60()
+		GRA:Print(L["Sort attendance sheet by attendance (60 days)."])
+	end
 end)
 
-local ar90Text = GRA:CreateGrid(headerFrame, 50, "AR 90", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by attendance rate (90 days)."])
+local ar90Text = GRA:CreateGrid(headerFrame, 50, "AR 90", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (90 days)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (90 days)."])
 ar90Text:GetFontString():ClearAllPoints()
 ar90Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar90Text:SetScript("OnClick", function()
-	SortSheetByAR90()
-	GRA:Print(L["Sort attendance sheet by attendance rate (90 days)."])
+	if button == "LeftButton" then
+		SortSheetByAR90()
+		GRA:Print(L["Sort attendance sheet by attendance rate (90 days)."])
+	elseif button == "RightButton" then
+		SortSheetByATT90()
+		GRA:Print(L["Sort attendance sheet by attendance (90 days)."])
+	end
 end)
 
 local arLifetimeText = GRA:CreateGrid(headerFrame, 50, "AR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (lifetime)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (lifetime)."])
@@ -1800,7 +1850,7 @@ local function LoadSheet()
 	for pName, pTable in pairs(_G[GRA_R_Roster]) do
 		if not pTable["altOf"] then
 			local row = GRA:CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), pName,
-				function() print("Show details (WIP): " .. pName) end)
+				function() GRA:ShowMemberAttendance(pName) end)
 			row.name = pName -- sort key
 			row.class = pTable["class"] -- sort key
 			
@@ -1944,7 +1994,6 @@ attendanceFrame:SetScript("OnShow", function()
 	datePicker:SetDate(_G[GRA_R_Config]["startDate"])
 	
 	if updateRequired then
-		print(type(updateRequired))
 		if type(updateRequired) == "table" then
 			RefreshSheetByDates(updateRequired)
 		elseif type(updateRequired) == "string" then

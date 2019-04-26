@@ -279,8 +279,8 @@ function frame:ADDON_LOADED(arg1)
 		-- help viewed
 		if type(GRA_A_Variables["helpViewed"]) ~= "boolean" then GRA_A_Variables["helpViewed"] = false end
 		
-		-- about current version
-		if type(GRA_A_Variables["aboutViewed"]) ~= "string" then GRA_A_Variables["aboutViewed"] = "" end
+		-- what's new in current version
+		if type(GRA_A_Variables["whatsNewViewed"]) ~= "string" then GRA_A_Variables["whatsNewViewed"] = "" end
 
 		-- scale
 		if type(GRA_A_Variables["scaleFactor"]) ~= "number" then GRA_A_Variables["scaleFactor"] = 1 end

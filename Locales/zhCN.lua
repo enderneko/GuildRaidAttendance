@@ -30,6 +30,7 @@ L["Failed to save encounter info."] = "未能成功保存首领战信息。"
 L["New version found (%s). Please visit %s to get the latest version."] = "发现新版本（%s）。请访问 %s 以获取最新版本。"
 L["In order to use GRA, your guild must have an admin.\nCheck \"Help\" in \"Config\" for further details."] = "要使用GRA，你的公会必须要有个管理员。\n查看“设置”中的“帮助”以获取更多信息。"
 L["Hover for more information."] = "指向此处以获取更多信息。"
+-- L["What's New"]
 
 -------------------------------------------------------
 -- attendance sheet
@@ -73,6 +74,12 @@ L["All"] = "全选"
 L["No member"] = "无成员"
 L["Members: "] = "成员："
 L["Refresh"] = "刷新"
+
+-------------------------------------------------------
+-- member attendance frame
+-------------------------------------------------------
+L["Attendance"] = "出勤"
+L["Attendance Detail"] = "出勤详情"
 
 -------------------------------------------------------
 -- raid logs

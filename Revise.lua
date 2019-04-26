@@ -139,5 +139,11 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 			end
 			_G[GRA_R_Config]["revise"] = "r88-release"
 		end
+
+		-- r89-release
+		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r89-release" then
+			GRA_A_Variables["aboutViewed"] = nil
+			_G[GRA_R_Config]["revise"] = "r89-release"
+		end
     end
 end)

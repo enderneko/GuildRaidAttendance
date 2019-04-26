@@ -1,3 +1,9 @@
+version r89-release
+------------------------
+    + Added MemberAttendanceFrame.
+    * Updated attendance sheet sort method: att30, att60, att90.
+    * Fixed AR calc bugs.
+
 version r88-release
 ------------------------
     + Implemented Export CSV functionality.

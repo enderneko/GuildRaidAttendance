@@ -1,5 +1,5 @@
 General:
-    ☐ player detail frame (just view)
+    ✔ player detail frame (just view) @done(19-04-26 17:54)
     ✔ import / export @done(19-04-22 01:08)
     ✔ 群体邀请，排除自己 @critical @done(19-03-04 17:44)
     ☐ start tracking 可以选择记录到的日期，不仅限于"resume last raid"
@@ -25,10 +25,10 @@ Modules/Frames:
         ☐ 删除后名字全都消失的bug @critical
     Attendance:
         ✔ optimize attendance rate update @done(19-04-22 01:08)
-        ☐ AR30/60/90 sort by attendance @critical
+        ✔ AR30/60/90 sort by attendance @critical @done(19-04-26 01:54)
         ✔ role count text @done(18-09-07 15:34)
     Util:
-        ☐ 将util分类，GRA.Util.DateUtil.function @low
+        ✘ 将util分类，GRA.Util.DateUtil.function @low @cancelled(19-04-24 02:45)
         ✔ GRA:Copy @critical @done(19-03-04 17:46)
         ☐ GRA:RemoveElementsByKeys 内部直接赋值，不需要再次赋值 @critical 
 

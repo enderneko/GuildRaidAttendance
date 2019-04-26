@@ -2,7 +2,7 @@
 ## Title: |cff80FF00Guild|r Raid Attendance
 ## Notes: Keeps track of raid loot and attendance for guild.
 ## Notes-zhCN: 记录公会活动出勤与拾取。
-## Version: r88-release
+## Version: r89-release
 ## Author: fyhcslb/EnderNeko
 ## SavedVariables: GRA_A_RaidLogs, GRA_A_Roster, GRA_A_Config, GRA_A_Variables
 ## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Roster, GRA_Config, GRA_Variables
@@ -51,12 +51,12 @@ Frames\LootSystem\EPGPOptions.lua
 # Frames\FloatButtons.lua
 Frames\Config.lua
 Frames\RosterEditor.lua
-Frames\MemberDetails.lua
+Frames\MemberAttendance.lua
 Frames\Import.lua
 Frames\Export.lua
 Frames\Profiles.lua
 Frames\Help.lua
-Frames\About.lua
+Frames\WhatsNew.lua
 
 # Frames\LootDistribution\Common.lua
 # Frames\LootDistribution\Token.lua

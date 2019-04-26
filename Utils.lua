@@ -436,7 +436,7 @@ function GRA:GetWeekdayNames(isShort, forceEnglish)
 	if forceEnglish then
 		weekdayNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
 	end
-	if isShort and not(GetLocale() == "zhCN" or GetLocale() == "zhTW") then
+	if isShort and (forceEnglish or not(GetLocale() == "zhCN" or GetLocale() == "zhTW")) then
 		for i,n in pairs(weekdayNames) do
 			weekdayNames[i] = string.sub(n, 1, 3)
 		end
@@ -445,14 +445,14 @@ function GRA:GetWeekdayNames(isShort, forceEnglish)
 end
 
 -- d: date string/number, "20170321" or 20170321
-function GRA:DateToWeekday(d)
+function GRA:DateToWeekday(d, forceEnglish)
 	local year = string.sub(d, 1, 4)
 	local month = string.sub(d, 5, 6)
 	local day = string.sub(d, 7, 8)
 
 	local sec = time({["day"]=day, ["month"]=month, ["year"]=year})
 	local t = date("*t", sec)
-	local wdNames = GRA:GetWeekdayNames(true, GRA_FORCE_ENGLISH)
+	local wdNames = GRA:GetWeekdayNames(true, forceEnglish or GRA_FORCE_ENGLISH)
 	
 	return wdNames[t.wday], t.wday
 end
@@ -595,6 +595,8 @@ local function GetAttendanceRate(d, joinTime, leaveTime)
 	else
 		local startTime = select(2, GRA:GetRaidStartTime(d))
 		local endTime = select(2, GRA:GetRaidEndTime(d))
+
+		if leaveTime and leaveTime < startTime then return 0 end -- leave before start
 
 		joinTime = math.max(startTime, joinTime)
 		leaveTime = leaveTime and math.min(endTime, leaveTime) or endTime

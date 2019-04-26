@@ -239,8 +239,8 @@ local function PrepareResult()
         for name, t in pairs(_G[GRA_R_Roster]) do
             if not t["altOf"] then
                 result[name] = {
-                    ["AR"] = format("%.1f%%", t["attLifetime"][5]),
-                    ["SR"] = t["attLifetime"][6] == 0 and "0%" or format("%.1f%%", t["attLifetime"][6] / t["attLifetime"][1] * 100),
+                    ["AR"] = tonumber(format("%.1f", t["attLifetime"][5])) .. "%",
+                    ["SR"] = t["attLifetime"][6] == 0 and "0%" or (tonumber(format("%.1f", t["attLifetime"][6] / t["attLifetime"][1] * 100)) .. "%"),
                     ["Loots"] = t["loots"],
                     ["DailyAttendance"] = playerAtts[name]["dailyAttendance"],
                 }
@@ -253,11 +253,11 @@ local function PrepareResult()
         for name, t in pairs(_G[GRA_R_Roster]) do
             if not t["altOf"] then
                 result[name] = {
-                    ["AR"] = format("%.1f%%", t["attLifetime"][5]),
-                    ["AR30"] = format("%.1f%%", t["att30"][5]),
-                    ["AR60"] = format("%.1f%%", t["att60"][5]),
-                    ["AR90"] = format("%.1f%%", t["att90"][5]),
-                    ["SR"] = t["attLifetime"][6] == 0 and "0%" or format("%.1f%%", t["attLifetime"][6] / t["attLifetime"][1] * 100),
+                    ["AR"] = tonumber(format("%.1f", t["attLifetime"][5])) .. "%",
+                    ["AR30"] = tonumber(format("%.1f", t["att30"][5])) .. "%",
+                    ["AR60"] = tonumber(format("%.1f", t["att60"][5])) .. "%",
+                    ["AR90"] = tonumber(format("%.1f", t["att90"][5])) .. "%",
+                    ["SR"] = t["attLifetime"][6] == 0 and "0%" or (tonumber(format("%.1f", t["attLifetime"][6] / t["attLifetime"][1] * 100)) .. "%"),
                     ["Present"] = t["attLifetime"][1],
                     ["Absent"] = t["attLifetime"][2],
                     ["Late/LeaveEarly"] = t["attLifetime"][3],

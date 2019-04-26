@@ -72,14 +72,15 @@ function GRA:SetScale(factor)
     GRA_RecordLootTooltip:SetScale(scale)
     GRA_CreditTooltip:SetScale(scale)
     -- frames
-    gra.mainFrame:SetScale(scale)           -- gra.mainFrame.scaleFactor = factor
-    gra.awardFrame:SetScale(scale)          -- gra.awardFrame.scaleFactor = factor
-    gra.creditFrame:SetScale(scale)         -- gra.creditFrame.scaleFactor = factor
-    gra.penalizeFrame:SetScale(scale)       -- gra.penalizeFrame.scaleFactor = factor
-    gra.recordLootFrame:SetScale(scale)     -- gra.recordLootFrame.scaleFactor = factor
-    gra.helpFrame:SetScale(scale)           -- gra.helpFrame.scaleFactor = factor
-    gra.aboutFrame:SetScale(scale)          -- gra.aboutFrame.scaleFactor = factor
-    gra.exportFrame:SetScale(scale)         gra.exportFrame.scaleFactor = factor
+    gra.mainFrame:SetScale(scale)               -- gra.mainFrame.scaleFactor = factor
+    gra.memberAttendanceFrame:SetScale(scale)   -- gra.memberAttendanceFrame.scaleFactor = factor
+    gra.awardFrame:SetScale(scale)              -- gra.awardFrame.scaleFactor = factor
+    gra.creditFrame:SetScale(scale)             -- gra.creditFrame.scaleFactor = factor
+    gra.penalizeFrame:SetScale(scale)           -- gra.penalizeFrame.scaleFactor = factor
+    gra.recordLootFrame:SetScale(scale)         -- gra.recordLootFrame.scaleFactor = factor
+    gra.helpFrame:SetScale(scale)               -- gra.helpFrame.scaleFactor = factor
+    gra.whatsNewFrame:SetScale(scale)           -- gra.whatsNewFrame.scaleFactor = factor
+    gra.exportFrame:SetScale(scale)             gra.exportFrame.scaleFactor = factor
     -- loot distr
     -- gra.distributionFrame:SetScale(scale)
     -- gra.lootFrame:SetScale(scale)

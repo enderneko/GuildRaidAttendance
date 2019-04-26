@@ -139,6 +139,18 @@ select(2, ...).L = setmetatable({
 		<h1>You can submit a ticket on GitHub or send me an email to do a Feature Request / Bug Report.</h1>
 		<h1>Thank you :)</h1>
 	]],
+	["r89-release"] = [[
+		<h1>Player Attendance Frame</h1>
+		<p>Double-click on a player name in Attendance and check it out!</p> <br/>
+		<h1>Export CSV</h1>
+		<p>This button can be found in Config and Raid Logs.</p> <br/>
+		<h1>New AR Calculation Method</h1>
+		<p>Method A: AR = PRESENT / (PRESENT + ABSENT)</p>
+		<p>Method B: AR = PRESENT / ALL RAID DAYS</p>
+		<p>This option can be found in Config.</p> <br/>
+		<h1>You can submit a ticket on GitHub to do a Feature Request / Bug Report.</h1>
+		<h1>Thank you :)</h1>
+	]],
 }, {
 	__index = function(self, Key)
 		if (Key ~= nil) then

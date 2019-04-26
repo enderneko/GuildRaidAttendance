@@ -532,6 +532,115 @@ function GRA:CreateProgressBar(frame, width, height, maxValue, func, showText, t
 end
 
 -----------------------------------------
+-- Attendance Bar (MemberAttendanceFrame)
+-----------------------------------------
+function GRA:CreateAttendanceBar(frame, width, raidDate, attendance, attendanceRate, joinTime, leaveTime, startTime, endTime, note)
+	local baseBar = CreateFrame("Frame", nil, frame)
+	baseBar:SetSize(width, 20)
+	baseBar.raidDate = baseBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
+	baseBar.raidDate:SetPoint("LEFT", 5, 0)
+	local weekday, weekdayN = GRA:DateToWeekday(raidDate, true)
+	baseBar.raidDate:SetText(date("%x", GRA:DateToSeconds(raidDate)) .. ((weekdayN == gra.RAID_LOCKOUTS_RESET) and (" " .. gra.colors.firebrick.s) or " ") .. weekday)
+	GRA:StylizeFrame(baseBar, {.7, .7, .7, .1})
+	
+	local bottomBar = CreateFrame("Frame", nil, baseBar)
+	bottomBar:SetHeight(20)
+	bottomBar:SetPoint("LEFT", 120, 0)
+	bottomBar:SetPoint("RIGHT", -40, 0)
+	bottomBar.startTime = baseBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
+	bottomBar.startTime:SetPoint("RIGHT", bottomBar, "LEFT", -5, 0)
+	bottomBar.startTime:SetTextColor(.7, .7, .7, 1)
+	bottomBar.endTime = baseBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
+	bottomBar.endTime:SetPoint("LEFT", bottomBar, "RIGHT", 5, 0)
+	bottomBar.endTime:SetTextColor(.7, .7, .7, 1)
+	GRA:StylizeFrame(bottomBar, {.5, .5, .5, .1})
+
+	local topBar = CreateFrame("Frame", nil, bottomBar)
+	topBar:SetHeight(20)
+	topBar.ar = topBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID") -- TODO: 中文
+	topBar.ar:SetPoint("CENTER")
+	-- topBar.joinTime = topBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+	-- topBar.joinTime:SetPoint("LEFT", 5, 0)
+	-- topBar.leaveTime = topBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+	-- topBar.leaveTime:SetPoint("RIGHT", -5, 0)
+
+	-- tooltip
+	bottomBar:SetScript("OnEnter", function()
+		if joinTime then
+			GRA_Tooltip:SetOwner(bottomBar, "ANCHOR_TOP", 0, -1)
+			GRA_Tooltip:AddLine(L["Attendance Detail"])
+			GRA_Tooltip:AddLine("|cffFFFFFF" .. GRA:SecondsToTime(joinTime) .. " - " .. GRA:SecondsToTime(leaveTime))
+			if note then GRA_Tooltip:AddLine("|cffFFFFFF" .. note) end
+			GRA_Tooltip:Show()
+		end
+
+		topBar:SetBackdropColor(topBar.r, topBar.g, topBar.b, .45)
+		bottomBar:SetBackdropColor(.5, .5, .5, .25)
+	end)
+	bottomBar:SetScript("OnLeave", function()
+		GRA_Tooltip:Hide()
+		topBar:SetBackdropColor(topBar.r, topBar.g, topBar.b, topBar.a)
+		bottomBar:SetBackdropColor(.5, .5, .5, .1)
+	end)
+	
+	-- set text
+	bottomBar.startTime:SetText(GRA:SecondsToTime(startTime))
+	bottomBar.endTime:SetText(GRA:SecondsToTime(endTime))
+
+	if joinTime then
+		topBar.ar:SetText(tonumber(format("%.1f", attendanceRate * 100)) .. "%")
+	elseif attendance == "ONLEAVE" then
+		topBar.ar:SetText(note)
+	end
+
+	-- color
+	if isSitOut then
+	elseif attendance == "PRESENT" then
+		GRA:StylizeFrame(topBar, {0, 1, 0, .2})
+	elseif attendance == "PARTIAL" then
+		GRA:StylizeFrame(topBar, {1, 1, 0, .2})
+	elseif attendance == "ONLEAVE" then
+		GRA:StylizeFrame(topBar, {1, 0, 1, .2})
+	elseif attendance == "ABSENT" then
+		GRA:StylizeFrame(topBar, {1, 0, 0, .2})
+	end
+
+	topBar.r, topBar.g, topBar.b, topBar.a = topBar:GetBackdropColor()
+
+	function baseBar:Refresh()
+		topBar:ClearAllPoints()
+		if joinTime then
+			local duration = endTime - startTime
+			local p = bottomBar:GetWidth() / duration
+			if joinTime > startTime then
+				topBar:SetPoint("LEFT", floor((joinTime - startTime) * p + .5), 0)
+			else
+				topBar:SetPoint("LEFT")
+			end
+
+			if leaveTime < startTime then -- leave BEFORE start
+				topBar:SetPoint("RIGHT", bottomBar, "LEFT")
+				topBar.ar:ClearAllPoints()
+				topBar.ar:SetPoint("LEFT", 5, 0)
+			elseif leaveTime < endTime then -- normal PARTIAL
+				topBar:SetPoint("RIGHT", floor((leaveTime - endTime) * p + .5), 0)
+			else
+				topBar:SetPoint("RIGHT")
+			end
+		else
+			topBar:SetPoint("LEFT")
+			topBar:SetPoint("RIGHT")
+		end
+	end
+
+	baseBar:SetScript("OnSizeChanged", function()
+		baseBar:Refresh()
+	end)
+
+	return baseBar
+end
+
+-----------------------------------------
 -- Date Picker
 -----------------------------------------
 function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
