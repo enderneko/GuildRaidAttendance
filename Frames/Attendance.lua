@@ -302,12 +302,14 @@ SortSheetByATT30 = function()
 			end
 		end)
 	else
-		-- att30 ar30 ar name
+		-- att30 ar30 att ar name
 		table.sort(loaded, function(a, b)
 			if a.att30 ~= b.att30 then
 				return a.att30 > b.att30
 			elseif a.ar30 ~= b.ar30 then
 				return a.ar30 > b.ar30
+			elseif a.attLifetime ~= b.attLifetime then
+				return a.attLifetime > b.attLifetime
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
 			else
@@ -320,12 +322,14 @@ SortSheetByATT30 = function()
 end
 
 SortSheetByATT60 = function()
-	-- att60 ar60 ar name
+	-- att60 ar60 att ar name
 	table.sort(loaded, function(a, b)
 		if a.att60 ~= b.att60 then
 			return a.att60 > b.att60
 		elseif a.ar60 ~= b.ar60 then
 			return a.ar60 > b.ar60
+		elseif a.attLifetime ~= b.attLifetime then
+			return a.attLifetime > b.attLifetime
 		elseif a.arLifetime ~= b.arLifetime then
 			return a.arLifetime > b.arLifetime
 		else
@@ -337,12 +341,14 @@ SortSheetByATT60 = function()
 end
 
 SortSheetByATT90 = function()
-	-- att90 ar90 ar name
+	-- att90 ar90 att ar name
 	table.sort(loaded, function(a, b)
 		if a.att90 ~= b.att90 then
 			return a.att90 > b.att90
 		elseif a.ar90 ~= b.ar90 then
 			return a.ar90 > b.ar90
+		elseif a.attLifetime ~= b.attLifetime then
+			return a.attLifetime > b.attLifetime
 		elseif a.arLifetime ~= b.arLifetime then
 			return a.arLifetime > b.arLifetime
 		else
@@ -389,7 +395,7 @@ SortSheetByAR30 = function()
 			end
 		end)
 	else
-		-- ar30 ar name
+		-- ar30 att30 ar att name
 		table.sort(loaded, function(a, b)
 			if a.ar30 ~= b.ar30 then
 				return a.ar30 > b.ar30
@@ -397,6 +403,8 @@ SortSheetByAR30 = function()
 				return a.att30 > b.att30
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
+			elseif a.attLifetime ~= b.attLifetime then
+				return a.attLifetime > b.attLifetime
 			else
 				return a.name < b.name
 			end
@@ -442,7 +450,7 @@ SortSheetByAR60 = function()
 			end
 		end)
 	else
-		-- ar60 ar name
+		-- ar60 att60 ar att name
 		table.sort(loaded, function(a, b)
 			if a.ar60 ~= b.ar60 then
 				return a.ar60 > b.ar60
@@ -450,6 +458,8 @@ SortSheetByAR60 = function()
 				return a.att60 > b.att60
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
+			elseif a.attLifetime ~= b.attLifetime then
+				return a.attLifetime > b.attLifetime
 			else
 				return a.name < b.name
 			end
@@ -495,7 +505,7 @@ SortSheetByAR90 = function()
 			end
 		end)
 	else
-		-- ar90 ar name
+		-- ar90 att90 ar att name
 		table.sort(loaded, function(a, b)
 			if a.ar90 ~= b.ar90 then
 				return a.ar90 > b.ar90
@@ -503,6 +513,8 @@ SortSheetByAR90 = function()
 				return a.att90 > b.att90
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
+			elseif a.attLifetime ~= b.attLifetime then
+				return a.attLifetime > b.attLifetime
 			else
 				return a.name < b.name
 			end
