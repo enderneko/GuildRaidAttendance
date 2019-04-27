@@ -227,12 +227,12 @@ arCalculationText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -82)
 arCalculationText:SetText(L["AR Calculation Method"] .. ": ")
 
 local arcmBtn2 = GRA:CreateButton(configFrame, L["B"], nil, {25, 18}, "GRA_FONT_SMALL", false,
-	L["Method B"], L["AR = PRESENT / ALL RAID DAYS"])
+	L["Method"] .. " B", L["AR = PRESENT / ALL RAID DAYS"])
 arcmBtn2:Hide()
 arcmBtn2:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -78) -- not point to arCalculationText to make pixelperfectpoint
 
 local arcmBtn1 = GRA:CreateButton(configFrame, L["A"], nil, {25, 18}, "GRA_FONT_SMALL", false,
-	L["Method A"], L["AR = PRESENT / (PRESENT + ABSENT)"])
+	L["Method"] .. " A", L["AR = PRESENT / (PRESENT + ABSENT)"])
 arcmBtn1:Hide()
 arcmBtn1:SetPoint("RIGHT", arcmBtn2, "LEFT", 1, 0)
 

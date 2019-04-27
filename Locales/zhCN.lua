@@ -244,10 +244,11 @@ L["30 days"] = "30 天"
 L["60 days"] = "60 天"
 L["90 days"] = "90 天"
 L["Lifetime"] = "总出勤率"
--- L["AR Calculation Method"]
--- L["Attendance rate calculation method has been changed."]
--- L["AR = PRESENT / (PRESENT + ABSENT)"]
--- L["AR = PRESENT / ALL RAID DAYS"]
+L["AR Calculation Method"] = "出勤率计算方式"
+L["Method"] = "方式"
+L["Attendance rate calculation method has been changed."] = "出勤率计算方式已改变。"
+L["AR = PRESENT / (PRESENT + ABSENT)"] = "出勤率 = 出勤次数 / （出勤次数 + 缺勤次数）"
+L["AR = PRESENT / ALL RAID DAYS"] = "出勤率 = 出勤次数 / 活动记录数"
 L["Raid Start Time"] = "活动开始时间"
 L["Raid End Time"] = "活动结束时间"
 L["Raid Hours"] = "活动时间"
@@ -336,7 +337,14 @@ L["Reset DKP?"] = "重置 DKP？"
 -------------------------------------------------------
 -- export
 -------------------------------------------------------
+L["Export"] = "导出"
 L["Export CSV"] = "导出CSV"
+L["Period"] = "时间段"
+L["Columns"] = "列"
+L["OnLeave"] = "请假"
+L["SitOut"] = "待命"
+L["Late/LeaveEarly"] = "迟到/早退"
+L["DailyAttendance"] = "每日出勤"
 
 -------------------------------------------------------
 -- loot distribution

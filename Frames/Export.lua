@@ -41,14 +41,14 @@ local columns, dateColumns = {}, {}
 local cbs = {}
 
 local columnsText = exportFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-columnsText:SetText(gra.colors.chartreuse.s .. L["Colunms"] .. ": ")
+columnsText:SetText(gra.colors.chartreuse.s .. L["Columns"] .. ": ")
 columnsText:SetPoint("TOPLEFT", 5, -50)
 
 -- create cbs
 local function CreateCheckButtons()
     columns = {"AR", "AR30", "AR60", "AR90", "SR", "Present", "Late/LeaveEarly", "Absent", "OnLeave", "SitOut", "Loots", "DailyAttendance"}
     for _, c in ipairs(columns) do
-        cbs[c] = GRA:CreateCheckButton(exportFrame, c, nil, function(checked)
+        cbs[c] = GRA:CreateCheckButton(exportFrame, L[c], nil, function(checked)
             if checked then
                 table.insert(columns, c)
             else

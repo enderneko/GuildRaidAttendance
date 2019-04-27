@@ -1579,6 +1579,9 @@ local function UpdateGrid(g, d, name, altGs)
 				elseif not _G[GRA_R_RaidLogs][d]["attendances"][name] then -- alt is ABSENT/ONLEAVE and main is IGNORED
 					altG:SetAttendance(att)
 				end
+				if _G[GRA_R_RaidLogs][d]["attendances"][altName][2] then
+					altG:ShowNoteMark(true)
+				end
 			else
 				altG:SetAttendance("IGNORED")
 			end
@@ -1636,6 +1639,15 @@ local function UpdateGrid(g, d, name, altGs)
 		-- note
 		if _G[GRA_R_RaidLogs][d]["attendances"][name] and _G[GRA_R_RaidLogs][d]["attendances"][name][2] then
 			GRA_Tooltip:AddLine(_G[GRA_R_RaidLogs][d]["attendances"][name][2])
+			GRA_Tooltip:Show()
+			blankLine = true
+		end
+		if altGs then
+			for altName, _ in pairs(altGs) do
+				if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][2] then
+					GRA_Tooltip:AddLine(_G[GRA_R_RaidLogs][d]["attendances"][altName][2])
+				end
+			end
 			GRA_Tooltip:Show()
 			blankLine = true
 		end
