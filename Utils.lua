@@ -640,25 +640,30 @@ function GRA:GetMainAltAttendance(d, mainName)
 	end
 
 	if gra.mainAlt[mainName] then -- has alt
-		-- PRESENT or PARTIAL
 		for _, altName in pairs(gra.mainAlt[mainName]) do
-			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
-				-- 大号没有出勤 or 小号先于大号进组
-				if not joinTime or joinTime > _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
-					att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
-					joinTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][3]
+			if _G[GRA_R_RaidLogs][d]["attendances"][altName] then
+				if _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then -- PRESENT or PARTIAL
+					-- 大号没有出勤 or 小号先于大号进组
+					if not joinTime or joinTime > _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
+						att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
+						joinTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][3]
+					end
+					-- 小号后于大号退组
+					if _G[GRA_R_RaidLogs][d]["attendances"][altName][4] and (not leaveTime or leaveTime < _G[GRA_R_RaidLogs][d]["attendances"][altName][4]) then
+						leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][4]
+					end
+					-- alt sit out
+					if _G[GRA_R_RaidLogs][d]["attendances"][altName][5] then isSitOut = true end
+					-- alt loots
+					loots = loots + GetLoots(d, altName)
+					if not leaveTime then leaveTime = select(2, GRA:GetRaidEndTime(d)) end
+				else -- ABSENT or ONLEAVE
+					if att == nil then
+						att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
+					end
 				end
-				-- 小号后于大号退组
-				if _G[GRA_R_RaidLogs][d]["attendances"][altName][4] and (not leaveTime or leaveTime < _G[GRA_R_RaidLogs][d]["attendances"][altName][4]) then
-					leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][4]
-				end
-				-- alt sit out
-				if _G[GRA_R_RaidLogs][d]["attendances"][altName][5] then isSitOut = true end
-				-- alt loots
-				loots = loots + GetLoots(d, altName)
 			end
 		end
-		if not leaveTime then leaveTime = select(2, GRA:GetRaidEndTime(d)) end
 	end
 
 	return att, joinTime, leaveTime, GetAttendanceRate(d, joinTime, leaveTime), isSitOut, loots
@@ -705,6 +710,12 @@ function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
 	if logsNumber ~= 0 then
 		if progressBar then progressBar:SetMaxValue(logsNumber) end
 		GRA:Debug("|cff1E90FFCalculating attendance rate:|r " .. logsNumber)
+	else
+		if progressBar then
+			-- fake value, in order to make "OnValueChanged -> value == maxValue" happen
+			progressBar:SetMaxValue(1)
+			progressBar:SetValue(1)
+		end
 	end
 
 	local playerAtts, playerLoots, dates = {}, {}, {}
@@ -730,6 +741,11 @@ function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
 				-- store dates for Export.lua
 				table.insert(dates, d)
 				for name, t in pairs(l["attendances"]) do
+					local main = GRA:IsAlt(name)
+					-- main is added to roster after alt, (main is IGNORED)
+					if main and not l["attendances"][main] then
+						name = main
+					end
 					if playerAtts[name] then -- exists in roster
 						local att, joinTime, leaveTime, ar, isSitOut, loots = GRA:GetMainAltAttendance(d, name) -- add alt attendance to main
 						if att == "PRESENT" or att == "PARTIAL" then
@@ -764,6 +780,11 @@ function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
 		for d, l in pairs(_G[GRA_R_RaidLogs]) do
 			local dateOffset = GRA:DateOffset(d, today)
 			for name, t in pairs(l["attendances"]) do
+				local main = GRA:IsAlt(name)
+				-- main is added to roster after alt, (main is IGNORED)
+				if main and not l["attendances"][main] then
+					name = main
+				end
 				if playerAtts[name] then -- exists in roster
 					local att, _, _, ar, isSitOut, loots = GRA:GetMainAltAttendance(d, name) -- add alt attendance to main
 					if att == "PRESENT" or att == "PARTIAL" then

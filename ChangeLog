@@ -1,3 +1,11 @@
+version r90-release
+------------------------
+    * Added "Set class" in RosterEditor.
+    * Added highlight for RosterEditor.
+    * Fixed main-alt AR calculation.
+    * Fixed visibility of ARC progressbar.
+    * Fixed issue that sheet is not refreshed.
+
 version r89-release
 ------------------------
     + Added MemberAttendanceFrame.

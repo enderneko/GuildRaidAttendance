@@ -1,7 +1,7 @@
 local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 
-local class_roles = {
+local CLASS_ROLES = {
     ["DEATHKNIGHT"] = {"TANK", "DPS"},
     ["DEMONHUNTER"] = {"TANK", "DPS"},
     ["DRUID"] = {"TANK", "HEALER", "DPS"},
@@ -33,8 +33,9 @@ tip:SetPoint("TOP", 0, -5)
 tip:SetScript("OnEnter", function()
     GRA_Tooltip:SetOwner(rosterEditorFrame.header, "ANCHOR_TOPRIGHT", 0, 1)
     GRA_Tooltip:AddLine(L["Roster Editor"])
-    GRA_Tooltip:AddLine(L["Double Click: "] .. "|cffffffff" .. L["Edit fullname (must contain realm name)."])
-    GRA_Tooltip:AddLine(L["Right Click: "] .. "|cffffffff" .. L["Set main."])
+    GRA_Tooltip:AddLine(L["Double-Click: "] .. "|cffffffff" .. L["Edit fullname (must contain realm name)."])
+    GRA_Tooltip:AddLine(L["Right-Click: "] .. "|cffffffff" .. L["Set main."])
+    GRA_Tooltip:AddLine(L["Shift Right-Click: "] .. "|cffffffff" .. L["Set class"] .. ".")
     GRA_Tooltip:Show()
 end)
 tip:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
@@ -43,7 +44,7 @@ local rosterText = tip:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 rosterText:SetText(gra.colors.chartreuse.s .. L["Hover for more information."])
 rosterText:SetPoint("LEFT")
 
-local deleted, renamed, roleChanged, mainChanged = {}, {}, {}, {}
+local deleted, renamed, roleChanged, mainChanged, classChanged = {}, {}, {}, {}, {}
 local scroll = GRA:CreateScrollFrame(rosterEditorFrame, -25, 55)
 local LoadRoster
 
@@ -56,7 +57,7 @@ local function DiscardChanges()
         -- undo deleted
         for n, g in pairs(deleted) do
             g:SetAlpha(1)
-            g.b:SetEnabled(true)
+            g:Unhighlight(true)
         end
         wipe(deleted)
     end
@@ -65,6 +66,7 @@ local function DiscardChanges()
         -- undo renamed
         for n, t in pairs(renamed) do
             t[2]:SetText(GRA:GetClassColoredName(n))
+            t[2]:GetParent():Unhighlight(true)
         end
         wipe(renamed)
     end
@@ -78,6 +80,7 @@ local function DiscardChanges()
                 else
                     roleBtn:SetAlpha(.2)
                 end
+                roleBtn:GetParent():Unhighlight(true)
             end
         end
         wipe(roleChanged)
@@ -91,8 +94,21 @@ local function DiscardChanges()
             else
                 t[2]:SetText(GRA:GetClassColoredName(n))
             end
+            t[2]:GetParent():Unhighlight(true)
         end
         wipe(mainChanged)
+    end
+
+    if GRA:Getn(classChanged) ~= 0 then
+        for n, t in pairs(classChanged) do
+            if _G[GRA_R_Roster][n]["altOf"] then
+                t[2]:SetText(GRA:GetClassColoredName(n) .. gra.colors.grey.s .. " (" .. L["alt"] .. ")")
+            else
+                t[2]:SetText(GRA:GetClassColoredName(n))
+            end
+            t[2]:GetParent():Unhighlight(true)
+        end
+        wipe(classChanged)
     end
 end
 
@@ -217,12 +233,22 @@ local function SetMain()
         if t[1] then
             _G[GRA_R_Roster][n]["altOf"] = t[1]
         else -- delete main
-            _G[GRA_R_Roster][n] = GRA:RemoveElementsByKeys(_G[GRA_R_Roster][n], {"altOf"})
+            _G[GRA_R_Roster][n]["altOf"] = nil
         end
     end
     if GRA:Getn(mainChanged) ~= 0 then
+        GRA:UpdateMainAlt()
         -- calc AR
         GRA:FireEvent("GRA_MAINALT")
+    end
+end
+
+--------------------------------------------------
+-- Set class
+--------------------------------------------------
+local function SetClass()
+    for n, t in pairs(classChanged) do
+        _G[GRA_R_Roster][n]["class"] = t[1]
     end
 end
 
@@ -235,20 +261,23 @@ local function SaveChanges()
         and GRA:Getn(renamed) == 0 
         and GRA:Getn(roleChanged) == 0 
         and GRA:Getn(mainChanged) == 0 
+        and GRA:Getn(classChanged) == 0 
         then return end
 
-    local deletedDetails, renamedDetails, roleChangedDetails, mainChangedDetails = {}, {}, {}, {}
+    local deletedDetails, renamedDetails, roleChangedDetails, mainChangedDetails, classChangedDetails = {}, {}, {}, {}, {}
 
     -- deleted names
     for n, g in pairs(deleted) do
         table.insert(deletedDetails, GRA:GetClassColoredName(n))
 
         -- if contains renamed player
-        if renamed[n] then renamed = GRA:RemoveElementsByKeys(renamed, {n}) end
+        if renamed[n] then renamed[n] = nil end
         -- if contains role changed player
-        if roleChanged[n] then roleChanged = GRA:RemoveElementsByKeys(roleChanged, {n}) end
+        if roleChanged[n] then roleChanged[n] = nil end
         -- if contains main changed player
-        if mainChanged[n] then mainChanged = GRA:RemoveElementsByKeys(mainChanged, {n}) end
+        if mainChanged[n] then mainChanged[n] = nil end
+        -- if contains class changed player
+        if classChanged[n] then classChanged[n] = nil end
     end
 
     -- renamed names
@@ -260,14 +289,19 @@ local function SaveChanges()
             roleChanged[t[1]] = roleChanged[n]
             -- can't get unsaved player class, so temp save it in table.
             roleChanged[t[1]][3] = _G[GRA_R_Roster][n]["class"]
-            roleChanged = GRA:RemoveElementsByKeys(roleChanged, {n})
+            roleChanged[n] = nil
         end
         -- if contains main changed player
         if mainChanged[n] then
             mainChanged[t[1]] = mainChanged[n]
             -- can't get unsaved player class, so temp save it in table.
             mainChanged[t[1]][3] = _G[GRA_R_Roster][n]["class"]
-            mainChanged = GRA:RemoveElementsByKeys(mainChanged, {n})
+            mainChanged[n] = nil
+        end
+        -- if contains class changed player
+        if classChanged[n] then
+            classChanged[t[1]] = classChanged[n]
+            classChanged[n] = nil
         end
     end
 
@@ -281,6 +315,11 @@ local function SaveChanges()
         table.insert(mainChangedDetails, GRA:GetClassColoredName(n, t[3]) .. "(" .. GRA:GetClassColoredName(t[1] or L["none"]) .. ")")
     end
 
+    -- class changed info
+    for n, t in pairs(classChanged) do
+        table.insert(classChangedDetails, GRA:GetClassColoredName(n, t[1]))
+    end
+
     local confirm = GRA:CreateConfirmBox(rosterEditorFrame, rosterEditorFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Apply changes to roster?"] .. "|r\n" .. L["All related logs will be updated."], function()
         -- delete!
         Delete()
@@ -290,6 +329,8 @@ local function SaveChanges()
         SetRole()
         -- set main!
         SetMain()
+        -- set class!
+        SetClass()
         -- load and show
         LoadRoster()
         
@@ -306,6 +347,9 @@ local function SaveChanges()
         if GRA:Getn(mainChanged) ~= 0 then
             GRA:Print(L["Main Changed: "] .. GRA:TableToString(mainChangedDetails))
         end
+        if GRA:Getn(classChanged) ~= 0 then
+            GRA:Print(L["Class Changed: "] .. GRA:TableToString(classChangedDetails))
+        end
 
         wipe(deletedDetails)
         wipe(renamedDetails)
@@ -315,6 +359,7 @@ local function SaveChanges()
         wipe(renamed)
         wipe(roleChanged)
         wipe(mainChanged)
+        wipe(classChanged)
 
         -- update sheet and log
         GRA:FireEvent("GRA_ROSTER")
@@ -358,14 +403,16 @@ local function CreatePlayerGrid(name)
         if not deleted[name] then
             deleted[name] = g
             g:SetAlpha(.35)
+            g:Highlight()
         else
-            deleted = GRA:RemoveElementsByKeys(deleted, {name})
+            deleted[name] = nil
             g:SetAlpha(1)
+            g:Unhighlight()
         end
     end)
 
     g.roles = {}
-    local roles = class_roles[_G[GRA_R_Roster][name]["class"]]
+    local roles = CLASS_ROLES[_G[GRA_R_Roster][name]["class"]]
     for i = #roles, 1, -1 do
         g.roles[roles[i]] = GRA:CreateButton(g, "", "none", {16, 16})
         g.roles[roles[i]]:SetAlpha(.2)
@@ -377,9 +424,11 @@ local function CreatePlayerGrid(name)
                 else
                     roleBtn:SetAlpha(1)
                     if _G[GRA_R_Roster][name]["role"] == roleName then
-                        roleChanged = GRA:RemoveElementsByKeys(roleChanged, {name})
+                        roleChanged[name] = nil
+                        g:Unhighlight()
                     else
                         roleChanged[name] = {roleName, g.roles}
+                        g:Highlight()
                     end
                 end
             end
@@ -402,42 +451,88 @@ local function CreatePlayerGrid(name)
 
     g:SetScript("OnClick", function(self, button)
         if button == "RightButton" then
-            wipe(availableMains)
-            -- clear button
-            table.insert(availableMains, {
-                ["text"] = gra.colors.firebrick.s .. L["Clear"],
-                ["onClick"] = function()
-                    mainChanged[name] = {nil, s}
-                    -- unmark
-                    s:SetText(string.gsub(s:GetText(), " %(" .. L["alt"] .. "%)", ""))
-                end
-            })
-            -- main list
-            for _, item in pairs(mains) do
-                if item.name ~= name then
-                    item.onClick = function(text)
-                        mainChanged[name] = {item.name, s}
-                        -- mark
-                        if not string.find(s:GetText(), " %(" .. L["alt"] .. "%)") then
-                            s:SetText(s:GetText() .. gra.colors.grey.s .. " (" .. L["alt"] .. ")")
+            if IsShiftKeyDown() then
+                local items = {}
+                for _, class in ipairs(gra.CLASS_ORDER) do
+                    -- highlight
+                    local highlight = false
+                    if classChanged[name] then
+                        if class == classChanged[name][1] then
+                            highlight = true
                         end
+                    elseif class == _G[GRA_R_Roster][name]["class"] then
+                        highlight = true
                     end
 
-                    -- remove highlight
-                    item.highlight = false
-                    -- highlight current
-                    if mainChanged[name] then
-                        if item.name == mainChanged[name][1] then
+                    table.insert(items, {
+                        ["text"] = GRA:GetClassColoredName(GRA:GetLocalizedClassName(class), class),
+                        ["onClick"] = function()
+                            if class ~= _G[GRA_R_Roster][name]["class"] then
+                                classChanged[name] = {class, s}
+                                if string.find(s:GetText(), " %(" .. L["alt"] .. "%)") then
+                                    s:SetText(GRA:GetClassColoredName(name, class) .. gra.colors.grey.s .. " (" .. L["alt"] .. ")")
+                                else
+                                    s:SetText(GRA:GetClassColoredName(name, class))
+                                end
+                                g:Highlight()
+                            else
+                                classChanged[name] = nil
+                                s:SetText(GRA:GetClassColoredName(name))
+                                g:Unhighlight()
+                            end
+                        end,
+                        ["highlight"] = highlight,
+                    })
+                end
+                GRA:ShowContextMenu(rosterEditorFrame, 100, L["Set class"], 12, items)
+            else
+                wipe(availableMains)
+                -- clear button
+                table.insert(availableMains, {
+                    ["text"] = gra.colors.firebrick.s .. L["Clear"],
+                    ["onClick"] = function()
+                        if GRA:IsAlt(name) then
+                            mainChanged[name] = {nil, s}
+                            -- unmark
+                            g:Highlight()
+                        else
+                            g:Unhighlight()
+                        end
+                        s:SetText(string.gsub(s:GetText(), " %(" .. L["alt"] .. "%)", ""))
+                    end
+                })
+                -- main list
+                for _, item in pairs(mains) do
+                    if item.name ~= name then
+                        item.onClick = function(text)
+                            if GRA:IsAlt(name) ~= item.name then
+                                mainChanged[name] = {item.name, s}
+                                g:Highlight()
+                            else
+                                mainChanged[name] = nil
+                                g:Unhighlight()
+                            end
+                            -- mark
+                            if not string.find(s:GetText(), " %(" .. L["alt"] .. "%)") then
+                                s:SetText(s:GetText() .. gra.colors.grey.s .. " (" .. L["alt"] .. ")")
+                            end
+                        end
+
+                        -- remove highlight
+                        item.highlight = false
+                        -- highlight current
+                        if mainChanged[name] then
+                            if item.name == mainChanged[name][1] then
+                                item.highlight = true
+                            end
+                        elseif item.name == _G[GRA_R_Roster][name]["altOf"] then
                             item.highlight = true
                         end
-                    elseif item.name == _G[GRA_R_Roster][name]["altOf"] then
-                        item.highlight = true
+                        table.insert(availableMains, item)
                     end
-                    table.insert(availableMains, item)
                 end
+                GRA:ShowContextMenu(rosterEditorFrame, 100, L["Alt of"], 10, availableMains)
             end
-            
-            GRA:ShowContextMenu(rosterEditorFrame, 100, L["Alt of"], 10, availableMains)
         end
     end)
 
@@ -446,14 +541,18 @@ local function CreatePlayerGrid(name)
         if g:GetAlpha() ~= 1 then return end
         local p = GRA:CreatePopupEditBox(g, g:GetWidth(), g:GetHeight(), function(text)
             -- print(_G[GRA_R_Roster][name]["class"])
+            -- remove white space
+            text =  string.gsub(text, " ", "")
             -- if name changed
             if text ~= name then
                 -- new fullname, FSObject
                 renamed[name] = {text, s}
+                g:Highlight()
             else
                 -- exists, change back
                 if renamed[name] then
-                    renamed = GRA:RemoveElementsByKeys(renamed, {name})
+                    renamed[name] = nil
+                    g:Unhighlight()
                 end
             end
 
@@ -467,6 +566,18 @@ local function CreatePlayerGrid(name)
         p:SetPoint("LEFT")
         p.editBox:SetCursorPosition(0)
     end)
+
+    function g:Highlight()
+        b:SetBackdropBorderColor(1, 0, 0, 1)
+        g:SetBackdropBorderColor(1, 0, 0, 1)
+    end
+
+    function g:Unhighlight(force)
+        if force or not(deleted[name] or renamed[name] or roleChanged[name] or mainChanged[name] or classChanged[name]) then
+            b:SetBackdropBorderColor(0, 0, 0, 1)
+            g:SetBackdropBorderColor(0, 0, 0, 1)
+        end
+    end
 
     return g
 end
@@ -516,5 +627,6 @@ rosterEditorFrame:SetScript("OnShow", function()
     wipe(renamed)
     wipe(roleChanged)
     wipe(mainChanged)
+    wipe(classChanged)
     LoadRoster()
 end)

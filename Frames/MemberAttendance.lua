@@ -18,7 +18,7 @@ local function LoadMemberAttendance(name)
             local st = select(2, GRA:GetRaidStartTime(d))
             local et = select(2, GRA:GetRaidEndTime(d))
             -- frame, width, raidDate, attendance, attendanceRate, joinTime, leaveTime, startTime, endTime
-            bars[d] = GRA:CreateAttendanceBar(memberAttendanceFrame.scrollFrame.content, memberAttendanceFrame.scrollFrame:GetWidth(), d, att, ar, jt, lt, st, et, l["attendances"][name] and l["attendances"][name][2])
+            bars[d] = GRA:CreateAttendanceBar(memberAttendanceFrame.scrollFrame.content, memberAttendanceFrame.scrollFrame:GetWidth(), d, att, ar, jt, lt, st, et, isSitOut, l["attendances"][name] and l["attendances"][name][2])
             memberAttendanceFrame.scrollFrame:SetWidgetAutoWidth(bars[d])
         end
     end

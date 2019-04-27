@@ -534,7 +534,7 @@ end
 -----------------------------------------
 -- Attendance Bar (MemberAttendanceFrame)
 -----------------------------------------
-function GRA:CreateAttendanceBar(frame, width, raidDate, attendance, attendanceRate, joinTime, leaveTime, startTime, endTime, note)
+function GRA:CreateAttendanceBar(frame, width, raidDate, attendance, attendanceRate, joinTime, leaveTime, startTime, endTime, isSitOut, note)
 	local baseBar = CreateFrame("Frame", nil, frame)
 	baseBar:SetSize(width, 20)
 	baseBar.raidDate = baseBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
@@ -595,6 +595,7 @@ function GRA:CreateAttendanceBar(frame, width, raidDate, attendance, attendanceR
 
 	-- color
 	if isSitOut then
+		GRA:StylizeFrame(topBar, {0, .6, 1, .2})
 	elseif attendance == "PRESENT" then
 		GRA:StylizeFrame(topBar, {0, 1, 0, .2})
 	elseif attendance == "PARTIAL" then

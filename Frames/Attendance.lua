@@ -838,7 +838,7 @@ headerFrame:SetPoint("BOTTOMRIGHT", attendanceFrame.scrollFrame, "TOPRIGHT")
 headerFrame:EnableMouse(true)
 headerFrame:SetFrameLevel(7)
 
-local nameText = GRA:CreateGrid(headerFrame, 95, L["Name"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by name."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by class."])
+local nameText = GRA:CreateGrid(headerFrame, 95, L["Name"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by name."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by class."])
 nameText:GetFontString():ClearAllPoints()
 nameText:GetFontString():SetWidth(90)
 nameText:GetFontString():SetPoint("BOTTOMLEFT", 20, 1)
@@ -906,7 +906,7 @@ totalText:SetScript("OnClick", function()
 end)
 
 -- attendance rate
-local ar30Text = GRA:CreateGrid(headerFrame, 50, "AR 30", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (30 days)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (30 days)."])
+local ar30Text = GRA:CreateGrid(headerFrame, 50, "AR 30", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (30 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (30 days)."])
 ar30Text:GetFontString():ClearAllPoints()
 ar30Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar30Text:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -920,7 +920,7 @@ ar30Text:SetScript("OnClick", function(self, button)
 	end
 end)
 
-local ar60Text = GRA:CreateGrid(headerFrame, 50, "AR 60", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (60 days)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (60 days)."])
+local ar60Text = GRA:CreateGrid(headerFrame, 50, "AR 60", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (60 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (60 days)."])
 ar60Text:GetFontString():ClearAllPoints()
 ar60Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar60Text:SetScript("OnClick", function()
@@ -933,7 +933,7 @@ ar60Text:SetScript("OnClick", function()
 	end
 end)
 
-local ar90Text = GRA:CreateGrid(headerFrame, 50, "AR 90", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (90 days)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (90 days)."])
+local ar90Text = GRA:CreateGrid(headerFrame, 50, "AR 90", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (90 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (90 days)."])
 ar90Text:GetFontString():ClearAllPoints()
 ar90Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar90Text:SetScript("OnClick", function()
@@ -946,7 +946,7 @@ ar90Text:SetScript("OnClick", function()
 	end
 end)
 
-local arLifetimeText = GRA:CreateGrid(headerFrame, 50, "AR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (lifetime)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (lifetime)."])
+local arLifetimeText = GRA:CreateGrid(headerFrame, 50, "AR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (lifetime)."])
 arLifetimeText:GetFontString():ClearAllPoints()
 arLifetimeText:GetFontString():SetPoint("BOTTOM", 0, 1)
 arLifetimeText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -960,7 +960,7 @@ arLifetimeText:SetScript("OnClick", function(self, button)
 	end
 end)
 
-local sitOutText = GRA:CreateGrid(headerFrame, 50, "SR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out rate (lifetime)."] .. "\n|cffFFD100" .. L["Right Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out (lifetime)."])
+local sitOutText = GRA:CreateGrid(headerFrame, 50, "SR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out (lifetime)."])
 sitOutText:GetFontString():ClearAllPoints()
 sitOutText:GetFontString():SetPoint("BOTTOM", 0, 1)
 sitOutText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1547,7 +1547,7 @@ local function UpdateGrid(g, d, name, altGs)
 	local att, joinTime, leaveTime, _, isSitOut = GRA:GetMainAltAttendance(d, name)
 	if altGs then
 		-- 设置大号出勤状态
-		if _G[GRA_R_RaidLogs][d]["attendances"][name] then
+		if _G[GRA_R_RaidLogs][d]["attendances"][name] then -- main is not IGNORED
 			if not _G[GRA_R_RaidLogs][d]["attendances"][name][3] then -- 大号没出勤
 				if att ~= "ABSENT" and att ~= "ONLEAVE" then -- 小号有出勤
 					g:SetAttendance("IGNORED")
@@ -1557,7 +1557,7 @@ local function UpdateGrid(g, d, name, altGs)
 			else  -- 大号有出勤
 				g:SetAttendance(att)
 				-- sit out mark
-				if isSitOut then g:ShowSitOutMark(true) end
+				g:ShowSitOutMark(isSitOut)
 			end
 		else
 			g:SetAttendance("IGNORED")
@@ -1571,10 +1571,14 @@ local function UpdateGrid(g, d, name, altGs)
 				altG:SetText("")
 			end
 
-			if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
-				altG:SetAttendance(att)
-				-- sit out mark
-				if isSitOut then altG:ShowSitOutMark(true) end
+			if _G[GRA_R_RaidLogs][d]["attendances"][altName] then
+				if _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then -- alt has attendance
+					altG:SetAttendance(att)
+					-- sit out mark
+					altG:ShowSitOutMark(isSitOut)
+				elseif not _G[GRA_R_RaidLogs][d]["attendances"][name] then -- alt is ABSENT/ONLEAVE and main is IGNORED
+					altG:SetAttendance(att)
+				end
 			else
 				altG:SetAttendance("IGNORED")
 			end
@@ -1605,7 +1609,7 @@ local function UpdateGrid(g, d, name, altGs)
 	else
 		g:SetAttendance(att)
 		-- sit out mark
-		if isSitOut then g:ShowSitOutMark(true) end
+		g:ShowSitOutMark(isSitOut)
 	end
 
 	-- mark
@@ -1792,7 +1796,18 @@ GRA:RegisterEvent("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
 			refreshTimer = nil
 		end)
 	else
-		updateRequired = d
+		-- if updateRequired ~= nil and sheet not updated yet.
+		if type(updateRequired) == "table" then
+			if not GRA:TContains(updateRequired, d) then
+				table.insert(updateRequired, d)
+			end
+		elseif type(updateRequired) == "string" then
+			if updateRequired ~= d then
+				updateRequired = {updateRequired, d}
+			end
+		else
+			updateRequired = d
+		end
 	end
 end)
 
@@ -1802,7 +1817,30 @@ GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", function(dat
 		RefreshSheetByDates(dates)
 		CalcAR()
 	else
-		updateRequired = dates
+		-- if updateRequired ~= nil and sheet not updated yet.
+		if type(updateRequired) == "table" then
+			local temp = {}
+			-- there're no duplicate keys in a table
+			for _, v in pairs(dates) do
+				temp[v] = true
+			end
+			for _, v in pairs(updateRequired) do
+				temp[v] = true
+			end
+			-- save to updateRequired
+			wipe(updateRequired)
+			for k, _ in pairs(temp) do
+				table.insert(updateRequired, k)
+			end
+
+		elseif type(updateRequired) == "string" then
+			if not GRA:TContains(dates, d) then
+				table.insert(dates, d)
+			end
+			updateRequired = dates
+		else
+			updateRequired = dates
+		end
 	end
 end)
 
@@ -1848,7 +1886,7 @@ GRA:RegisterEvent("GRA_ARCM", "AttendanceFrame_ARCMChanged", function()
 	if attendanceFrame:IsVisible() then
 		CalcAR()
 	else
-		updateRequired = true
+		if updateRequired == nil then updateRequired = true end
 	end
 end)
 
@@ -1918,7 +1956,7 @@ function GRA:ShowAttendanceSheet()
 	HideAll()
 
 	if GRA:Getn(_G[GRA_R_Roster]) ~= 0 then
-		GRA:Debug("|cff1E90FFLoading attendance sheet|r")
+		GRA:Debug("|cff1E90FFShowAttendanceSheet|r")
 		
 		if not GRA_Variables["minimalMode"] then CreateDateHeader() end
 		LoadSheet()
