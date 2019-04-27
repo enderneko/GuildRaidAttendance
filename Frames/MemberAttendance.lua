@@ -36,6 +36,9 @@ local function LoadMemberAttendance(name)
         end
         last = bars[d]
     end
+
+    local ar = (_G[GRA_R_Roster][name]["attLifetime"] and tonumber(format("%.1f", _G[GRA_R_Roster][name]["attLifetime"][5])) or 0) .. "%"
+    memberAttendanceFrame.header.text:SetText(L["Attendance Details"] .. " |cffFFFFFF(" .. #dates .. ") - " .. GRA:GetClassColoredName(name) .. " |cffFFFFFF" .. ar)
 end
 
 function GRA:ShowMemberAttendance(name)
@@ -44,7 +47,6 @@ function GRA:ShowMemberAttendance(name)
     -- set to main
     if GRA:IsAlt(name) then name = GRA:IsAlt(n) end
     LoadMemberAttendance(name)
-    memberAttendanceFrame.header.text:SetText(L["Attendance"] .. ": " .. GRA:GetClassColoredName(name))
     memberAttendanceFrame:Show()
 end
 
