@@ -576,6 +576,9 @@ function GRA:GetRaidEndTime(d)
 	end
 end
 
+------------------------------------------------
+-- Attendance
+------------------------------------------------
 function GRA:CheckAttendanceStatus(joinTime, startTime, leaveTime, endTime)
 	if joinTime and startTime and (joinTime > startTime) then
 		return "PARTIAL" -- no need to check leaveTime
@@ -621,11 +624,12 @@ local function GetLoots(d, name)
 	return loots
 end
 
--- get main-alt attendance (which joined first)
+-- get main-alt attendance
 function GRA:GetMainAltAttendance(d, mainName)
 	local att, joinTime, leaveTime, isSitOut
 	local loots = 0
 
+	-- check main
 	if _G[GRA_R_RaidLogs][d]["attendances"][mainName] then
 		att = _G[GRA_R_RaidLogs][d]["attendances"][mainName][1]
 
@@ -639,24 +643,27 @@ function GRA:GetMainAltAttendance(d, mainName)
 		end
 	end
 
-	if gra.mainAlt[mainName] then -- has alt
+	-- check alt
+	if gra.mainAlt[mainName] then
 		for _, altName in pairs(gra.mainAlt[mainName]) do
-			if _G[GRA_R_RaidLogs][d]["attendances"][altName] then
+			if _G[GRA_R_RaidLogs][d]["attendances"][altName] then -- alt is in log
 				if _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then -- PRESENT or PARTIAL
 					-- 大号没有出勤 or 小号先于大号进组
 					if not joinTime or joinTime > _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then
-						att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
+						-- att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
 						joinTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][3]
 					end
-					-- 小号后于大号退组
+					-- 小号有退组时间，且小号后于大号退组
 					if _G[GRA_R_RaidLogs][d]["attendances"][altName][4] and (not leaveTime or leaveTime < _G[GRA_R_RaidLogs][d]["attendances"][altName][4]) then
 						leaveTime = _G[GRA_R_RaidLogs][d]["attendances"][altName][4]
 					end
+					-- check attendance status again
+					if not leaveTime then leaveTime = select(2, GRA:GetRaidEndTime(d)) end -- main has no attendance
+					att = GRA:CheckAttendanceStatus(joinTime, select(2, GRA:GetRaidStartTime(d)), leaveTime, select(2, GRA:GetRaidEndTime(d)))
 					-- alt sit out
 					if _G[GRA_R_RaidLogs][d]["attendances"][altName][5] then isSitOut = true end
 					-- alt loots
 					loots = loots + GetLoots(d, altName)
-					if not leaveTime then leaveTime = select(2, GRA:GetRaidEndTime(d)) end
 				else -- ABSENT or ONLEAVE
 					if att == nil then
 						att = _G[GRA_R_RaidLogs][d]["attendances"][altName][1]
