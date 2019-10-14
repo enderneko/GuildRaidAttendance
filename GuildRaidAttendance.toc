@@ -1,4 +1,4 @@
-## Interface: 80100
+## Interface: 80200
 ## Title: |cff80FF00Guild|r Raid Attendance
 ## Notes: Keeps track of raid loot and attendance for guild.
 ## Notes-zhCN: 记录公会活动出勤与拾取。

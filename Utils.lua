@@ -419,11 +419,11 @@ end
 -- Date & Time
 ------------------------------------------------
 local monthNames = CALENDAR_FULLDATE_MONTH_NAMES
-function GRA:GetMonthNames(isShort, forceEnglish)
-	if forceEnglish then
+function GRA:GetMonthNames(isShort)
+	if GRA_FORCE_ENGLISH then
 		monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
 	end
-	if isShort and not(GetLocale() == "zhCN" or GetLocale() == "zhTW") then
+	if isShort and (GRA_FORCE_ENGLISH or not(GetLocale() == "zhCN" or GetLocale() == "zhTW")) then
 		for i,n in pairs(monthNames) do
 			monthNames[i] = string.sub(n, 1, 3)
 		end
@@ -464,16 +464,16 @@ local function isLeapYear(year)
 	return year % 400 == 0 or (year % 4 == 0 and year % 100 ~= 0)
 end
 
--- return numdays, firstday
+-- return numDays, firstWeekday
 function GRA:GetAbsMonthInfo(month, year)
-	local numdays, firstday
+	local numDays, firstWeekday
 	if month == 2 and isLeapYear(year) then
-		numdays = 29
+		numDays = 29
 	else
-		numdays = days_in_month[month]
+		numDays = days_in_month[month]
 	end
-	firstday = date("%w", time({["day"]=1, ["month"]=month, ["year"]=year})) + 1
-	return numdays, firstday
+	firstWeekday = date("%w", time({["day"]=1, ["month"]=month, ["year"]=year})) + 1
+	return numDays, firstWeekday
 end
 
 -- date header for GRA Attendance Sheet

@@ -838,7 +838,7 @@ headerFrame:SetPoint("BOTTOMRIGHT", attendanceFrame.scrollFrame, "TOPRIGHT")
 headerFrame:EnableMouse(true)
 headerFrame:SetFrameLevel(7)
 
-local nameText = GRA:CreateGrid(headerFrame, 95, L["Name"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by name."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by class."])
+local nameText = GRA:CreateGrid(headerFrame, 95, L["Name"], nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by name."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by class."])
 nameText:GetFontString():ClearAllPoints()
 nameText:GetFontString():SetWidth(90)
 nameText:GetFontString():SetPoint("BOTTOMLEFT", 20, 1)
@@ -856,7 +856,7 @@ nameText:SetScript("OnClick", function(self, button)
 end)
 
 -- epgp
-local epText = GRA:CreateGrid(headerFrame, 50, "EP", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by EP."])
+local epText = GRA:CreateGrid(headerFrame, 50, "EP", nil, false, L["Sort: "], L["Sort attendance sheet by EP."])
 epText:GetFontString():ClearAllPoints()
 epText:GetFontString():SetPoint("BOTTOM", 0, 1)
 epText:SetScript("OnClick", function()
@@ -864,7 +864,7 @@ epText:SetScript("OnClick", function()
 	GRA:Print(L["Sort attendance sheet by EP."])
 end)
 
-local gpText = GRA:CreateGrid(headerFrame, 50, "GP", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by GP."])
+local gpText = GRA:CreateGrid(headerFrame, 50, "GP", nil, false, L["Sort: "], L["Sort attendance sheet by GP."])
 gpText:GetFontString():ClearAllPoints()
 gpText:GetFontString():SetPoint("BOTTOM", 0, 1)
 gpText:SetScript("OnClick", function()
@@ -872,7 +872,7 @@ gpText:SetScript("OnClick", function()
 	GRA:Print(L["Sort attendance sheet by GP."])
 end)
 
-local prText = GRA:CreateGrid(headerFrame, 50, "PR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by PR."])
+local prText = GRA:CreateGrid(headerFrame, 50, "PR", nil, false, L["Sort: "], L["Sort attendance sheet by PR."])
 prText:GetFontString():ClearAllPoints()
 prText:GetFontString():SetPoint("BOTTOM", 0, 1)
 prText:SetScript("OnClick", function()
@@ -881,7 +881,7 @@ prText:SetScript("OnClick", function()
 end)
 
 -- dkp
-local currentText = GRA:CreateGrid(headerFrame, 50, L["Current"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by DKP (current)."])
+local currentText = GRA:CreateGrid(headerFrame, 50, L["Current"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (current)."])
 currentText:GetFontString():ClearAllPoints()
 currentText:GetFontString():SetPoint("BOTTOM", 0, 1)
 currentText:SetScript("OnClick", function()
@@ -889,7 +889,7 @@ currentText:SetScript("OnClick", function()
 	GRA:Print(L["Sort attendance sheet by DKP (current)."])
 end)
 
-local spentText = GRA:CreateGrid(headerFrame, 50, L["Spent"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by DKP (spent)."])
+local spentText = GRA:CreateGrid(headerFrame, 50, L["Spent"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (spent)."])
 spentText:GetFontString():ClearAllPoints()
 spentText:GetFontString():SetPoint("BOTTOM", 0, 1)
 spentText:SetScript("OnClick", function()
@@ -897,7 +897,7 @@ spentText:SetScript("OnClick", function()
 	GRA:Print(L["Sort attendance sheet by DKP (spent)."])
 end)
 
-local totalText = GRA:CreateGrid(headerFrame, 50, L["Total"], GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], L["Sort attendance sheet by DKP (total)."])
+local totalText = GRA:CreateGrid(headerFrame, 50, L["Total"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (total)."])
 totalText:GetFontString():ClearAllPoints()
 totalText:GetFontString():SetPoint("BOTTOM", 0, 1)
 totalText:SetScript("OnClick", function()
@@ -906,7 +906,7 @@ totalText:SetScript("OnClick", function()
 end)
 
 -- attendance rate
-local ar30Text = GRA:CreateGrid(headerFrame, 50, "AR 30", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (30 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (30 days)."])
+local ar30Text = GRA:CreateGrid(headerFrame, 50, "AR 30", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (30 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (30 days)."])
 ar30Text:GetFontString():ClearAllPoints()
 ar30Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar30Text:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -920,7 +920,7 @@ ar30Text:SetScript("OnClick", function(self, button)
 	end
 end)
 
-local ar60Text = GRA:CreateGrid(headerFrame, 50, "AR 60", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (60 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (60 days)."])
+local ar60Text = GRA:CreateGrid(headerFrame, 50, "AR 60", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (60 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (60 days)."])
 ar60Text:GetFontString():ClearAllPoints()
 ar60Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar60Text:SetScript("OnClick", function()
@@ -933,7 +933,7 @@ ar60Text:SetScript("OnClick", function()
 	end
 end)
 
-local ar90Text = GRA:CreateGrid(headerFrame, 50, "AR 90", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (90 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (90 days)."])
+local ar90Text = GRA:CreateGrid(headerFrame, 50, "AR 90", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (90 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (90 days)."])
 ar90Text:GetFontString():ClearAllPoints()
 ar90Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar90Text:SetScript("OnClick", function()
@@ -946,7 +946,7 @@ ar90Text:SetScript("OnClick", function()
 	end
 end)
 
-local arLifetimeText = GRA:CreateGrid(headerFrame, 50, "AR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (lifetime)."])
+local arLifetimeText = GRA:CreateGrid(headerFrame, 50, "AR", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (lifetime)."])
 arLifetimeText:GetFontString():ClearAllPoints()
 arLifetimeText:GetFontString():SetPoint("BOTTOM", 0, 1)
 arLifetimeText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -960,7 +960,7 @@ arLifetimeText:SetScript("OnClick", function(self, button)
 	end
 end)
 
-local sitOutText = GRA:CreateGrid(headerFrame, 50, "SR", GRA:Debug() and {1,0,0,.2}, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out (lifetime)."])
+local sitOutText = GRA:CreateGrid(headerFrame, 50, "SR", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out (lifetime)."])
 sitOutText:GetFontString():ClearAllPoints()
 sitOutText:GetFontString():SetPoint("BOTTOM", 0, 1)
 sitOutText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1013,7 +1013,7 @@ local function CreateDateHeader()
 				else
 					color = "|cffFFFFFF"
 				end
-				dateGrids[#dateGrids+1] = GRA:CreateGrid(headerFrame, gra.size.grid_dates, color..GRA:FormatDateHeader(startDate), GRA:Debug() and {1,0,0,.2})
+				dateGrids[#dateGrids+1] = GRA:CreateGrid(headerFrame, gra.size.grid_dates, color..GRA:FormatDateHeader(startDate), nil)
 				dateGrids[#dateGrids]:GetFontString():ClearAllPoints()
 				dateGrids[#dateGrids]:GetFontString():SetPoint("BOTTOM", 0, 1)
 				-- store date(string "20170330"), use it for _G[GRA_R_Roster]["playerName"]["details"]["date"]

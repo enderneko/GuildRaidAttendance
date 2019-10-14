@@ -724,7 +724,7 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 	end
 
 	local function FillCalendar()
-		dateFS:SetText(GRA:GetMonthNames()[month] .. ", " .. year)
+		dateFS:SetText(GRA:GetMonthNames(false, GRA_FORCE_ENGLISH)[month] .. ", " .. year)
 
 		local d = 1
 		for i = 1, 42 do
@@ -734,13 +734,24 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 			else
 				dateBtns[i]:SetEnabled(true)
 				dateBtns[i]:SetText(d)
-				-- highlight selected
-				if yearSet == year and monthSet == month and daySet == d then
-					dateBtns[i]:GetFontString():SetTextColor(1, .12, .12)
+
+				if yearSet == year and monthSet == month and daySet == d then -- highlight selected
+					dateBtns[i]:GetFontString():SetTextColor(unpack(gra.colors.firebrick.tf))
+				elseif _G[GRA_R_RaidLogs][year..string.format("%02d", month)..string.format("%02d", d)] then -- highlight days with logs
+					dateBtns[i]:GetFontString():SetTextColor(unpack(gra.colors.yellow.tf))
 				else
 					dateBtns[i]:GetFontString():SetTextColor(1, 1, 1)
 				end
 				d = d + 1
+			end
+		end
+
+		-- update header color (raid day)
+		for i, header in pairs(headers) do
+			if GRA:TContains(_G[GRA_R_Config]["raidInfo"]["days"], i) then
+				header:SetTextColor(unpack(gra.colors.firebrick.tf))
+			else
+				header:SetTextColor(1, 1, 1)
 			end
 		end
 	end

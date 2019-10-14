@@ -42,7 +42,7 @@ local function LoadMemberAttendance(name)
 end
 
 function GRA:ShowMemberAttendance(name)
-    GRA:Print("|cffE066FFShowMemberAttendance:|r " .. name)
+    GRA:Debug("|cffE066FFShowMemberAttendance:|r " .. name)
     memberAttendanceFrame.scrollFrame:Reset()
     -- set to main
     if GRA:IsAlt(name) then name = GRA:IsAlt(n) end

@@ -42,9 +42,10 @@ gra.CLASS_ORDER = {"DEATHKNIGHT", "DEMONHUNTER", "DRUID", "HUNTER", "MAGE", "MON
 -----------------------------------------
 gra.colors = {
 	grey = {s = "|cCCB2B2B2", t = {.7, .7, .7, .8}},
-	yellow = {s = "|cFFFFD100"},
-	firebrick = {s = "|cFFFF3030", t = {1, .19, .19, .7}},
-	skyblue = {s = "|cFF00CCFF", t = {0, .8, 1, 1}},
+	yellow = {s = "|cFFFFD100", tf = {1, .82, 0}},
+	orange = {s = "|cFFFFC0CB", tf = {1, .65, 0}},
+	firebrick = {s = "|cFFFF3030", t = {1, .19, .19, .7}, tf = {1, .19, .19}},
+	skyblue = {s = "|cFF00CCFF", t = {0, .8, 1, 1}, tf = {0, .8, 1}},
 	chartreuse = {s = "|cFF80FF00", t = {.5, 1, 0, 1}},
 }
 
@@ -93,7 +94,7 @@ gra.size = gra.sizes.normal
 -----------------------------------------
 -- font
 -----------------------------------------
-GRA_FORCE_ENGLISH = false
+GRA_FORCE_ENGLISH = true
 -----------------------------------------
 local font = "Interface\\AddOns\\GuildRaidAttendance\\Media\\Fonts\\calibrib.ttf"
 local useGameFont = false
