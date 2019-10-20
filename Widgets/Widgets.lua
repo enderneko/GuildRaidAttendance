@@ -186,8 +186,8 @@ function GRA:CreateEditBox(parent, width, height, isNumeric, font)
 	eb:SetMaxLetters(0)
 	eb:SetJustifyH("LEFT")
 	eb:SetJustifyV("CENTER")
-	eb:SetWidth(width)
-	eb:SetHeight(height)
+	eb:SetWidth(width or 0)
+	eb:SetHeight(height or 0)
 	eb:SetTextInsets(5, 5, 0, 0)
 	eb:SetAutoFocus(false)
 	eb:SetNumeric(isNumeric)
@@ -529,6 +529,95 @@ function GRA:CreateProgressBar(frame, width, height, maxValue, func, showText, t
 	-- end)
 
 	return bar
+end
+
+-----------------------------------------
+-- raid hours editbox
+-----------------------------------------
+function GRA:CreateRaidHoursEditBox(parent, rstFunc, retFunc)
+	local raidStartTimeEditBox = GRA:CreateEditBox(parent, 49, 20, false, "GRA_FONT_SMALL")
+	raidStartTimeEditBox:SetJustifyH("CENTER")
+
+	local raidEndTimeEditBox = GRA:CreateEditBox(parent, 49, 20, false, "GRA_FONT_SMALL")
+	raidEndTimeEditBox:SetJustifyH("CENTER")
+	
+	local rstConfirmBtn = GRA:CreateButton(raidStartTimeEditBox, L["OK"], "blue", {20, 20}, "GRA_FONT_SMALL")
+	rstConfirmBtn:SetPoint("LEFT", raidStartTimeEditBox, "RIGHT", -1, 0)
+	rstConfirmBtn:Hide()
+	rstConfirmBtn:SetScript("OnClick", function()
+		local h, m = string.split(":", raidStartTimeEditBox:GetText())
+		local startTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
+		raidStartTimeEditBox:SetText(startTime)
+		
+		if rstFunc then rstFunc(startTime) end
+
+		raidStartTimeEditBox:ClearFocus()
+		rstConfirmBtn:Hide()
+	end)
+	
+	-- rst validation
+	raidStartTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
+		if not userInput then return end
+		-- check time validity
+		local h, m = string.split(":", raidStartTimeEditBox:GetText())
+		h, m = tonumber(h), tonumber(m)
+		if h and m and h >= 0 and h <= 23 and m >= 0 and m <= 59 then
+			rstConfirmBtn:Show()
+			raidStartTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
+		else
+			rstConfirmBtn:Hide()
+			raidStartTimeEditBox:SetBackdropBorderColor(1, 0, 0, 1)
+		end
+	end)
+	
+	-- if has tooltip
+	raidStartTimeEditBox:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
+	
+	-- next OnShow, its data MUST be valid
+	raidStartTimeEditBox:SetScript("OnHide", function()
+		rstConfirmBtn:Hide()
+		raidStartTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
+	end)
+	
+	local retConfirmBtn = GRA:CreateButton(raidEndTimeEditBox, L["OK"], "blue", {15, 20}, "GRA_FONT_SMALL")
+	retConfirmBtn:SetPoint("LEFT", raidEndTimeEditBox, "RIGHT", -1, 0)
+	retConfirmBtn:Hide()
+	retConfirmBtn:SetScript("OnClick", function()
+		local h, m = string.split(":", raidEndTimeEditBox:GetText())
+		local endTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
+		raidEndTimeEditBox:SetText(endTime)
+	
+		if retFunc then retFunc(endTime) end
+		
+		raidEndTimeEditBox:ClearFocus()
+		retConfirmBtn:Hide()
+	end)
+	
+	-- ret validation
+	raidEndTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
+		if not userInput then return end
+		-- check time validity
+		local h, m = string.split(":", raidEndTimeEditBox:GetText())
+		h, m = tonumber(h), tonumber(m)
+		if h and m and h >= 0 and h <= 23 and m >= 0 and m <= 59 then
+			retConfirmBtn:Show()
+			raidEndTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
+		else
+			retConfirmBtn:Hide()
+			raidEndTimeEditBox:SetBackdropBorderColor(1, 0, 0, 1)
+		end
+	end)
+	
+	-- if has tooltip
+	raidEndTimeEditBox:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
+	
+	-- next OnShow, its data MUST be valid
+	raidEndTimeEditBox:SetScript("OnHide", function()
+		retConfirmBtn:Hide()
+		raidEndTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
+	end)
+
+	return raidStartTimeEditBox, raidEndTimeEditBox, rstConfirmBtn, retConfirmBtn
 end
 
 -----------------------------------------
@@ -1925,7 +2014,7 @@ end
 ---------------------------------------------------------------
 -- notification (fade-in fade-out string) 2017-06-21 11:48:05
 ---------------------------------------------------------------
-function GRA:ShowNotificationString(text, point, parent, relativePoint, x, y)
+function GRA:ShowNotificationString(parent, text, point, relativeTo, relativePoint, x, y)
 	if not parent.notificationString then
 		parent.notificationString = parent:CreateFontString(nil, "ARTWORK", "GRA_FONT_SMALL")
 
@@ -1935,7 +2024,7 @@ function GRA:ShowNotificationString(text, point, parent, relativePoint, x, y)
 		fadeIn:SetFromAlpha(0)
 		fadeIn:SetToAlpha(1)
 		fadeIn:SetDuration(.5)
-		fadeIn:SetEndDelay(4)
+		fadeIn:SetEndDelay(3)
 		local fadeOut = parent.notificationString.animationGroup:CreateAnimation("Alpha")
 		fadeOut:SetOrder(1)
 		fadeOut:SetFromAlpha(1)
@@ -1953,6 +2042,6 @@ function GRA:ShowNotificationString(text, point, parent, relativePoint, x, y)
 
 	parent.notificationString.animationGroup:Stop()
 	parent.notificationString:SetText(text)
-	parent.notificationString:SetPoint(point, parent, relativePoint, x, y)
+	parent.notificationString:SetPoint(point, relativeTo, relativePoint, x, y)
 	parent.notificationString.animationGroup:Play()
 end
