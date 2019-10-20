@@ -146,7 +146,7 @@ local lootDistrCB = GRA:CreateCheckButton(lootDistrConfigFrame, L["Enable loot d
         text = gra.colors.firebrick.s .. L["Enable loot distribution tool"] .. "?"
     end
     -- confirm box
-    local confirm = GRA:CreateConfirmBox(lootDistrConfigFrame, lootDistrConfigFrame:GetWidth()-10, text, function()
+    local confirm = GRA:CreateConfirmPopup(lootDistrConfigFrame, lootDistrConfigFrame:GetWidth()-10, text, function()
         _G[GRA_R_Config]["enableLootDistr"] = not _G[GRA_R_Config]["enableLootDistr"]
         ShowMask(not _G[GRA_R_Config]["enableLootDistr"])
         cb:SetChecked(_G[GRA_R_Config]["enableLootDistr"])

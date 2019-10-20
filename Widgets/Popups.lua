@@ -543,65 +543,65 @@ end
 -----------------------------------------
 -- create popup (delete/edit/... confirm) with mask
 -----------------------------------------
-function GRA:CreateConfirmBox(parent, width, text, onAccept, mask)
-	if not parent.confirmBox then -- not init
-		parent.confirmBox = CreateFrame("Frame", nil, parent)
-		parent.confirmBox:SetSize(width, 100)
-		GRA:StylizeFrame(parent.confirmBox, {.05, .05, .05, .95}, {0, .7, 1, .7})
-		parent.confirmBox:SetFrameStrata("DIALOG")
-		parent.confirmBox:SetFrameLevel(2)
-		parent.confirmBox:Hide()
+function GRA:CreateConfirmPopup(parent, width, text, onAccept, mask)
+	if not parent.confirmPopup then -- not init
+		parent.confirmPopup = CreateFrame("Frame", nil, parent)
+		parent.confirmPopup:SetSize(width, 100)
+		GRA:StylizeFrame(parent.confirmPopup, {.05, .05, .05, .95}, {0, .7, 1, .7})
+		parent.confirmPopup:SetFrameStrata("DIALOG")
+		parent.confirmPopup:SetFrameLevel(2)
+		parent.confirmPopup:Hide()
 		
-		parent.confirmBox:SetScript("OnHide", function()
-			parent.confirmBox:Hide()
+		parent.confirmPopup:SetScript("OnHide", function()
+			parent.confirmPopup:Hide()
 			-- hide mask
 			if mask and parent.mask then parent.mask:Hide() end
 			-- hide check button if exists, reset height
-			-- if parent.confirmBox.cb then
-			-- 	parent.confirmBox.cb:ClearAllPoints()
-			-- 	parent.confirmBox.cb:Hide()
-			-- 	parent.confirmBox:SetHeight(50)
+			-- if parent.confirmPopup.cb then
+			-- 	parent.confirmPopup.cb:ClearAllPoints()
+			-- 	parent.confirmPopup.cb:Hide()
+			-- 	parent.confirmPopup:SetHeight(50)
 			-- end
 		end)
 
-		parent.confirmBox:SetScript("OnShow", function ()
+		parent.confirmPopup:SetScript("OnShow", function ()
 			C_Timer.After(.2, function()
-				parent.confirmBox:SetScript("OnUpdate", nil)
+				parent.confirmPopup:SetScript("OnUpdate", nil)
 			end)
 		end)
 		
-		parent.confirmBox.text = parent.confirmBox:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-		parent.confirmBox.text:SetWordWrap(true)
-		parent.confirmBox.text:SetSpacing(3)
-		parent.confirmBox.text:SetJustifyH("CENTER")
-		parent.confirmBox.text:SetPoint("TOPLEFT", 5, -8)
-		parent.confirmBox.text:SetPoint("TOPRIGHT", -5, -8)
+		parent.confirmPopup.text = parent.confirmPopup:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+		parent.confirmPopup.text:SetWordWrap(true)
+		parent.confirmPopup.text:SetSpacing(3)
+		parent.confirmPopup.text:SetJustifyH("CENTER")
+		parent.confirmPopup.text:SetPoint("TOPLEFT", 5, -8)
+		parent.confirmPopup.text:SetPoint("TOPRIGHT", -5, -8)
 
 		-- yes
-		parent.confirmBox.button1 = GRA:CreateButton(parent.confirmBox, L["Yes"], "green", {35, 15}, "GRA_FONT_SMALL")
+		parent.confirmPopup.button1 = GRA:CreateButton(parent.confirmPopup, L["Yes"], "green", {35, 15}, "GRA_FONT_SMALL")
 		-- button1:SetPoint("BOTTOMRIGHT", -45, 0)
-		parent.confirmBox.button1:SetPoint("BOTTOMRIGHT", -34, 0)
-		parent.confirmBox.button1:SetBackdropBorderColor(0, .7, 1, .7)
+		parent.confirmPopup.button1:SetPoint("BOTTOMRIGHT", -34, 0)
+		parent.confirmPopup.button1:SetBackdropBorderColor(0, .7, 1, .7)
 		-- no
-		parent.confirmBox.button2 = GRA:CreateButton(parent.confirmBox, L["No"], "red", {35, 15}, "GRA_FONT_SMALL")
-		parent.confirmBox.button2:SetPoint("LEFT", parent.confirmBox.button1, "RIGHT", -1, 0)
-		parent.confirmBox.button2:SetBackdropBorderColor(0, .7, 1, .7)
+		parent.confirmPopup.button2 = GRA:CreateButton(parent.confirmPopup, L["No"], "red", {35, 15}, "GRA_FONT_SMALL")
+		parent.confirmPopup.button2:SetPoint("LEFT", parent.confirmPopup.button1, "RIGHT", -1, 0)
+		parent.confirmPopup.button2:SetBackdropBorderColor(0, .7, 1, .7)
 		
-		-- TODO: add check button on confirmBox
+		-- TODO: add check button on confirmPopup
 		--[[
-		function parent.confirmBox:SetCheckButton(label, onClick)
-			if not parent.confirmBox.cb then -- create
-				parent.confirmBox.cb = GRA:CreateCheckButton(parent.confirmBox, label, {r=.7, g=.7, b=.7}, onClick, "GRA_FONT_SMALL")
+		function parent.confirmPopup:SetCheckButton(label, onClick)
+			if not parent.confirmPopup.cb then -- create
+				parent.confirmPopup.cb = GRA:CreateCheckButton(parent.confirmPopup, label, {r=.7, g=.7, b=.7}, onClick, "GRA_FONT_SMALL")
 			else -- reuse
-				parent.confirmBox.cb.label:SetText(label)
-				parent.confirmBox.cb.onClick = onClick
+				parent.confirmPopup.cb.label:SetText(label)
+				parent.confirmPopup.cb.onClick = onClick
 			end
 			
 			-- space for check button
-			parent.confirmBox:SetHeight(70)
-			parent.confirmBox.cb:SetPoint("TOPLEFT", parent.confirmBox, GRA:Round((width-(parent.confirmBox.cb.label:GetStringWidth()+32))/2), -25)
-			parent.confirmBox.cb:SetChecked(false)
-			parent.confirmBox.cb:Show()
+			parent.confirmPopup:SetHeight(70)
+			parent.confirmPopup.cb:SetPoint("TOPLEFT", parent.confirmPopup, GRA:Round((width-(parent.confirmPopup.cb.label:GetStringWidth()+32))/2), -25)
+			parent.confirmPopup.cb:SetChecked(false)
+			parent.confirmPopup.cb:Show()
 		end
 		]]
 	end
@@ -610,32 +610,109 @@ function GRA:CreateConfirmBox(parent, width, text, onAccept, mask)
 		GRA:CreateMask(parent)
 	end
 
-	parent.confirmBox.button1:SetScript("OnClick", function()
+	parent.confirmPopup.button1:SetScript("OnClick", function()
 		if onAccept then onAccept() end
 		-- hide mask
 		if mask and parent.mask then parent.mask:Hide() end
-		parent.confirmBox:Hide()
+		parent.confirmPopup:Hide()
 	end)
 
-	parent.confirmBox.button2:SetScript("OnClick", function()
+	parent.confirmPopup.button2:SetScript("OnClick", function()
 		-- hide mask
 		if mask and parent.mask then parent.mask:Hide() end
-		parent.confirmBox:Hide()
+		parent.confirmPopup:Hide()
 	end)
 	
-	parent.confirmBox:SetWidth(width)
-	parent.confirmBox.text:SetText(text)
+	parent.confirmPopup:SetWidth(width)
+	parent.confirmPopup.text:SetText(text)
 
 	-- update height
-	parent.confirmBox:SetScript("OnUpdate", function(self, elapsed)
-		local newHeight = parent.confirmBox.text:GetStringHeight() + 30
-		parent.confirmBox:SetHeight(newHeight)
+	parent.confirmPopup:SetScript("OnUpdate", function(self, elapsed)
+		local newHeight = parent.confirmPopup.text:GetStringHeight() + 30
+		parent.confirmPopup:SetHeight(newHeight)
 	end)
 
-	parent.confirmBox:ClearAllPoints() -- prepare for SetPoint()
-	parent.confirmBox:Show()
+	parent.confirmPopup:ClearAllPoints() -- prepare for SetPoint()
+	parent.confirmPopup:Show()
 
-	return parent.confirmBox
+	return parent.confirmPopup
+end
+
+-----------------------------------------
+-- create popup with two custom buttons
+-----------------------------------------
+function GRA:CreateCustomPopup(parent, width, text, buttons, mask)
+	if not parent.customPopup then -- not init
+		parent.customPopup = CreateFrame("Frame", nil, parent)
+		parent.customPopup:SetSize(width, 100)
+		GRA:StylizeFrame(parent.customPopup, {.05, .05, .05, .95}, {0, .7, 1, .7})
+		parent.customPopup:SetFrameStrata("DIALOG")
+		parent.customPopup:SetFrameLevel(2)
+		parent.customPopup:Hide()
+		
+		parent.customPopup:SetScript("OnHide", function()
+			parent.customPopup:Hide()
+			-- hide mask
+			if mask and parent.mask then parent.mask:Hide() end
+		end)
+
+		parent.customPopup:SetScript("OnShow", function ()
+			C_Timer.After(.2, function()
+				parent.customPopup:SetScript("OnUpdate", nil)
+			end)
+		end)
+		
+		parent.customPopup.text = parent.customPopup:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
+		parent.customPopup.text:SetWordWrap(true)
+		parent.customPopup.text:SetSpacing(3)
+		parent.customPopup.text:SetJustifyH("CENTER")
+		parent.customPopup.text:SetPoint("TOPLEFT", 5, -8)
+		parent.customPopup.text:SetPoint("TOPRIGHT", -5, -8)
+
+		-- button1
+		parent.customPopup.button1 = GRA:CreateButton(parent.customPopup, buttons[1].text, "green", {width/2, 15}, "GRA_FONT_SMALL")
+		parent.customPopup.button1:SetPoint("BOTTOMLEFT")
+		parent.customPopup.button1:SetBackdropBorderColor(0, .7, 1, .7)
+		-- button2
+		parent.customPopup.button2 = GRA:CreateButton(parent.customPopup, buttons[2].text, "red", {35, 15}, "GRA_FONT_SMALL")
+		parent.customPopup.button2:SetPoint("LEFT", parent.customPopup.button1, "RIGHT", -1, 0)
+		parent.customPopup.button2:SetPoint("RIGHT")
+		parent.customPopup.button2:SetBackdropBorderColor(0, .7, 1, .7)
+	end
+
+	if mask then -- show mask?
+		GRA:CreateMask(parent)
+	end
+
+	parent.customPopup.button1:SetText(buttons[1].text)
+	parent.customPopup.button1:SetScript("OnClick", function()
+		buttons[1].onClick()
+		-- hide mask
+		if mask and parent.mask then parent.mask:Hide() end
+		parent.customPopup:Hide()
+	end)
+	
+	parent.customPopup.button2:SetText(buttons[2].text)
+	parent.customPopup.button2:SetScript("OnClick", function()
+		buttons[2].onClick()
+		-- hide mask
+		if mask and parent.mask then parent.mask:Hide() end
+		parent.customPopup:Hide()
+	end)
+	
+	parent.customPopup:SetWidth(width)
+	parent.customPopup.text:SetText(text)
+
+	-- update height
+	parent.customPopup:SetScript("OnUpdate", function(self, elapsed)
+		local newHeight = parent.customPopup.text:GetStringHeight() + 30
+		parent.customPopup:SetHeight(newHeight)
+	end)
+
+	parent.customPopup:ClearAllPoints() -- prepare for SetPoint()
+	parent.customPopup:Show()
+	
+	return parent.customPopup
 end
 
 -----------------------------------------

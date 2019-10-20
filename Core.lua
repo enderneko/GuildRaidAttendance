@@ -62,7 +62,9 @@ gra.sizes = {
 		grid_name = 95,
 		grid_others = 50,
 		grid_dates = 30,
-		mainFrame = {620, 400},
+		mainFrame = {620, 445},
+		raidLogsFrame = {720, 445},
+		archivedLogsFrame = {720, 445},
 	},
 	large = {
 		fontSize = 13,

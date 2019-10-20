@@ -106,6 +106,7 @@ L["Send selected logs to raid members"] = "发送选中的记录给团队成员"
 L["Select multiple logs with the Ctrl and Shift keys."] = "通过Ctrl和Shift可以多选。"
 L["Attendance rate data will be sent ATST."] = "出勤率数据将同时发送。"
 -- new
+L["New"] = "新建"
 L["New Raid Log"] = "新建活动记录"
 L["New raid log"] = "新建活动记录"
 L["Create a new raid log"] = "创建新的活动记录"
@@ -113,11 +114,14 @@ L["After creating it, you can manually edit attendance."] = "创建后，你可�
 L["Create"] = "创建"
 L["Cancel"] = "取消"
 -- delete
+L["Delete"] = "删除"
 L["Delete Raid Log"] = "删除活动记录"
 L["Delete selected raid logs."] = "删除选中的记录。"
 L["Delete selected raid logs?"] = "删除选中的记录？"
 L["This will affect attendance rate!"] = "这将影响出勤率！"
 L["Deleted raid logs: "] = "已删除的记录："
+
+L["Archive"] = "存档"
 -- boss
 -- L["Add Boss"]
 

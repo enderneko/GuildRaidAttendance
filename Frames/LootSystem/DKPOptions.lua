@@ -36,7 +36,7 @@ local dkpCB = GRA:CreateCheckButton(dkpOptionsFrame, L["Enable DKP"], nil, funct
 		text = gra.colors.firebrick.s .. L["Enable DKP?"] .. "|r\n" .. L["DKP system stores its data in officer notes.\nYou'd better back up your officer notes before using DKP.\nAnd you should revoke the privilege to edit officer note from most of guild members."]
 	end
 	-- confirm box
-	local confirm = GRA:CreateConfirmBox(dkpOptionsFrame, dkpOptionsFrame:GetWidth()-10, text, function()
+	local confirm = GRA:CreateConfirmPopup(dkpOptionsFrame, dkpOptionsFrame:GetWidth()-10, text, function()
 		_G[GRA_R_Config]["raidInfo"]["system"] = (_G[GRA_R_Config]["raidInfo"]["system"] == "DKP") and "" or "DKP"
 		ShowMask(_G[GRA_R_Config]["raidInfo"]["system"] ~= "DKP")
 		cb:SetChecked(_G[GRA_R_Config]["raidInfo"]["system"] == "DKP")
@@ -81,7 +81,7 @@ decaySetBtn:SetScript("OnClick", function()
 	local decay = decayEditBox:GetNumber()
 	decayEditBox:SetNumber(decay)
 	_G[GRA_R_Config]["raidInfo"]["DKP"] = decay
-	GRA:ShowNotificationString(gra.colors.firebrick.s .. L["Decay has been set to "] .. decay .. "%", "TOPLEFT", decayEditBox, "BOTTOMLEFT", 0, -3)
+	GRA:ShowNotificationString(dkpOptionsFrame, gra.colors.firebrick.s .. L["Decay has been set to "] .. decay .. "%", "TOPLEFT", decayEditBox, "BOTTOMLEFT", 0, -3)
 
 	gra.attendanceFrame:UpdateRaidInfoStrings()
 end)
@@ -104,7 +104,7 @@ decayNowBtn:SetScript("OnClick", function()
 	local decayP = (decayNowEditBox:GetNumber() >= 100) and 100 or decayNowEditBox:GetNumber()
 	if decayP == 0 then return end
 
-	local confirm = GRA:CreateConfirmBox(dkpOptionsFrame, dkpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. string.format(L["Decay DKP by %d%%?"], decayP), function()
+	local confirm = GRA:CreateConfirmPopup(dkpOptionsFrame, dkpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. string.format(L["Decay DKP by %d%%?"], decayP), function()
 		GRA:DecayDKP(decayP)
     	SendChatMessage("GRA: " .. L["Decayed DKP by %d%%."]:format(decayP), "GUILD")
 	end, true)
@@ -148,7 +148,7 @@ end)
 local resetBtn = GRA:CreateButton(dkpOptionsFrame, L["Reset DKP"], "red", {dkpOptionsFrame:GetWidth()-10, 20}, "GRA_FONT_SMALL")
 resetBtn:SetPoint("BOTTOMLEFT", 5, 5)
 resetBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmBox(dkpOptionsFrame, dkpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset DKP?"], function()
+	local confirm = GRA:CreateConfirmPopup(dkpOptionsFrame, dkpOptionsFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset DKP?"], function()
 		GRA:ResetDKP()
 	end, true)
 	confirm:SetPoint("BOTTOM", resetBtn, "TOP", 0, 10)

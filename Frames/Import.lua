@@ -55,7 +55,7 @@ end)
 -------------------------------------------------
 guildFrame = CreateFrame("Frame", nil, importFrame)
 guildFrame:SetPoint("TOP", 0, -30)
-guildFrame:SetPoint("BOTTOM", 0, 35)
+guildFrame:SetPoint("BOTTOM", 0, 32)
 guildFrame:SetPoint("LEFT")
 guildFrame:SetPoint("RIGHT")
 
@@ -157,8 +157,8 @@ end)
 -- group
 -------------------------------------------------
 groupFrame = CreateFrame("Frame", nil, importFrame)
-groupFrame:SetPoint("TOP", 0, -32)
-groupFrame:SetPoint("BOTTOM", 0, 32)
+groupFrame:SetPoint("TOP", 0, -30)
+groupFrame:SetPoint("BOTTOM", 0, 31)
 groupFrame:SetPoint("LEFT")
 groupFrame:SetPoint("RIGHT")
 groupFrame:Hide()

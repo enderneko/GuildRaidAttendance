@@ -50,6 +50,8 @@ function GRA:NewRaidLog(parent)
         end)
     end
 
-    newRaidLogFrame:SetPoint("BOTTOM", parent, "TOP", 0, 4)
+    newRaidLogFrame:SetParent(parent)
+    newRaidLogFrame:ClearAllPoints()
+    newRaidLogFrame:SetPoint("BOTTOM", parent, "TOP", 0, 1)
     newRaidLogFrame:Show()
 end

@@ -39,7 +39,7 @@ aValueEditBox:SetScript("OnEnterPressed", function()
             aValueEditBox:SetText(result)
             aValueEditBox:ClearFocus()
         else
-            GRA:ShowNotificationString(gra.colors.firebrick.s .. result, "TOPLEFT", aValueEditBox, "BOTTOMLEFT", 0, -3)
+            GRA:ShowNotificationString(awardFrame, gra.colors.firebrick.s .. result, "TOPLEFT", aValueEditBox, "BOTTOMLEFT", 0, -3)
         end
     else
         aValueEditBox:ClearFocus()

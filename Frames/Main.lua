@@ -7,7 +7,7 @@ local lastFrame = nil
 -----------------------------------------
 -- main frame
 -----------------------------------------
-gra.mainFrame = GRA:CreateMovableFrame("Guild Raid Attendance", "GRA_MainFrame", 620, 400, "GRA_FONT_TITLE")
+gra.mainFrame = GRA:CreateMovableFrame("Guild Raid Attendance", "GRA_MainFrame", gra.size.mainFrame[1], gra.size.mainFrame[2], "GRA_FONT_TITLE")
 
 -----------------------------------------
 -- Guild Message of the Day
@@ -115,6 +115,7 @@ buttons["attendanceSheetBtn"]:SetScript("OnClick", function()
 	gra.attendanceFrame:Show()
 	gra.calenderFrame:Hide()
 	gra.raidLogsFrame:Hide()
+	gra.archivedLogsFrame:Hide()
 end)
 
 buttons["raidLogsBtn"] = GRA:CreateButton(gra.mainFrame, L["Raid Logs"], "red", {100, 20}, "GRA_FONT_SMALL")
@@ -125,6 +126,18 @@ buttons["raidLogsBtn"]:SetScript("OnClick", function()
 	gra.attendanceFrame:Hide()
 	gra.calenderFrame:Hide()
 	gra.raidLogsFrame:Show()
+	gra.archivedLogsFrame:Hide()
+end)
+
+buttons["archivedLogsBtn"] = GRA:CreateButton(gra.mainFrame, L["Archived Logs"], "red", {100, 20}, "GRA_FONT_SMALL")
+buttons["archivedLogsBtn"]:SetPoint("LEFT", buttons["raidLogsBtn"], "RIGHT", 5, 0)
+buttons["archivedLogsBtn"]:SetScript("OnClick", function()
+	HighlightButton("archivedLogsBtn")
+	lastFrame = gra.archivedLogsFrame
+	gra.attendanceFrame:Hide()
+	gra.calenderFrame:Hide()
+	gra.raidLogsFrame:Hide()
+	gra.archivedLogsFrame:Show()
 end)
 
 -- buttons["calenderBtn"] = GRA:CreateButton(gra.mainFrame, L["Calender"], "red", {100, 20}, "GRA_FONT_SMALL")
@@ -207,12 +220,12 @@ local function EnableMiniMode(f)
 	if f then
 		buttons["attendanceSheetBtn"]:Hide()
 		buttons["raidLogsBtn"]:Hide()
+		buttons["archivedLogsBtn"]:Hide()
 		buttons["attendanceSheetBtn"]:Click()
-		-- gra.mainFrame:SetHeight(420)
 	else
 		buttons["attendanceSheetBtn"]:Show()
 		buttons["raidLogsBtn"]:Show()
-		-- gra.mainFrame:SetHeight(400)
+		buttons["archivedLogsBtn"]:Show()
 	end
 end
 

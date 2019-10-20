@@ -63,7 +63,7 @@ end)
 local resetBtn = GRA:CreateButton(profilesFrame, L["Reset Current Profile"], "red", {profilesFrame:GetWidth()-10, 20}, "GRA_FONT_SMALL")
 resetBtn:SetPoint("BOTTOM", 0, 5)
 resetBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmBox(profilesFrame, profilesFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset current profile?"] .. "|r \n" .. L["Including roster, logs and settings."], function()
+	local confirm = GRA:CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset current profile?"] .. "|r \n" .. L["Including roster, logs and settings."], function()
 		_G[GRA_R_RaidLogs] = nil
 		_G[GRA_R_Roster] = nil
 		_G[GRA_R_Config] = nil
@@ -79,7 +79,7 @@ local profileToSwitchTo
 local switchAndOverrideBtn = GRA:CreateButton(profilesFrame, L["Switch And Override"], "blue", {profilesFrame:GetWidth()-10, 20})
 switchAndOverrideBtn:SetPoint("BOTTOM", resetBtn, "TOP", 0, 5)
 switchAndOverrideBtn:SetScript("OnClick", function()
-    local confirm = GRA:CreateConfirmBox(profilesFrame, profilesFrame:GetWidth()-10, (L["Switch to %s profile?"]):format(profileToSwitchTo) .. "\n" .. L["Override %s profile with current profile."]:format(profileToSwitchTo), function()
+    local confirm = GRA:CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, (L["Switch to %s profile?"]):format(profileToSwitchTo) .. "\n" .. L["Override %s profile with current profile."]:format(profileToSwitchTo), function()
         -- override
         if GRA_Variables["useAccountProfile"] then
             GRA_RaidLogs = GRA_A_RaidLogs
@@ -100,7 +100,7 @@ end)
 local switchBtn = GRA:CreateButton(profilesFrame, L["Switch"], "blue", {profilesFrame:GetWidth()-10, 20})
 switchBtn:SetPoint("BOTTOM", switchAndOverrideBtn, "TOP", 0, 5)
 switchBtn:SetScript("OnClick", function()
-    local confirm = GRA:CreateConfirmBox(profilesFrame, profilesFrame:GetWidth()-10, (L["Switch to %s profile?"]):format(profileToSwitchTo), function()
+    local confirm = GRA:CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, (L["Switch to %s profile?"]):format(profileToSwitchTo), function()
 		GRA_Variables["useAccountProfile"] = not GRA_Variables["useAccountProfile"]
 		ReloadUI()
 	end, true)

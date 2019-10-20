@@ -94,10 +94,13 @@ function GRA:StartTracking(instanceName, difficultyName)
 			for n, t in pairs(_G[GRA_R_Roster]) do
 				_G[GRA_R_RaidLogs][raidDate]["attendances"][n] = {"ABSENT"}
 			end
-			-- init desc
+			-- init note
 			if instanceName and difficultyName then
-				_G[GRA_R_RaidLogs][raidDate]["desc"] = instanceName.." "..difficultyName
+				_G[GRA_R_RaidLogs][raidDate]["note"] = instanceName.." "..difficultyName
 			end
+			-- init raid hours
+			_G[GRA_R_RaidLogs][raidDate]["startTime"] = select(2, GRA:GetRaidStartTime(raidDate))
+			_G[GRA_R_RaidLogs][raidDate]["endTime"] = select(2, GRA:GetRaidEndTime(raidDate))
 		end
 
 		RaidRosterUpdate() -- scan raid for attendance

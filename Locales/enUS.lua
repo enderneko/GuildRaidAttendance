@@ -151,6 +151,16 @@ select(2, ...).L = setmetatable({
 		<h1>You can submit a ticket on GitHub to do a Feature Request / Bug Report.</h1>
 		<h1>Thank you :)</h1>
 	]],
+	["r91-release"] = [[
+		<h1>Raid Hours</h1>
+		<p>Changing raid hours in config will only affect new logs.</p>
+		<p>Raid hours of all old logs (except those you've edited) have been updated to your current settings.</p>
+		<br/>
+		<h1>Raid Logs</h1>
+		<p>Now you can add a note to the raid log.</p>
+		<p>To perform a mass raid logs editing (raid hours and notes), select several logs then click "Edit" button.</p>
+		<br/>
+	]],
 }, {
 	__index = function(self, Key)
 		if (Key ~= nil) then

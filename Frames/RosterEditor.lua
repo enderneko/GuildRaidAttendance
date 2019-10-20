@@ -29,7 +29,7 @@ rosterEditorFrame.header.closeBtn:SetScript("OnClick", function() rosterEditorFr
 
 local tip = CreateFrame("Frame", nil, rosterEditorFrame)
 tip:SetSize(rosterEditorFrame:GetWidth()-10, 15)
-tip:SetPoint("TOP", 0, -5)
+tip:SetPoint("TOP", 0, -4)
 tip:SetScript("OnEnter", function()
     GRA_Tooltip:SetOwner(rosterEditorFrame.header, "ANCHOR_TOPRIGHT", 0, 1)
     GRA_Tooltip:AddLine(L["Roster Editor"])
@@ -45,7 +45,7 @@ rosterText:SetText(gra.colors.chartreuse.s .. L["Hover for more information."])
 rosterText:SetPoint("LEFT")
 
 local deleted, renamed, roleChanged, mainChanged, classChanged = {}, {}, {}, {}, {}
-local scroll = GRA:CreateScrollFrame(rosterEditorFrame, -25, 55)
+local scroll = GRA:CreateScrollFrame(rosterEditorFrame, -20, 55)
 local LoadRoster
 
 --------------------------------------------------
@@ -320,7 +320,7 @@ local function SaveChanges()
         table.insert(classChangedDetails, GRA:GetClassColoredName(n, t[1]))
     end
 
-    local confirm = GRA:CreateConfirmBox(rosterEditorFrame, rosterEditorFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Apply changes to roster?"] .. "|r\n" .. L["All related logs will be updated."], function()
+    local confirm = GRA:CreateConfirmPopup(rosterEditorFrame, rosterEditorFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Apply changes to roster?"] .. "|r\n" .. L["All related logs will be updated."], function()
         -- delete!
         Delete()
         -- rename!

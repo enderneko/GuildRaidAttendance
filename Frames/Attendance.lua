@@ -10,8 +10,7 @@ local ShowAR, CalcAR
 -----------------------------------------
 local attendanceFrame = CreateFrame("Frame", "GRA_AttendanceFrame", gra.mainFrame)
 attendanceFrame:SetPoint("TOPLEFT", gra.mainFrame, 8, -30)
-attendanceFrame:SetPoint("TOPRIGHT", gra.mainFrame, -8, -30)
-attendanceFrame:SetHeight(331)
+attendanceFrame:SetPoint("BOTTOMRIGHT", gra.mainFrame, -8, 27)
 attendanceFrame:Hide()
 gra.attendanceFrame = attendanceFrame
 
@@ -1402,6 +1401,8 @@ end
 -- admin only, calculate AR
 local updateRequired
 CalcAR = function()
+	if GRA:Getn(_G[GRA_R_RaidLogs]) == 0 then return end
+	
 	if gra.isAdmin == nil then -- wait for GRA_PERMISSION
 		GRA:RegisterEvent("GRA_PERMISSION", "CalcAR_CheckPermission", function()
 			CalcAR()
