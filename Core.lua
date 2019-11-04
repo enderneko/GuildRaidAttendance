@@ -96,7 +96,7 @@ gra.size = gra.sizes.normal
 -----------------------------------------
 -- font
 -----------------------------------------
-GRA_FORCE_ENGLISH = true
+GRA_FORCE_ENGLISH = false
 -----------------------------------------
 local font = "Interface\\AddOns\\GuildRaidAttendance\\Media\\Fonts\\calibrib.ttf"
 local useGameFont = false

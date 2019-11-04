@@ -15,7 +15,7 @@ L["Shift Right-Click: "] = "Shift 右键单击："
 L["Double-Click: "] = "双击："
 L["Attendance Sheet"] = "出勤表"
 L["Raid Logs"] = "活动记录"
-L["Announcements"] = "公告"
+L["Archived Logs"] = "已存档的记录"
 L["Save All Changes"] = "保存所有更改"
 L["Discard All Changes"] = "放弃所有更改"
 L["Track This Raid"] = "记录此副本"
@@ -122,7 +122,7 @@ L["This will affect attendance rate!"] = "这将影响出勤率！"
 L["Deleted raid logs: "] = "已删除的记录："
 -- edit
 L["Edit raid log"] = "修改活动记录"
--- L["Edit raid hours and notes of selected raid logs."]
+L["Edit raid hours and notes of selected raid logs."] = "修改选中记录的备注以及活动时间。"
 -- archive
 L["Archive"] = "存档"
 L["Archive raid log"] = "存档活动记录"
@@ -162,6 +162,7 @@ L["Guilty!"] = "有罪！"
 -- loot council
 L["Record Loot"] = "记录拾取"
 L["Record it!"] = "记录！"
+
 -- attendance editor
 L["Raid Date: "] = "活动日期："
 L["Ignored"] = "忽略"
@@ -173,6 +174,12 @@ L["Set notes (not available for alts)."] = "设置备注（小号不可用）。
 L["Not available for alts"] = "小号不可用"
 L["Saved all attendance changes on %s."] = "%s 的所有出勤改动已保存。"
 L["Discarded all attendance changes on %s."] = "%s 的所有出勤改动已取消。"
+
+-- raid logs editor
+L["Blank fields will be ignored."] = "空白栏位将被忽略。"
+L["Start"] = "开始"
+L["End"] = "结束"
+L["Apply"] = "应用"
 
 -------------------------------------------------------
 -- comm
