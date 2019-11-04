@@ -1,3 +1,10 @@
+version r91-release
+------------------------
+    * Fixed attendance status error.
+    * Raid hours in config will only affect new logs.
+    + Added mass note/raid hours editing.
+    * Code optimization.
+
 version r90-release
 ------------------------
     + Added "Set class" in RosterEditor.
