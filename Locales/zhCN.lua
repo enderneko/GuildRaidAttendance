@@ -115,13 +115,21 @@ L["Create"] = "创建"
 L["Cancel"] = "取消"
 -- delete
 L["Delete"] = "删除"
-L["Delete Raid Log"] = "删除活动记录"
+L["Delete raid log"] = "删除活动记录"
 L["Delete selected raid logs."] = "删除选中的记录。"
 L["Delete selected raid logs?"] = "删除选中的记录？"
 L["This will affect attendance rate!"] = "这将影响出勤率！"
 L["Deleted raid logs: "] = "已删除的记录："
-
+-- edit
+L["Edit raid log"] = "修改活动记录"
+-- L["Edit raid hours and notes of selected raid logs."]
+-- archive
 L["Archive"] = "存档"
+L["Archive raid log"] = "存档活动记录"
+L["Archive selected raid logs."] = "存档选中的记录。"
+L["Archive selected raid logs?"] = "存档选中的记录？"
+L["Archived logs will not be used for AR calculation and will be read-only (for now)."] = "已存档的记录将不会被用于计算出勤率，并且为只读（暂定）。"
+
 -- boss
 -- L["Add Boss"]
 

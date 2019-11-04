@@ -160,6 +160,8 @@ select(2, ...).L = setmetatable({
 		<p>Now you can add a note to the raid log.</p>
 		<p>To perform a mass raid logs editing (raid hours and notes), select several logs then click "Edit" button.</p>
 		<br/>
+		<h1>Attendance Editor</h1>
+		<p>Due to a lot of code changes, there may be some unanticipated errors. Please report on GitHub if you meet it.</p>
 	]],
 }, {
 	__index = function(self, Key)

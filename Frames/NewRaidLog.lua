@@ -17,7 +17,7 @@ function GRA:NewRaidLog(parent)
         newRaidLogFrame = CreateFrame("Frame", "GRA_NewRaidLogFrame", parent)
         newRaidLogFrame:Hide()
         -- gra.newRaidLogFrame = newRaidLogFrame
-        GRA:StylizeFrame(newRaidLogFrame, nil, nil, {11, -11, -11, 11})
+        GRA:StylizeFrame(newRaidLogFrame)
         newRaidLogFrame:EnableMouse(true)
         newRaidLogFrame:SetFrameStrata("DIALOG")
         newRaidLogFrame:SetFrameLevel(1)
@@ -33,6 +33,9 @@ function GRA:NewRaidLog(parent)
         newBtn:SetPoint("LEFT", datePicker, "RIGHT", -1, 0)
         newBtn:SetScript("OnClick", function()
             _G[GRA_R_RaidLogs][newLogDate] = {["attendances"]={}, ["details"]={}, ["bosses"]={}}
+            -- init startTime & endTime
+            _G[GRA_R_RaidLogs][newLogDate]["startTime"] = select(2, GRA:GetRaidStartTime(newLogDate))
+            _G[GRA_R_RaidLogs][newLogDate]["endTime"] = select(2, GRA:GetRaidEndTime(newLogDate))
             -- manually edit attendance later
             GRA:FireEvent("GRA_RAIDLOGS", newLogDate)
             newRaidLogFrame:Hide()

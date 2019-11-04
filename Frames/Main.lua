@@ -131,6 +131,7 @@ end)
 
 buttons["archivedLogsBtn"] = GRA:CreateButton(gra.mainFrame, L["Archived Logs"], "red", {100, 20}, "GRA_FONT_SMALL")
 buttons["archivedLogsBtn"]:SetPoint("LEFT", buttons["raidLogsBtn"], "RIGHT", 5, 0)
+buttons["archivedLogsBtn"]:SetEnabled(false)
 buttons["archivedLogsBtn"]:SetScript("OnClick", function()
 	HighlightButton("archivedLogsBtn")
 	lastFrame = gra.archivedLogsFrame

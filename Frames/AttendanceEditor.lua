@@ -15,7 +15,7 @@ function GRA:CreateAttendanceEditor(parent)
     -- attendanceEditor.dateString
     
     local tipText1 = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-    tipText1:SetPoint("TOPLEFT", 5, -5)
+    tipText1:SetPoint("TOPLEFT", 5, -8)
     tipText1:SetText("|cff70dd00" .. L["Double-click on the second column: "] .. gra.colors.grey.s .. L["Select attendance status."])
     local tipText2 = attendanceEditor:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
     tipText2:SetPoint("TOPLEFT", tipText1, "BOTTOMLEFT", 0, -3)
@@ -42,7 +42,7 @@ function GRA:CreateAttendanceEditor(parent)
     attendanceEditor.raidEndTimeEditBox = raidEndTimeEditBox
     
     raidEndTimeEditBox:SetWidth(70)
-    raidEndTimeEditBox:SetPoint("TOPRIGHT", attendanceEditor, -5, -7)
+    raidEndTimeEditBox:SetPoint("TOPRIGHT", attendanceEditor, -5, -11)
     retConfirmBtn:ClearAllPoints()
     retConfirmBtn:SetPoint("RIGHT")
     
@@ -56,7 +56,7 @@ function GRA:CreateAttendanceEditor(parent)
     raidHours:SetPoint("RIGHT", raidStartTimeEditBox, "LEFT", -3, 0)
     raidHours:SetText(gra.colors.chartreuse.s .. L["Raid Hours"] .. ": ")
     
-    local scroll = GRA:CreateScrollFrame(attendanceEditor, -34)
+    local scroll = GRA:CreateScrollFrame(attendanceEditor, -41)
     GRA:StylizeFrame(scroll, {0, 0, 0, 0})
     scroll:SetScrollStep(19)
 

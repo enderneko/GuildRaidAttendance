@@ -85,19 +85,18 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 		if type(GRA_Variables["columns"]["Sit_Out"]) ~= "boolean" then
 			GRA_Variables["columns"]["Sit_Out"] = false
 		end
-		]]
 
 		-- r86-release
-		-- if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r86-release" then
-		-- 	for _, t in pairs(_G[GRA_R_RaidLogs]) do
-		-- 		for _, att in pairs(t["attendances"]) do
-		-- 			if att[1] == "PARTLY" then
-		-- 				att[1] = "PARTIAL"
-		-- 			end
-		-- 		end
-		-- 	end
-		-- 	_G[GRA_R_Config]["revise"] = "r86-release"
-		-- end
+		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r86-release" then
+			for _, t in pairs(_G[GRA_R_RaidLogs]) do
+				for _, att in pairs(t["attendances"]) do
+					if att[1] == "PARTLY" then
+						att[1] = "PARTIAL"
+					end
+				end
+			end
+			_G[GRA_R_Config]["revise"] = "r86-release"
+		end
 
 		-- r87-release
 		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r87-release" then
@@ -144,6 +143,20 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r89-release" then
 			GRA_A_Variables["aboutViewed"] = nil
 			_G[GRA_R_Config]["revise"] = "r89-release"
+		end
+		]]
+
+		-- r91-release add startTime & endTime for all logs
+		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r91-release" then
+			for d, t in pairs(_G[GRA_R_RaidLogs]) do
+				if not t["startTime"] then t["startTime"] =  select(2, GRA:GetRaidStartTime(d)) end
+				if not t["endTime"] then t["endTime"] =  select(2, GRA:GetRaidEndTime(d)) end
+				if t["desc"] then
+					t["note"] = t["desc"]
+					t["desc"] = nil
+				end
+			end
+			_G[GRA_R_Config]["revise"] = "r91-release"
 		end
     end
 end)
