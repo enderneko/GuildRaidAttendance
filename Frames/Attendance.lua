@@ -1629,57 +1629,50 @@ local function UpdateGrid(g, d, name, altGs)
 		GRA_Tooltip:SetPoint("BOTTOM", g:GetParent(), 0, 0)
 		GRA_Tooltip:AddLine(GRA:GetClassColoredName(name))
 
-		local blankLine = false
 		-- join time
 		if att == "PRESENT" or att == "PARTIAL" then
 			GRA_Tooltip:AddLine(GRA:SecondsToTime(joinTime) .. " - " .. (GRA:SecondsToTime(leaveTime)))
 			GRA_Tooltip:Show()
-			blankLine = true
 		end
 
 		-- note
 		if _G[GRA_R_RaidLogs][d]["attendances"][name] and _G[GRA_R_RaidLogs][d]["attendances"][name][2] then
-			GRA_Tooltip:AddLine(_G[GRA_R_RaidLogs][d]["attendances"][name][2])
+			GRA_Tooltip:AddLine("|cffFFFFFF" .. _G[GRA_R_RaidLogs][d]["attendances"][name][2])
 			GRA_Tooltip:Show()
-			blankLine = true
 		end
-		if altGs then
+		if altGs then -- FIXME: alts should have no notes
 			for altName, _ in pairs(altGs) do
 				if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][2] then
-					GRA_Tooltip:AddLine(_G[GRA_R_RaidLogs][d]["attendances"][altName][2])
+					GRA_Tooltip:AddLine("|cffFFFFFF" .. _G[GRA_R_RaidLogs][d]["attendances"][altName][2])
 				end
 			end
 			GRA_Tooltip:Show()
-			blankLine = true
 		end
 
-		if todaysEP[d][name] then
-			if blankLine then GRA_Tooltip:AddLine(" ") blankLine = false end
+		if eps[d][name] then
+			GRA_Tooltip:AddLine(" ")
+
 			if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 				GRA_Tooltip:AddLine(L["Today's EP: "] .. todaysEP[d][name])
 			elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
 				GRA_Tooltip:AddLine(L["Today's DKP (awarded): "] .. todaysEP[d][name])
 			end
-		end
-
-		if eps[d][name] then
+			
 			for _, v in pairs(eps[d][name]) do
 				GRA_Tooltip:AddLine(v)
 			end
 			GRA_Tooltip:Show()
-			blankLine = true
 		end
+		
+		if gps[d][name] then
+			GRA_Tooltip:AddLine(" ")
 
-		if todaysGP[d][name] then
-			if blankLine then GRA_Tooltip:AddLine(" ") blankLine = false end
 			if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 				GRA_Tooltip:AddLine(L["Today's GP: "] .. todaysGP[d][name])
 			elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
 				GRA_Tooltip:AddLine(L["Today's DKP (spent/penalized): "] .. todaysGP[d][name])
 			end
-		end
 
-		if gps[d][name] then
 			for k, v in pairs(gps[d][name]) do
 				if k ~= "loots" then GRA_Tooltip:AddLine(v) end
 			end
@@ -1857,16 +1850,12 @@ GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", function(dat
 	end
 end)
 
--- raid start time update
+-- raid start time update (RaidLogsEditFrame/AttendanceEditor)
 GRA:RegisterEvent("GRA_RH_UPDATE", "AttendanceSheet_RaidHoursUpdate", function(d)
-	GRA:Debug("|cff66CD00GRA_RH_UPDATE:|r " .. (d or "GLOBAL"))
-	GRA:UpdateAttendance(d)
-	if d then
-		RefreshSheetByDate(d)
-	else -- update all
-		GRA:ShowAttendanceSheet()
-	end
-	CalcAR()
+	GRA:Debug("|cff66CD00GRA_RH_UPDATE:|r " .. d)
+	GRA:UpdateAttendanceStatus(d)
+	RefreshSheetByDate(d)
+	updateRequired = true -- CalcAR
 end)
 
 -- system changed

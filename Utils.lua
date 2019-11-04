@@ -591,6 +591,22 @@ function GRA:CheckAttendanceStatus(joinTime, startTime, leaveTime, endTime)
 	return "PRESENT"
 end
 
+-- update attendance status when raid hours changed
+function GRA:UpdateAttendanceStatus(d)
+	if d then
+		-- start/end time changed for this day
+		local startTime = select(2, GRA:GetRaidStartTime(d))
+		local endTime =  select(2, GRA:GetRaidEndTime(d))
+		if startTime > endTime then GRA:Print(gra.colors.firebrick.s .. L["Invalid raid hours on "] .. date("%x", GRA:DateToSeconds(d)) .. ".") end
+		
+		for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendances"]) do
+			if t[3] then -- PRESENT or PARTIAL
+				t[1] = GRA:CheckAttendanceStatus(t[3], startTime, t[4], endTime)
+			end
+		end
+	end
+end
+
 -- 出勤率使用出勤分钟数计算
 local function GetAttendanceRate(d, joinTime, leaveTime)
 	if not joinTime then
@@ -598,6 +614,12 @@ local function GetAttendanceRate(d, joinTime, leaveTime)
 	else
 		local startTime = select(2, GRA:GetRaidStartTime(d))
 		local endTime = select(2, GRA:GetRaidEndTime(d))
+
+		-- validate raid hours
+		if startTime == endTime then
+			GRA:Print(gra.colors.firebrick.s .. L["Invalid Raid Hours on "] .. d)
+			return 0
+		end
 
 		if leaveTime and leaveTime < startTime then return 0 end -- leave before start
 
@@ -673,26 +695,8 @@ function GRA:GetMainAltAttendance(d, mainName)
 		end
 	end
 
+	-- print(d .. " name:" .. mainName .. " att:" .. att .. " join:" .. (joinTime or "") .. " leave:" .. (leaveTime or ""))
 	return att, joinTime, leaveTime, GetAttendanceRate(d, joinTime, leaveTime), isSitOut, loots
-end
-
--- update attendances when raid hours changed
-function GRA:UpdateAttendance(d)
-	if d then
-		-- start/end time changed for this day
-		for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendances"]) do
-			if t[3] then -- PRESENT or PARTIAL
-				t[1] = GRA:CheckAttendanceStatus(t[3], select(2, GRA:GetRaidStartTime(d)), t[4], select(2, GRA:GetRaidEndTime(d)))
-			end
-		end
-	else
-		-- global start time changed, only check date without start time
-		for dateString, logTable in pairs(_G[GRA_R_RaidLogs]) do
-			if not logTable["startTime"] then
-				GRA:UpdateAttendance(dateString)
-			end
-		end
-	end
 end
 
 -- calc AR and Loots
@@ -860,7 +864,7 @@ function GRA:CalcAtendanceRateAndLoots(from, to, progressBar, saveToSV)
 			end
 		end
 	end
-
+	
 	for name, t in pairs(_G[GRA_R_Roster]) do
 		if playerAtts[name] then
 			-- calc ar
