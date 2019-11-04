@@ -53,7 +53,7 @@ dkpCB:SetPoint("TOPLEFT", 5, -14)
 -- local columnText = dkpOptionsFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 -- columnText:SetText("|cff80FF00"..L["Columns"].."|r")
 -- columnText:SetPoint("TOPLEFT", 5, -47)
--- GRA:CreateSeperator(dkpOptionsFrame, columnText)
+-- GRA:CreateSeparator(dkpOptionsFrame, columnText)
 
 -- local showTotal = GRA:CreateCheckButton(dkpOptionsFrame, L["Enable DKP"], nil, function(checked, cb)
 
@@ -69,7 +69,7 @@ dkpCB:SetPoint("TOPLEFT", 5, -14)
 local decayText = dkpOptionsFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 decayText:SetText("|cff80FF00"..L["Decay"].."|r")
 decayText:SetPoint("TOPLEFT", 5, -47)
-GRA:CreateSeperator(dkpOptionsFrame, decayText)
+GRA:CreateSeparator(dkpOptionsFrame, decayText)
 
 local decayEditBox = GRA:CreateEditBox(dkpOptionsFrame, 120, 20, true, "GRA_FONT_SMALL")
 decayEditBox:SetPoint("TOPLEFT", decayText, 0, -20)

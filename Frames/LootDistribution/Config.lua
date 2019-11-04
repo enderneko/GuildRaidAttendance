@@ -39,7 +39,7 @@ end)
 local qnSection = lootDistrConfigFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 qnSection:SetText("|cff80FF00"..L["Quick Notes"].."|r")
 qnSection:SetPoint("TOPLEFT", 5, -25)
-GRA:CreateSeperator(lootDistrConfigFrame, qnSection)
+GRA:CreateSeparator(lootDistrConfigFrame, qnSection)
 
 local qns = {}
 local function LoadQuickNotes()
@@ -114,7 +114,7 @@ end
 local masterSection = lootDistrConfigFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 masterSection:SetText("|cff80FF00"..L["Reply Buttons"].."|r")
 masterSection:SetPoint("TOPLEFT", 5, -95)
-GRA:CreateSeperator(lootDistrConfigFrame, masterSection)
+GRA:CreateSeparator(lootDistrConfigFrame, masterSection)
 
 local masterTips = lootDistrConfigFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
 masterTips:SetText(gra.colors.firebrick.s .. L["Only when you're the loot master and in a raid instance will these take effect."])

@@ -104,7 +104,7 @@ end
 -----------------------------------------
 -- change frame size with animation
 -----------------------------------------
-function GRA:ChangeSizeWithAnimation(frame, targetWidth, targetHeight, startFunc, endFunc)
+function GRA:ChangeSizeWithAnimation(frame, targetWidth, targetHeight, startFunc, endFunc, noRepoint)
     if startFunc then startFunc() end
 	
 	local currentHeight = frame:GetHeight()
@@ -139,7 +139,7 @@ function GRA:ChangeSizeWithAnimation(frame, targetWidth, targetHeight, startFunc
             animationTimer:Cancel()
             animationTimer = nil
 			if endFunc then endFunc() end
-			LPP:PixelPerfectPoint(frame)
+			if not noRepoint then LPP:PixelPerfectPoint(frame) end -- already point to another frame
         end
     end)
 end
@@ -579,7 +579,7 @@ function GRA:CreateRaidHoursEditBox(parent, rstFunc, retFunc)
 		raidStartTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
 	end)
 	
-	local retConfirmBtn = GRA:CreateButton(raidEndTimeEditBox, L["OK"], "blue", {15, 20}, "GRA_FONT_SMALL")
+	local retConfirmBtn = GRA:CreateButton(raidEndTimeEditBox, L["OK"], "blue", {20, 20}, "GRA_FONT_SMALL")
 	retConfirmBtn:SetPoint("LEFT", raidEndTimeEditBox, "RIGHT", -1, 0)
 	retConfirmBtn:Hide()
 	retConfirmBtn:SetScript("OnClick", function()
@@ -1995,7 +1995,7 @@ end
 -----------------------------------------
 -- seperator
 -----------------------------------------
-function GRA:CreateSeperator(parent, relativeTo, x, y, width ,color)
+function GRA:CreateSeparator(parent, relativeTo, x, y, width ,color)
 	if not color then color = {.5, 1, 0, .7} end
 	if not width then width = parent:GetWidth()-10 end
 	if not x then x = 0 end

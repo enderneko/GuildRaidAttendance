@@ -29,7 +29,7 @@ tip:SetText(gra.colors.firebrick.s .. L["Some of the settings above require a UI
 local fontSection = appearanceFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 fontSection:SetText("|cff80FF00"..L["Font"].."|r")
 fontSection:SetPoint("TOPLEFT", 5, -5)
-GRA:CreateSeperator(appearanceFrame, fontSection)
+GRA:CreateSeparator(appearanceFrame, fontSection)
 
 -- CheckButton: use game font
 local fontCB = GRA:CreateCheckButton(appearanceFrame, L["Use Game Font"], nil, function(checked)
@@ -43,7 +43,7 @@ fontCB:SetPoint("TOPLEFT", fontSection, 0, -20)
 local sizeSection = appearanceFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 sizeSection:SetText("|cff80FF00"..L["Frame Size"].."|r")
 sizeSection:SetPoint("TOPLEFT", 5, -75)
-GRA:CreateSeperator(appearanceFrame, sizeSection)
+GRA:CreateSeparator(appearanceFrame, sizeSection)
 
 local sizeDropDown = GRA:CreateDropDownMenu(appearanceFrame, appearanceFrame:GetWidth()-10)
 sizeDropDown:SetPoint("TOPLEFT", sizeSection, "BOTTOMLEFT", 0, -10)
@@ -99,7 +99,7 @@ end
 local scaleSection = appearanceFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 scaleSection:SetText("|cff80FF00"..L["Frame Scale"].."|r")
 scaleSection:SetPoint("TOPLEFT", 5, -145)
-GRA:CreateSeperator(appearanceFrame, scaleSection)
+GRA:CreateSeparator(appearanceFrame, scaleSection)
 
 local scaleDropDown = GRA:CreateDropDownMenu(appearanceFrame, appearanceFrame:GetWidth()-10)
 scaleDropDown:SetPoint("TOPLEFT", scaleSection, "BOTTOMLEFT", 0, -10)

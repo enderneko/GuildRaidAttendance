@@ -14,7 +14,7 @@ configFrame:SetPoint("TOPLEFT", gra.mainFrame, "TOPRIGHT", 2, 0)
 local rosterSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 rosterSection:SetText("|cff80FF00"..L["Roster"].."|r")
 rosterSection:SetPoint("TOPLEFT", 5, -5)
-GRA:CreateSeperator(configFrame, rosterSection)
+GRA:CreateSeparator(configFrame, rosterSection)
 
 -- for showing mask
 local rosterFrame = CreateFrame("Frame", nil, configFrame)
@@ -117,7 +117,7 @@ dkpOptionsBtn:SetEnabled(true)
 local sheetSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 sheetSection:SetText("|cff80FF00"..L["Attendance Sheet"].."|r")
 sheetSection:SetPoint("TOPLEFT", 5, -95)
-GRA:CreateSeperator(configFrame, sheetSection)
+GRA:CreateSeparator(configFrame, sheetSection)
 
 local sheetText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 sheetText:SetJustifyH("LEFT")
@@ -257,10 +257,8 @@ raidHoursText:SetPoint("LEFT", raidHoursTitle, "RIGHT", 5, 0)
 local raidStartTimeEditBox, raidEndTimeEditBox, rstConfirmBtn, retConfirmBtn = GRA:CreateRaidHoursEditBox(configFrame, 
 function(startTime)
 	_G[GRA_R_Config]["raidInfo"]["startTime"] = startTime
-	GRA:FireEvent("GRA_RH_UPDATE")
 end, function(endTime)
 	_G[GRA_R_Config]["raidInfo"]["endTime"] = endTime
-	GRA:FireEvent("GRA_RH_UPDATE")
 end)
 
 rstConfirmBtn:HookScript("OnClick", function()
@@ -329,7 +327,7 @@ end
 local miscSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 miscSection:SetText("|cff80FF00"..L["Misc"].."|r")
 miscSection:SetPoint("TOPLEFT", 5, -320)
-GRA:CreateSeperator(configFrame, miscSection)
+GRA:CreateSeparator(configFrame, miscSection)
 
 local appearanceBtn = GRA:CreateButton(configFrame, L["Appearance"], "red", {91, 20}, "GRA_FONT_SMALL")
 appearanceBtn:SetPoint("TOPLEFT", miscSection, 0, -20)
