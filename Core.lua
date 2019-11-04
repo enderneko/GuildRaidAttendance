@@ -260,10 +260,12 @@ function frame:ADDON_LOADED(arg1)
 		if type(GRA_Variables) ~= "table" then GRA_Variables = {} end
 		-- global saved variables
 		if type(GRA_A_RaidLogs) ~= "table" then GRA_A_RaidLogs = {} end
+		if type(GRA_A_Archived) ~= "table" then GRA_A_Archived = {} end
 		if type(GRA_A_Roster) ~= "table" then GRA_A_Roster = {} end
 		if type(GRA_A_Config) ~= "table" then GRA_A_Config = {} end
 		-- character saved variables
 		if type(GRA_RaidLogs) ~= "table" then GRA_RaidLogs = {} end
+		if type(GRA_Archived) ~= "table" then GRA_Archived = {} end
 		if type(GRA_Roster) ~= "table" then GRA_Roster = {} end
 		if type(GRA_Config) ~= "table" then GRA_Config = {} end
 
@@ -271,10 +273,12 @@ function frame:ADDON_LOADED(arg1)
 		-- init RUNTIME tables
 		if GRA_Variables["useAccountProfile"] then
 			GRA_R_RaidLogs = "GRA_A_RaidLogs"
+			GRA_R_Archived = "GRA_A_Archived"
 			GRA_R_Roster = "GRA_A_Roster"
 			GRA_R_Config = "GRA_A_Config"
 		else
 			GRA_R_RaidLogs = "GRA_RaidLogs"
+			GRA_R_Archived = "GRA_Archived"
 			GRA_R_Roster = "GRA_Roster"
 			GRA_R_Config = "GRA_Config"
 		end

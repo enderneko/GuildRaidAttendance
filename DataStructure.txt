@@ -4,7 +4,7 @@
 ╚========================╝
 GRA_RaidLogs = {
 	date(string) = {
-		["desc"] = (string),
+		["note"] = (string),
 		["startTime"] = (number),
 		["endTime"] = (number),
 		["attendances"] = {
@@ -27,6 +27,24 @@ GRA_RaidLogs = {
 				{[group] = {playerName, ...},}
 			},
 		},
+	},
+}
+
+╔========================╗
+‖      GRA_Archived      ‖
+╚========================╝
+GRA_Archived = {
+	{
+		["raidTitle"] = (string),
+		["period"] = (string),
+		["roster"] = {
+			...
+		},
+		["logs"] = {
+			date(string) = {
+				...
+			},
+		}
 	},
 }
 
