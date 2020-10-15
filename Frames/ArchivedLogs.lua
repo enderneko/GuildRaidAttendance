@@ -41,7 +41,7 @@ archivedDropDownMenu:SetPoint("BOTTOMLEFT")
 -----------------------------------------
 -- date list
 -----------------------------------------
-local listFrame = CreateFrame("Frame", nil, archivedLogsFrame)
+local listFrame = CreateFrame("Frame", nil, archivedLogsFrame, "BackdropTemplate")
 GRA:StylizeFrame(listFrame, {.5, .5, .5, .1})
 listFrame:SetPoint("TOPLEFT", 0, -16)
 listFrame:SetPoint("BOTTOMRIGHT", archivedLogsFrame, "BOTTOMLEFT", 170, 24)
@@ -100,13 +100,13 @@ end)
 -----------------------------------------
 -- summary
 -----------------------------------------
-local summaryTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Summary", archivedLogsFrame)
+local summaryTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Summary", archivedLogsFrame, "BackdropTemplate")
 tabs["summary"] = summaryTab
 GRA:StylizeFrame(summaryTab, {.5, .5, .5, .1})
 summaryTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
 summaryTab:SetPoint("BOTTOMRIGHT", 0, 24)
 
-local noteFrame = CreateFrame("Frame", nil, summaryTab)
+local noteFrame = CreateFrame("Frame", nil, summaryTab, "BackdropTemplate")
 GRA:StylizeFrame(noteFrame, {0, 0, 0, 0})
 noteFrame:SetPoint("TOPLEFT")
 noteFrame:SetPoint("RIGHT")
@@ -127,7 +127,7 @@ local function GetNote(note)
 	return note
 end
 
-local attendeesFrame = CreateFrame("Frame", nil, summaryTab)
+local attendeesFrame = CreateFrame("Frame", nil, summaryTab, "BackdropTemplate")
 GRA:StylizeFrame(attendeesFrame, {0, 0, 0, 0})
 attendeesFrame:SetPoint("TOPLEFT", noteFrame, "BOTTOMLEFT", 0, 1)
 attendeesFrame:SetPoint("RIGHT")
@@ -142,7 +142,7 @@ attendeesFrame.text:SetMaxLines(3)
 attendeesFrame.text:SetJustifyH("LEFT")
 attendeesFrame.text:SetJustifyV("TOP")
 
-local absenteesFrame = CreateFrame("Frame", nil, summaryTab)
+local absenteesFrame = CreateFrame("Frame", nil, summaryTab, "BackdropTemplate")
 GRA:StylizeFrame(absenteesFrame, {0, 0, 0, 0})
 absenteesFrame:SetPoint("TOPLEFT", attendeesFrame, "BOTTOMLEFT", 0, 1)
 absenteesFrame:SetPoint("RIGHT")
@@ -157,7 +157,7 @@ absenteesFrame.text:SetMaxLines(3)
 absenteesFrame.text:SetJustifyH("LEFT")
 absenteesFrame.text:SetJustifyV("TOP")
 
-local bossesFrame = CreateFrame("Frame", nil, summaryTab)
+local bossesFrame = CreateFrame("Frame", nil, summaryTab, "BackdropTemplate")
 GRA:StylizeFrame(bossesFrame, {0, 0, 0, 0})
 bossesFrame:SetPoint("TOPLEFT", absenteesFrame, "BOTTOMLEFT", 0, 1)
 bossesFrame:SetPoint("BOTTOMRIGHT")
@@ -173,7 +173,7 @@ end)
 -----------------------------------------
 -- attendances
 -----------------------------------------
-local attendancesTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Attendance", archivedLogsFrame)
+local attendancesTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Attendance", archivedLogsFrame, "BackdropTemplate")
 tabs["attendances"] = attendancesTab
 GRA:StylizeFrame(attendancesTab, {.5, .5, .5, .1})
 attendancesTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
@@ -183,7 +183,7 @@ attendancesTab:Hide()
 -----------------------------------------
 -- details/loots
 -----------------------------------------
-local detailsTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Details", archivedLogsFrame)
+local detailsTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Details", archivedLogsFrame, "BackdropTemplate")
 tabs["details"] = detailsTab
 GRA:StylizeFrame(detailsTab, {.5, .5, .5, .1})
 detailsTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)

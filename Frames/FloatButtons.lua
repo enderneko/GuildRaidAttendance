@@ -2,7 +2,7 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
-local floatButtonsAnchor = CreateFrame("Frame", "GRA_FloatButtonsAnchor")
+local floatButtonsAnchor = CreateFrame("Frame", "GRA_FloatButtonsAnchor", "BackdropTemplate")
 gra.floatButtonsAnchor = floatButtonsAnchor
 GRA:StylizeFrame(floatButtonsAnchor, {.1, .1, .1, .5}, {0, 0, 0, .5})
 floatButtonsAnchor:SetSize(335, 40)

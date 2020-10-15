@@ -6,7 +6,7 @@ local LSSB = LibStub:GetLibrary("LibSmoothStatusBar-1.0")
 -----------------------------------------
 -- popup anchor
 -----------------------------------------
-local popupsAnchor = CreateFrame("Frame", "GRA_PopupsAnchor")
+local popupsAnchor = CreateFrame("Frame", "GRA_PopupsAnchor", nil, "BackdropTemplate")
 gra.popupsAnchor = popupsAnchor
 GRA:StylizeFrame(popupsAnchor, {.1, .1, .1, .5}, {0, 0, 0, .5})
 popupsAnchor:SetSize(200, 300)
@@ -59,7 +59,7 @@ end
 
 -- create popup
 function GRA:CreatePopup(text)
-	local frame = CreateFrame("Frame")
+	local frame = CreateFrame("Frame", nil, nil, "BackdropTemplate")
 	GRA:StylizeFrame(frame, {.1, .1, .1, .95}, nil, {11, -11, -11, 11})
 	frame:SetSize(200, 25)
 	frame:EnableMouse(true)
@@ -118,7 +118,7 @@ end
 
 function GRA:CreatePopupWithButton(text, onAccept, onDecline)
 	-- GRA:Debug("|cff87CEEBGRA:CreatePopup: |r" .. text)
-	local frame = CreateFrame("Frame")
+	local frame = CreateFrame("Frame", nil, nil, "BackdropTemplate")
 	GRA:StylizeFrame(frame, {.1, .1, .1, .95}, nil, {11, -11, -11, 11})
 	frame:SetSize(200, 50)
 	frame:EnableMouse(true)
@@ -196,7 +196,7 @@ end
 function GRA:CreateDataTransferPopup(text, total, onHide)
 	if not total then total = 0 end
 
-	local frame = CreateFrame("Frame")
+	local frame = CreateFrame("Frame", nil, nil, "BackdropTemplate")
 	GRA:StylizeFrame(frame, {.1, .1, .1, .95}, nil, {11, -11, -11, 11})
 	frame:SetSize(200, 50)
 	frame:EnableMouse(true)
@@ -465,7 +465,7 @@ end
 -----------------------------------------
 function GRA:CreateStaticPopup(title, text, onAccept, onDecline) -- button1Text, button2Text
 	if not gra.staticPopup then
-		gra.staticPopup = CreateFrame("Frame", "GRA_StaticPopup")
+		gra.staticPopup = CreateFrame("Frame", "GRA_StaticPopup", nil, "BackdropTemplate")
 		gra.staticPopup:Hide()
 		GRA:StylizeFrame(gra.staticPopup, {.1, .1, .1, .95}, nil, {10, -10, -10, 10})
 		gra.staticPopup:SetSize(220, 100)
@@ -545,7 +545,7 @@ end
 -----------------------------------------
 function GRA:CreateConfirmPopup(parent, width, text, onAccept, mask)
 	if not parent.confirmPopup then -- not init
-		parent.confirmPopup = CreateFrame("Frame", nil, parent)
+		parent.confirmPopup = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 		parent.confirmPopup:SetSize(width, 100)
 		GRA:StylizeFrame(parent.confirmPopup, {.05, .05, .05, .95}, {0, .7, 1, .7})
 		parent.confirmPopup:SetFrameStrata("DIALOG")
@@ -643,7 +643,7 @@ end
 -----------------------------------------
 function GRA:CreateCustomPopup(parent, width, text, buttons, mask)
 	if not parent.customPopup then -- not init
-		parent.customPopup = CreateFrame("Frame", nil, parent)
+		parent.customPopup = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 		parent.customPopup:SetSize(width, 100)
 		GRA:StylizeFrame(parent.customPopup, {.05, .05, .05, .95}, {0, .7, 1, .7})
 		parent.customPopup:SetFrameStrata("DIALOG")
@@ -720,7 +720,7 @@ end
 -----------------------------------------
 function GRA:CreatePopupSelector(parent, width, items, orientation)
 	if not gra.popupSelector then
-		gra.popupSelector = CreateFrame("Frame", "GRA_PopupSelector")
+		gra.popupSelector = CreateFrame("Frame", "GRA_PopupSelector", nil, "BackdropTemplate")
 		GRA:StylizeFrame(gra.popupSelector)
 		gra.popupSelector:SetFrameStrata("DIALOG")
 
@@ -773,7 +773,7 @@ end
 -----------------------------------------
 function GRA:CreatePopupEditBox(parent, width, height, onClick)
 	if not gra.popupEditBox then
-		gra.popupEditBox = CreateFrame("Frame", "GRA_PopupEditBox")
+		gra.popupEditBox = CreateFrame("Frame", "GRA_PopupEditBox", nil, "BackdropTemplate")
 		gra.popupEditBox:SetSize(width, height)
 		GRA:StylizeFrame(gra.popupEditBox, {.1, .1, .1, .9}, {.5, 1, 0, .7})
 		
@@ -781,7 +781,7 @@ function GRA:CreatePopupEditBox(parent, width, height, onClick)
 			self:Hide() -- hide self when parent hides
 		end)
 
-		local eb = CreateFrame("EditBox", nil, gra.popupEditBox)
+		local eb = CreateFrame("EditBox", nil, gra.popupEditBox, "BackdropTemplate")
 		gra.popupEditBox.editBox = eb
 		eb:SetFontObject("GRA_FONT_TEXT")
 		eb:SetMultiLine(false)

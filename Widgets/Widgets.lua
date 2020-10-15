@@ -20,7 +20,7 @@ function GRA:StylizeFrame(frame, color, border, shadowOffset)
 	frame:SetBackdropBorderColor(unpack(border))
 
 	if shadowOffset then -- frame shadow
-		local shadow = CreateFrame("Frame", nil, frame)
+		local shadow = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 		shadow:SetBackdrop({edgeFile = "Interface\\Addons\\GuildRaidAttendance\\Media\\shadow.tga", edgeSize = 15})
 		shadow:SetBackdropBorderColor(0, 0, 0, .5)
 		shadow:SetPoint("TOP", 0, shadowOffset[1])
@@ -35,13 +35,13 @@ end
 -- frame
 -----------------------------------------
 function GRA:CreateFrame(title, name, parent, width, height)
-	local f = CreateFrame("Frame", name, parent)
+	local f = CreateFrame("Frame", name, parent, "BackdropTemplate")
 	f:Hide()
 	GRA:StylizeFrame(f, nil, nil, {32, -11, -11, 11})
 	f:EnableMouse(true)
 	f:SetSize(width, height)
 
-	f.header = CreateFrame("Frame", nil, f)
+	f.header = CreateFrame("Frame", nil, f, "BackdropTemplate")
 	f.header:EnableMouse(true)
 	GRA:StylizeFrame(f.header, {.1, .1, .1, 1})
 	f.header:SetPoint("TOPLEFT", f, 0, 21)
@@ -59,7 +59,7 @@ function GRA:CreateFrame(title, name, parent, width, height)
 end
 
 function GRA:CreateMovableFrame(title, name, width, height, font, frameStrata, frameLevel)
-	local f = CreateFrame("Frame", name)
+	local f = CreateFrame("Frame", name, nil, "BackdropTemplate")
 	f:EnableMouse(true)
 	-- f:SetResizable(false)
 	f:SetMovable(true)
@@ -75,7 +75,7 @@ function GRA:CreateMovableFrame(title, name, width, height, font, frameStrata, f
 	-- table.insert(UISpecialFrames, name) -- make it closable with the Escape key
 	
 	-- header
-	local header = CreateFrame("Frame", nil, f)
+	local header = CreateFrame("Frame", nil, f, "BackdropTemplate")
 	f.header = header
 	header:EnableMouse(true)
 	header:SetClampedToScreen(true)
@@ -179,7 +179,7 @@ end
 function GRA:CreateEditBox(parent, width, height, isNumeric, font)
 	if not font then font = "GRA_FONT_TEXT" end
 
-	local eb = CreateFrame("EditBox", nil, parent)
+	local eb = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
 	GRA:StylizeFrame(eb, {.1, .1, .1, .9})
 	eb:SetFontObject(font)
 	eb:SetMultiLine(false)
@@ -207,7 +207,7 @@ end
 function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
 	if not font then font = "GRA_FONT_SMALL" end
 
-	local b = CreateFrame("Button", nil, parent)
+	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
 	if parent then b:SetFrameLevel(parent:GetFrameLevel()+1) end
 	b:SetText(text)
 	b:SetSize(unpack(size))
@@ -367,7 +367,7 @@ end
 -- square item button
 -----------------------------------------
 function GRA:CreateIconButton(parent, width, height, texture)
-	local b = CreateFrame("Button", nil, parent)
+	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
     b:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
     b:SetBackdropBorderColor(0, 0, 0, 1)
 	b:SetSize(width, height)
@@ -433,7 +433,7 @@ end
 function GRA:CreateSlider(parent, unit, low, high, length, step, onValueChangedFn, afterValueChangedFn, orientation)
     if not step then step = 1 end
 	if not orientation then orientation = "HORIZONTAL" end
-    local slider = CreateFrame("Slider", nil, parent)
+    local slider = CreateFrame("Slider", nil, parent, "BackdropTemplate")
 	GRA:StylizeFrame(slider)
     slider:SetMinMaxValues(low, high)
 	slider:SetValue(low)
@@ -473,7 +473,7 @@ end
 -- progress bar
 -----------------------------------------
 function GRA:CreateProgressBar(frame, width, height, maxValue, func, showText, texture, color)
-	local bar = CreateFrame("StatusBar", nil, frame)
+	local bar = CreateFrame("StatusBar", nil, frame, "BackdropTemplate")
 
 	if not color then color = {.5, 1, 0, .8} end
 	if not texture then
@@ -624,7 +624,7 @@ end
 -- Attendance Bar (MemberAttendanceFrame)
 -----------------------------------------
 function GRA:CreateAttendanceBar(frame, width, raidDate, attendance, attendanceRate, joinTime, leaveTime, startTime, endTime, isSitOut, note)
-	local baseBar = CreateFrame("Frame", nil, frame)
+	local baseBar = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 	baseBar:SetSize(width, 20)
 	baseBar.raidDate = baseBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
 	baseBar.raidDate:SetPoint("LEFT", 5, 0)
@@ -632,7 +632,7 @@ function GRA:CreateAttendanceBar(frame, width, raidDate, attendance, attendanceR
 	baseBar.raidDate:SetText(date("%x", GRA:DateToSeconds(raidDate)) .. ((weekdayN == gra.RAID_LOCKOUTS_RESET) and (" " .. gra.colors.firebrick.s) or " ") .. weekday)
 	GRA:StylizeFrame(baseBar, {.7, .7, .7, .1})
 	
-	local bottomBar = CreateFrame("Frame", nil, baseBar)
+	local bottomBar = CreateFrame("Frame", nil, baseBar, "BackdropTemplate")
 	bottomBar:SetHeight(20)
 	bottomBar:SetPoint("LEFT", 120, 0)
 	bottomBar:SetPoint("RIGHT", -40, 0)
@@ -644,7 +644,7 @@ function GRA:CreateAttendanceBar(frame, width, raidDate, attendance, attendanceR
 	bottomBar.endTime:SetTextColor(.7, .7, .7, 1)
 	GRA:StylizeFrame(bottomBar, {.5, .5, .5, .1})
 
-	local topBar = CreateFrame("Frame", nil, bottomBar)
+	local topBar = CreateFrame("Frame", nil, bottomBar, "BackdropTemplate")
 	topBar:SetHeight(20)
 	topBar.ar = topBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID") -- TODO: 中文
 	topBar.ar:SetPoint("CENTER")
@@ -754,7 +754,7 @@ function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
 	-- self init
 	datePicker:SetDate(GRA:Date())
 
-	local calendar = CreateFrame("Frame", nil, parent)
+	local calendar = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	calendar:Hide()
 	calendar:EnableMouse(true)
 	calendar:SetSize(190, 155)
@@ -902,7 +902,7 @@ end
 -- attendance sheet frame 2017-07-28 11:48:11
 -----------------------------------------
 function GRA:CreateGrid(frame, width, text, color, highlight, ...)
-	local grid = CreateFrame("Button", nil, frame)
+	local grid = CreateFrame("Button", nil, frame, "BackdropTemplate")
 	grid:SetSize(width, gra.size.height)
 	grid:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	if color then
@@ -1002,7 +1002,7 @@ function GRA:CreateGrid(frame, width, text, color, highlight, ...)
 end
 
 function GRA:CreateRow(frame, width, mainName, onDoubleClick)
-	local row = CreateFrame("Button", nil, frame)
+	local row = CreateFrame("Button", nil, frame, "BackdropTemplate")
 	row:SetFrameLevel(5)
 	row:SetSize(width, gra.size.height)
 	row:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
@@ -1298,7 +1298,7 @@ function GRA:CreateListButton(parent, text, color, size, font)
 end
 
 function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, joinTime, leaveTime, isSitOut)
-	local row = CreateFrame("Button", nil, parent)
+	local row = CreateFrame("Button", nil, parent, "BackdropTemplate")
 	row:SetFrameLevel(5)
 	row:SetSize(width, 20)
 	row:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
@@ -1451,7 +1451,7 @@ function GRA:CreateDetailButton_EPGP(parent, detailTable, font)
 		textColor = {.95, .2, .2, 1}
 	end
 
-	local b = CreateFrame("Button", nil, parent)
+	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
 	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b:SetBackdropColor(0, 0, 0, 0)
 	b:SetBackdropBorderColor(unpack(borderColor))
@@ -1558,7 +1558,7 @@ function GRA:CreateDetailButton_EPGP(parent, detailTable, font)
 	end)
 
 
-	b.deleteBtn = CreateFrame("Button", nil, b)
+	b.deleteBtn = CreateFrame("Button", nil, b, "BackdropTemplate")
 	b.deleteBtn:SetSize(gra.size.height, gra.size.height)
 	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
@@ -1608,7 +1608,7 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 		textColor = {.95, .2, .2, 1}
 	end
 
-	local b = CreateFrame("Button", nil, parent)
+	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
 	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b:SetBackdropColor(0, 0, 0, 0)
 	b:SetBackdropBorderColor(unpack(borderColor))
@@ -1711,7 +1711,7 @@ function GRA:CreateDetailButton_DKP(parent, detailTable, font)
 	end)
 
 
-	b.deleteBtn = CreateFrame("Button", nil, b)
+	b.deleteBtn = CreateFrame("Button", nil, b, "BackdropTemplate")
 	b.deleteBtn:SetSize(gra.size.height, gra.size.height)
 	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
@@ -1751,7 +1751,7 @@ function GRA:CreateLootButton(parent, detailTable, font)
 	borderColor = {.1, .6, .95, .6}
 	textColor = {.16, .56, .95, 1}
 
-	local b = CreateFrame("Button", nil, parent)
+	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
 	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b:SetBackdropColor(0, 0, 0, 0)
 	b:SetBackdropBorderColor(unpack(borderColor))
@@ -1814,7 +1814,7 @@ function GRA:CreateLootButton(parent, detailTable, font)
 	end)
 
 
-	b.deleteBtn = CreateFrame("Button", nil, b)
+	b.deleteBtn = CreateFrame("Button", nil, b, "BackdropTemplate")
 	b.deleteBtn:SetSize(20, 20)
 	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
@@ -1853,7 +1853,7 @@ function GRA:CreateBossButton(parent, bossTable, font)
 	-- textColor = {1, .94, .86, 1}
 	-- textColor = {.73, .73, .73, 1}
 
-	local b = CreateFrame("Button", nil, parent)
+	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
 	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b:SetBackdropColor(0, 0, 0, 0)
 	b:SetBackdropBorderColor(unpack(borderColor))
@@ -1934,7 +1934,7 @@ function GRA:CreateBossButton(parent, bossTable, font)
 		GRA_Tooltip:Hide()
 	end)
 
-	b.deleteBtn = CreateFrame("Button", nil, b)
+	b.deleteBtn = CreateFrame("Button", nil, b, "BackdropTemplate")
 	b.deleteBtn:SetSize(20, 20)
 	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
 	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
@@ -1960,7 +1960,7 @@ end
 -----------------------------------------
 function GRA:CreateMask(parent, text, points) -- points = {topleftX, topleftY, bottomrightX, bottomrightY}
 	if not parent.mask then -- not init
-		parent.mask = CreateFrame("Frame", nil, parent)
+		parent.mask = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 		GRA:StylizeFrame(parent.mask, {.15, .15, .15, .5}, {0, 0, 0, 0})
 		parent.mask:SetFrameStrata("HIGH")
 		parent.mask:SetFrameLevel(100)

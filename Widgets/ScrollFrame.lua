@@ -4,7 +4,7 @@ local GRA, gra = unpack(select(2, ...))
 -----------------------------------------------------------------------------------
 function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 	-- create scrollFrame & scrollbar seperately (instead of UIPanelScrollFrameTemplate), in order to custom it
-	local scrollFrame = CreateFrame("ScrollFrame", nil, parent)
+	local scrollFrame = CreateFrame("ScrollFrame", nil, parent, "BackdropTemplate")
 	top = top or 0
 	bottom = bottom or 0
 	scrollFrame:SetPoint("TOPLEFT", 0, top) 
@@ -23,14 +23,14 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 	parent.scrollFrame = scrollFrame
 	
 	-- content
-	local content = CreateFrame("Frame", nil, scrollFrame)
+	local content = CreateFrame("Frame", nil, scrollFrame, "BackdropTemplate")
 	content:SetSize(scrollFrame:GetWidth(), 20)
 	scrollFrame:SetScrollChild(content)
 	scrollFrame.content = content
 	-- content:SetFrameLevel(2)
 	
 	-- scrollbar
-	local scrollbar = CreateFrame("Frame", nil, scrollFrame)
+	local scrollbar = CreateFrame("Frame", nil, scrollFrame, "BackdropTemplate")
 	-- scrollbar:SetPoint("TOPLEFT", parent, "TOPRIGHT", -5, top) 
 	-- scrollbar:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, bottom)
 	scrollbar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 2, 0)
@@ -40,7 +40,7 @@ function GRA:CreateScrollFrame(parent, top, bottom, color, border)
 	scrollFrame.scrollbar = scrollbar
 	
 	-- scrollbar thumb
-	local scrollThumb = CreateFrame("Frame", nil, scrollbar)
+	local scrollThumb = CreateFrame("Frame", nil, scrollbar, "BackdropTemplate")
 	scrollThumb:SetWidth(5) -- scrollbar's width is 5
 	scrollThumb:SetHeight(scrollbar:GetHeight())
 	scrollThumb:SetPoint("TOP")
@@ -235,7 +235,7 @@ end
 -----------------------------------------------------------------------------------
 function GRA:CreateScrollEditBox(parent, top, bottom)
 	-- create scrollFrame & scrollbar seperately (instead of UIPanelScrollFrameTemplate), in order to custom it
-	local scrollFrame = CreateFrame("ScrollFrame", nil, parent)
+	local scrollFrame = CreateFrame("ScrollFrame", nil, parent, "BackdropTemplate")
 	top = top or 0
 	bottom = bottom or 0
 	scrollFrame:SetPoint("TOPLEFT", 0, top) 
@@ -244,7 +244,7 @@ function GRA:CreateScrollEditBox(parent, top, bottom)
 	parent.scrollFrame = scrollFrame
 	
 	-- editBox
-	local editBox = CreateFrame("EditBox", nil, parent)
+	local editBox = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
 	parent.editBox = editBox
 	editBox:SetFontObject("GRA_FONT_TEXT")
 	editBox:SetJustifyH("LEFT")
@@ -262,7 +262,7 @@ function GRA:CreateScrollEditBox(parent, top, bottom)
 	scrollFrame:SetScrollChild(editBox)
 	
 	-- scrollbar
-	local scrollbar = CreateFrame("Frame", nil, scrollFrame)
+	local scrollbar = CreateFrame("Frame", nil, scrollFrame, "BackdropTemplate")
 	scrollbar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 2, 0)
 	scrollbar:SetPoint("BOTTOMRIGHT", scrollFrame, 7, 0)
 	scrollbar:Hide()
@@ -270,7 +270,7 @@ function GRA:CreateScrollEditBox(parent, top, bottom)
 	scrollFrame.scrollbar = scrollbar
 	
 	-- scrollbar thumb
-	local scrollThumb = CreateFrame("Frame", nil, scrollbar)
+	local scrollThumb = CreateFrame("Frame", nil, scrollbar, "BackdropTemplate")
 	scrollThumb:SetWidth(5) -- scrollbar's width is 5
 	scrollThumb:SetHeight(scrollbar:GetHeight())
 	scrollThumb:SetPoint("TOP")

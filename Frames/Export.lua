@@ -63,7 +63,7 @@ end
 -----------------------------------------
 -- copy box
 -----------------------------------------
-local resultFrame = CreateFrame("EditBox", nil, exportFrame)
+local resultFrame = CreateFrame("EditBox", nil, exportFrame, "BackdropTemplate")
 resultFrame:SetPoint("TOPLEFT", 5, - HEIGHT_NORMAL + 25)
 resultFrame:SetPoint("BOTTOMRIGHT", -5, 5)
 GRA:StylizeFrame(resultFrame)

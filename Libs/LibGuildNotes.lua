@@ -65,7 +65,7 @@ local function SetNote(noteType, name, note, isRetry)
 		-- Print("    Name(current index): " .. nameCurrentIndex, true)
 		-- Print("|cffFF3030-------------------------------------|r", true)
 		Print("Set " .. name .. "'s note failed, retry in 3 sec.")
-		trial = C_Timer.NewTimer(1.5, function() securecall("GuildRoster") end)
+		trial = C_Timer.NewTimer(1.5, function() securecall(C_GuildInfo.GuildRoster) end)
 		C_Timer.NewTimer(3, function() SetNote(noteType, name, note, true) end)
 		return
 	end
@@ -129,15 +129,15 @@ function lib:ForceRefresh()
 	-- if InCombatLockdown() then return end
 	Print("Starting ForceRefresh")
 	forceRefresh = true
-	securecall("GuildRoster")
-	trial = C_Timer.NewTicker(3, function() securecall("GuildRoster") end)
+	securecall(C_GuildInfo.GuildRoster)
+	trial = C_Timer.NewTicker(3, function() securecall(C_GuildInfo.GuildRoster) end)
 end
 
 function lib:Reinitialize()
 	Print("Reinitializing...")
 	initialized = false
-	securecall("GuildRoster")
-	trial = C_Timer.NewTicker(3, function() securecall("GuildRoster") end)
+	securecall(C_GuildInfo.GuildRoster)
+	trial = C_Timer.NewTicker(3, function() securecall(C_GuildInfo.GuildRoster) end)
 end
 
 f:SetScript("OnEvent", function(self, event)
@@ -187,7 +187,7 @@ f:SetScript("OnEvent", function(self, event)
 			updating = false
 			-- lib.callbacks:Fire("GUILD_NOTE_UPDATED")
 		else
-			trial = C_Timer.NewTimer(5, function() securecall("GuildRoster") end)
+			trial = C_Timer.NewTimer(5, function() securecall(C_GuildInfo.GuildRoster) end)
 			Print("Retry in 5 sec.")
 		end
 	end

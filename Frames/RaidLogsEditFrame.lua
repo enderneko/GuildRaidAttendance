@@ -36,7 +36,7 @@ local function SetOrClearNotes(bName)
 end
 
 local function CreateRaidLogEditFrame(parent)
-	raidLogEditFrame = CreateFrame("Frame", "GRA_RaidLogEditFrame", parent)
+	raidLogEditFrame = CreateFrame("Frame", "GRA_RaidLogEditFrame", parent, "BackdropTemplate")
 	GRA:StylizeFrame(raidLogEditFrame)
 	raidLogEditFrame:EnableMouse(true)
 	raidLogEditFrame:SetFrameStrata("DIALOG")

@@ -131,7 +131,6 @@ sheetText:SetWordWrap(false)
 
 -- Weekdays -----------------------------
 local daysFrame = CreateFrame("Frame", nil, configFrame)
--- GRA:StylizeFrame(daysFrame)
 daysFrame:SetSize(configFrame:GetWidth()-10, 42)
 daysFrame:SetPoint("TOPLEFT", sheetSection, 0, -33)
 

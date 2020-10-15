@@ -1348,7 +1348,7 @@ end
 local calcARProgressFrame
 local function ShowCalcARProgressFrame()
 	if not calcARProgressFrame then
-		calcARProgressFrame = CreateFrame("Frame", nil, attendanceFrame.scrollFrame)
+		calcARProgressFrame = CreateFrame("Frame", nil, attendanceFrame.scrollFrame, "BackdropTemplate")
 		GRA:StylizeFrame(calcARProgressFrame, {.1, .1, .1, .95}, {0, 0, 0, 0})
 		calcARProgressFrame:SetSize(156, 18)
 		calcARProgressFrame:SetPoint("BOTTOMLEFT", attendanceFrame.scrollFrame, 1, 1)

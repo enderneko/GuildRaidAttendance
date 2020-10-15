@@ -5,7 +5,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 -----------------------------------------
 -- get started frame
 -----------------------------------------
-local getStartedFrame = CreateFrame("Frame", "GRA_GetStartedFrame", gra.mainFrame)
+local getStartedFrame = CreateFrame("Frame", "GRA_GetStartedFrame", gra.mainFrame, "BackdropTemplate")
 GRA:StylizeFrame(getStartedFrame)
 getStartedFrame:SetPoint("TOP", gra.mainFrame, "BOTTOM", 0, 1)
 -- getStartedFrame:SetPoint("LEFT")

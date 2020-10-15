@@ -4,7 +4,7 @@ local GRA, gra = unpack(select(2, ...))
 -- drop down menu 2019-04-21 22:48:12
 ------------------------------------------------
 function GRA:CreateDropDownMenu(parent, width)
-	local menu = CreateFrame("Frame", nil, parent)
+	local menu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	menu:SetSize(width, 20)
 	menu:EnableMouse(true)
 	menu:SetFrameLevel(6)
@@ -27,7 +27,7 @@ function GRA:CreateDropDownMenu(parent, width)
 	menu.text:SetPoint("BOTTOMRIGHT", -19, 1)
 	
 	-- item list
-	local list = CreateFrame("Frame", nil, menu)
+	local list = CreateFrame("Frame", nil, menu, "BackdropTemplate")
 	GRA:StylizeFrame(list, {.1, .1, .1, .95})
 	list:SetPoint("TOP", menu, "BOTTOM", 0, -2)
 	list:SetFrameLevel(7) -- top of its strata
@@ -184,7 +184,7 @@ end
 -- scrolled drop down menu 2017-06-19 04:09:59
 ------------------------------------------------
 function GRA:CreateScrollDropDownMenu(parent, width)
-	local menu = CreateFrame("Frame", nil, parent)
+	local menu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
 	menu:SetSize(width, 20)
 	menu:EnableMouse(true)
 	menu:SetFrameLevel(6)
@@ -207,7 +207,7 @@ function GRA:CreateScrollDropDownMenu(parent, width)
 	menu.text:SetPoint("BOTTOMRIGHT", -19, 1)
 	
 	-- scroll list
-	local list = CreateFrame("ScrollFrame", nil, menu)
+	local list = CreateFrame("ScrollFrame", nil, menu, "BackdropTemplate")
 	GRA:StylizeFrame(list)
 	list:SetPoint("TOP", menu, "BOTTOM", 0, -2)
 	list:SetFrameLevel(7) -- top of its strata
@@ -215,7 +215,7 @@ function GRA:CreateScrollDropDownMenu(parent, width)
 	list:Hide()
 
 	-- scroll content
-	local content = CreateFrame("Frame", nil, list)
+	local content = CreateFrame("Frame", nil, list, "BackdropTemplate")
 	-- GRA:StylizeFrame(content, {1, 0, 0, .1}, {0, 0, 0, 0})
 	content:SetSize(width-20, 20)
 	list:SetScrollChild(content)

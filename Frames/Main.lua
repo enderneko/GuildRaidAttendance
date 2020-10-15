@@ -274,32 +274,32 @@ guildMOTDScroll:SetScript("OnEvent", function(self, event, arg)
 			MOTD = motd
 			guildMOTDScroll:Show() -- get non-empty motd, show it
 			guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE") -- already get non-empty motd, using GUILD_MOTD instead
-			if trial then -- stop timer
-				trial:Cancel()
-				GRA:Debug("motd_trial cancelled")
-			end
-		elseif not trial then -- get empty motd (maybe not the true motd, try 10 more times)
-			trial = C_Timer.NewTicker(10, function()
-				securecall("GuildRoster") -- try again
-				count = count + 1
-				GRA:Debug("motd_trial: " .. count)
-				-- trial._remainingIterations
-			end, 10)
-		else
-			if count == 10 then
-				-- tried 10 times, still get empty motd, then MOTD = ""
-				guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE")
-				MOTD = ""
-				GRA:Debug("motd_trial ends, MOTD = \"\"")
-			end
+			-- if trial then -- stop timer
+			-- 	trial:Cancel()
+			-- 	GRA:Debug("motd_trial cancelled")
+			-- end
+		-- elseif not trial then -- get empty motd (maybe not the true motd, try 10 more times)
+		-- 	trial = C_Timer.NewTicker(10, function()
+		-- 		securecall("GuildRoster") -- try again
+		-- 		count = count + 1
+		-- 		GRA:Debug("motd_trial: " .. count)
+		-- 		-- trial._remainingIterations
+		-- 	end, 10)
+		-- else
+		-- 	if count == 10 then
+		-- 		-- tried 10 times, still get empty motd, then MOTD = ""
+		-- 		guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE")
+		-- 		MOTD = ""
+		-- 		GRA:Debug("motd_trial ends, MOTD = \"\"")
+		-- 	end
 		end
 	elseif event == "GUILD_MOTD" then
 		guildMOTDScroll:UnregisterEvent("GUILD_ROSTER_UPDATE") -- got motd, GUILD_ROSTER_UPDATE is no longer need
-		if trial then -- stop timer
-			trial:Cancel()
-			trial = nil
-			GRA:Debug("trial:Cancel()")
-		end
+		-- if trial then -- stop timer
+		-- 	trial:Cancel()
+		-- 	trial = nil
+		-- 	GRA:Debug("trial:Cancel()")
+		-- end
 		
 		GRA:Debug("|cff66CD00GUILD_MOTD:|r " .. arg)
 		MOTD = arg

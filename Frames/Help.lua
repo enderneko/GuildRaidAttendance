@@ -14,7 +14,7 @@ end)
 --------------------------------------------------------
 -- list
 --------------------------------------------------------
-local listRegion = CreateFrame("Frame", nil ,helpFrame)
+local listRegion = CreateFrame("Frame", nil ,helpFrame, "BackdropTemplate")
 GRA:StylizeFrame(listRegion, {.15, .15, .15, .7})
 listRegion:SetPoint("TOPLEFT")
 listRegion:SetPoint("BOTTOMRIGHT", helpFrame, "BOTTOMLEFT", 150, 0)

@@ -7,7 +7,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 -------------------------------------------------
 -- http://wow.gamepedia.com/UIOBJECT_GameTooltip
 function GRA:CreateTooltip(name)
-    local tooltip = CreateFrame("GameTooltip", name, nil, "GRATooltipTemplate")
+    local tooltip = CreateFrame("GameTooltip", name, nil, "GRATooltipTemplate,BackdropTemplate")
     tooltip:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1})
     tooltip:SetBackdropColor(.1, .1, .1, .92)
 	tooltip:SetBackdropBorderColor(0, 0, 0, 1)
@@ -53,7 +53,7 @@ function GRA:CreateTooltip(name)
 end
 
 local function CreateShoppingTooltip(name)
-    local tooltip = CreateFrame("GameTooltip", name, nil, "GRAShoppingTooltipTemplate")
+    local tooltip = CreateFrame("GameTooltip", name, nil, "GRAShoppingTooltipTemplate,BackdropTemplate")
     tooltip:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1})
     tooltip:SetBackdropColor(.1, .1, .1, .92)
 	tooltip:SetBackdropBorderColor(0, 0, 0, 1)

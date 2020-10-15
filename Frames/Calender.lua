@@ -5,7 +5,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 -----------------------------------------
 -- calender frame
 -----------------------------------------
-local calenderFrame = CreateFrame("Frame", "GRA_CalenderFrame", gra.mainFrame)
+local calenderFrame = CreateFrame("Frame", "GRA_CalenderFrame", gra.mainFrame, "BackdropTemplate")
 calenderFrame:SetPoint("TOPLEFT", gra.mainFrame, 8, -30)
 calenderFrame:SetPoint("TOPRIGHT", gra.mainFrame, -8, -30)
 calenderFrame:SetHeight(331)

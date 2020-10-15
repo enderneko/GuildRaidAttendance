@@ -14,7 +14,7 @@ end
 
 function GRA:NewRaidLog(parent)
     if not newRaidLogFrame then
-        newRaidLogFrame = CreateFrame("Frame", "GRA_NewRaidLogFrame", parent)
+        newRaidLogFrame = CreateFrame("Frame", "GRA_NewRaidLogFrame", parent, "BackdropTemplate")
         newRaidLogFrame:Hide()
         -- gra.newRaidLogFrame = newRaidLogFrame
         GRA:StylizeFrame(newRaidLogFrame)

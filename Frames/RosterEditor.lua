@@ -379,7 +379,7 @@ end)
 local mains, availableMains = {}, {}
 local function CreatePlayerGrid(name)
     -- local g = CreateFrame("Frame", nil, rosterEditorFrame.scrollFrame.content)
-    local g = CreateFrame("Button", nil, rosterEditorFrame.scrollFrame.content)
+    local g = CreateFrame("Button", nil, rosterEditorFrame.scrollFrame.content, "BackdropTemplate")
     GRA:StylizeFrame(g)
     g:SetSize(rosterEditorFrame:GetWidth()-15, 20)
     g:RegisterForClicks("LeftButtonUp", "RightButtonUp")

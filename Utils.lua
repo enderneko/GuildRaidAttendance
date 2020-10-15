@@ -39,13 +39,14 @@ function GRA:IsAdmin()
 end
 
 local trial, count = nil, 0
+-- TODO: update with GUILD_ROSTER_UPDATE
 function GRA:CheckPermissions()
 	-- permission control
 	if GRA:IsAdmin() == nil then -- check failed
 		if not trial then -- check 10 more times
-			securecall("GuildRoster")
+			securecall(C_GuildInfo.GuildRoster)
 			trial = C_Timer.NewTicker(1.5, function()
-				securecall("GuildRoster")
+				securecall(C_GuildInfo.GuildRoster)
 				count = count + 1
 				GRA:Debug("|cff87CEEBGRA:CheckPermissions():|r " .. count)
 				GRA:CheckPermissions() -- try again
