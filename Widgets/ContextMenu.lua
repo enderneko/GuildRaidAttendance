@@ -9,7 +9,7 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 function GRA:ShowContextMenu(parent, width, title, numItems, items)
 	local height = gra.size.height
 	if not gra.contextMenu then
-		gra.contextMenu = CreateFrame("Frame", "GRA_ContextMenu")
+		gra.contextMenu = CreateFrame("Frame", "GRA_ContextMenu", nil, "BackdropTemplate")
 		gra.contextMenu:SetClampedToScreen(true)
 		-- gra.contextMenu:EnableMouse(true)
 		gra.contextMenu:SetFrameStrata("TOOLTIP")
@@ -20,7 +20,7 @@ function GRA:ShowContextMenu(parent, width, title, numItems, items)
 		end)
 
 		-- title
-		gra.contextMenu.titleFrame = CreateFrame("Frame", "GRA_ContextMenu", gra.contextMenu)
+		gra.contextMenu.titleFrame = CreateFrame("Frame", "GRA_ContextMenu", gra.contextMenu, "BackdropTemplate")
 		gra.contextMenu.titleFrame:SetPoint("BOTTOM", gra.contextMenu, "TOP", 0, -1)
 		gra.contextMenu.titleFrame:EnableMouse(true)
 		GRA:StylizeFrame(gra.contextMenu.titleFrame, {.1, .1, .1, 1})

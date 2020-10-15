@@ -485,11 +485,19 @@ function GRA:CreateProgressBar(frame, width, height, maxValue, func, showText, t
 	end
 	
 	bar:GetStatusBarTexture():SetHorizTile(false)
+
+	-- REVIEW: in 9.0, edgeSize = -1 will case a thicker outline
+	local border = CreateFrame("Frame", nil, bar, "BackdropTemplate")
+	bar.border = border
+	border:SetBackdrop({edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
+	border:SetBackdropBorderColor(0, 0, 0, 1)
+	border:SetPoint("TOPLEFT", -1, 1)
+	border:SetPoint("BOTTOMRIGHT", 1, -1)
+
 	bar:SetWidth(width)
 	bar:SetHeight(height)
-	bar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = -1})
+	bar:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8"})
 	bar:SetBackdropColor(.07, .07, .07, .9)
-	bar:SetBackdropBorderColor(0, 0, 0, 1)
 
 	if showText then
 		bar.text = bar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
