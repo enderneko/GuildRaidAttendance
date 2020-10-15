@@ -5,7 +5,7 @@ local Serializer = LibStub:GetLibrary("AceSerializer-3.0")
 local Comm = LibStub:GetLibrary("AceComm-3.0")
 -- _G.ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
 
-local lootFrame = CreateFrame("Frame", "GRA_LootFrame")
+local lootFrame = CreateFrame("Frame", "GRA_LootFrame", nil, "BackdropTemplate")
 gra.lootFrame = lootFrame
 LPP:PixelPerfectScale(lootFrame)
 lootFrame:Hide()
@@ -204,7 +204,7 @@ local function CreateItemFrame(itemSig, itemLink, count)
         itemEquipLoc, itemLevel = GRA:GetTierInfo(tokenID, tierVersion)
     end
 
-    local f = CreateFrame("Frame", nil, lootFrame)
+    local f = CreateFrame("Frame", nil, lootFrame, "BackdropTemplate")
     frames[itemSig] = f
 
     f:Hide()

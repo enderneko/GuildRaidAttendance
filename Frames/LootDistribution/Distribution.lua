@@ -348,7 +348,7 @@ local function CreateItemFrame(itemSig, itemLink, count)
     f.iLevel = iLevel
     
     -- icon, info, end session
-    local titleFrame = CreateFrame("Frame", nil, f)
+    local titleFrame = CreateFrame("Frame", nil, f, "BackdropTemplate")
     titleFrame:SetPoint("TOPLEFT")
     titleFrame:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", 0, -51)
     GRA:StylizeFrame(titleFrame, {1, 1, 1, .1}, {0, 0, 0, 1})
