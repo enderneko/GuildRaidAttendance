@@ -144,7 +144,6 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 			GRA_A_Variables["aboutViewed"] = nil
 			_G[GRA_R_Config]["revise"] = "r89-release"
 		end
-		]]
 
 		-- r91-release add startTime & endTime for all logs
 		if not(_G[GRA_R_Config]["revise"]) or _G[GRA_R_Config]["revise"] < "r91-release" then
@@ -158,5 +157,6 @@ frame:SetScript("OnEvent", function(self, event, arg1, ...)
 			end
 			_G[GRA_R_Config]["revise"] = "r91-release"
 		end
+		]]
     end
 end)

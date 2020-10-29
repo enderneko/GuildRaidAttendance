@@ -214,7 +214,7 @@ function GRA:CreateDataTransferPopup(text, total, onHide)
 	str:SetPoint("TOPLEFT", 5, -5)
 	str:SetPoint("BOTTOMRIGHT", -5, 20)
 
-	local bar = CreateFrame("StatusBar", nil, frame)
+	local bar = CreateFrame("StatusBar", nil, frame, "BackdropTemplate")
 	LSSB:SmoothBar(bar) -- smooth progress bar
 	bar.tex = bar:CreateTexture()
 	bar.tex:SetColorTexture(.5, 1, 0, .8)
@@ -225,9 +225,17 @@ function GRA:CreateDataTransferPopup(text, total, onHide)
 	bar:SetHeight(5)
 	bar:SetPoint("BOTTOMLEFT", frame, 5, 5)
 	bar:SetPoint("BOTTOMRIGHT", frame, -5, 5)
-	bar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = -1})
+
+	-- REVIEW: in 9.0, edgeSize = -1 will case a thicker outline
+	local border = CreateFrame("Frame", nil, bar, "BackdropTemplate")
+	bar.border = border
+	border:SetBackdrop({edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
+	border:SetBackdropBorderColor(0, 0, 0, 1)
+	border:SetPoint("TOPLEFT", -1, 1)
+	border:SetPoint("BOTTOMRIGHT", 1, -1)
+
+	bar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
 	bar:SetBackdropColor(.07, .07, .07, .9)
-	bar:SetBackdropBorderColor(0, 0, 0, 1)
 
 	bar.text = bar:CreateFontString(nil, "OVERLAY", "GRA_FONT_PIXEL")
 	bar.text:SetJustifyH("RIGHT")
