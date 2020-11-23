@@ -6,6 +6,10 @@ local whatsNewFrame = GRA:CreateMovableFrame(L["What's New"], "GRA_WhatsNewFrame
 gra.whatsNewFrame = whatsNewFrame
 whatsNewFrame:SetToplevel(true)
 
+whatsNewFrame.header.closeBtn:HookScript("OnClick", function()
+    GRA_A_Variables["whatsNewViewed"] = gra.version
+end)
+
 local content = CreateFrame("SimpleHTML", nil, whatsNewFrame)
 content:SetResizable(true)
 content:SetSpacing("h1", 7)
@@ -23,7 +27,6 @@ end)
 
 gra.mainFrame:HookScript("OnShow", function()
     if GRA_A_Variables["whatsNewViewed"] ~= gra.version then
-        GRA_A_Variables["whatsNewViewed"] = gra.version
 
         -- current version has About content
         if L[gra.version] ~= gra.version then

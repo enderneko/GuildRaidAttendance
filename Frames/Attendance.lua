@@ -1817,8 +1817,7 @@ GRA:RegisterEvent("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
 	end
 end)
 
--- raid logs deleted
-GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", function(dates)
+local function AttendanceSheet_DetailsRefreshByDates(dates)
 	if attendanceFrame:IsVisible() then
 		RefreshSheetByDates(dates)
 		CalcAR()
@@ -1848,7 +1847,13 @@ GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", function(dat
 			updateRequired = dates
 		end
 	end
-end)
+end
+
+-- raid logs deleted
+GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", AttendanceSheet_DetailsRefreshByDates)
+
+-- raid logs archived
+GRA:RegisterEvent("GRA_LOGS_ACV", "AttendanceSheet_DetailsRefresh", AttendanceSheet_DetailsRefreshByDates)
 
 -- raid start time update (RaidLogsEditFrame/AttendanceEditor)
 GRA:RegisterEvent("GRA_RH_UPDATE", "AttendanceSheet_RaidHoursUpdate", function(d)

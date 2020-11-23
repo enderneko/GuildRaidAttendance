@@ -1905,13 +1905,13 @@ function GRA:CreateBossButton(parent, bossTable, font)
 
 	local membersShort = ""
 	for g, gt in pairs(bossTable[7]) do
-		local info = "|cffbababaG" .. g .. ":"
+		local info = "|cffbababaG" .. g .. ":|r"
 		for _, n in pairs(gt) do
 			local color = "|cff909090"
 			if _G[GRA_R_Roster][n] and RAID_CLASS_COLORS[_G[GRA_R_Roster][n]["class"]] then
 				color = "|c" .. RAID_CLASS_COLORS[_G[GRA_R_Roster][n]["class"]].colorStr
 			end
-			info = info .. color .. string.sub(n, 1, 3) .. " "
+			info = info .. color .. string.sub(n, 1, 3) .. "|r "
 		end
 		membersShort = membersShort .. info
 	end

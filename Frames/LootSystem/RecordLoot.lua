@@ -93,7 +93,7 @@ function GRA:ShowRecordLootFrame(d, link, note, looter, index, floatBtn)
     lootEditBox:SetText(link or "")
     noteEditBox:SetText(note or "")
 
-    local attendees = GRA:GetAttendeesAndAbsentees(d)
+    local attendees = GRA:GetAttendeesAndAbsentees(_G[GRA_R_RaidLogs][d])
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
     for _, n in pairs(attendees) do

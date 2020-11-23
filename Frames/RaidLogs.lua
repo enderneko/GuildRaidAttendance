@@ -343,6 +343,9 @@ deleteRaidLogBtn:SetScript("OnClick", function()
 		GRA:FireEvent("GRA_LOGS_DEL", selectedDates)
 	end, true)
 	confirm:SetPoint("CENTER")
+
+	if GRA_RaidLogsEditFrame then GRA_RaidLogsEditFrame:Hide() end
+	if GRA_RaidLogsArchiveFrame then GRA_RaidLogsArchiveFrame:Hide() end
 end)
 
 local editRaidLogBtn = GRA:CreateButton(buttonFrame, L["Edit"], "blue", {70, 20}, nil, false,
@@ -353,30 +356,19 @@ editRaidLogBtn:SetPoint("LEFT", deleteRaidLogBtn, "RIGHT", 5, 0)
 editRaidLogBtn:Hide()
 editRaidLogBtn:SetScript("OnClick", function()
 	local selectedDates = GetSelectedDates()
-	GRA:ShowRaidLogEditFrame(editRaidLogBtn, selectedDates, sortedDates[selected])
+	GRA:ShowRaidLogsEditFrame(editRaidLogBtn, selectedDates)
 end)
 
 local archiveRaidLogBtn = GRA:CreateButton(buttonFrame, L["Archive"], "blue", {70, 20}, nil, false,
-	L["Archive raid log (WIP)"],
+	L["Archive raid log"],
 	L["Archive selected raid logs."],
 	L["Archived logs will not be used for AR calculation and will be read-only (for now)."],
 	L["Select multiple logs with the Ctrl and Shift keys."])
 archiveRaidLogBtn:SetPoint("LEFT", editRaidLogBtn, "RIGHT", 5, 0)
 archiveRaidLogBtn:Hide()
--- archiveRaidLogBtn:SetScript("OnClick", function()
--- 	local text = L["Archive selected raid logs?"]
--- 	if gra.isAdmin then
--- 		text = text .. "\n|cffFFFFFF" .. L["This will affect attendance rate!"]
--- 	end
-	
--- 	local confirm = GRA:CreateConfirmPopup(raidLogsFrame, 180, gra.colors.firebrick.s .. text, function()
--- 		local selectedDates = GetSelectedDates()
--- 		GRA:ArchiveLogs(selectedDates)
--- 		GRA:Print(L["Archived raid logs: "] .. GRA:TableToString(selectedDates))
--- 		GRA:FireEvent("GRA_LOGS_ACV", selectedDates)
--- 	end, true)
--- 	confirm:SetPoint("CENTER")
--- end)
+archiveRaidLogBtn:SetScript("OnClick", function()
+	GRA:ShowRaidLogsArchiveFrame(archiveRaidLogBtn, GetSelectedDates())
+end)
 
 -----------------------------------------
 -- tab content functions
@@ -397,7 +389,7 @@ summaryTab.func = function(d)
 	local attendeesString, absenteesString = "", ""
 
 	-- fill table
-	local attendees, absentees = GRA:GetAttendeesAndAbsentees(d, true)
+	local attendees, absentees = GRA:GetAttendeesAndAbsentees(t, true)
 	-- sort by class
 	table.sort(attendees, function(a, b) return SortByClass(a, b) end)
 	table.sort(absentees, function(a, b) return SortByClass(a, b) end)
@@ -808,7 +800,7 @@ GRA:RegisterEvent("GRA_RAIDLOGS", "RaidLogsFrame_RaidLogsUpdated", function(d)
 	end
 end)
 
-GRA:RegisterEvent("GRA_LOGS_DEL", "RaidLogsFrame_RaidLogsDeleted", function(deletedDates)
+local function RaidLogsDeletedOrArchived(deletedDates)
 	-- hide
 	for _, d in pairs(deletedDates) do
 		dates[d]:SetParent(nil)
@@ -826,7 +818,9 @@ GRA:RegisterEvent("GRA_LOGS_DEL", "RaidLogsFrame_RaidLogsDeleted", function(dele
 	if GRA:TContains(deletedDates, gra.trackingDate) then
 		GRA:StopTracking(true)
 	end
-end)
+end
+GRA:RegisterEvent("GRA_LOGS_DEL", "RaidLogsFrame_RaidLogsDeleted", RaidLogsDeletedOrArchived)
+GRA:RegisterEvent("GRA_LOGS_ACV", "RaidLogsFrame_RaidLogsArchived", RaidLogsDeletedOrArchived)
 
 GRA:RegisterEvent("GRA_RH_UPDATE", "RaidLogsFrame_RaidHoursUpdate", function(d)
 	if d == sortedDates[selected] then

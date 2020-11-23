@@ -191,7 +191,7 @@ function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
     -- selected == {} --> unselect all
     if not selected then selected = {} end
 
-    local attendees = GRA:GetAttendeesAndAbsentees(d, true)
+    local attendees = GRA:GetAttendeesAndAbsentees(_G[GRA_R_RaidLogs][d], true)
     CreatePlayerCheckBoxes(attendeesText, attendees, attendeeCBs)
     -- absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendees)/4)*26-20)
     -- CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)

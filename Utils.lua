@@ -364,9 +364,9 @@ function GRA:IsAlt(n)
 	end
 end
 
-function GRA:GetAttendeesAndAbsentees(d, filterMainAlt)
+function GRA:GetAttendeesAndAbsentees(logTable, filterMainAlt)
 	local attendees, absentees = {}, {}
-	for n, t in pairs(_G[GRA_R_RaidLogs][d]["attendances"]) do
+	for n, t in pairs(logTable["attendances"]) do
 		if t[3] then
 			table.insert(attendees, n)
 		else -- ABSENT or ONLEAVE

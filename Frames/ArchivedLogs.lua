@@ -4,6 +4,19 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
 local dates, sortedDates, details = {}, {}, {}
 local selected = 1
+local selectedArchiveName
+local UpdateList
+
+local function GetSelectedDates()
+	local selectedDates = {}
+	for d, b in pairs(dates) do
+		if b.isSelected then
+			table.insert(selectedDates, d)
+		end
+	end
+	return selectedDates
+end
+
 -----------------------------------------
 -- archived logs frame
 -----------------------------------------
@@ -23,9 +36,9 @@ titleFrame:SetPoint("BOTTOMRIGHT", archivedLogsFrame, "TOPRIGHT", 0, -16)
 local titleText = titleFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 titleText:SetPoint("LEFT", 5, 0)
 local function UpdateTitleText(d)
-	titleText:SetText(gra.colors.chartreuse.s .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_RaidLogs])
+	titleText:SetText(gra.colors.chartreuse.s .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_Archived][selectedArchiveName])
 		.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToSeconds(d))
-		.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA:GetRaidStartTime(d) .. " - " ..  GRA:GetRaidEndTime(d))
+		.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA:SecondsToTime(_G[GRA_R_Archived][selectedArchiveName][d]["startTime"]) .. " - " ..  GRA:SecondsToTime(_G[GRA_R_Archived][selectedArchiveName][d]["endTime"]))
 end
 
 -----------------------------------------
@@ -35,7 +48,7 @@ local buttonFrame = CreateFrame("Frame", nil, archivedLogsFrame)
 buttonFrame:SetPoint("TOPLEFT", archivedLogsFrame, "BOTTOMLEFT", 0, 20)
 buttonFrame:SetPoint("BOTTOMRIGHT")
 
-local archivedDropDownMenu = GRA:CreateScrollDropDownMenu(buttonFrame, 200)
+local archivedDropDownMenu = GRA:CreateDropDownMenu(buttonFrame, 205)
 archivedDropDownMenu:SetPoint("BOTTOMLEFT")
 
 -----------------------------------------
@@ -166,6 +179,7 @@ bossesFrame.scrollFrame:SetScrollStep(41)
 
 local exportBtn = GRA:CreateButton(summaryTab, L["Export CSV"], "blue", {70, 20})
 exportBtn:SetPoint("BOTTOMRIGHT", buttonFrame)
+exportBtn:SetEnabled(false)
 exportBtn:SetScript("OnClick", function()
 	GRA:ShowExportFrame(sortedDates[selected])
 end)
@@ -219,7 +233,11 @@ deleteBtn:SetScript("OnClick", function()
 	local text = L["Delete selected raid logs?"]
 
 	local confirm = GRA:CreateConfirmPopup(archivedLogsFrame, 180, gra.colors.firebrick.s .. text, function()
-
+		local selectedDates = GetSelectedDates()
+		_G[GRA_R_Archived][selectedArchiveName] = GRA:RemoveElementsByKeys(_G[GRA_R_Archived][selectedArchiveName], selectedDates)
+		GRA:Print(L["Deleted archived logs: "] .. GRA:TableToString(selectedDates))
+		-- hide
+		UpdateList()
 	end, true)
 	confirm:SetPoint("CENTER")
 end)
@@ -242,11 +260,11 @@ end
 
 -- ShowRaidSummary
 summaryTab.func = function(d)
-	local t = _G[GRA_R_RaidLogs][d]
+	local t = _G[GRA_R_Archived][selectedArchiveName][d]
 	local attendeesString, absenteesString = "", ""
 
 	-- fill table
-	local attendees, absentees = GRA:GetAttendeesAndAbsentees(d, true)
+	local attendees, absentees = GRA:GetAttendeesAndAbsentees(t, true)
 	-- sort by class
 	table.sort(attendees, function(a, b) return SortByClass(a, b) end)
 	table.sort(absentees, function(a, b) return SortByClass(a, b) end)
@@ -307,7 +325,7 @@ detailsTab.func = function(d)
 	detailsTab.scrollFrame:Reset()
 	
 	details = {}
-	local t = _G[GRA_R_RaidLogs][d]
+	local t = _G[GRA_R_Archived][selectedArchiveName][d]
 
 	local last
 	for k, detail in pairs(t["details"]) do
@@ -451,7 +469,7 @@ detailsTab.func = function(d)
 						.. detail[2] .. " " .. GRA:GetClassColoredName(detail[3])
 						, function()
 							-- delete from logs
-							table.remove(_G[GRA_R_RaidLogs][d]["details"], k)
+							table.remove(_G[GRA_R_Archived][selectedArchiveName][d]["details"], k)
 							-- fake GRA_ENTRY_UNDO event, refresh sheet by date
 							GRA:FireEvent("GRA_ENTRY_UNDO", d)
 							ShowTab("details", d)
@@ -478,14 +496,10 @@ end
 -----------------------------------------
 -- load date list
 -----------------------------------------
-
------------------------------------------
--- load date list
------------------------------------------
 local function LoadDateList()
 	GRA:Debug("|cffFFC0CBLoading date list...|r ")
 
-	for d, t in pairs(_G[GRA_R_RaidLogs]) do
+	for d, t in pairs(_G[GRA_R_Archived][selectedArchiveName]) do
 		table.insert(sortedDates, d)
 	end
 	table.sort(sortedDates, function(a, b) return a < b end)
@@ -493,7 +507,7 @@ local function LoadDateList()
 	for i = 1, #sortedDates do
 		local d = sortedDates[i]
 		if not dates[d] then
-			local note = _G[GRA_R_RaidLogs][d]["note"] and (" " .. GetNote(_G[GRA_R_RaidLogs][d]["note"])) or ""
+			local note = _G[GRA_R_Archived][selectedArchiveName][d]["note"] and (" " .. GetNote(_G[GRA_R_Archived][selectedArchiveName][d]["note"])) or ""
 			dates[d] = GRA:CreateListButton(listFrame.scrollFrame.content, date("%x", GRA:DateToSeconds(d)) .. note, "transparent-light", {listFrame.scrollFrame.content:GetWidth(), gra.size.height-4})
 			listFrame.scrollFrame:SetWidgetAutoWidth(dates[d])
 
@@ -548,6 +562,7 @@ local function LoadDateList()
 	-- set point
 	local last = nil
 	for _, d in pairs(sortedDates) do
+		dates[d]:SetParent(listFrame.scrollFrame.content)
 		dates[d]:ClearAllPoints()
 		if last then
 			dates[d]:SetPoint("TOP", last, "BOTTOM", 0, 1)
@@ -561,8 +576,8 @@ end
 
 local function PrepareRaidLogs()
 	wipe(sortedDates)
-	if GRA:Getn(_G[GRA_R_RaidLogs]) == 0 then
-		GRA:CreateMask(archivedLogsFrame, L["No raid log"], {-1, 1, 1, -1})
+	if not selectedArchiveName or GRA:Getn(_G[GRA_R_Archived][selectedArchiveName]) == 0 then
+		GRA:CreateMask(archivedLogsFrame, L["No archived log"], {-1, 1, 1, -1})
 		titleText:SetText("")
 		noteFrame.text:SetText("")
 		attendeesFrame.text:SetText("")
@@ -575,7 +590,20 @@ local function PrepareRaidLogs()
 	else
 		if archivedLogsFrame.mask then archivedLogsFrame.mask:Hide() end
 		LoadDateList()
-		-- if not sortedDates[selected] then selected = #sortedDates end
+		-- show last log by default
+		local dateToShow = sortedDates[#sortedDates]
+		GRA:Debug("|cffFFC0CBShowing log: |r" .. (dateToShow or "nil"))
+		if dates[dateToShow] then
+			dates[dateToShow]:Click() -- highlight this date button and load its content
+			-- scroll list
+			C_Timer.After(.1, function()
+				if dates[dateToShow].index > 23 then
+					listFrame.scrollFrame:SetVerticalScroll((gra.size.height-5) * (dates[dateToShow].index - 23))
+				else
+					listFrame.scrollFrame:SetVerticalScroll(0)
+				end
+			end)
+		end
 	end
 
 	-- update detailsTab title
@@ -583,23 +611,9 @@ local function PrepareRaidLogs()
 end
 
 -- update list and scroll
-local function UpdateList(dateToShow)
-	listFrame.scrollFrame:ResetScroll()
+UpdateList = function()
+	listFrame.scrollFrame:Reset()
 	PrepareRaidLogs()
-	-- show last log by default
-	if not dateToShow then dateToShow = sortedDates[#sortedDates] end
-	GRA:Debug("|cffFFC0CBShowing log: |r" .. (dateToShow or "nil"))
-	if dates[dateToShow] then
-		dates[dateToShow]:Click() -- highlight this date button and load its content
-		-- scroll list
-		C_Timer.After(.1, function()
-			if dates[dateToShow].index > 23 then
-				listFrame.scrollFrame:SetVerticalScroll((gra.size.height-5) * (dates[dateToShow].index - 23))
-			else
-				listFrame.scrollFrame:SetVerticalScroll(0)
-			end
-		end)
-	end
 end
 
 local init, updateRequired = false, nil
@@ -607,13 +621,24 @@ archivedLogsFrame:SetScript("OnShow", function()
 	LPP:PixelPerfectPoint(gra.mainFrame)
 	gra.mainFrame:SetWidth(gra.size.archivedLogsFrame[1])
 
+	-- TODO: move it!
+	local items = {}
+	for archiveName, archiveTable in pairs(_G[GRA_R_Archived]) do
+		if not selectedArchiveName then selectedArchiveName = archiveName end
+		tinsert(items, {
+            ["text"] = archiveName,
+			["onClick"] = function()
+				selectedArchiveName = archiveName
+				UpdateList()
+            end,
+        })
+	end
+	archivedDropDownMenu:SetItems(items)
+	archivedDropDownMenu:SetSelected(selectedArchiveName)
+
 	if updateRequired then
 		init = true
-		if sortedDates[selected] == updateRequired then -- 需要刷新的日期与当前显示的日期相同，仅更新当前tab
-			ShowTab(currentTab, updateRequired)
-		else -- 否则重新加载list并显示
-			UpdateList(updateRequired)
-		end
+		UpdateList()
 		updateRequired = nil
 	end
 
@@ -623,19 +648,29 @@ archivedLogsFrame:SetScript("OnShow", function()
 	end
 end)
 
------------------------------------------
--- permission
------------------------------------------
-GRA:RegisterEvent("GRA_PERMISSION", "ArchivedLogsFrame_CheckPermissions", function(isAdmin)
-	if isAdmin then
-		sendBtn:Show()
-		deleteBtn:SetPoint("LEFT", sendBtn, "RIGHT", 5, 0)
-		editBtn:SetPoint("LEFT", deleteBtn, "RIGHT", 5, 0)
-		exportBtn:Show()
-
-		-- current tab = details
-		if GRA:Getn(dates) ~= 0 and currentTab == "details" then
-			ShowTab("details", sortedDates[selected])
+GRA:RegisterEvent("GRA_LOGS_ACV", "ArchivedLogsFrame_RaidLogsArchived", function(dates, archivedTo)
+	if archivedTo == archivedDropDownMenu.selected then
+		if archivedLogsFrame:IsVisible() then
+			UpdateList()
+		else
+			updateRequired = true
 		end
 	end
 end)
+
+-----------------------------------------
+-- permission
+-----------------------------------------
+-- GRA:RegisterEvent("GRA_PERMISSION", "ArchivedLogsFrame_CheckPermissions", function(isAdmin)
+-- 	if isAdmin then
+-- 		sendBtn:Show()
+-- 		deleteBtn:SetPoint("LEFT", sendBtn, "RIGHT", 5, 0)
+-- 		editBtn:SetPoint("LEFT", deleteBtn, "RIGHT", 5, 0)
+-- 		exportBtn:Show()
+
+-- 		-- current tab = details
+-- 		if GRA:Getn(dates) ~= 0 and currentTab == "details" then
+-- 			ShowTab("details", sortedDates[selected])
+-- 		end
+-- 	end
+-- end)
