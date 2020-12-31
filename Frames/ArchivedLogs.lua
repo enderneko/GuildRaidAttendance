@@ -193,6 +193,11 @@ GRA:StylizeFrame(attendancesTab, {.5, .5, .5, .1})
 attendancesTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
 attendancesTab:SetPoint("BOTTOMRIGHT", 0, 24)
 attendancesTab:Hide()
+-- attendance editor
+local attendanceEditor = GRA:CreateAttendanceEditor(attendancesTab)
+attendanceEditor:SetAllPoints(attendancesTab)
+attendanceEditor.discardBtn:SetPoint("BOTTOMRIGHT", buttonFrame)
+attendanceEditor.saveBtn:SetPoint("RIGHT", attendanceEditor.discardBtn, "LEFT", -5, 0)
 
 -----------------------------------------
 -- details/loots
@@ -584,7 +589,7 @@ local function PrepareRaidLogs()
 		absenteesFrame.text:SetText("")
 
 		bossesFrame.scrollFrame:Reset()
-		gra.attendanceEditor.scrollFrame:Reset()
+		attendanceEditor.scrollFrame:Reset()
 		detailsTab.scrollFrame:Reset()
 
 	else

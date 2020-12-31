@@ -185,7 +185,7 @@ inviteBtn:SetPoint("LEFT", trackBtn, "RIGHT", -1, 0)
 inviteBtn:Hide()
 
 inviteBtn:SetScript("OnClick", function()
-	ConvertToRaid()
+	C_PartyInfo.ConvertToRaid()
 	inviteBtn:RegisterEvent("GROUP_ROSTER_UPDATE")
 	
 	local onlineMembers = GRA:GetGuildOnlineRoster()
@@ -193,7 +193,7 @@ inviteBtn:SetScript("OnClick", function()
 
 	for n, _ in pairs(_G[GRA_R_Roster]) do
 		if n ~= myName and onlineMembers[n] and not(UnitInParty(GRA:GetShortName(n)) or UnitInRaid(GRA:GetShortName(n))) then
-			InviteUnit(n)
+			C_PartyInfo.InviteUnit(n)
 		end
 	end
 	wipe(onlineMembers)
@@ -201,7 +201,7 @@ end)
 
 inviteBtn:SetScript("OnEvent", function()
 	if not IsInRaid() then
-		ConvertToRaid()
+		C_PartyInfo.ConvertToRaid()
 		inviteBtn:UnregisterEvent("GROUP_ROSTER_UPDATE")
 	end
 end)
