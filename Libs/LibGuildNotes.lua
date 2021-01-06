@@ -83,7 +83,7 @@ local function SetNote(noteType, name, note, isRetry)
 end
 
 function lib:SetPublicNote(name, note)
-	if not CanEditPublicNote() then return end
+	if not C_GuildInfo.CanEditPublicNote() then return end
 	
 	if not updating then
 		SetNote("public", name, note)
@@ -99,7 +99,7 @@ function lib:SetPublicNote(name, note)
 end
 
 function lib:SetOfficerNote(name, note)
-	if not CanEditOfficerNote() then return end
+	if not C_GuildInfo.CanEditOfficerNote() then return end
 	
 	if not updating then
 		SetNote("officer", name, note)
