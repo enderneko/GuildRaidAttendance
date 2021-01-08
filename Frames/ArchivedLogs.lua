@@ -338,8 +338,8 @@ detailsTab.func = function(d)
 		
 		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
 			b = GRA:CreateDetailButton_EPGP(detailsTab.scrollFrame.content, detail)
-		-- elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-		-- 	b = GRA:CreateDetailButton_DKP(detailsTab.scrollFrame.content, detail)
+		elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+			b = GRA:CreateDetailButton_DKP(detailsTab.scrollFrame.content, detail)
 		else -- loot council
 			b = GRA:CreateLootButton(detailsTab.scrollFrame.content, detail)
 		end
@@ -432,39 +432,39 @@ detailsTab.func = function(d)
 						end
 					end)
 
-				-- elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-				-- 	if detail[1] == "DKP_C" then
-				-- 		b.noteFrame.text:SetPoint("RIGHT", -25, 0)
-				-- 	else
-				-- 		b.playerText:SetPoint("RIGHT", -25, 0)
-				-- 	end
+				elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+					if detail[1] == "DKP_C" then
+						b.noteFrame.text:SetPoint("RIGHT", -25, 0)
+					else
+						b.playerText:SetPoint("RIGHT", -25, 0)
+					end
 
-				-- 	-- delete detail entry
-				-- 	b.deleteBtn:SetScript("OnClick", function()
-				-- 		local confirm = GRA:CreateConfirmPopup(detailsFrame, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("DKP") .. "|r\n" 
-				-- 		.. detail[3] .. ": " .. detail[2] .. " DKP"
-				-- 		, function()
-				-- 			if detail[1] == "DKP_P" then
-				-- 				GRA:UndoPenalizeDKP(d, k)
-				-- 			else
-				-- 				GRA:UndoDKP(d, k)
-				-- 			end
-				-- 			ShowTab("details", d)
-				--			detailsTab.scrollFrame:ResetScroll()
-				-- 		end, true)
-				-- 		confirm:SetPoint("CENTER")
-				-- 	end)
+					-- delete detail entry
+					b.deleteBtn:SetScript("OnClick", function()
+						local confirm = GRA:CreateConfirmPopup(detailsTab, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("DKP") .. "|r\n" 
+						.. detail[3] .. ": " .. detail[2] .. " DKP"
+						, function()
+							if detail[1] == "DKP_P" then
+								GRA:UndoPenalizeDKP(d, k)
+							else
+								GRA:UndoDKP(d, k)
+							end
+							ShowTab("details", d)
+							detailsTab.scrollFrame:ResetScroll()
+						end, true)
+						confirm:SetPoint("CENTER")
+					end)
 
-				-- 	-- modify detail entry
-				-- 	b:SetScript("OnClick", function()
-				-- 		if detail[1] == "DKP_A" then
-				-- 			GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
-				-- 		elseif detail[1] == "DKP_C" then
-				-- 			GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], k)
-				-- 		else -- DKP_P
-				-- 			GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
-				-- 		end
-				-- 	end)
+					-- modify detail entry
+					b:SetScript("OnClick", function()
+						if detail[1] == "DKP_A" then
+							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
+						elseif detail[1] == "DKP_C" then
+							GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], k)
+						else -- DKP_P
+							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
+						end
+					end)
 
 				else -- loot council
 					b.noteFrame.text:SetPoint("RIGHT", -25, 0)
