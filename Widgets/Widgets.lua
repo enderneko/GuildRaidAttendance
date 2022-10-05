@@ -1,2055 +1,3225 @@
-local GRA, gra = unpack(select(2, ...))
-local L = select(2, ...).L
-local LSSB = LibStub:GetLibrary("LibSmoothStatusBar-1.0")
-local LPP = LibStub:GetLibrary("LibPixelPerfect")
+-----------------------------------------
+-- LibWidgets
+-- by KevinSK
+-----------------------------------------
+local addonName, addon = ...
+local L = addon.L
+local F = addon.funcs
+local P = addon.pixelPerfectFuncs
+local LCG = LibStub("LibCustomGlow-1.0")
 
 -----------------------------------------
--- skin
+-- Color
 -----------------------------------------
-function GRA:StylizeFrame(frame, color, border, shadowOffset)
-	if not color or type(color) ~= "table" then
-		color = {.1, .1, .1, .9}
-	end
-	
-	if not border or type(border) ~= "table" then
-		border = {0, 0, 0, 1}
-	end
+local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS
 
-	frame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1})
-    frame:SetBackdropColor(unpack(color))
-	frame:SetBackdropBorderColor(unpack(border))
+local colors = {
+    grey = {s="|cFFB2B2B2", t={0.7, 0.7, 0.7}},
+    yellow = {s="|cFFFFD100", t= {1, 0.82, 0}},
+    orange = {s="|cFFFFC0CB", t= {1, 0.65, 0}},
+    firebrick = {s="|cFFFF3030", t={1, 0.19, 0.19}},
+    skyblue = {s="|cFF00CCFF", t={0, 0.8, 1}},
+    chartreuse = {s="|cFF80FF00", t={0.5, 1, 0}},
+}
 
-	if shadowOffset then -- frame shadow
-		local shadow = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-		shadow:SetBackdrop({edgeFile = "Interface\\Addons\\GuildRaidAttendance\\Media\\shadow.tga", edgeSize = 15})
-		shadow:SetBackdropBorderColor(0, 0, 0, .5)
-		shadow:SetPoint("TOP", 0, shadowOffset[1])
-		shadow:SetPoint("BOTTOM", 0, shadowOffset[2])
-		shadow:SetPoint("LEFT", shadowOffset[3], 0)
-		shadow:SetPoint("RIGHT", shadowOffset[4], 0)
-		shadow:SetFrameStrata("LOW")
-	end
+local class = select(2, UnitClass("player"))
+local accentColor = {s="|cCCB2B2B2", t={0.7, 0.7, 0.7}}
+if class then
+    accentColor.t[1], accentColor.t[2], accentColor.t[3], accentColor.s = RAID_CLASS_COLORS[class].r, RAID_CLASS_COLORS[class].g, RAID_CLASS_COLORS[class].b, RAID_CLASS_COLORS[class].colorStr
+    accentColor.s = "|c"..accentColor.s
 end
 
 -----------------------------------------
--- frame
+-- Font
 -----------------------------------------
-function GRA:CreateFrame(title, name, parent, width, height)
-	local f = CreateFrame("Frame", name, parent, "BackdropTemplate")
-	f:Hide()
-	GRA:StylizeFrame(f, nil, nil, {32, -11, -11, 11})
-	f:EnableMouse(true)
-	f:SetSize(width, height)
+-- local fonts = {}
+-- local function SetFont(obj, font, size, flags)
+--     -- store in fonts for resizing
+--     tinsert(fonts, {
+--         ["obj"] = obj,
+--         ["font"] = font,
+--         ["size"] = size,
+--         ["flags"] = flags
+--     })
+--     obj:SetFont()
+-- end
 
-	f.header = CreateFrame("Frame", nil, f, "BackdropTemplate")
-	f.header:EnableMouse(true)
-	GRA:StylizeFrame(f.header, {.1, .1, .1, 1})
-	f.header:SetPoint("TOPLEFT", f, 0, 21)
-	f.header:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", 0, -1)
+local font_title_name = strupper(addonName).."_FONT_WIDGET_TITLE"
+local font_title_disable_name = strupper(addonName).."_FONT_WIDGET_TITLE_DISABLE"
+local font_name = strupper(addonName).."_FONT_WIDGET"
+local font_disable_name = strupper(addonName).."_FONT_WIDGET_DISABLE"
+local font_special_name = strupper(addonName).."_FONT_SPECIAL"
+local font_class_title_name = strupper(addonName).."_FONT_CLASS_TITLE"
+local font_class_name = strupper(addonName).."_FONT_CLASS"
 
-	f.header.text = f.header:CreateFontString(nil, "OVERLAY", "GRA_FONT_NORMAL")
-	f.header.text:SetText(title)
-	f.header.text:SetPoint("CENTER", f.header)
+local font_title = CreateFont(font_title_name)
+font_title:SetFont(GameFontNormal:GetFont(), 14)
+font_title:SetTextColor(1, 1, 1, 1)
+font_title:SetShadowColor(0, 0, 0)
+font_title:SetShadowOffset(1, -1)
+font_title:SetJustifyH("CENTER")
 
-	f.header.closeBtn = GRA:CreateButton(f.header, "×", "red", {16, 16}, "GRA_FONT_BUTTON")
-	f.header.closeBtn:SetPoint("RIGHT", f.header, -4, 0)
-	f.header.closeBtn:SetScript("OnClick", function() f:Hide() end)
+local font_title_disable = CreateFont(font_title_disable_name)
+font_title_disable:SetFont(GameFontNormal:GetFont(), 14)
+font_title_disable:SetTextColor(.4, .4, .4, 1)
+font_title_disable:SetShadowColor(0, 0, 0)
+font_title_disable:SetShadowOffset(1, -1)
+font_title_disable:SetJustifyH("CENTER")
 
-	return f
+local font = CreateFont(font_name)
+font:SetFont(GameFontNormal:GetFont(), 13)
+font:SetTextColor(1, 1, 1, 1)
+font:SetShadowColor(0, 0, 0)
+font:SetShadowOffset(1, -1)
+font:SetJustifyH("CENTER")
+
+local font_disable = CreateFont(font_disable_name)
+font_disable:SetFont(GameFontNormal:GetFont(), 13)
+font_disable:SetTextColor(.4, .4, .4, 1)
+font_disable:SetShadowColor(0, 0, 0)
+font_disable:SetShadowOffset(1, -1)
+font_disable:SetJustifyH("CENTER")
+
+local font_special = CreateFont(font_special_name)
+font_special:SetFont("Interface\\AddOns\\Cell\\Media\\font.ttf", 12)
+font_special:SetTextColor(1, 1, 1, 1)
+font_special:SetShadowColor(0, 0, 0)
+font_special:SetShadowOffset(1, -1)
+font_special:SetJustifyH("CENTER")
+font_special:SetJustifyV("MIDDLE")
+
+local font_class_title = CreateFont(font_class_title_name)
+font_class_title:SetFont(GameFontNormal:GetFont(), 14)
+font_class_title:SetTextColor(accentColor.t[1], accentColor.t[2], accentColor.t[3])
+font_class_title:SetShadowColor(0, 0, 0)
+font_class_title:SetShadowOffset(1, -1)
+font_class_title:SetJustifyH("CENTER")
+
+local font_class = CreateFont(font_class_name)
+font_class:SetFont(GameFontNormal:GetFont(), 13)
+font_class:SetTextColor(accentColor.t[1], accentColor.t[2], accentColor.t[3])
+font_class:SetShadowColor(0, 0, 0)
+font_class:SetShadowOffset(1, -1)
+font_class:SetJustifyH("CENTER")
+
+local defaultFont = GameFontNormal:GetFont()
+local fontSizeOffset = 0
+function addon:UpdateOptionsFont(offset, useGameFont)
+    if useGameFont then
+        defaultFont = GameFontNormal:GetFont()
+    else
+        defaultFont = "Interface\\AddOns\\Cell\\Media\\Accidental_Presidency.ttf"
+    end
+    fontSizeOffset = offset
+
+    font_title:SetFont(defaultFont, 14+offset)
+    font_title_disable:SetFont(defaultFont, 14+offset)
+    font:SetFont(defaultFont, 13+offset)
+    font_disable:SetFont(defaultFont, 13+offset)
+    font_class_title:SetFont(defaultFont, 14+offset)
+    font_class:SetFont(defaultFont, 13+offset)
 end
 
-function GRA:CreateMovableFrame(title, name, width, height, font, frameStrata, frameLevel)
-	local f = CreateFrame("Frame", name, nil, "BackdropTemplate")
-	f:EnableMouse(true)
-	-- f:SetResizable(false)
-	f:SetMovable(true)
-	f:SetUserPlaced(true)
-	f:SetFrameStrata(frameStrata or "HIGH")
-	f:SetFrameLevel(frameLevel or 1)
-	f:SetClampedToScreen(true)
-	f:SetSize(width, height)
-	f:SetPoint("CENTER")
-	f:Hide()
-	LPP:PixelPerfectScale(f)
-	GRA:StylizeFrame(f, nil, nil, {31, -10, -10, 10})
-	-- table.insert(UISpecialFrames, name) -- make it closable with the Escape key
-	
-	-- header
-	local header = CreateFrame("Frame", nil, f, "BackdropTemplate")
-	f.header = header
-	header:EnableMouse(true)
-	header:SetClampedToScreen(true)
-	header:RegisterForDrag("LeftButton")
-	header:SetScript("OnDragStart", function() f:StartMoving() end)
-	header:SetScript("OnDragStop", function() f:StopMovingOrSizing() LPP:PixelPerfectPoint(f) end)
-	header:SetPoint("LEFT")
-	header:SetPoint("RIGHT")
-	header:SetPoint("BOTTOM", f, "TOP", 0, -1)
-	header:SetHeight(22)
-	-- header:SetPoint("TOPLEFT", f, 0, 21)
-	-- header:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", 0, -1)
-	GRA:StylizeFrame(header, {.1, .1, .1, 1})
-	
-	header.text = header:CreateFontString(nil, "OVERLAY", font or "GRA_FONT_NORMAL")
-	header.text:SetText(title)
-	header.text:SetPoint("CENTER", header)
-	
-	header.closeBtn = GRA:CreateButton(header, "×", "red", {16, 16}, "GRA_FONT_BUTTON")
-	header.closeBtn:SetPoint("RIGHT", header, -4, 0)
-	header.closeBtn:SetScript("OnClick", function() f:Hide() end)
+-----------------------------------------
+-- Accent Color
+-----------------------------------------
+local accentColorOverride
+function addon:OverrideAccentColor(cTable)
+    accentColorOverride = true
 
-	return f
+    accentColor.t[1], accentColor.t[2], accentColor.t[3] = unpack(cTable)
+    accentColor.s = "|cFF"..F:ConvertRGBToHEX(F:ConvertRGB_256(unpack(cTable)))
+    
+    font_class_title:SetTextColor(unpack(cTable))
+    font_class:SetTextColor(unpack(cTable))
+end
+
+function addon:GetAccentColorRGB()
+    return unpack(accentColor.t)
+end
+
+function addon:GetAccentColorTable(alpha)
+    if alpha then
+        return {accentColor.t[1], accentColor.t[2], accentColor.t[3], alpha}
+    else
+        return accentColor.t
+    end
+end
+
+function addon:GetAccentColorString()
+    return accentColor.s
+end
+
+function addon:ColorFontStringWithAccentColor(fs)
+    fs:SetTextColor(accentColor.t[1], accentColor.t[2], accentColor.t[3])
+end
+
+function addon:WrapTextInAccentColor(text)
+    return WrapTextInColorCode(text, accentColor.s)
 end
 
 -----------------------------------------
--- change frame size with animation
+-- enable/disable
 -----------------------------------------
-function GRA:ChangeSizeWithAnimation(frame, targetWidth, targetHeight, startFunc, endFunc, noRepoint)
-    if startFunc then startFunc() end
-	
-	local currentHeight = frame:GetHeight()
-	local currentWidth = frame:GetWidth()
-	targetWidth = targetWidth or currentWidth
-	targetHeight = targetHeight or currentHeight
-
-	local diffH = (targetHeight - currentHeight) / 6
-	local diffW = (targetWidth - currentWidth) / 6
-	
-	local animationTimer
-	animationTimer = C_Timer.NewTicker(.025, function()
-		if diffW ~= 0 then
-			if diffW > 0 then
-				currentWidth = math.min(currentWidth + diffW, targetWidth)
-			else
-				currentWidth = math.max(currentWidth + diffW, targetWidth)
-			end
-			frame:SetWidth(currentWidth)
-		end
-
-		if diffH ~= 0 then
-			if diffH > 0 then
-				currentHeight = math.min(currentHeight + diffH, targetHeight)
-			else
-				currentHeight = math.max(currentHeight + diffH, targetHeight)
-			end
-			frame:SetHeight(currentHeight)
-		end
-
-        if currentWidth == targetWidth and currentHeight == targetHeight then
-            animationTimer:Cancel()
-            animationTimer = nil
-			if endFunc then endFunc() end
-			if not noRepoint then LPP:PixelPerfectPoint(frame) end -- already point to another frame
+function addon:SetEnabled(isEnabled, ...)
+    for _, w in pairs({...}) do
+        if w:IsObjectType("FontString") then
+            if isEnabled then
+                w:SetTextColor(1, 1, 1, 1)
+            else
+                w:SetTextColor(0.4, 0.4, 0.4, 1)
+            end   
+        elseif w:IsObjectType("Texture") then   
+            if isEnabled then
+                w:SetDesaturated(false)
+            else
+                w:SetDesaturated(true)
+            end      
+        else
+            w:SetEnabled(isEnabled)
         end
+    end
+end
+
+-----------------------------------------
+-- rainbow text
+-----------------------------------------
+local colorSelect = CreateFrame("Colorselect")
+function addon:StartRainbowText(fs, reverse)
+    -- save original
+    fs.text = fs:GetText()
+    
+    -- updater
+    fs.rainbow = true
+    if not fs.updater then
+        fs.updater = CreateFrame("Frame", nil, fs:GetParent())
+    end
+    
+    local pos = 0
+    local step = 360 / (#fs.text-1)
+    local col
+    local str
+    
+    fs.updater:SetScript("OnUpdate", function(self, elapsed)
+        
+        local hue = pos
+        -- NOTE: lua 正则匹配中文，不知道会不会有问题
+        str = fs.text:gsub("[%z\1-\127\194-\244][\128-\191]*", function(char)
+            colorSelect:SetColorHSV(hue,1,1)
+            col = CreateColor(colorSelect:GetColorRGB())
+            hue = (hue+step) > 360 and (hue+step)-360 or hue+step
+            return col:WrapTextInColorCode(char)
+        end)
+
+        if reverse then
+            pos = (pos+1) > 360 and 0 or pos + 1
+        else
+            pos = (pos-1) < 0 and 360 or pos - 1
+        end
+    
+        fs:SetText(str)
     end)
 end
 
------------------------------------------
--- SetTooltip
------------------------------------------
-local function SetTooltip(widget, anchor, x, y, ...)
-	local tooltips = {...}
-
-	widget.ShowTooltip = function()
-		GRA_Tooltip:SetOwner(widget, anchor or "ANCHOR_TOP", x or 0, y or 0)
-		GRA_Tooltip:AddLine(tooltips[1])
-		for i = 2, #tooltips do
-			GRA_Tooltip:AddLine("|cffffffff" .. tooltips[i])
-		end
-		GRA_Tooltip:Show()
-	end
-
-	widget.HideTooltip = function()
-		GRA_Tooltip:Hide()
-	end
-
-	if #tooltips ~= 0 then
-		widget:HookScript("OnEnter", function(self)
-			self.ShowTooltip()
-		end)
-		widget:HookScript("OnLeave", function(self)
-			self.HideTooltip()
-		end)
-	end
-end
-
------------------------------------------
--- editbox 2017-06-21 10:19:33
------------------------------------------
-function GRA:CreateEditBox(parent, width, height, isNumeric, font)
-	if not font then font = "GRA_FONT_TEXT" end
-
-	local eb = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
-	GRA:StylizeFrame(eb, {.1, .1, .1, .9})
-	eb:SetFontObject(font)
-	eb:SetMultiLine(false)
-	eb:SetMaxLetters(0)
-	eb:SetJustifyH("LEFT")
-	eb:SetJustifyV("CENTER")
-	eb:SetWidth(width or 0)
-	eb:SetHeight(height or 0)
-	eb:SetTextInsets(5, 5, 0, 0)
-	eb:SetAutoFocus(false)
-	eb:SetNumeric(isNumeric)
-	eb:SetScript("OnEscapePressed", function() eb:ClearFocus() end)
-	eb:SetScript("OnEnterPressed", function() eb:ClearFocus() end)
-	eb:SetScript("OnEditFocusGained", function() eb:HighlightText() end)
-	eb:SetScript("OnEditFocusLost", function() eb:HighlightText(0, 0) end)
-	eb:SetScript("OnDisable", function() eb:SetTextColor(.7, .7, .7, 1) end)
-	eb:SetScript("OnEnable", function() eb:SetTextColor(1, 1, 1, 1) end)
-
-	return eb
-end
-
------------------------------------------
--- button
------------------------------------------
-function GRA:CreateButton(parent, text, buttonColor, size, font, noBorder, ...)
-	if not font then font = "GRA_FONT_SMALL" end
-
-	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-	if parent then b:SetFrameLevel(parent:GetFrameLevel()+1) end
-	b:SetText(text)
-	b:SetSize(unpack(size))
-	
-	local color, hoverColor
-	if buttonColor == "red" then
-		color = {.6, .1, .1, .6}
-		hoverColor = {.6, .1, .1, 1}
-	elseif buttonColor == "red-hover" then
-		color = {.1, .1, .1, 1}
-		hoverColor = {.6, .1, .1, 1}
-	elseif buttonColor == "green" then
-		color = {.1, .6, .1, .6}
-		hoverColor = {.1, .6, .1, 1}
-	elseif buttonColor == "green-hover" then
-		color = {.1, .1, .1, 1}
-		hoverColor = {.1, .6, .1, 1}
-	elseif buttonColor == "cyan" then
-		color = {0, .9, .9, .6}
-		hoverColor = {0, .9, .9, 1}
-	elseif buttonColor == "blue" then
-		color = {0, .5, .8, .6}
-		hoverColor = {0, .5, .8, 1}
-	elseif buttonColor == "blue-hover" then
-		color = {.1, .1, .1, 1}
-		hoverColor = {0, .5, .8, 1}
-	elseif buttonColor == "yellow" then
-		color = {.7, .7, 0, .6}
-		hoverColor = {.7, .7, 0, 1}
-	elseif buttonColor == "yellow-hover" then
-		color = {.1, .1, .1, 1}
-		hoverColor = {.7, .7, 0, 1}
-	elseif buttonColor == "chartreuse" then
-		color = {.5, 1, 0, .6}
-		hoverColor = {.5, 1, 0, .8}
-	elseif buttonColor == "magenta" then
-		color = {.6, .1, .6, .6}
-		hoverColor = {.6, .1, .6, 1}
-	elseif buttonColor == "transparent" then -- drop down item
-		color = {0, 0, 0, 0}
-		hoverColor = {.5, 1, 0, .7}
-	elseif buttonColor == "transparent-white" then -- drop down item
-		color = {0, 0, 0, 0}
-		hoverColor = {.4, .4, .4, .7}
-	elseif buttonColor == "transparent-light" then -- list button
-		color = {0, 0, 0, 0}
-		hoverColor = {.5, 1, 0, .5}
-	elseif buttonColor == "Credit" then
-		color = {.1, .6, .95, .4}
-		hoverColor = {.1, .6, .95, .65}
-	elseif buttonColor == "Award" then
-		color = {.1, .95, .2, .4}
-		hoverColor = {.1, .95, .2, .65}
-	elseif buttonColor == "Penalize" then
-		color = {.95, .17, .2, .4}
-		hoverColor = {.95, .17, .2, .65}
-	elseif buttonColor == "none" then
-		color = {0, 0, 0, 0}
-	else
-		color = {.1, .1, .1, .7}
-		hoverColor = {.5, 1, 0, .6}
-	end
-
-	-- keep color & hoverColor
-	b.color = color
-	b.hoverColor = hoverColor
-
-	local s = b:GetFontString()
-	if s then
-		s:SetWordWrap(false)
-		-- s:SetWidth(size[1])
-		s:SetPoint("LEFT")
-		s:SetPoint("RIGHT")
-	end
-	
-	if noBorder then
-		b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
-	else
-		b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	end
-	
-	if buttonColor and string.find(buttonColor, "transparent") then -- drop down item
-		-- b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
-		if s then
-			s:SetJustifyH("LEFT")
-			s:SetPoint("LEFT", 5, 0)
-			s:SetPoint("RIGHT", -5, 0)
-		end
-		b:SetBackdropBorderColor(1, 1, 1, 0)
-		b:SetPushedTextOffset(0, 0)
-	else
-    	b:SetBackdropBorderColor(0, 0, 0, 1)
-		b:SetPushedTextOffset(0, -1)
-	end
-
-
-	b:SetBackdropColor(unpack(color)) 
-	b:SetDisabledFontObject("GRA_FONT_SMALL_DISABLED")
-    b:SetNormalFontObject(font)
-	b:SetHighlightFontObject(font)
-	
-	if buttonColor ~= "none" then
-		b:SetScript("OnEnter", function(self) self:SetBackdropColor(unpack(hoverColor)) end)
-		b:SetScript("OnLeave", function(self) self:SetBackdropColor(unpack(color)) end)
-	end
-	
-	-- click sound
-	b:SetScript("PostClick", function() PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON) end)
-
-	SetTooltip(b, "ANCHOR_TOP", 0, 1, ...)
-
-	return b
-end
-
------------------------------------------
--- button group
------------------------------------------
-function GRA:CreateButtonGroup(func, ...)
-	local buttons = {...}
-	local function HighlightButton(name)
-		for _, b in ipairs(buttons) do
-			if name == b.name then
-				b:SetBackdropColor(unpack(b.hoverColor))
-				b:SetScript("OnEnter", function()
-					if b.ShowTooltip then b.ShowTooltip() end
-				end)
-				b:SetScript("OnLeave", function()
-					if b.HideTooltip then b.HideTooltip() end
-				end)
-			else
-				b:SetBackdropColor(unpack(b.color))
-				b:SetScript("OnEnter", function() 
-					if b.ShowTooltip then b.ShowTooltip() end
-					b:SetBackdropColor(unpack(b.hoverColor))
-				end)
-				b:SetScript("OnLeave", function() 
-					if b.HideTooltip then b.HideTooltip() end
-					b:SetBackdropColor(unpack(b.color))
-				end)
-			end
-		end
-	end
-	buttons.HighlightButton = HighlightButton
-
-	for _, b in ipairs(buttons) do
-		b.name = b:GetText()
-		b:SetScript("OnClick", function()
-			HighlightButton(b.name)
-			func(b.name)
-		end)
-	end
-
-	return buttons
-end
-
------------------------------------------
--- square item button
------------------------------------------
-function GRA:CreateIconButton(parent, width, height, texture)
-	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-    b:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-    b:SetBackdropBorderColor(0, 0, 0, 1)
-	b:SetSize(width, height)
-
-    b.tex = b:CreateTexture()
-    b.tex:SetTexCoord(.08, .92, .08, .92)
-    b.tex:SetSize(width - 2, height - 2)
-    b.tex:SetPoint("CENTER")
-	if texture then
-		b.tex:SetTexture(texture)
-	end
-	
-	function b:SetIcon(texture)
-		b.tex:SetTexture(texture)
-	end
-	
-	return b
-end
-
------------------------------------------
--- check button
------------------------------------------
-function GRA:CreateCheckButton(parent, label, color, onClick, font, ...)
-	-- InterfaceOptionsCheckButtonTemplate --> FrameXML\InterfaceOptionsPanels.xml line 19
-	-- OptionsBaseCheckButtonTemplate -->  FrameXML\OptionsPanelTemplates.xml line 10
-	
-	local cb = CreateFrame("CheckButton", nil, parent)
-	cb.onClick = onClick
-	cb:SetScript("OnClick", function(self)
-		PlaySound(self:GetChecked() and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
-		if cb.onClick then cb.onClick(self:GetChecked() and true or false, self) end
-	end)
-	
-	if font then
-		cb.label = cb:CreateFontString(nil, "ARTWORK", font)
-	else
-		cb.label = cb:CreateFontString(nil, "ARTWORK", "GRA_FONT_TEXT")
-	end
-	cb.label:SetText(label)
-	cb.label:SetPoint("LEFT", cb, "RIGHT", 2, 0)
-	if color then
-		cb.label:SetTextColor(color.r, color.g, color.b)
-	end
-	
-	cb:SetSize(16, 16)
-	cb:SetHitRectInsets(0, -cb.label:GetStringWidth(), 0, 0)
-	
-	cb:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-Normal-16x16]])
-	-- cb:SetPushedTexture()
-	cb:SetHighlightTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-Highlight-16x16]], "ADD")
-	cb:SetCheckedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-Checked-16x16]])
-	cb:SetDisabledCheckedTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-DisabledChecked-16x16]])
-	
-	SetTooltip(cb, "ANCHOR_TOPLEFT", 0, 0, ...)
-
-	return cb
-end
-
------------------------------------------
--- slider 2017-06-12 10:37:48
------------------------------------------
--- Interface\FrameXML\OptionsPanelTemplates.xml, line 76, OptionsSliderTemplate
-function GRA:CreateSlider(parent, unit, low, high, length, step, onValueChangedFn, afterValueChangedFn, orientation)
-    if not step then step = 1 end
-	if not orientation then orientation = "HORIZONTAL" end
-    local slider = CreateFrame("Slider", nil, parent, "BackdropTemplate")
-	GRA:StylizeFrame(slider)
-    slider:SetMinMaxValues(low, high)
-	slider:SetValue(low)
-    slider:SetValueStep(step)
-	slider:SetObeyStepOnDrag(true)
-	slider:SetOrientation(orientation)
-
-	if unit and orientation == "HORIZONTAL" then
-		slider.text = slider:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-		slider.text:SetText(slider:GetValue() .. " " .. unit)
-		slider.text:SetPoint("LEFT", slider, "RIGHT", 5, 0)
-	end
-
-	if orientation == "VERTICAL" then
-		slider:SetSize(6, length)
-		slider:SetThumbTexture([[Interface\AddOns\GuildRaidAttendance\Media\ThumbTextureV]])
-	else
-		slider:SetSize(length, 6)
-		slider:SetThumbTexture([[Interface\AddOns\GuildRaidAttendance\Media\ThumbTextureH]])
-	end
-	
-    -- if tooltip then slider.tooltipText = tooltip end
-
-    slider:SetScript("OnValueChanged", function(self, value)
-		if unit and orientation == "HORIZONTAL" then slider.text:SetText(value .. " " .. unit) end
-        if onValueChangedFn then onValueChangedFn(value) end
-	end)
-	
-	slider:SetScript("OnMouseUp", function(self, button)
-		if afterValueChangedFn then afterValueChangedFn(slider:GetValue()) end
-	end)
-	
-	return slider
-end
-
------------------------------------------
--- progress bar
------------------------------------------
-function GRA:CreateProgressBar(frame, width, height, maxValue, func, showText, texture, color)
-	local bar = CreateFrame("StatusBar", nil, frame, "BackdropTemplate")
-
-	if not color then color = {.5, 1, 0, .8} end
-	if not texture then
-		bar:SetStatusBarTexture(bar:CreateTexture())
-		bar:GetStatusBarTexture():SetColorTexture(unpack(color))
-	else
-		bar:SetStatusBarTexture(texture)
-		bar:SetStatusBarColor(unpack(color))
-	end
-	
-	bar:GetStatusBarTexture():SetHorizTile(false)
-
-	-- REVIEW: in 9.0, edgeSize = -1 will case a thicker outline
-	local border = CreateFrame("Frame", nil, bar, "BackdropTemplate")
-	bar.border = border
-	border:SetBackdrop({edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=1})
-	border:SetBackdropBorderColor(0, 0, 0, 1)
-	border:SetPoint("TOPLEFT", -1, 1)
-	border:SetPoint("BOTTOMRIGHT", 1, -1)
-
-	bar:SetWidth(width)
-	bar:SetHeight(height)
-	bar:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8"})
-	bar:SetBackdropColor(.07, .07, .07, .9)
-
-	if showText then
-		bar.text = bar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-		bar.text:SetJustifyH("CENTER")
-		bar.text:SetJustifyV("MIDDLE")
-		bar.text:SetPoint("CENTER")
-		bar.text:SetText("0%")
-	end
-
-	bar:SetMinMaxValues(0, maxValue)
-	bar:SetValue(0)
-	LSSB:SmoothBar(bar) -- smooth progress bar
-
-	function bar:SetMaxValue(m)
-		maxValue = m
-		bar:SetMinMaxValues(0, m)
-	end
-	
-	function bar:Reset()
-		LSSB:ResetBar(bar) -- disable smooth
-		bar:SetValue(0)
-		LSSB:SmoothBar(bar) -- re-enable smooth
-	end
-
-	bar:SetScript("OnValueChanged", function(self, value)
-		if showText then
-			bar.text:SetText(format("%d%%", value / maxValue * 100))
-		end
-		
-		if value == maxValue then
-			if func then func() end
-		end
-	end)
-
-	-- bar:SetScript("OnHide", function()
-	-- 	bar:SetValue(0)
-	-- end)
-
-	return bar
-end
-
------------------------------------------
--- raid hours editbox
------------------------------------------
-function GRA:CreateRaidHoursEditBox(parent, rstFunc, retFunc)
-	local raidStartTimeEditBox = GRA:CreateEditBox(parent, 49, 20, false, "GRA_FONT_SMALL")
-	raidStartTimeEditBox:SetJustifyH("CENTER")
-
-	local raidEndTimeEditBox = GRA:CreateEditBox(parent, 49, 20, false, "GRA_FONT_SMALL")
-	raidEndTimeEditBox:SetJustifyH("CENTER")
-	
-	local rstConfirmBtn = GRA:CreateButton(raidStartTimeEditBox, L["OK"], "blue", {20, 20}, "GRA_FONT_SMALL")
-	rstConfirmBtn:SetPoint("LEFT", raidStartTimeEditBox, "RIGHT", -1, 0)
-	rstConfirmBtn:Hide()
-	rstConfirmBtn:SetScript("OnClick", function()
-		local h, m = string.split(":", raidStartTimeEditBox:GetText())
-		local startTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
-		raidStartTimeEditBox:SetText(startTime)
-		
-		if rstFunc then rstFunc(startTime) end
-
-		raidStartTimeEditBox:ClearFocus()
-		rstConfirmBtn:Hide()
-	end)
-	
-	-- rst validation
-	raidStartTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
-		if not userInput then return end
-		-- check time validity
-		local h, m = string.split(":", raidStartTimeEditBox:GetText())
-		h, m = tonumber(h), tonumber(m)
-		if h and m and h >= 0 and h <= 23 and m >= 0 and m <= 59 then
-			rstConfirmBtn:Show()
-			raidStartTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
-		else
-			rstConfirmBtn:Hide()
-			raidStartTimeEditBox:SetBackdropBorderColor(1, 0, 0, 1)
-		end
-	end)
-	
-	-- if has tooltip
-	raidStartTimeEditBox:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
-	
-	-- next OnShow, its data MUST be valid
-	raidStartTimeEditBox:SetScript("OnHide", function()
-		rstConfirmBtn:Hide()
-		raidStartTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
-	end)
-	
-	local retConfirmBtn = GRA:CreateButton(raidEndTimeEditBox, L["OK"], "blue", {20, 20}, "GRA_FONT_SMALL")
-	retConfirmBtn:SetPoint("LEFT", raidEndTimeEditBox, "RIGHT", -1, 0)
-	retConfirmBtn:Hide()
-	retConfirmBtn:SetScript("OnClick", function()
-		local h, m = string.split(":", raidEndTimeEditBox:GetText())
-		local endTime = string.format("%02d", h) .. ":" .. string.format("%02d", m)
-		raidEndTimeEditBox:SetText(endTime)
-	
-		if retFunc then retFunc(endTime) end
-		
-		raidEndTimeEditBox:ClearFocus()
-		retConfirmBtn:Hide()
-	end)
-	
-	-- ret validation
-	raidEndTimeEditBox:SetScript("OnTextChanged", function(self, userInput)
-		if not userInput then return end
-		-- check time validity
-		local h, m = string.split(":", raidEndTimeEditBox:GetText())
-		h, m = tonumber(h), tonumber(m)
-		if h and m and h >= 0 and h <= 23 and m >= 0 and m <= 59 then
-			retConfirmBtn:Show()
-			raidEndTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
-		else
-			retConfirmBtn:Hide()
-			raidEndTimeEditBox:SetBackdropBorderColor(1, 0, 0, 1)
-		end
-	end)
-	
-	-- if has tooltip
-	raidEndTimeEditBox:SetScript("OnLeave", function() GRA_Tooltip:Hide() end)
-	
-	-- next OnShow, its data MUST be valid
-	raidEndTimeEditBox:SetScript("OnHide", function()
-		retConfirmBtn:Hide()
-		raidEndTimeEditBox:SetBackdropBorderColor(0, 0, 0, 1)
-	end)
-
-	return raidStartTimeEditBox, raidEndTimeEditBox, rstConfirmBtn, retConfirmBtn
-end
-
------------------------------------------
--- Attendance Bar (MemberAttendanceFrame)
------------------------------------------
-function GRA:CreateAttendanceBar(frame, width, raidDate, attendance, attendanceRate, joinTime, leaveTime, startTime, endTime, isSitOut, note)
-	local baseBar = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-	baseBar:SetSize(width, 20)
-	baseBar.raidDate = baseBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
-	baseBar.raidDate:SetPoint("LEFT", 5, 0)
-	local weekday, weekdayN = GRA:DateToWeekday(raidDate, true)
-	baseBar.raidDate:SetText(date("%x", GRA:DateToSeconds(raidDate)) .. ((weekdayN == gra.RAID_LOCKOUTS_RESET) and (" " .. gra.colors.firebrick.s) or " ") .. weekday)
-	GRA:StylizeFrame(baseBar, {.7, .7, .7, .1})
-	
-	local bottomBar = CreateFrame("Frame", nil, baseBar, "BackdropTemplate")
-	bottomBar:SetHeight(20)
-	bottomBar:SetPoint("LEFT", 120, 0)
-	bottomBar:SetPoint("RIGHT", -40, 0)
-	bottomBar.startTime = baseBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
-	bottomBar.startTime:SetPoint("RIGHT", bottomBar, "LEFT", -5, 0)
-	bottomBar.startTime:SetTextColor(.7, .7, .7, 1)
-	bottomBar.endTime = baseBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
-	bottomBar.endTime:SetPoint("LEFT", bottomBar, "RIGHT", 5, 0)
-	bottomBar.endTime:SetTextColor(.7, .7, .7, 1)
-	GRA:StylizeFrame(bottomBar, {.5, .5, .5, .1})
-
-	local topBar = CreateFrame("Frame", nil, bottomBar, "BackdropTemplate")
-	topBar:SetHeight(20)
-	topBar.ar = topBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID") -- TODO: 中文
-	topBar.ar:SetPoint("CENTER")
-	-- topBar.joinTime = topBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-	-- topBar.joinTime:SetPoint("LEFT", 5, 0)
-	-- topBar.leaveTime = topBar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-	-- topBar.leaveTime:SetPoint("RIGHT", -5, 0)
-
-	-- tooltip
-	bottomBar:SetScript("OnEnter", function()
-		if joinTime then
-			GRA_Tooltip:SetOwner(bottomBar, "ANCHOR_TOP", 0, -1)
-			GRA_Tooltip:AddLine(L["Attendance Detail"])
-			GRA_Tooltip:AddLine("|cffFFFFFF" .. GRA:SecondsToTime(joinTime) .. " - " .. GRA:SecondsToTime(leaveTime))
-			if note then GRA_Tooltip:AddLine("|cffFFFFFF" .. note) end
-			GRA_Tooltip:Show()
-		end
-
-		topBar:SetBackdropColor(topBar.r, topBar.g, topBar.b, .45)
-		bottomBar:SetBackdropColor(.5, .5, .5, .25)
-	end)
-	bottomBar:SetScript("OnLeave", function()
-		GRA_Tooltip:Hide()
-		topBar:SetBackdropColor(topBar.r, topBar.g, topBar.b, topBar.a)
-		bottomBar:SetBackdropColor(.5, .5, .5, .1)
-	end)
-	
-	-- set text
-	bottomBar.startTime:SetText(GRA:SecondsToTime(startTime))
-	bottomBar.endTime:SetText(GRA:SecondsToTime(endTime))
-
-	if joinTime then
-		topBar.ar:SetText(tonumber(format("%.1f", attendanceRate * 100)) .. "%")
-	elseif attendance == "ONLEAVE" then
-		topBar.ar:SetText(note)
-	end
-
-	-- color
-	if isSitOut then
-		GRA:StylizeFrame(topBar, {0, .6, 1, .2})
-	elseif attendance == "PRESENT" then
-		GRA:StylizeFrame(topBar, {0, 1, 0, .2})
-	elseif attendance == "PARTIAL" then
-		GRA:StylizeFrame(topBar, {1, 1, 0, .2})
-	elseif attendance == "ONLEAVE" then
-		GRA:StylizeFrame(topBar, {1, 0, 1, .2})
-	elseif attendance == "ABSENT" then
-		GRA:StylizeFrame(topBar, {1, 0, 0, .2})
-	end
-
-	topBar.r, topBar.g, topBar.b, topBar.a = topBar:GetBackdropColor()
-
-	function baseBar:Refresh()
-		topBar:ClearAllPoints()
-		if joinTime then
-			local duration = endTime - startTime
-			local p = bottomBar:GetWidth() / duration
-			if joinTime > startTime then
-				topBar:SetPoint("LEFT", floor((joinTime - startTime) * p + .5), 0)
-			else
-				topBar:SetPoint("LEFT")
-			end
-
-			if leaveTime < startTime then -- leave BEFORE start
-				topBar:SetPoint("RIGHT", bottomBar, "LEFT")
-				topBar.ar:ClearAllPoints()
-				topBar.ar:SetPoint("LEFT", 5, 0)
-			elseif leaveTime < endTime then -- normal PARTIAL
-				topBar:SetPoint("RIGHT", floor((leaveTime - endTime) * p + .5), 0)
-			else
-				topBar:SetPoint("RIGHT")
-			end
-		else
-			topBar:SetPoint("LEFT")
-			topBar:SetPoint("RIGHT")
-		end
-	end
-
-	baseBar:SetScript("OnSizeChanged", function()
-		baseBar:Refresh()
-	end)
-
-	return baseBar
-end
-
------------------------------------------
--- Date Picker
------------------------------------------
-function GRA:CreateDatePicker(parent, width, height, onDateChanged, color)
-	local datePicker = GRA:CreateButton(parent, "Date Picker", color, {width, height}, "GRA_FONT_GRID")
-	
-	local yearSet, monthSet, daySet, year, month, numDays, firstWeekday
-	
-	function datePicker:SetDate(d)
-		local t, tbl = GRA:DateToSeconds(d)
-		datePicker:SetText(date("%x", t))
-		numDays, firstWeekday = GRA:GetAbsMonthInfo(tbl.month, tbl.year)
-		yearSet, monthSet, daySet = tbl.year, tbl.month, tbl.day
-		year = yearSet
-		month = monthSet
-	end
-
-	function datePicker:GetDate()
-		return yearSet..string.format("%02d", monthSet)..string.format("%02d", daySet)
-	end
-
-	-- self init
-	datePicker:SetDate(GRA:Date())
-
-	local calendar = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-	calendar:Hide()
-	calendar:EnableMouse(true)
-	calendar:SetSize(190, 155)
-	calendar:SetFrameStrata("DIALOG")
-	calendar:SetPoint("BOTTOM", datePicker, "TOP", 0, 1)
-	GRA:StylizeFrame(calendar)
-
-	-- year month selector
-	local pMonth = GRA:CreateButton(calendar, "<", nil, {28, 20}, "GRA_FONT_GRID")
-	local dateFS = calendar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-	local nMonth = GRA:CreateButton(calendar, ">", nil, {28, 20}, "GRA_FONT_GRID")
-	pMonth:SetPoint("TOPLEFT")
-	nMonth:SetPoint("TOPRIGHT")
-	dateFS:SetPoint("LEFT", pMonth, "RIGHT")
-	dateFS:SetPoint("RIGHT", nMonth, "LEFT")
-
-	-- header
-	local last = nil
-	local headers = {}
-	for i = 1, 7 do
-		local w = {L["Sun"], L["Mon"], L["Tue"], L["Wed"], L["Thu"], L["Fri"], L["Sat"]}
-		local s = calendar:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
-		table.insert(headers, s)
-		s:SetText(w[i])
-		s:SetWidth(28)
-
-		if last then
-			s:SetPoint("LEFT", last, "RIGHT", -1, 0)
-		else
-			s:SetPoint("TOPLEFT", 0, -25)
-		end
-		last = s
-	end
-
-	local dateBtns = {}
-	for i = 1, 42 do
-		dateBtns[i] = GRA:CreateButton(calendar, "", nil, {28, 20}, "GRA_FONT_GRID")
-		dateBtns[i]:SetScript("OnClick", function(self)
-			calendar:Hide()
-			-- date string 20170728
-			local d = year..string.format("%02d", month)..string.format("%02d", self:GetText())
-			-- set selected (highlight)
-			datePicker:SetDate(d)
-			if onDateChanged then onDateChanged(d) end
-		end)
-
-		if i == 1 then
-			dateBtns[i]:SetPoint("TOPLEFT", 0, -40)
-		elseif i % 7 == 1 then
-			-- local y = -(math.modf(i / 7) * 19) - 40
-			-- dateBtns[i]:SetPoint("TOPLEFT", 0, y)
-			dateBtns[i]:SetPoint("TOP", dateBtns[i - 7], "BOTTOM", 0, 1)
-		else
-			dateBtns[i]:SetPoint("LEFT", dateBtns[i - 1], "RIGHT", -1, 0)
-		end
-	end
-
-	local function FillCalendar()
-		dateFS:SetText(GRA:GetMonthNames(false, GRA_FORCE_ENGLISH)[month] .. ", " .. year)
-
-		local d = 1
-		for i = 1, 42 do
-			if i < firstWeekday or i >= firstWeekday + numDays then
-				dateBtns[i]:SetEnabled(false)
-				dateBtns[i]:SetText("")
-			else
-				dateBtns[i]:SetEnabled(true)
-				dateBtns[i]:SetText(d)
-
-				if yearSet == year and monthSet == month and daySet == d then -- highlight selected
-					dateBtns[i]:GetFontString():SetTextColor(unpack(gra.colors.firebrick.tf))
-				elseif _G[GRA_R_RaidLogs][year..string.format("%02d", month)..string.format("%02d", d)] then -- highlight days with logs
-					dateBtns[i]:GetFontString():SetTextColor(unpack(gra.colors.yellow.tf))
-				else
-					dateBtns[i]:GetFontString():SetTextColor(1, 1, 1)
-				end
-				d = d + 1
-			end
-		end
-
-		-- update header color (raid day)
-		for i, header in pairs(headers) do
-			if GRA:TContains(_G[GRA_R_Config]["raidInfo"]["days"], i) then
-				header:SetTextColor(unpack(gra.colors.firebrick.tf))
-			else
-				header:SetTextColor(1, 1, 1)
-			end
-		end
-	end
-
-	calendar:SetScript("OnShow", function()
-		FillCalendar()
-	end)
-
-	-- previous month
-	pMonth:SetScript("OnClick", function()
-		month = month - 1
-		if month == 0 then
-			year = year - 1
-			month = 12
-		end
-		numDays, firstWeekday = GRA:GetAbsMonthInfo(month, year)
-		FillCalendar()
-	end)
-
-	-- next month
-	nMonth:SetScript("OnClick", function()
-		month = month + 1
-		if month == 13 then
-			year = year + 1
-			month = 1
-		end
-		numDays, firstWeekday = GRA:GetAbsMonthInfo(month, year)
-		FillCalendar()
-	end)
-
-	datePicker:SetScript("OnClick", function()
-		if calendar:IsVisible() then
-			calendar:Hide()
-		else
-			calendar:Show()
-		end
-	end)
-
-	datePicker:SetScript("OnHide", function() calendar:Hide() end)
-
-	function datePicker:Resize(cWidth, cHeight, bWidth, bHeight)
-		calendar:SetSize(cWidth, cHeight)
-		pMonth:SetSize(bWidth, bHeight)
-		nMonth:SetSize(bWidth, bHeight)
-		headers[1]:SetPoint("TOPLEFT", 0, -25-(gra.size.height-20))
-		for _, s in pairs(headers) do
-			s:SetWidth(bWidth)
-		end
-		for _, b in pairs(dateBtns) do
-			b:SetSize(bWidth, bHeight)
-		end
-		dateBtns[1]:SetPoint("TOPLEFT", 0, -40-(gra.size.height-20))
-	end
-
-	return datePicker
-end
-
------------------------------------------
--- attendance sheet frame 2017-07-28 11:48:11
------------------------------------------
-function GRA:CreateGrid(frame, width, text, color, highlight, ...)
-	local grid = CreateFrame("Button", nil, frame, "BackdropTemplate")
-	grid:SetSize(width, gra.size.height)
-	grid:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	if color then
-		grid:SetBackdropColor(unpack(color))
-	else
-		grid:SetBackdropColor(0, 0, 0, 0)
-	end
-	grid:SetBackdropBorderColor(0, 0, 0, 0)
-
-	grid:SetText(text)
-	grid:GetFontString():SetWidth(width)
-	if not string.find(text, "\n") then
-		grid:GetFontString():SetWordWrap(false)
-	end
-	grid:SetPushedTextOffset(0, 0)
-	grid:SetNormalFontObject("GRA_FONT_SMALL")
-
-	-- save current color
-	grid.bColor = {grid:GetBackdropColor()}
-
-	function grid:Highlight()
-		grid:SetBackdropColor(grid.bColor[1], grid.bColor[2], grid.bColor[3], .6)
-		if frame:GetObjectType() == "Button" then frame:Highlight() end
-	end
-		
-	function grid:Unhighlight()
-		grid:SetBackdropColor(unpack(grid.bColor))
-		if frame:GetObjectType() == "Button" then frame:Unhighlight() end
-	end
-
-	if highlight then -- highlight onMouseOver
-		grid:SetScript("OnEnter", function() grid:Highlight() end)
-		grid:SetScript("OnLeave", function() grid:Unhighlight() end)
-	end
-
-	if frame:GetObjectType() == "Button" then -- used for row highlight
-		grid:SetFrameLevel(6)
-		-- grid:HookScript("OnEnter", function() frame:Highlight() end)
-		-- grid:HookScript("OnLeave", function() frame:Unhighlight() end)
-
-		function grid:SetAttendance(att)
-			if att == nil then
-				grid:SetBackdropColor(.7, .7, .7, .1)
-			elseif att == "IGNORED" then
-				grid:SetBackdropColor(.7, .7, .7, .1)
-				-- local tex = grid:CreateTexture()
-				-- tex:SetColorTexture(0, 0, 0, 1)
-				-- tex:SetSize(10, 1)
-				-- tex:SetPoint("CENTER")
-			elseif att == "PRESENT" then
-				grid:SetBackdropColor(0, 1, 0, .2)
-			elseif att == "PARTIAL" then
-				grid:SetBackdropColor(1, 1, 0, .2)
-			elseif att == "ABSENT" then
-				grid:SetBackdropColor(1, 0, 0, .2)
-			else  -- on leave
-				grid:SetBackdropColor(1, 0, 1, .2)
-			end
-
-			-- save current color
-			grid.bColor = {grid:GetBackdropColor()}
-		end
-
-		grid.noteMark = grid:CreateTexture()
-		grid.noteMark:SetTexture([[Interface\AddOns\GuildRaidAttendance\Media\mark]])
-		grid.noteMark:SetAlpha(.7)
-		grid.noteMark:SetPoint("TOPRIGHT")
-		grid.noteMark:Hide()
-		function grid:ShowNoteMark(s)
-			if s then
-				grid.noteMark:Show()
-			else
-				grid.noteMark:Hide()
-			end
-		end
-
-		grid.sitOutMark = grid:CreateTexture()
-		grid.sitOutMark:SetTexture([[Interface\AddOns\GuildRaidAttendance\Media\sitOut]])
-		grid.sitOutMark:SetAlpha(.7)
-		grid.sitOutMark:SetPoint("BOTTOMLEFT")
-		grid.sitOutMark:Hide()
-		function grid:ShowSitOutMark(s)
-			if s then
-				grid.sitOutMark:Show()
-			else
-				grid.sitOutMark:Hide()
-			end
-		end
-	end
-
-	-- grid.onEnter = grid:GetScript("OnEnter")
-	-- grid.onLeave = grid:GetScript("OnLeave")
-
-	SetTooltip(grid, "ANCHOR_TOPLEFT", 0, 0, ...)
-
-	return grid
-end
-
-function GRA:CreateRow(frame, width, mainName, onDoubleClick)
-	local row = CreateFrame("Button", nil, frame, "BackdropTemplate")
-	row:SetFrameLevel(5)
-	row:SetSize(width, gra.size.height)
-	row:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	row:SetBackdropColor(0, 0, 0, 0) 
-    row:SetBackdropBorderColor(0, 0, 0, 1)
-	
-	function row:Highlight()
-		row:SetBackdropColor(.5, .5, .5, .1)
-	end
-
-	function row:Unhighlight()
-		row:SetBackdropColor(0, 0, 0, 0)
-	end
-
-	row.nameGrid = GRA:CreateGrid(row, gra.size.grid_name, GRA:GetClassColoredName(mainName), {.7,.7,.7,.1})
-	row.nameGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.nameGrid:GetFontString():ClearAllPoints()
-	row.nameGrid:GetFontString():SetPoint("LEFT", 20, 0)
-	row.nameGrid:SetNormalFontObject("GRA_FONT_TEXT")
-	row.nameGrid:SetPoint("TOPLEFT")
-	row.nameGrid:SetScript("OnEnter", row.Highlight)
-	row.nameGrid:SetScript("OnLeave", row.Unhighlight)
-	row.nameGrid:SetScript("OnDoubleClick", function(self, button)
-		if button == "LeftButton" and onDoubleClick then
-			onDoubleClick()
-		end
-	end)
-
-	row.primaryRole = GRA:CreateButton(row.nameGrid, "", "none", {16, 16})
-	row.primaryRole:SetAlpha(.7)
-	row.primaryRole:SetPoint("LEFT", 2, 0)
-	row.primaryRole:SetScript("OnEnter", row.Highlight)
-	row.primaryRole:SetScript("OnLeave", row.Unhighlight)
-	row.primaryRole:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\Roles\]] .. (_G[GRA_R_Roster][mainName]["role"] or "DPS"))
-
-	-- ep
-	row.epGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
-	row.epGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.epGrid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- gp
-	row.gpGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
-	row.gpGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.gpGrid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- pr
-	row.prGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
-	row.prGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.prGrid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- current
-	row.currentGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
-	row.currentGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.currentGrid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- spent
-	row.spentGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
-	row.spentGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.spentGrid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- total
-	row.totalGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1})
-	row.totalGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.totalGrid:SetNormalFontObject("GRA_FONT_GRID")
-	
-	-- ar 30
-	row.ar30Grid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
-	row.ar30Grid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.ar30Grid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- ar 60
-	row.ar60Grid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
-	row.ar60Grid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.ar60Grid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- ar 90
-	row.ar90Grid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
-	row.ar90Grid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.ar90Grid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- ar lifetime
-	row.arLifetimeGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
-	row.arLifetimeGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.arLifetimeGrid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- sitOut lifetime
-	row.sitOutGrid = GRA:CreateGrid(row, gra.size.grid_others, " ", {.7,.7,.7,.1}, true)
-	row.sitOutGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.sitOutGrid:SetNormalFontObject("GRA_FONT_GRID")
-
-	-- columns: EP GP PR AR(30d) AR(60d) AR(90d) AR(lifetime)
-	local lastColumn
-	function row:SetColumns()
-		lastColumn = row.nameGrid
-		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-			row.epGrid:SetPoint("TOPLEFT", row.nameGrid, "TOPRIGHT", -1, 0)
-			row.epGrid:Show()
-			row.gpGrid:SetPoint("TOPLEFT", row.epGrid, "TOPRIGHT", -1, 0)
-			row.gpGrid:Show()
-			row.prGrid:SetPoint("TOPLEFT", row.gpGrid, "TOPRIGHT", -1, 0)
-			row.prGrid:Show()
-			lastColumn = row.prGrid
-
-			row.currentGrid:Hide()
-			row.spentGrid:Hide()
-			row.totalGrid:Hide()
-		elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-			row.currentGrid:SetPoint("TOPLEFT", row.nameGrid, "TOPRIGHT", -1, 0)
-			row.currentGrid:Show()
-			row.spentGrid:SetPoint("TOPLEFT", row.currentGrid, "TOPRIGHT", -1, 0)
-			row.spentGrid:Show()
-			row.totalGrid:SetPoint("TOPLEFT", row.spentGrid, "TOPRIGHT", -1, 0)
-			row.totalGrid:Show()
-			lastColumn = row.totalGrid
-
-			row.epGrid:Hide()
-			row.gpGrid:Hide()
-			row.prGrid:Hide()
-		else
-			row.epGrid:Hide()
-			row.gpGrid:Hide()
-			row.prGrid:Hide()
-			row.currentGrid:Hide()
-			row.spentGrid:Hide()
-			row.totalGrid:Hide()
-		end
-
-		if GRA_Variables["columns"]["AR_30"] then
-			row.ar30Grid:SetPoint("TOPLEFT", lastColumn, "TOPRIGHT", -1, 0)
-			row.ar30Grid:Show()
-			lastColumn = row.ar30Grid
-		else
-			row.ar30Grid:Hide()
-		end
-
-		if GRA_Variables["columns"]["AR_60"] then
-			row.ar60Grid:SetPoint("TOPLEFT", lastColumn, "TOPRIGHT", -1, 0)
-			row.ar60Grid:Show()
-			lastColumn = row.ar60Grid
-		else
-			row.ar60Grid:Hide()
-		end
-
-		if GRA_Variables["columns"]["AR_90"] then
-			row.ar90Grid:SetPoint("TOPLEFT", lastColumn, "TOPRIGHT", -1, 0)
-			row.ar90Grid:Show()
-			lastColumn = row.ar90Grid
-		else
-			row.ar90Grid:Hide()
-		end
-
-		if GRA_Variables["columns"]["AR_Lifetime"] then
-			row.arLifetimeGrid:SetPoint("TOPLEFT", lastColumn, "TOPRIGHT", -1, 0)
-			row.arLifetimeGrid:Show()
-			lastColumn = row.arLifetimeGrid
-		else
-			row.arLifetimeGrid:Hide()
-		end
-
-		if GRA_Variables["columns"]["Sit_Out"] then
-			row.sitOutGrid:SetPoint("TOPLEFT", lastColumn, "TOPRIGHT", -1, 0)
-			row.sitOutGrid:Show()
-			lastColumn = row.sitOutGrid
-		else
-			row.sitOutGrid:Hide()
-		end
-
-		if row.dateGrids[1] then -- dateGrids created
-			row.dateGrids[1]:SetPoint("TOPLEFT", lastColumn, "TOPRIGHT", -1, 0)
-		end
-	end
-	
-	row.dateGrids = {}
-	row:SetColumns()
-	function row:CreateGrid(n)
-		for i = 1, n do
-			local grid = GRA:CreateGrid(row, gra.size.grid_dates, " ", {.7,.7,.7,.1}, true)
-			if i == 1 then
-				grid:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
-			else
-				grid:SetPoint("LEFT", row.dateGrids[i-1], "RIGHT", -1, 0)
-			end
-			grid:SetBackdropBorderColor(0, 0, 0, 1)
-			grid:SetNormalFontObject("GRA_FONT_GRID")
-			table.insert(row.dateGrids, grid)
-		end
-	end
-	
-	row:SetScript("OnEnter", function(self) self:SetBackdropColor(.5, .5, .5, .1) end)
-	row:SetScript("OnLeave", function(self) self:SetBackdropColor(0, 0, 0, 0) end)
-
-	function row:AddAlt(altName)
-		if not row.alts then row.alts = {} end
-		row.alts[altName] = {}
-		row.alts[altName].dateGrids = {}
-
-		local altsNum = GRA:Getn(row.alts)
-		local height = (altsNum + 1) * gra.size.height - altsNum
-		row:SetHeight(height)
-		row.epGrid:SetHeight(height)
-		row.gpGrid:SetHeight(height)
-		row.prGrid:SetHeight(height)
-		row.currentGrid:SetHeight(height)
-		row.spentGrid:SetHeight(height)
-		row.totalGrid:SetHeight(height)
-		row.ar30Grid:SetHeight(height)
-		row.ar60Grid:SetHeight(height)
-		row.ar90Grid:SetHeight(height)
-		row.arLifetimeGrid:SetHeight(height)
-		row.sitOutGrid:SetHeight(height)
-		
-		-- nameGrid
-		row.alts[altName].nameGrid = GRA:CreateGrid(row, gra.size.grid_name, GRA:GetClassColoredName(altName), {.7,.7,.7,.1})
-		row.alts[altName].nameGrid:SetBackdropBorderColor(0, 0, 0, 1)
-		row.alts[altName].nameGrid:GetFontString():ClearAllPoints()
-		row.alts[altName].nameGrid:GetFontString():SetPoint("LEFT", 20, 0)
-		row.alts[altName].nameGrid:SetNormalFontObject("GRA_FONT_TEXT")
-		row.alts[altName].nameGrid:SetPoint("TOP", row.nameGrid, 0, - altsNum * gra.size.height + altsNum)
-		row.alts[altName].nameGrid:SetScript("OnEnter", row.Highlight)
-		row.alts[altName].nameGrid:SetScript("OnLeave", row.Unhighlight)
-
-		-- primaryRole
-		row.alts[altName].primaryRole = GRA:CreateButton(row.alts[altName].nameGrid, "", "none", {16, 16})
-		row.alts[altName].primaryRole:SetAlpha(.7)
-		row.alts[altName].primaryRole:SetPoint("LEFT", 2, 0)
-		row.alts[altName].primaryRole:SetScript("OnEnter", row.Highlight)
-		row.alts[altName].primaryRole:SetScript("OnLeave", row.Unhighlight)
-		row.alts[altName].primaryRole:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\Roles\]] .. (_G[GRA_R_Roster][altName]["role"] or "DPS"))
-
-		-- dateGrids
-		for i = 1, #row.dateGrids do
-			local grid = GRA:CreateGrid(row, gra.size.grid_dates, " ", {.7,.7,.7,.1})
-			if i == 1 then
-				grid:SetPoint("TOP", row.dateGrids[1], "TOP", 0, - altsNum * gra.size.height + altsNum)
-			else
-				grid:SetPoint("LEFT", row.alts[altName].dateGrids[i-1], "RIGHT", -1, 0)
-			end
-			grid:SetBackdropBorderColor(0, 0, 0, 1)
-			grid:SetNormalFontObject("GRA_FONT_GRID")
-			table.insert(row.alts[altName].dateGrids, grid)
-
-			-- highlight
-			row.dateGrids[i]:HookScript("OnEnter", function()
-				grid:Highlight()
-			end)
-			row.dateGrids[i]:HookScript("OnLeave", function()
-				grid:Unhighlight()
-			end)
-
-			grid:HookScript("OnEnter", function()
-				-- get the newest OnEnter
-				row.dateGrids[i]:GetScript("OnEnter")()
-			end)
-			grid:HookScript("OnLeave", function()
-				-- get the newest OnLeave
-				row.dateGrids[i]:GetScript("OnLeave")()
-			end)
-		end
-	end
-
-	return row
-end
-
------------------------------------------
--- raid logs frame
------------------------------------------
-function GRA:CreateListButton(parent, text, color, size, font)
-	local b = GRA:CreateButton(parent, text, color, size, font)
-	b:SetPushedTextOffset(0, 0)
-	b.isSelected = false
-
-	function b:Select()
-		b:SetBackdropColor(unpack(b.hoverColor))
-		b:SetScript("OnEnter", function() end)
-		b:SetScript("OnLeave", function() end)
-		b.isSelected = true
-	end
-
-	function b:Deselect()
-		b:SetBackdropColor(unpack(b.color))
-		b:SetScript("OnEnter", function(self) self:SetBackdropColor(unpack(b.hoverColor)) end)
-		b:SetScript("OnLeave", function(self) self:SetBackdropColor(unpack(b.color)) end)
-		b.isSelected = false
-	end
-
-	b:SetScript("OnClick", function()
-		if not IsShiftKeyDown() and not IsControlKeyDown() then
-			b:Select()
-		end
-	end)
-
-	return b
-end
-
-function GRA:CreateRow_AttendanceEditor(parent, width, name, attendance, note, joinTime, leaveTime, isSitOut)
-	local row = CreateFrame("Button", nil, parent, "BackdropTemplate")
-	row:SetFrameLevel(5)
-	row:SetSize(width, 20)
-	row:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	row:SetBackdropColor(0, 0, 0, 0) 
-    row:SetBackdropBorderColor(0, 0, 0, 1)
-	
-	row.nameGrid = GRA:CreateGrid(row, gra.size.grid_name - 15, GRA:GetClassColoredName(name), {.7,.7,.7,.1})
-	row.nameGrid:SetBackdropBorderColor(0, 0, 0, .35)
-	row.nameGrid:GetFontString():ClearAllPoints()
-	row.nameGrid:GetFontString():SetPoint("LEFT", 5, 0)
-	row.nameGrid:SetNormalFontObject("GRA_FONT_TEXT")
-	row.nameGrid:SetPoint("LEFT")
-
-	row.attendanceGrid = GRA:CreateGrid(row, 60, " ", {.7,.7,.7,.1})
-	row.attendanceGrid:SetBackdropBorderColor(0, 0, 0, 1)
-	row.attendanceGrid:SetPoint("LEFT", row.nameGrid, "RIGHT", -1, 0)
-	row.attendanceGrid:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .1) end)
-	row.attendanceGrid:SetScript("OnLeave", function() row:SetBackdropColor(0, 0, 0, 0) end)
-	
-	row.joinTimeEditBox = GRA:CreateEditBox(row, 60, 20)
-	row.joinTimeEditBox:SetJustifyH("CENTER")
-	GRA:StylizeFrame(row.joinTimeEditBox, {.7,.7,.7,.1})
-	row.joinTimeEditBox:SetPoint("LEFT", row.attendanceGrid, "RIGHT", -1, 0)
-	row.joinTimeEditBox:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .1) end)
-	row.joinTimeEditBox:SetScript("OnLeave", function() row:SetBackdropColor(0, 0, 0, 0) end)
-	row.joinTimeEditBox:Hide()
-
-	row.leaveTimeEditBox = GRA:CreateEditBox(row, 60, 20)
-	row.leaveTimeEditBox:SetJustifyH("CENTER")
-	GRA:StylizeFrame(row.leaveTimeEditBox, {.7,.7,.7,.1})
-	row.leaveTimeEditBox:SetPoint("LEFT", row.joinTimeEditBox, "RIGHT", -1, 0)
-	row.leaveTimeEditBox:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .1) end)
-	row.leaveTimeEditBox:SetScript("OnLeave", function() row:SetBackdropColor(0, 0, 0, 0) end)
-	row.leaveTimeEditBox:Hide()
-
-	row.noteEditBox = GRA:CreateEditBox(row, 100, 20)
-	GRA:StylizeFrame(row.noteEditBox, {.7,.7,.7,.1})
-	row.noteEditBox:SetPoint("LEFT", row.attendanceGrid, "RIGHT", -1, 0)
-	row.noteEditBox:SetPoint("RIGHT")
-	row.noteEditBox:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .1) end)
-	row.noteEditBox:SetScript("OnLeave", function() row:SetBackdropColor(0, 0, 0, 0) end)
-
-	function row:SetTimeGridVisible(v)
-		if v then
-			row.joinTimeEditBox:Show()
-			row.joinTimeEditBox:SetTextColor(1, 1, 1, 1)
-			row.leaveTimeEditBox:Show()
-			row.leaveTimeEditBox:SetTextColor(1, 1, 1, 1)
-			row.noteEditBox:SetPoint("LEFT", row.leaveTimeEditBox, "RIGHT", -1, 0)
-		else
-			row.joinTimeEditBox:Hide()
-			row.leaveTimeEditBox:Hide()
-			row.noteEditBox:SetPoint("LEFT", row.attendanceGrid, "RIGHT", -1, 0)
-		end
-	end
-
-	function row:SetRowInfo(att, nt, jt, lt, iSO)
-		local attendanceText
-		row.attendance = att -- sort key
-		row.joinTime = jt
-		row.leaveTime = lt
-		row.note = nt
-		row.isSitOut = iSO
-
-		if att == "PRESENT" or att == "PARTIAL" then
-			row.attendance = "PRESENT"
-			if iSO then
-				attendanceText = L["Sit Out"]
-				row.attendanceGrid:GetFontString():SetTextColor(0, .9, 1, 1)
-			else
-				attendanceText = L["Present"]
-				row.attendanceGrid:GetFontString():SetTextColor(0, 1, 0, 1)
-			end
-		elseif att == "ABSENT" then
-			attendanceText = L["Absent"]
-			row.attendanceGrid:GetFontString():SetTextColor(1, 0, 0, 1)
-		elseif att == "ONLEAVE" then
-			attendanceText = L["On Leave"]
-			row.attendanceGrid:GetFontString():SetTextColor(1, 0, 1, 1)
-		else -- ignored
-			attendanceText = L["Ignored"]
-			row.attendanceGrid:GetFontString():SetTextColor(.7, .7, .7, 1)
-		end
-		row.attendanceGrid:SetText(attendanceText)
-		
-		row.noteEditBox:SetText(nt or "")
-		if nt == "" then row.note = nil end
-
-		if jt then
-			row:SetTimeGridVisible(true)
-			row.joinTimeEditBox:SetText(GRA:SecondsToTime(jt))
-			row.leaveTimeEditBox:SetText(GRA:SecondsToTime(lt))
-		else
-			row:SetTimeGridVisible(false)
-		end
-		
-		if att == "IGNORED" then
-			row.noteEditBox:SetEnabled(false)
-		else
-			if not _G[GRA_R_Roster][name]["altOf"] then
-				row.noteEditBox:SetEnabled(true)
-			else
-				row.noteEditBox:SetEnabled(false)
-				row.noteEditBox:SetText(L["Not available for alts"])
-			end
-		end
-		-- let the first letter be first
-		row.noteEditBox:SetCursorPosition(0)
-	end
-	row:SetRowInfo(attendance, note, joinTime, leaveTime, isSitOut)
-
-	function row:SetChanged(changed)
-		if changed then
-			GRA:StylizeFrame(row.nameGrid, {1, .3, .3, .2})
-			GRA:StylizeFrame(row.attendanceGrid, {1, .3, .3, .2})
-			GRA:StylizeFrame(row.joinTimeEditBox, {1, .3, .3, .2})
-			GRA:StylizeFrame(row.leaveTimeEditBox, {1, .3, .3, .2})
-			GRA:StylizeFrame(row.noteEditBox, {1, .3, .3, .2})
-		else
-			GRA:StylizeFrame(row.nameGrid, {.7,.7,.7,.1})
-			GRA:StylizeFrame(row.attendanceGrid, {.7,.7,.7,.1})
-			GRA:StylizeFrame(row.joinTimeEditBox, {.7,.7,.7,.1})
-			GRA:StylizeFrame(row.leaveTimeEditBox, {.7,.7,.7,.1})
-			GRA:StylizeFrame(row.noteEditBox, {.7,.7,.7,.1})
-		end
-	end
-
-	return row
-end
-
------------------------------------------
--- detail button (raid logs frame)
------------------------------------------
-function GRA:CreateDetailButton_EPGP(parent, detailTable, font)
-	if string.find(detailTable[1], "DKP") then return end
-	-- {"EP"/"GP", ep/gp, reason(string)/itemLink, {playerName...}},
-	if not font then font = "GRA_FONT_SMALL" end
-	local hoverColor, borderColor, textColor
-	if detailTable[1] == "GP" then
-		hoverColor = {.1, .6, .95, .3}
-		borderColor = {.1, .6, .95, .6}
-		textColor = {.16, .56, .95, 1}
-	elseif detailTable[1] == "EP" then
-		hoverColor = {.1, .95, .2, .3}
-		borderColor = {.1, .95, .2, .6}
-		textColor = {.1, .95, .2, 1}
-	else
-		hoverColor = {.95, .17, .2, .3}
-		borderColor = {.95, .17, .2, .6}
-		textColor = {.95, .2, .2, 1}
-	end
-
-	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	b:SetBackdropColor(0, 0, 0, 0)
-	b:SetBackdropBorderColor(unpack(borderColor))
-	b:SetPushedTextOffset(0, 0)
-	b:SetSize(gra.size.height, gra.size.height)
-
-	local tex1 = b:CreateTexture()
-	tex1:SetColorTexture(unpack(borderColor))
-	tex1:SetSize(1, gra.size.height)
-	local tex2 = b:CreateTexture()
-	tex2:SetColorTexture(unpack(borderColor))
-	tex2:SetSize(1, gra.size.height)
-	local tex3 = b:CreateTexture()
-	tex3:SetColorTexture(unpack(borderColor))
-	tex3:SetSize(1, gra.size.height)
-	local tex4 = b:CreateTexture() -- for GP
-	tex4:SetColorTexture(unpack(borderColor))
-	tex4:SetSize(1, gra.size.height)
-
-	b.typeText = b:CreateFontString(nil, "OVERLAY", font)
-	b.typeText:SetTextColor(unpack(textColor))
-	b.typeText:SetPoint("LEFT", 5, 0)
-	-- b.typeText:SetPoint("RIGHT", b, "LEFT", 50, 0)
-	b.typeText:SetWidth(18)
-	b.typeText:SetJustifyH("LEFT")
-	b.typeText:SetWordWrap(false)
-	tex1:SetPoint("RIGHT", b.typeText, 3, 0)
-
-	b.valueText = b:CreateFontString(nil, "OVERLAY", font)
-	b.valueText:SetTextColor(unpack(textColor))
-	b.valueText:SetPoint("LEFT", b.typeText, "RIGHT", 5, 0)
-	b.valueText:SetWidth(45)
-	b.valueText:SetJustifyH("LEFT")
-	b.valueText:SetWordWrap(false)
-	tex2:SetPoint("RIGHT", b.valueText, 3, 0)
-
-	b.reasonText = b:CreateFontString(nil, "OVERLAY", font)
-	b.reasonText:SetTextColor(unpack(textColor))
-	b.reasonText:SetPoint("LEFT", b.valueText, "RIGHT", 5, 0)
-	b.reasonText:SetWidth(130)
-	b.reasonText:SetJustifyH("LEFT")
-	b.reasonText:SetWordWrap(false)
-	tex3:SetPoint("RIGHT", b.reasonText, 3, 0)
-
-	b.playerText = b:CreateFontString(nil, "OVERLAY", font)
-	b.playerText:SetTextColor(unpack(textColor))
-	b.playerText:SetPoint("LEFT", b.reasonText, "RIGHT", 5, 0)
-	b.playerText:SetJustifyH("LEFT")
-	b.playerText:SetWordWrap(false)
-
-	b.noteText = b:CreateFontString(nil, "OVERLAY", font)
-	b.noteText:SetTextColor(unpack(textColor))
-	b.noteText:SetJustifyH("LEFT")
-	b.noteText:SetWordWrap(false)
-
-	if string.find(detailTable[1], "P") == 1 then
-		b.typeText:SetText(string.sub(detailTable[1], 2, 3))
-	else
-		b.typeText:SetText(detailTable[1])
-	end
-	b.valueText:SetText(detailTable[2])
-	b.reasonText:SetText(detailTable[3])
-
-	if detailTable[1] == "GP" then
-		b.playerText:SetWidth(80)
-		tex4:SetPoint("RIGHT", b.playerText, 3, 0)
-		b.noteText:SetPoint("LEFT", b.playerText, "RIGHT", 5, 0)
-		b.noteText:SetPoint("RIGHT", -5, 0)
-		if detailTable[5] and detailTable[5] ~= "" then
-			b.noteText:SetText(detailTable[5])
-		else
-			tex4:Hide()
-		end
-	else
-		b.playerText:SetPoint("RIGHT", -5, 0)
-	end
-
-	local playerText = ""
-	if type(detailTable[4]) == "string" then -- gp name
-		playerText = GRA:GetShortName(detailTable[4])
-	else -- names
-		for _, name in pairs(detailTable[4]) do
-			playerText = playerText .. GRA:GetShortName(name) .. " "
-		end
-	end
-	b.playerText:SetText(playerText)
-
-	b:SetScript("OnEnter", function()
-		b.typeText:SetTextColor(1, 1, 1, 1)
-		b.valueText:SetTextColor(1, 1, 1, 1)
-		b.reasonText:SetTextColor(1, 1, 1, 1)
-		b.playerText:SetTextColor(1, 1, 1, 1)
-		b.noteText:SetTextColor(1, 1, 1, 1)
-		b:SetBackdropColor(unpack(hoverColor))
-	end)
-
-	b:SetScript("OnLeave", function()
-		b.typeText:SetTextColor(unpack(textColor))
-		b.valueText:SetTextColor(unpack(textColor))
-		b.reasonText:SetTextColor(unpack(textColor))
-		b.playerText:SetTextColor(unpack(textColor))
-		b.noteText:SetTextColor(unpack(textColor))
-		b:SetBackdropColor(0, 0, 0, 0)
-	end)
-
-
-	b.deleteBtn = CreateFrame("Button", nil, b, "BackdropTemplate")
-	b.deleteBtn:SetSize(gra.size.height, gra.size.height)
-	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
-	b.deleteBtn:SetBackdropBorderColor(unpack(borderColor))
-	b.deleteBtn:SetText("×")
-	b.deleteBtn:SetNormalFontObject("GRA_FONT_BUTTON")
-	b.deleteBtn:SetPushedTextOffset(0, -1)
-	b.deleteBtn:SetPoint("RIGHT")
-	b.deleteBtn:SetScript("OnEnter", function()
-		b.typeText:SetTextColor(1, 1, 1, 1)
-		b.valueText:SetTextColor(1, 1, 1, 1)
-		b.reasonText:SetTextColor(1, 1, 1, 1)
-		b.playerText:SetTextColor(1, 1, 1, 1)
-		b.noteText:SetTextColor(1, 1, 1, 1)
-		b:SetBackdropColor(unpack(hoverColor))
-	end)
-	b.deleteBtn:SetScript("OnLeave", function()
-		b.typeText:SetTextColor(unpack(textColor))
-		b.valueText:SetTextColor(unpack(textColor))
-		b.reasonText:SetTextColor(unpack(textColor))
-		b.playerText:SetTextColor(unpack(textColor))
-		b.noteText:SetTextColor(unpack(textColor))
-		b:SetBackdropColor(0, 0, 0, 0)
-	end)
-	
-	b.deleteBtn:Hide()
-
-	return b
-end
-
-function GRA:CreateDetailButton_DKP(parent, detailTable, font)
-	if not string.find(detailTable[1], "DKP") then return end
-	-- {"DKP_A"/"DKP_C"/"DKP_P", value, reason(string)/itemLink/reason(string), {playerName...}},
-	if not font then font = "GRA_FONT_SMALL" end
-	local hoverColor, borderColor, textColor
-	if detailTable[1] == "DKP_C" then
-		hoverColor = {.1, .6, .95, .3}
-		borderColor = {.1, .6, .95, .6}
-		textColor = {.16, .56, .95, 1}
-	elseif detailTable[1] == "DKP_A" then
-		hoverColor = {.1, .95, .2, .3}
-		borderColor = {.1, .95, .2, .6}
-		textColor = {.1, .95, .2, 1}
-	else -- DKP_P
-		hoverColor = {.95, .17, .2, .3}
-		borderColor = {.95, .17, .2, .6}
-		textColor = {.95, .2, .2, 1}
-	end
-
-	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	b:SetBackdropColor(0, 0, 0, 0)
-	b:SetBackdropBorderColor(unpack(borderColor))
-	b:SetPushedTextOffset(0, 0)
-	b:SetSize(gra.size.height, gra.size.height)
-
-	local tex1 = b:CreateTexture()
-	tex1:SetColorTexture(unpack(borderColor))
-	tex1:SetSize(1, gra.size.height)
-	local tex2 = b:CreateTexture()
-	tex2:SetColorTexture(unpack(borderColor))
-	tex2:SetSize(1, gra.size.height)
-	local tex3 = b:CreateTexture()
-	tex3:SetColorTexture(unpack(borderColor))
-	tex3:SetSize(1, gra.size.height)
-	local tex4 = b:CreateTexture() -- for DKP_C
-	tex4:SetColorTexture(unpack(borderColor))
-	tex4:SetSize(1, gra.size.height)
-
-	b.typeText = b:CreateFontString(nil, "OVERLAY", font)
-	b.typeText:SetTextColor(unpack(textColor))
-	b.typeText:SetPoint("LEFT", 5, 0)
-	-- b.typeText:SetPoint("RIGHT", b, "LEFT", 50, 0)
-	b.typeText:SetWidth(25)
-	b.typeText:SetJustifyH("LEFT")
-	b.typeText:SetWordWrap(false)
-	tex1:SetPoint("RIGHT", b.typeText, 3, 0)
-
-	b.valueText = b:CreateFontString(nil, "OVERLAY", font)
-	b.valueText:SetTextColor(unpack(textColor))
-	b.valueText:SetPoint("LEFT", b.typeText, "RIGHT", 5, 0)
-	b.valueText:SetWidth(45)
-	b.valueText:SetJustifyH("LEFT")
-	b.valueText:SetWordWrap(false)
-	tex2:SetPoint("RIGHT", b.valueText, 3, 0)
-
-	b.reasonText = b:CreateFontString(nil, "OVERLAY", font)
-	b.reasonText:SetTextColor(unpack(textColor))
-	b.reasonText:SetPoint("LEFT", b.valueText, "RIGHT", 5, 0)
-	b.reasonText:SetWidth(130)
-	b.reasonText:SetJustifyH("LEFT")
-	b.reasonText:SetWordWrap(false)
-	tex3:SetPoint("RIGHT", b.reasonText, 3, 0)
-
-	b.playerText = b:CreateFontString(nil, "OVERLAY", font)
-	b.playerText:SetTextColor(unpack(textColor))
-	b.playerText:SetPoint("LEFT", b.reasonText, "RIGHT", 5, 0)
-	b.playerText:SetJustifyH("LEFT")
-	b.playerText:SetWordWrap(false)
-	
-	b.noteText = b:CreateFontString(nil, "OVERLAY", font)
-	b.noteText:SetTextColor(unpack(textColor))
-	b.noteText:SetJustifyH("LEFT")
-	b.noteText:SetWordWrap(false)
-	
-	b.typeText:SetText("DKP")
-	if detailTable[1] == "DKP_C" then
-		b.valueText:SetText(-detailTable[2])
-		b.playerText:SetWidth(80)
-		tex4:SetPoint("RIGHT", b.playerText, 3, 0)
-		b.noteText:SetPoint("LEFT", b.playerText, "RIGHT", 5, 0)
-		b.noteText:SetPoint("RIGHT", -5, 0)
-		if detailTable[5] and detailTable[5] ~= "" then
-			b.noteText:SetText(detailTable[5])
-		else
-			tex4:Hide()
-		end
-	else
-		b.valueText:SetText(detailTable[2])
-		b.playerText:SetPoint("RIGHT", -5, 0)
-	end
-	b.reasonText:SetText(detailTable[3])
-
-	local playerText = ""
-	if type(detailTable[4]) == "string" then -- looter name
-		playerText = GRA:GetShortName(detailTable[4])
-	else -- names
-		for _, name in pairs(detailTable[4]) do
-			playerText = playerText .. GRA:GetShortName(name) .. " "
-		end
-	end
-	b.playerText:SetText(playerText)
-
-	b:SetScript("OnEnter", function()
-		b.typeText:SetTextColor(1, 1, 1, 1)
-		b.valueText:SetTextColor(1, 1, 1, 1)
-		b.reasonText:SetTextColor(1, 1, 1, 1)
-		b.playerText:SetTextColor(1, 1, 1, 1)
-		b.noteText:SetTextColor(1, 1, 1, 1)
-		b:SetBackdropColor(unpack(hoverColor))
-	end)
-
-	b:SetScript("OnLeave", function()
-		b.typeText:SetTextColor(unpack(textColor))
-		b.valueText:SetTextColor(unpack(textColor))
-		b.reasonText:SetTextColor(unpack(textColor))
-		b.playerText:SetTextColor(unpack(textColor))
-		b.noteText:SetTextColor(unpack(textColor))
-		b:SetBackdropColor(0, 0, 0, 0)
-	end)
-
-
-	b.deleteBtn = CreateFrame("Button", nil, b, "BackdropTemplate")
-	b.deleteBtn:SetSize(gra.size.height, gra.size.height)
-	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
-	b.deleteBtn:SetBackdropBorderColor(unpack(borderColor))
-	b.deleteBtn:SetText("×")
-	b.deleteBtn:SetNormalFontObject("GRA_FONT_BUTTON")
-	b.deleteBtn:SetPushedTextOffset(0, -1)
-	b.deleteBtn:SetPoint("RIGHT")
-	b.deleteBtn:SetScript("OnEnter", function()
-		b.typeText:SetTextColor(1, 1, 1, 1)
-		b.valueText:SetTextColor(1, 1, 1, 1)
-		b.reasonText:SetTextColor(1, 1, 1, 1)
-		b.playerText:SetTextColor(1, 1, 1, 1)
-		b.noteText:SetTextColor(1, 1, 1, 1)
-		b:SetBackdropColor(unpack(hoverColor))
-	end)
-	b.deleteBtn:SetScript("OnLeave", function()
-		b.typeText:SetTextColor(unpack(textColor))
-		b.valueText:SetTextColor(unpack(textColor))
-		b.reasonText:SetTextColor(unpack(textColor))
-		b.playerText:SetTextColor(unpack(textColor))
-		b.noteText:SetTextColor(unpack(textColor))
-		b:SetBackdropColor(0, 0, 0, 0)
-	end)
-	
-	b.deleteBtn:Hide()
-
-	return b
-end
-
-function GRA:CreateLootButton(parent, detailTable, font)
-	-- {"LOOT", itemLink, playerName, note},
-	if detailTable[1] ~= "LOOT" then return end
-	if not font then font = "GRA_FONT_SMALL" end
-	local hoverColor, borderColor, textColor
-	hoverColor = {.1, .6, .95, .3}
-	borderColor = {.1, .6, .95, .6}
-	textColor = {.16, .56, .95, 1}
-
-	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	b:SetBackdropColor(0, 0, 0, 0)
-	b:SetBackdropBorderColor(unpack(borderColor))
-	b:SetPushedTextOffset(0, 0)
-	b:SetSize(20, 20)
-
-	local tex1 = b:CreateTexture()
-	tex1:SetColorTexture(unpack(borderColor))
-	tex1:SetSize(1, 20)
-	local tex2 = b:CreateTexture()
-	tex2:SetColorTexture(unpack(borderColor))
-	tex2:SetSize(1, 20)
-
-
-	b.itemText = b:CreateFontString(nil, "OVERLAY", font)
-	b.itemText:SetTextColor(unpack(textColor))
-	b.itemText:SetPoint("LEFT", 5, 0)
-	b.itemText:SetWidth(160)
-	b.itemText:SetJustifyH("LEFT")
-	b.itemText:SetWordWrap(false)
-	tex1:SetPoint("RIGHT", b.itemText, 3, 0)
-
-	b.playerText = b:CreateFontString(nil, "OVERLAY", font)
-	b.playerText:SetTextColor(unpack(textColor))
-	b.playerText:SetPoint("LEFT", b.itemText, "RIGHT", 5, 0)
-	b.playerText:SetWidth(80)
-	b.playerText:SetJustifyH("LEFT")
-	b.playerText:SetWordWrap(false)
-	tex2:SetPoint("RIGHT", b.playerText, 3, 0)
-
-	b.noteText = b:CreateFontString(nil, "OVERLAY", font)
-	b.noteText:SetTextColor(unpack(textColor))
-	b.noteText:SetPoint("LEFT", b.playerText, "RIGHT", 5, 0)
-	b.noteText:SetPoint("RIGHT", -5, 0)
-	b.noteText:SetJustifyH("LEFT")
-	b.noteText:SetWordWrap(false)
-
-	b.itemText:SetText(detailTable[2])
-	-- b.playerText:SetText(GRA:GetShortName(detailTable[3]))
-	b.playerText:SetText(GRA:GetClassColoredName(detailTable[3]))
-
-	if detailTable[4] and detailTable[4] ~= "" then
-		b.noteText:SetText(detailTable[4])
-	else
-		tex2:Hide()
-	end
-
-	b:SetScript("OnEnter", function()
-		b.itemText:SetTextColor(1, 1, 1, 1)
-		b.playerText:SetTextColor(1, 1, 1, 1)
-		b.noteText:SetTextColor(1, 1, 1, 1)
-		b:SetBackdropColor(unpack(hoverColor))
-	end)
-
-	b:SetScript("OnLeave", function()
-		b.itemText:SetTextColor(unpack(textColor))
-		b.playerText:SetTextColor(unpack(textColor))
-		b.noteText:SetTextColor(unpack(textColor))
-		b:SetBackdropColor(0, 0, 0, 0)
-	end)
-
-
-	b.deleteBtn = CreateFrame("Button", nil, b, "BackdropTemplate")
-	b.deleteBtn:SetSize(20, 20)
-	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
-	b.deleteBtn:SetBackdropBorderColor(unpack(borderColor))
-	b.deleteBtn:SetText("×")
-	b.deleteBtn:SetNormalFontObject("GRA_FONT_BUTTON")
-	b.deleteBtn:SetPushedTextOffset(0, -1)
-	b.deleteBtn:SetPoint("RIGHT")
-	b.deleteBtn:SetScript("OnEnter", function()
-		b.itemText:SetTextColor(1, 1, 1, 1)
-		b.playerText:SetTextColor(1, 1, 1, 1)
-		b.noteText:SetTextColor(1, 1, 1, 1)
-		b:SetBackdropColor(unpack(hoverColor))
-	end)
-	b.deleteBtn:SetScript("OnLeave", function()
-		b.itemText:SetTextColor(unpack(textColor))
-		b.playerText:SetTextColor(unpack(textColor))
-		b.noteText:SetTextColor(unpack(textColor))
-		b:SetBackdropColor(0, 0, 0, 0)
-	end)
-	
-	b.deleteBtn:Hide()
-
-	return b
-end
-
------------------------------------------
--- boss
------------------------------------------
-function GRA:CreateBossButton(parent, bossTable, font)
-	if not font then font = "GRA_FONT_TEXT" end
-
-	local hoverColor, borderColor
-	hoverColor = {.98, .29, .62, .2}
-	borderColor = {.98, .29, .62, .6}
-	-- textColor = {1, .94, .86, 1}
-	-- textColor = {.73, .73, .73, 1}
-
-	local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
-	b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	b:SetBackdropColor(0, 0, 0, 0)
-	b:SetBackdropBorderColor(unpack(borderColor))
-	b:SetPushedTextOffset(0, 0)
-	b:SetSize(20, 36)
-
-	b.difficultyText = b:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT2")
-	b.difficultyText:SetTextColor(.98, .29, .62, 1)
-	b.difficultyText:SetPoint("TOPLEFT", 5, -5)
-	b.difficultyText:SetJustifyH("LEFT")
-	b.difficultyText:SetWordWrap(false)
-	
-	b.bossText = b:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT2")
-	b.bossText:SetTextColor(.96, .95, .65, 1)
-	b.bossText:SetPoint("LEFT", b.difficultyText, "RIGHT", 5, 0)
-	-- b.bossText:SetWidth(80)
-	b.bossText:SetJustifyH("LEFT")
-	b.bossText:SetWordWrap(false)
-
-	b.timeText = b:CreateFontString(nil, "OVERLAY", font)
-	b.timeText:SetTextColor(.73, .73, .73, 1)
-	b.timeText:SetPoint("TOPRIGHT", -5, -5)
-	b.timeText:SetJustifyH("LEFT")
-	b.timeText:SetWordWrap(false)
-
-	b.membersText = b:CreateFontString(nil, "OVERLAY", font)
-	b.membersText:SetTextColor(.73, .73, .73, .5)
-	b.membersText:SetPoint("BOTTOMLEFT", 5, 5)
-	b.membersText:SetPoint("BOTTOMRIGHT", -5, 5)
-	-- b.membersText:SetWidth(80)
-	b.membersText:SetJustifyH("LEFT")
-	b.membersText:SetWordWrap(false)
-
-	-- set text -------------------------------
-	b.bossText:SetText(bossTable[1] .. (bossTable[3] and string.format(" (%d:%.2d)", bossTable[3]/60%60, bossTable[3]%60) or ""))
-	b.difficultyText:SetText(GRA:GetDifficultyInfo(bossTable[2]))
-	
-	local startTime = bossTable[4] and date("%H:%M:%S", bossTable[4]) or _G.UNKNOWN
-	local wipes = (bossTable[6] ~= 0) and (bossTable[6] .. " " .. L["wipes"] .. ", ") or ""
-	b.timeText:SetText(wipes .. startTime .. " - " .. date("%H:%M:%S", bossTable[5]))
-
-	local membersShort = ""
-	for g, gt in pairs(bossTable[7]) do
-		local info = "|cffbababaG" .. g .. ":|r"
-		for _, n in pairs(gt) do
-			local color = "|cff909090"
-			if _G[GRA_R_Roster][n] and RAID_CLASS_COLORS[_G[GRA_R_Roster][n]["class"]] then
-				color = "|c" .. RAID_CLASS_COLORS[_G[GRA_R_Roster][n]["class"]].colorStr
-			end
-			info = info .. color .. string.sub(n, 1, 3) .. "|r "
-		end
-		membersShort = membersShort .. info
-	end
-	
-	b.membersText:SetText(membersShort)
-	-------------------------------------------
-
-	b:SetScript("OnEnter", function()
-		b:SetBackdropColor(unpack(hoverColor))
-		b.membersText:SetAlpha(1)
-
-		GRA_Tooltip:SetOwner(b, "ANCHOR_NONE")
-		GRA_Tooltip:SetPoint("LEFT", b, "RIGHT", 2, 0)
-		GRA_Tooltip:AddLine(L["Members In Raid"])
-		for g, gt in pairs(bossTable[7]) do
-			local line = _G["GROUP"..g.."_CHAT_TAG1"] .. " (" .. #gt .. "): "
-			for _, n in pairs(gt) do
-				line = line .. GRA:GetClassColoredName(n) .. " "
-			end
-			GRA_Tooltip:AddLine(line)
-		end
-		GRA_Tooltip:Show()
-	end)
-
-	b:SetScript("OnLeave", function()
-		b:SetBackdropColor(0, 0, 0, 0)
-		b.membersText:SetAlpha(.5)
-		GRA_Tooltip:Hide()
-	end)
-
-	b.deleteBtn = CreateFrame("Button", nil, b, "BackdropTemplate")
-	b.deleteBtn:SetSize(20, 20)
-	b.deleteBtn:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	b.deleteBtn:SetBackdropColor(unpack(hoverColor))
-	b.deleteBtn:SetBackdropBorderColor(unpack(borderColor))
-	b.deleteBtn:SetText("×")
-	b.deleteBtn:SetNormalFontObject("GRA_FONT_BUTTON")
-	b.deleteBtn:SetPushedTextOffset(0, -1)
-	b.deleteBtn:SetPoint("TOPRIGHT")
-	b.deleteBtn:SetScript("OnEnter", function()
-		b:SetBackdropColor(unpack(hoverColor))
-	end)
-	b.deleteBtn:SetScript("OnLeave", function()
-		b:SetBackdropColor(0, 0, 0, 0)
-	end)
-	
-	b.deleteBtn:Hide()
-
-	return b
-end
-
------------------------------------------
--- mask
------------------------------------------
-function GRA:CreateMask(parent, text, points) -- points = {topleftX, topleftY, bottomrightX, bottomrightY}
-	if not parent.mask then -- not init
-		parent.mask = CreateFrame("Frame", nil, parent, "BackdropTemplate")
-		GRA:StylizeFrame(parent.mask, {.15, .15, .15, .5}, {0, 0, 0, 0})
-		parent.mask:SetFrameStrata("HIGH")
-		parent.mask:SetFrameLevel(100)
-		parent.mask:EnableMouse(true) -- can't click-through
-		-- parent.mask:EnableMouseWheel(true)
-
-		parent.mask.text = parent.mask:CreateFontString(nil, "ARTWORK", "GRA_FONT_SMALL")
-		parent.mask.text:SetTextColor(1, .2, .2)
-		parent.mask.text:SetPoint("CENTER")
-
-		-- parent.mask:SetScript("OnUpdate", function()
-		-- 	if not parent:IsVisible() then
-		-- 		parent.mask:Hide()
-		-- 	end
-		-- end)
-	end
-
-	if not text then text = "" end
-	parent.mask.text:SetText(text)
-
-	parent.mask:ClearAllPoints() -- prepare for SetPoint()
-	if points then
-		local tlX, tlY, brX, brY = unpack(points)
-		parent.mask:SetPoint("TOPLEFT", tlX, tlY)
-		parent.mask:SetPoint("BOTTOMRIGHT", brX, brY)
-	else
-		parent.mask:SetAllPoints(parent) -- anchor points are set to those of its "parent"
-	end
-	parent.mask:Show()
+function addon:StopRainbowText(fs)
+    fs.rainbow = nil
+    if fs.updater then
+        fs.updater:SetScript("OnUpdate", nil)
+        fs:SetText(fs.text)
+    end
 end
 
 -----------------------------------------
 -- seperator
 -----------------------------------------
-function GRA:CreateSeparator(parent, relativeTo, x, y, width ,color)
-	if not color then color = {.5, 1, 0, .7} end
-	if not width then width = parent:GetWidth()-10 end
-	if not x then x = 0 end
-	if not y then y = -3 end
+function addon:CreateSeparator(text, parent, width, color)
+    if not color then color = {t={accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.777}, s=accentColor.s} end
+    if not width then width = parent:GetWidth()-10 end
 
-	local line = parent:CreateTexture()
-	line:SetSize(width, 1)
-	line:SetColorTexture(unpack(color))
-	line:SetPoint("TOPLEFT", relativeTo, "BOTTOMLEFT", x, y)
-	local shadow = parent:CreateTexture()
-	shadow:SetSize(width, 1)
-	shadow:SetColorTexture(0, 0, 0, 1)
-	shadow:SetPoint("TOPLEFT", line, 1, -1)
+    local fs = parent:CreateFontString(nil, "OVERLAY", font_title_name)
+    fs:SetJustifyH("LEFT")
+    fs:SetTextColor(color.t[1], color.t[2], color.t[3])
+    fs:SetText(text)
+
+    local line = parent:CreateTexture()
+    P:Size(line, width, 1)
+    line:SetColorTexture(unpack(color.t))
+    P:Point(line, "TOPLEFT", fs, "BOTTOMLEFT", 0, -2)
+    local shadow = parent:CreateTexture()
+    P:Size(shadow, width, 1)
+    shadow:SetColorTexture(0, 0, 0, 1)
+    P:Point(shadow, "TOPLEFT", line, "TOPLEFT", 1, -1)
+
+    return fs
 end
 
----------------------------------------------------------------
--- notification (fade-in fade-out string) 2017-06-21 11:48:05
----------------------------------------------------------------
-function GRA:ShowNotificationString(parent, text, point, relativeTo, relativePoint, x, y)
-	if not parent.notificationString then
-		parent.notificationString = parent:CreateFontString(nil, "ARTWORK", "GRA_FONT_SMALL")
+function addon:CreateTitledPane(parent, text, width, height, color)
+    if not color then color = {["r"]=accentColor.t[1], ["g"]=accentColor.t[2], ["b"]=accentColor.t[3], ["a"]=0.777, ["s"]=accentColor.s} end
 
-		parent.notificationString.animationGroup = parent.notificationString:CreateAnimationGroup()
-		local fadeIn = parent.notificationString.animationGroup:CreateAnimation("Alpha")
-		fadeIn:SetOrder(0)
-		fadeIn:SetFromAlpha(0)
-		fadeIn:SetToAlpha(1)
-		fadeIn:SetDuration(.5)
-		fadeIn:SetEndDelay(3)
-		local fadeOut = parent.notificationString.animationGroup:CreateAnimation("Alpha")
-		fadeOut:SetOrder(1)
-		fadeOut:SetFromAlpha(1)
-		fadeOut:SetToAlpha(0)
-		fadeOut:SetDuration(.5)
+    local pane = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    P:Size(pane, width, height)
+    -- addon:StylizeFrame(pane, {0,1,0,0.1}, {0,0,0,0})
 
-		parent.notificationString.animationGroup:SetScript("OnFinished", function()
-			parent.notificationString:Hide()
-		end)
+    -- underline
+    local line = pane:CreateTexture()
+    pane.line = line
+    P:Height(line, 1)
+    line:SetColorTexture(color.r, color.g, color.b, color.a)
+    line:SetPoint("TOPLEFT", pane, "TOPLEFT", 0, P:Scale(-17))
+    line:SetPoint("TOPRIGHT", pane, "TOPRIGHT", 0, P:Scale(-17))
 
-		parent.notificationString.animationGroup:SetScript("OnPlay", function()
-			parent.notificationString:Show()
-		end)
-	end
+    local shadow = pane:CreateTexture()
+    P:Height(shadow, 1)
+    shadow:SetColorTexture(0, 0, 0, 1)
+    shadow:SetPoint("TOPLEFT", line, "TOPLEFT", P:Scale(1), P:Scale(-1))
+    shadow:SetPoint("TOPRIGHT", line, "TOPRIGHT", P:Scale(1), P:Scale(-1))
 
-	parent.notificationString.animationGroup:Stop()
-	parent.notificationString:SetText(text)
-	parent.notificationString:SetPoint(point, relativeTo, relativePoint, x, y)
-	parent.notificationString.animationGroup:Play()
+    -- title
+    local title = pane:CreateFontString(nil, "OVERLAY", font_title_name)
+    pane.title = title
+    title:SetJustifyH("LEFT")
+    title:SetTextColor(color.r, color.g, color.b)
+    title:SetText(text)
+    title:SetPoint("BOTTOMLEFT", line, "TOPLEFT", 0, P:Scale(2))
+
+    -- func
+    function pane:SetTitle(t)
+        title:SetText(t)
+    end
+
+    return pane
+end
+
+-----------------------------------------
+-- Frame
+-----------------------------------------
+function addon:StylizeFrame(frame, color, borderColor)
+    if not color then color = {0.1, 0.1, 0.1, 0.9} end
+    if not borderColor then borderColor = {0, 0, 0, 1} end
+
+    frame:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+    frame:SetBackdropColor(unpack(color))
+    frame:SetBackdropBorderColor(unpack(borderColor))
+end
+
+function addon:CreateFrame(name, parent, width, height, isTransparent)
+    local f = CreateFrame("Frame", name, parent, "BackdropTemplate")
+    f:Hide()
+    if not isTransparent then addon:StylizeFrame(f) end
+    f:EnableMouse(true)
+    if width and height then P:Size(f, width, height) end
+
+    function f:UpdatePixelPerfect()
+        if not isTransparent then addon:StylizeFrame(f) end
+        if width and height then
+            P:Resize(f)
+        end
+    end
+
+    return f
+end
+
+
+function addon:CreateMovableFrame(title, name, width, height, frameStrata, frameLevel, notUserPlaced)
+    local f = CreateFrame("Frame", name, UIParent, "BackdropTemplate")
+    f:EnableMouse(true)
+    f:SetIgnoreParentScale(true)
+    -- f:SetResizable(false)
+    f:SetMovable(true)
+    f:SetUserPlaced(not notUserPlaced)
+    f:SetFrameStrata(frameStrata or "HIGH")
+    f:SetFrameLevel(frameLevel or 1)
+    f:SetClampedToScreen(true)
+    P:Size(f, width, height)
+    f:SetPoint("CENTER")
+    f:Hide()
+    addon:StylizeFrame(f)
+    
+    -- header
+    local header = CreateFrame("Frame", nil, f, "BackdropTemplate")
+    f.header = header
+    header:EnableMouse(true)
+    header:SetClampedToScreen(true)
+    header:RegisterForDrag("LeftButton")
+    header:SetScript("OnDragStart", function()
+        f:StartMoving()
+        if notUserPlaced then f:SetUserPlaced(false) end
+    end)
+    header:SetScript("OnDragStop", function() f:StopMovingOrSizing() end)
+    header:SetPoint("LEFT")
+    header:SetPoint("RIGHT")
+    header:SetPoint("BOTTOM", f, "TOP", 0, -1)
+    P:Height(header, 20)
+    addon:StylizeFrame(header, {0.115, 0.115, 0.115, 1})
+    
+    header.text = header:CreateFontString(nil, "OVERLAY", font_class_title_name)
+    header.text:SetText(title)
+    header.text:SetPoint("CENTER", header)
+    
+    header.closeBtn = addon:CreateButton(header, "×", "red", {20, 20}, false, false, "CELL_FONT_SPECIAL", "CELL_FONT_SPECIAL")
+    header.closeBtn:SetPoint("RIGHT")
+    header.closeBtn:SetScript("OnClick", function() f:Hide() end)
+
+    return f
+end
+
+-----------------------------------------
+-- tooltip
+-----------------------------------------
+local function ShowTooltips(widget, anchor, x, y, tooltips)
+    if type(tooltips) ~= "table" or #tooltips == 0 then
+        CellTooltip:Hide()
+        return
+    end
+
+    CellTooltip:SetOwner(widget, anchor or "ANCHOR_TOP", x or 0, y or 0)
+    CellTooltip:AddLine(tooltips[1])
+    for i = 2, #tooltips do
+        CellTooltip:AddLine("|cffffffff" .. tooltips[i])
+    end
+    CellTooltip:Show()
+end
+
+function addon:SetTooltips(widget, anchor, x, y, ...)
+    if not widget.tooltipsInited then
+        widget._tooltipsInited = true
+
+        widget:HookScript("OnEnter", function()
+            ShowTooltips(widget, anchor, x, y, widget.tooltips)
+        end)
+        widget:HookScript("OnLeave", function()
+            CellTooltip:Hide()
+        end)
+    end
+
+    widget.tooltips = {...}
+end
+
+function addon:ClearTooltips(widget)
+    widget.tooltips = nil
+end
+
+-----------------------------------------
+-- change frame size with animation
+-----------------------------------------
+function addon:ChangeSizeWithAnimation(frame, targetWidth, targetHeight, step, startFunc, endFunc, repoint)
+    if startFunc then startFunc() end
+    
+    local currentHeight = frame:GetHeight()
+    local currentWidth = frame:GetWidth()
+    targetWidth = targetWidth or currentWidth
+    targetHeight = targetHeight or currentHeight
+
+    step = step or 6
+    local diffH = (targetHeight - currentHeight) / step
+    local diffW = (targetWidth - currentWidth) / step
+    
+    local animationTimer
+    animationTimer = C_Timer.NewTicker(.025, function()
+        if diffW ~= 0 then
+            if diffW > 0 then
+                currentWidth = math.min(currentWidth + diffW, targetWidth)
+            else
+                currentWidth = math.max(currentWidth + diffW, targetWidth)
+            end
+            P:Width(frame, currentWidth)
+        end
+
+        if diffH ~= 0 then
+            if diffH > 0 then
+                currentHeight = math.min(currentHeight + diffH, targetHeight)
+            else
+                currentHeight = math.max(currentHeight + diffH, targetHeight)
+            end
+            P:Height(frame, currentHeight)
+        end
+
+        if currentWidth == targetWidth and currentHeight == targetHeight then
+            animationTimer:Cancel()
+            animationTimer = nil
+            if endFunc then endFunc() end
+            if repoint then P:PixelPerfectPoint(frame) end -- already point to another frame
+        end
+    end)
+end
+
+-----------------------------------------
+-- Button
+-----------------------------------------
+function addon:CreateButton(parent, text, buttonColor, size, noBorder, noBackground, fontNormal, fontDisable, template, ...)
+    local b = CreateFrame("Button", nil, parent, template and template..",BackdropTemplate" or "BackdropTemplate")
+    if parent then b:SetFrameLevel(parent:GetFrameLevel()+1) end
+    b:SetText(text)
+    P:Size(b, size[1], size[2])
+
+    local color, hoverColor
+    if buttonColor == "red" then
+        color = {0.6, 0.1, 0.1, 0.6}
+        hoverColor = {0.6, 0.1, 0.1, 1}
+    elseif buttonColor == "red-hover" then
+        color = {0.115, 0.115, 0.115, 1}
+        hoverColor = {0.6, 0.1, 0.1, 1}
+    elseif buttonColor == "green" then
+        color = {0.1, 0.6, 0.1, 0.6}
+        hoverColor = {0.1, 0.6, 0.1, 1}
+    elseif buttonColor == "green-hover" then
+        color = {0.115, 0.115, 0.115, 1}
+        hoverColor = {0.1, 0.6, 0.1, 1}
+    elseif buttonColor == "cyan" then
+        color = {0, 0.9, 0.9, 0.6}
+        hoverColor = {0, 0.9, 0.9, 1}
+    elseif buttonColor == "blue" then
+        color = {0, 0.5, 0.8, 0.6}
+        hoverColor = {0, 0.5, 0.8, 1}
+    elseif buttonColor == "blue-hover" then
+        color = {0.115, 0.115, 0.115, 1}
+        hoverColor = {0, 0.5, 0.8, 1}
+    elseif buttonColor == "yellow" then
+        color = {0.7, 0.7, 0, 0.6}
+        hoverColor = {0.7, 0.7, 0, 1}
+    elseif buttonColor == "yellow-hover" then
+        color = {0.115, 0.115, 0.115, 1}
+        hoverColor = {0.7, 0.7, 0, 1}
+    elseif buttonColor == "accent" then
+        if class == "PRIEST" and not accentColorOverride then
+            color = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.25}
+            hoverColor = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.5}
+        else
+            color = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.3}
+            hoverColor = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.6}
+        end
+    elseif buttonColor == "accent-hover" then
+        color = {0.115, 0.115, 0.115, 1}
+        if class == "PRIEST" and not accentColorOverride then
+            hoverColor = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.5}
+        else
+            hoverColor = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.6}
+        end
+    elseif buttonColor == "chartreuse" then
+        color = {0.5, 1, 0, 0.6}
+        hoverColor = {0.5, 1, 0, 0.8}
+    elseif buttonColor == "magenta" then
+        color = {0.6, 0.1, 0.6, 0.6}
+        hoverColor = {0.6, 0.1, 0.6, 1}
+    elseif buttonColor == "transparent" then -- drop down item
+        color = {0, 0, 0, 0}
+        hoverColor = {0.5, 1, 0, 0.7}
+    elseif buttonColor == "transparent-white" then -- drop down item
+        color = {0, 0, 0, 0}
+        hoverColor = {0.4, 0.4, 0.4, 0.7}
+    elseif buttonColor == "transparent-light" then -- drop down item
+        color = {0, 0, 0, 0}
+        hoverColor = {0.5, 1, 0, 0.5}
+    elseif buttonColor == "transparent-accent" then -- drop down item
+        color = {0, 0, 0, 0}
+        if class == "PRIEST" and not accentColorOverride then
+            hoverColor = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.4}
+        else
+            hoverColor = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.6}
+        end
+    elseif buttonColor == "none" then
+        color = {0, 0, 0, 0}
+    else
+        color = {0.115, 0.115, 0.115, 0.7}
+        hoverColor = {0.5, 1, 0, 0.6}
+    end
+
+    -- keep color & hoverColor
+    b.color = color
+    b.hoverColor = hoverColor
+
+    local s = b:GetFontString()
+    if s then
+        s:SetWordWrap(false)
+        -- s:SetWidth(size[1])
+        s:SetPoint("LEFT")
+        s:SetPoint("RIGHT")
+
+        function b:SetTextColor(...)
+            s:SetTextColor(...)
+        end
+    end
+    
+    if noBorder then
+        b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+    else
+        local n = P:Scale(1)
+        b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = n, insets = {left=n, right=n, top=n, bottom=n}})
+    end
+    
+    if buttonColor and string.find(buttonColor, "transparent") then -- drop down item
+        -- b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8"})
+        if s then
+            s:SetJustifyH("LEFT")
+            s:SetPoint("LEFT", 5, 0)
+            s:SetPoint("RIGHT", -5, 0)
+        end
+        b:SetBackdropBorderColor(1, 1, 1, 0)
+        b:SetPushedTextOffset(0, 0)
+    else
+        if not noBackground then
+            local bg = b:CreateTexture()
+            bg:SetDrawLayer("BACKGROUND", -8)
+            b.bg = bg
+            bg:SetAllPoints(b)
+            bg:SetColorTexture(0.115, 0.115, 0.115, 1)
+        end
+
+        b:SetBackdropBorderColor(0, 0, 0, 1)
+        b:SetPushedTextOffset(0, -1)
+    end
+
+
+    b:SetBackdropColor(unpack(color)) 
+    b:SetDisabledFontObject(fontDisable or font_disable)
+    b:SetNormalFontObject(fontNormal or font)
+    b:SetHighlightFontObject(fontNormal or font)
+    
+    if buttonColor ~= "none" then
+        b:SetScript("OnEnter", function(self) self:SetBackdropColor(unpack(self.hoverColor)) end)
+        b:SetScript("OnLeave", function(self) self:SetBackdropColor(unpack(self.color)) end)
+    end
+
+    -- click sound
+    b:SetScript("PostClick", function() PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON) end)
+
+    addon:SetTooltips(b, "ANCHOR_TOPLEFT", 0, 3, ...)
+
+    -- texture
+    function b:SetTexture(tex, texSize, point)
+        b.tex = b:CreateTexture(nil, "ARTWORK")
+        b.tex:SetPoint(unpack(point))
+        b.tex:SetSize(unpack(texSize))
+        b.tex:SetTexture(tex)
+        -- update fontstring point
+        if s then
+            s:ClearAllPoints()
+            s:SetPoint("LEFT", b.tex, "RIGHT", point[2], 0)
+            s:SetPoint("RIGHT", -point[2], 0)
+            b:SetPushedTextOffset(0, 0)
+        end
+        -- push effect
+        b.onMouseDown = function()
+            b.tex:ClearAllPoints()
+            b.tex:SetPoint(point[1], point[2], point[3]-1)
+        end
+        b.onMouseUp = function()
+            b.tex:ClearAllPoints()
+            b.tex:SetPoint(unpack(point))
+        end
+        b:SetScript("OnMouseDown", b.onMouseDown)
+        b:SetScript("OnMouseUp", b.onMouseUp)
+        -- enable / disable
+        b:HookScript("OnEnable", function()
+            b.tex:SetVertexColor(1, 1, 1)
+            b:SetScript("OnMouseDown", b.onMouseDown)
+            b:SetScript("OnMouseUp", b.onMouseUp)
+        end)
+        b:HookScript("OnDisable", function()
+            b.tex:SetVertexColor(.4, .4, .4)
+            b:SetScript("OnMouseDown", nil)
+            b:SetScript("OnMouseUp", nil)
+        end)
+    end
+
+    function b:UpdatePixelPerfect()
+        P:Resize(b)
+        P:Repoint(b)
+
+        if not noBorder then
+            -- backup colors
+            local currentBackdropColor = {b:GetBackdropColor()}
+            local currentBackdropBorderColor = {b:GetBackdropBorderColor()}
+            -- update backdrop
+            local n = P:Scale(1)
+            b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = n, insets = {left=n, right=n, top=n, bottom=n}})
+            -- restore colors
+            b:SetBackdropColor(unpack(currentBackdropColor))
+            b:SetBackdropBorderColor(unpack(currentBackdropBorderColor))
+            currentBackdropColor = nil
+            currentBackdropBorderColor = nil
+        end
+    end
+
+    return b
+end
+
+local sendChannel
+local function UpdateSendChannel()
+    if IsInGroup(LE_PARTY_CATEGORY_INSTANCE) then
+        sendChannel = "INSTANCE_CHAT"
+    elseif IsInRaid() then
+        sendChannel = "RAID"
+    else
+        sendChannel = "PARTY"
+    end
+end
+
+function addon:CreateBuffButton(parent, size, spellId)
+    local spellName, _, spellIcon = GetSpellInfo(spellId)
+
+    local b = CreateFrame("Button", nil, parent, "SecureActionButtonTemplate,BackdropTemplate")
+    if parent then b:SetFrameLevel(parent:GetFrameLevel()+1) end
+    P:Size(b, size[1], size[2])
+    
+    b:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+    b:SetBackdropBorderColor(0, 0, 0, 1)
+
+    b:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+    b:SetAttribute("type1", "spell")
+    b:SetAttribute("spell", spellName)
+    b:HookScript("OnClick", function(self, button, down)
+        if button == "RightButton" then
+            local msg = F:GetUnaffectedString(spellId)
+            if msg then
+                UpdateSendChannel()
+                SendChatMessage(msg, sendChannel)
+            end
+        end
+    end)
+
+    b.texture = b:CreateTexture(nil, "OVERLAY")
+    P:Point(b.texture, "TOPLEFT", b, "TOPLEFT", 1, -1)
+    P:Point(b.texture, "BOTTOMRIGHT", b, "BOTTOMRIGHT", -1, 1)
+    b.texture:SetTexture(spellIcon)
+    b.texture:SetTexCoord(.08, .92, .08, .92)
+
+    b.count = b:CreateFontString(nil, "OVERLAY")
+    P:Point(b.count, "TOPLEFT", b.texture, "TOPLEFT", 2, -2)
+    b.count:SetFont(GameFontNormal:GetFont(), 14, "OUTLINE")
+    b.count:SetShadowColor(0, 0, 0)
+    b.count:SetShadowOffset(0, 0)
+    b.count:SetTextColor(1, 0, 0)
+
+    b:SetScript("OnLeave", function()
+        CellTooltip:Hide()
+    end)
+
+    function b:SetTooltips(list)
+        b:SetScript("OnEnter", function()
+            if F:Getn(list) ~= 0 then
+                CellTooltip:SetOwner(b, "ANCHOR_TOPLEFT", 0, 3)
+                CellTooltip:AddLine(L["Unaffected"])
+                for unit in pairs(list) do
+                    local class = select(2, UnitClass(unit))
+                    local name = UnitName(unit)
+                    if class and name then
+                        -- CellTooltip:AddLine(RAID_CLASS_COLORS[class]:WrapTextInColorCode(name))
+                        CellTooltip:AddLine("|c"..RAID_CLASS_COLORS[class].colorStr..name.."|r")
+                    end
+                end
+                CellTooltip:Show()
+            end
+        end)
+    end
+
+    function b:SetDesaturated(flag)
+        b.texture:SetDesaturated(flag)
+    end
+
+    function b:StartGlow(glowType, ...)
+        if glowType == "Normal" then
+            LCG.PixelGlow_Stop(b)
+            LCG.AutoCastGlow_Stop(b)
+            LCG.ButtonGlow_Start(b, ...)
+        elseif glowType == "Pixel" then
+            LCG.ButtonGlow_Stop(b)
+            LCG.AutoCastGlow_Stop(b)
+            -- color, N, frequency, length, thickness
+            LCG.PixelGlow_Start(b, ...)
+        elseif glowType == "Shine" then
+            LCG.ButtonGlow_Stop(b)
+            LCG.PixelGlow_Stop(b)
+            LCG.AutoCastGlow_Stop(b)
+            -- color, N, frequency, scale
+            LCG.AutoCastGlow_Start(b, ...)
+        end
+    end
+
+    function b:StopGlow()
+        LCG.ButtonGlow_Stop(b)
+        LCG.PixelGlow_Stop(b)
+        LCG.AutoCastGlow_Stop(b)
+    end
+
+    function b:Reset()
+        b.texture:SetDesaturated(false)
+        b.count:SetText("")
+        b:SetAlpha(1)
+        b:StopGlow()
+    end
+
+    function b:UpdatePixelPerfect()
+        P:Resize(b)
+        P:Repoint(b)
+        b:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+        b:SetBackdropBorderColor(0, 0, 0, 1)
+
+        P:Repoint(b.texture)
+        P:Repoint(b.count)
+    end
+
+    return b
+end
+
+-----------------------------------------
+-- Power Filter
+-----------------------------------------
+local function UpdateButtonSelection(b, selected)
+    b.tex:SetDesaturated(not selected)
+    -- if selected then
+    --     b:SetBackdropColor(unpack(b.hoverColor))
+    --     b:SetScript("OnEnter", nil)
+    --     b:SetScript("OnLeave", nil)
+    -- else
+    --     b:SetBackdropColor(unpack(b.color))
+    --     b:SetScript("OnEnter", function() 
+    --         b:SetBackdropColor(unpack(b.hoverColor))
+    --     end)
+    --     b:SetScript("OnLeave", function() 
+    --         b:SetBackdropColor(unpack(b.color))
+    --     end)
+    -- end
+end
+
+local localizedClass = {}
+FillLocalizedClassList(localizedClass)
+
+function addon:CreatePowerFilter(parent, classFileName, buttons, width, height, bWidth, color, bgColor)
+    local filter = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    Cell:StylizeFrame(filter, color, bgColor)
+    P:Size(filter, width, height)
+
+    filter.text = filter:CreateFontString(nil, "OVERLAY", "CELL_FONT_WIDGET")
+    filter.text:SetPoint("LEFT", 5, 0)
+    if classFileName == "VEHICLE" or classFileName == "PET" or classFileName == "NPC" then
+        filter.text:SetText("|cff00ff33"..L[classFileName])
+    else
+        filter.text:SetText("|c"..RAID_CLASS_COLORS[classFileName].colorStr..localizedClass[classFileName])
+    end
+    -- filter:SetPoint("TOPLEFT", 5, -5)
+
+    filter.buttons = {}
+    local last
+    for i = #buttons, 1, -1 do
+        local b = Cell:CreateButton(filter, nil, "accent-hover", {height, height})
+        filter.buttons[buttons[i]] = b
+        b:SetTexture("Interface\\AddOns\\Cell\\Media\\Roles\\"..buttons[i], {height-4, height-4}, {"CENTER", 0, 0})
+
+        if last then
+            b:SetPoint("BOTTOMRIGHT", last, "BOTTOMLEFT", P:Scale(1), 0)
+        else
+            b:SetPoint("BOTTOMRIGHT", filter)
+        end
+        last = b
+
+        b:SetScript("OnClick", function()
+            local selected
+            if type(filter.selectedLayoutTable["powerFilters"][classFileName]) == "boolean" then
+                filter.selectedLayoutTable["powerFilters"][classFileName] = not filter.selectedLayoutTable["powerFilters"][classFileName]
+                selected = filter.selectedLayoutTable["powerFilters"][classFileName]
+            else
+                filter.selectedLayoutTable["powerFilters"][classFileName][buttons[i]] = not filter.selectedLayoutTable["powerFilters"][classFileName][buttons[i]]
+                selected = filter.selectedLayoutTable["powerFilters"][classFileName][buttons[i]]
+            end
+            UpdateButtonSelection(b, selected)
+            -- update now, if selectedLayout == currentLayout
+            if filter.selectedLayout == Cell.vars.currentLayout then
+                Cell:Fire("UpdateLayout", filter.selectedLayout, "power")
+            end
+        end) 
+    end
+
+    function filter:LoadConfig(selectedLayout, selectedLayoutTable)
+        filter.selectedLayout = selectedLayout
+        filter.selectedLayoutTable = selectedLayoutTable
+
+        if type(selectedLayoutTable["powerFilters"][classFileName]) == "boolean" then
+            UpdateButtonSelection(filter.buttons["DAMAGER"], selectedLayoutTable["powerFilters"][classFileName])
+        else
+            for role, b in pairs(filter.buttons) do
+                UpdateButtonSelection(b, selectedLayoutTable["powerFilters"][classFileName][role])
+            end
+        end
+    end
+
+    return filter
+end
+
+-----------------------------------------
+-- Button Group
+-----------------------------------------
+function addon:CreateButtonGroup(buttons, onClick, func1, func2, onEnter, onLeave)
+    local function HighlightButton(id)
+        for _, b in pairs(buttons) do
+            if id == b.id then
+                b:SetBackdropColor(unpack(b.hoverColor))
+                b:SetScript("OnEnter", function()
+                    if b.ShowTooltip then b.ShowTooltip(b) end
+                    if onEnter then onEnter(b) end
+                end)
+                b:SetScript("OnLeave", function()
+                    if b.HideTooltip then b.HideTooltip() end
+                    if onLeave then onLeave() end
+                end)
+                if func1 then func1(b.id) end
+            else
+                b:SetBackdropColor(unpack(b.color))
+                b:SetScript("OnEnter", function() 
+                    if b.ShowTooltip then b.ShowTooltip(b) end
+                    b:SetBackdropColor(unpack(b.hoverColor))
+                    if onEnter then onEnter(b) end
+                end)
+                b:SetScript("OnLeave", function() 
+                    if b.HideTooltip then b.HideTooltip() end
+                    b:SetBackdropColor(unpack(b.color))
+                    if onLeave then onLeave() end
+                end)
+                if func2 then func2(b.id) end
+            end
+        end
+    end
+
+    for _, b in pairs(buttons) do
+        b:SetScript("OnClick", function()
+            HighlightButton(b.id)
+            onClick(b.id, b)
+        end)
+    end
+
+    return HighlightButton
+end
+
+-----------------------------------------
+-- check button
+-----------------------------------------
+function addon:CreateCheckButton(parent, label, onClick, ...)
+    -- InterfaceOptionsCheckButtonTemplate --> FrameXML\InterfaceOptionsPanels.xml line 19
+    -- OptionsBaseCheckButtonTemplate -->  FrameXML\OptionsPanelTemplates.xml line 10
+    
+    local cb = CreateFrame("CheckButton", nil, parent, "BackdropTemplate")
+    cb.onClick = onClick
+    cb:SetScript("OnClick", function(self)
+        PlaySound(self:GetChecked() and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF)
+        if cb.onClick then cb.onClick(self:GetChecked() and true or false, self) end
+    end)
+    
+    cb.label = cb:CreateFontString(nil, "OVERLAY", font_name)
+    cb.label:SetText(label)
+    cb.label:SetPoint("LEFT", cb, "RIGHT", P:Scale(5), 0)
+    -- cb.label:SetTextColor(accentColor.t[1], accentColor.t[2], accentColor.t[3])
+    
+    P:Size(cb, 14, 14)
+    if strtrim(label) ~= "" then
+        cb:SetHitRectInsets(0, -cb.label:GetStringWidth()-5, 0, 0)
+    end
+
+    cb:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+    cb:SetBackdropColor(0.115, 0.115, 0.115, 0.9)
+    cb:SetBackdropBorderColor(0, 0, 0, 1)
+
+    local checkedTexture = cb:CreateTexture(nil, "ARTWORK")
+    checkedTexture:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.7)
+    checkedTexture:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+    checkedTexture:SetPoint("BOTTOMRIGHT", P:Scale(-1), P:Scale(1))
+
+    local highlightTexture = cb:CreateTexture(nil, "ARTWORK")
+    highlightTexture:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.1)
+    highlightTexture:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+    highlightTexture:SetPoint("BOTTOMRIGHT", P:Scale(-1), P:Scale(1))
+    
+    cb:SetCheckedTexture(checkedTexture)
+    cb:SetHighlightTexture(highlightTexture, "ADD")
+    -- cb:SetDisabledCheckedTexture([[Interface\AddOns\Cell\Media\CheckBox\CheckBox-DisabledChecked-16x16]])
+
+    cb:SetScript("OnEnable", function()
+        cb.label:SetTextColor(1, 1, 1)
+        checkedTexture:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.7)
+        cb:SetBackdropBorderColor(0, 0, 0, 1)
+    end)
+
+    cb:SetScript("OnDisable", function()
+        cb.label:SetTextColor(0.4, 0.4, 0.4)
+        checkedTexture:SetColorTexture(0.4, 0.4, 0.4)
+        cb:SetBackdropBorderColor(0, 0, 0, 0.4)
+    end)
+
+    function cb:SetText(text)
+        cb.label:SetText(text)
+        if strtrim(label) ~= "" then
+            cb:SetHitRectInsets(0, -cb.label:GetStringWidth()-5, 0, 0)
+        else
+            cb:SetHitRectInsets(0, 0, 0, 0)
+        end
+    end
+
+    addon:SetTooltips(cb, "ANCHOR_TOPLEFT", 0, 2, ...)
+
+    return cb
+end
+
+-----------------------------------------
+-- colorpicker
+-----------------------------------------
+function addon:CreateColorPicker(parent, label, hasOpacity, onChange, onConfirm)
+    local cp = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    P:Size(cp, 14, 14)
+    cp:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+    cp:SetBackdropBorderColor(0, 0, 0, 1)
+    cp:SetScript("OnEnter", function()
+        cp:SetBackdropBorderColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.5)
+    end)
+    cp:SetScript("OnLeave", function()
+        cp:SetBackdropBorderColor(0, 0, 0, 1)
+    end)
+
+    cp.label = cp:CreateFontString(nil, "OVERLAY", font_name)
+    cp.label:SetText(label)
+    cp.label:SetPoint("LEFT", cp, "RIGHT", 5, 0)
+
+    cp.mask = cp:CreateTexture(nil, "ARTWORK")
+    cp.mask:SetColorTexture(0.15, 0.15, 0.15, 0.7)
+    cp.mask:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+    cp.mask:SetPoint("BOTTOMRIGHT", P:Scale(-1), P:Scale(1))
+    cp.mask:Hide()
+    
+    -- local function ColorCallback(restore)
+    --     local newR, newG, newB, newA
+    --     if restore then
+    --         newR, newG, newB, newA = unpack(restore)
+    --     else
+    --         newA, newR, newG, newB = OpacitySliderFrame:GetValue(), ColorPickerFrame:GetColorRGB()
+    --     end
+        
+    --     newR, newG, newB, newA = tonumber(string.format("%.3f", newR)), tonumber(string.format("%.3f", newG)), tonumber(string.format("%.3f", newB)), newA and tonumber(string.format("%.3f", newA))
+        
+    --     newA = hasOpacity and newA or 1
+        
+    --     cp:SetBackdropColor(newR, newG, newB, newA)
+    --     if func then
+    --         func(newR, newG, newB, newA)
+    --         cp.color[1] = newR
+    --         cp.color[2] = newG
+    --         cp.color[3] = newB
+    --         cp.color[4] = newA
+    --     end
+    -- end
+    
+    -- local function ShowColorPicker()
+    --     ColorPickerFrame.hasOpacity = hasOpacity
+    --     ColorPickerFrame.opacity = cp.color[4]
+    --     ColorPickerFrame.previousValues = {unpack(cp.color)}
+    --     ColorPickerFrame.func, ColorPickerFrame.opacityFunc, ColorPickerFrame.cancelFunc = ColorCallback, ColorCallback, ColorCallback
+    --     ColorPickerFrame:SetColorRGB(unpack(cp.color))
+    --     ColorPickerFrame:Hide()
+    --     ColorPickerFrame:Show()
+    -- end
+    
+    cp:SetScript("OnClick", function()
+        addon:ShowColorPicker(function(r, g, b, a)
+            cp:SetBackdropColor(r, g, b, a)
+            cp.color[1] = r
+            cp.color[2] = g
+            cp.color[3] = b
+            cp.color[4] = a
+            if onChange then
+                onChange(r, g, b, a)
+            end
+        end, onConfirm, hasOpacity, unpack(cp.color))
+    end)
+
+    cp.color = {1, 1, 1, 1}
+    function cp:SetColor(arg1, arg2, arg3, arg4)
+        if type(arg1) == "table" then
+            cp.color[1] = arg1[1]
+            cp.color[2] = arg1[2]
+            cp.color[3] = arg1[3]
+            cp.color[4] = arg1[4]
+            cp:SetBackdropColor(unpack(arg1))
+        else
+            cp.color[1] = arg1
+            cp.color[2] = arg2
+            cp.color[3] = arg3
+            cp.color[4] = arg4
+            cp:SetBackdropColor(arg1, arg2, arg3, arg4)
+        end
+    end
+
+    function cp:GetColor()
+        return cp.color
+    end
+
+    cp:SetScript("OnEnable", function()
+        cp.label:SetTextColor(1, 1, 1, 1)
+        cp.mask:Hide()
+    end)
+    cp:SetScript("OnDisable", function()
+        cp.label:SetTextColor(0.4, 0.4, 0.4, 1)
+        cp.mask:Show()
+    end)
+
+    return cp
+end
+
+-----------------------------------------
+-- editbox
+-----------------------------------------
+function addon:CreateEditBox(parent, width, height, isTransparent, isMultiLine, isNumeric, font)
+    local eb = CreateFrame("EditBox", nil, parent, "BackdropTemplate")
+    if not isTransparent then addon:StylizeFrame(eb, {0.115, 0.115, 0.115, 0.9}) end
+    eb:SetFontObject(font or font_name)
+    eb:SetMultiLine(isMultiLine)
+    eb:SetMaxLetters(0)
+    eb:SetJustifyH("LEFT")
+    eb:SetJustifyV("MIDDLE")
+    P:Width(eb, width or 0)
+    P:Height(eb, height or 0)
+    eb:SetTextInsets(5, 5, 0, 0)
+    eb:SetAutoFocus(false)
+    eb:SetNumeric(isNumeric)
+    eb:SetScript("OnEscapePressed", function() eb:ClearFocus() end)
+    eb:SetScript("OnEnterPressed", function() eb:ClearFocus() end)
+    eb:SetScript("OnEditFocusGained", function() eb:HighlightText() end)
+    eb:SetScript("OnEditFocusLost", function() eb:HighlightText(0, 0) end)
+    eb:SetScript("OnDisable", function() eb:SetTextColor(0.4, 0.4, 0.4, 1) end)
+    eb:SetScript("OnEnable", function() eb:SetTextColor(1, 1, 1, 1) end)
+
+    return eb
+end
+
+function addon:CreateScrollEditBox(parent, onTextChanged, scrollStep)
+    scrollStep = scrollStep or 1
+
+    local frame = CreateFrame("Frame", nil, parent)
+    addon:CreateScrollFrame(frame)
+    addon:StylizeFrame(frame.scrollFrame, {0.15, 0.15, 0.15, 0.9})
+    
+    frame.eb = addon:CreateEditBox(frame.scrollFrame.content, 10, 20, true, true)
+    frame.eb:SetPoint("TOPLEFT")
+    frame.eb:SetPoint("RIGHT")
+    frame.eb:SetTextInsets(2, 2, 2, 2)
+    frame.eb:SetScript("OnEditFocusGained", nil)
+    frame.eb:SetScript("OnEditFocusLost", nil)
+
+    frame.eb:SetScript("OnEnterPressed", function(self) self:Insert("\n") end)
+
+    -- https://wow.gamepedia.com/UIHANDLER_OnCursorChanged
+    frame.eb:SetScript("OnCursorChanged", function(self, x, y, arg, lineHeight)
+        frame.scrollFrame:SetScrollStep((lineHeight + frame.eb:GetSpacing()) * scrollStep)
+
+        local vs = frame.scrollFrame:GetVerticalScroll()
+        local h  = frame.scrollFrame:GetHeight()
+
+        local cursorHeight = lineHeight - y
+
+        if vs + y > 0 then -- cursor above current view
+            frame.scrollFrame:SetVerticalScroll(-y)
+        elseif cursorHeight > h + vs then
+            frame.scrollFrame:SetVerticalScroll(-y-h+lineHeight+arg)
+        end
+
+        if frame.scrollFrame:GetVerticalScroll() > frame.scrollFrame:GetVerticalScrollRange() then frame.scrollFrame:ScrollToBottom() end
+    end)
+
+    frame.eb:SetScript("OnTextChanged", function(self, userChanged)
+        frame.scrollFrame:SetContentHeight(self:GetHeight())
+        if onTextChanged then
+            onTextChanged(self, userChanged)
+        end
+    end)
+
+    frame.scrollFrame:SetScript("OnMouseDown", function()
+        frame.eb:SetFocus(true)
+    end)
+
+    function frame:SetText(text)
+        frame.eb:SetText(text)
+        frame.scrollFrame:ResetScroll()
+        frame.eb:SetCursorPosition(0)
+    end
+
+    function frame:GetText()
+        return frame.eb:GetText()
+    end
+
+    function frame:SetEnabled(enabled)
+        frame.eb:SetEnabled(enabled)
+    end
+
+    return frame
+end
+
+-----------------------------------------
+-- slider 2020-08-25 02:49:16
+-----------------------------------------
+-- Interface\FrameXML\OptionsPanelTemplates.xml, line 76, OptionsSliderTemplate
+function addon:CreateSlider(name, parent, low, high, width, step, onValueChangedFn, afterValueChangedFn, isPercentage, ...)
+    local tooltips = {...}
+    local slider = CreateFrame("Slider", nil, parent, "BackdropTemplate")
+    slider:SetValueStep(step)
+    slider:SetObeyStepOnDrag(true)
+    slider:SetOrientation("HORIZONTAL")
+    slider:SetSize(width, 10)
+    local unit = isPercentage and "%" or ""
+
+    addon:StylizeFrame(slider, {.115, .115, .115, 1})
+    
+    local nameText = slider:CreateFontString(nil, "OVERLAY", font_name)
+    nameText:SetText(name)
+    nameText:SetPoint("BOTTOM", slider, "TOP", 0, 2)
+
+    function slider:SetName(n)
+        nameText:SetText(n)
+    end
+
+    local currentEditBox = addon:CreateEditBox(slider, 48, 14)
+    slider.currentEditBox = currentEditBox
+    P:Point(currentEditBox, "TOPLEFT", slider, "BOTTOMLEFT", math.ceil(width / 2 - 24), -1)
+    -- currentEditBox:SetPoint("TOP", slider, "BOTTOM", 0, -1)
+    currentEditBox:SetJustifyH("CENTER")
+    currentEditBox:SetScript("OnEditFocusGained", function(self)
+        self:HighlightText()
+    end)
+    currentEditBox:SetScript("OnEnterPressed", function(self)
+        self:ClearFocus()
+        local value = tonumber(self:GetText())
+        -- if isPercentage then
+        --     value = string.gsub(self:GetText(), "%%", "")
+        --     value = tonumber(value)
+        -- else
+        --     value = tonumber(self:GetText())
+        -- end
+
+        if value == self.oldValue then return end
+        if value then
+            if value < slider.low then value = slider.low end
+            if value > slider.high then value = slider.high end
+            self:SetText(value)
+            slider:SetValue(value)
+            if slider.onValueChangedFn then slider.onValueChangedFn(value) end
+            if slider.afterValueChangedFn then slider.afterValueChangedFn(value) end
+        else
+            self:SetText(self.oldValue)
+        end
+    end)
+    currentEditBox:SetScript("OnShow", function(self)
+        if self.oldValue then self:SetText(self.oldValue) end
+    end)
+
+    local lowText = slider:CreateFontString(nil, "OVERLAY", font_name)
+    slider.lowText = lowText
+    lowText:SetTextColor(unpack(colors.grey.t))
+    lowText:SetPoint("TOPLEFT", slider, "BOTTOMLEFT", 0, -1)
+    lowText:SetPoint("BOTTOM", currentEditBox)
+    
+    local highText = slider:CreateFontString(nil, "OVERLAY", font_name)
+    slider.highText = highText
+    highText:SetTextColor(unpack(colors.grey.t))
+    highText:SetPoint("TOPRIGHT", slider, "BOTTOMRIGHT", 0, -1)
+    highText:SetPoint("BOTTOM", currentEditBox)
+
+    local tex = slider:CreateTexture(nil, "ARTWORK")
+    tex:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], .7)
+    tex:SetSize(8, 8)
+    slider:SetThumbTexture(tex)
+
+    local valueBeforeClick
+    slider.onEnter = function()
+        tex:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], 1)
+        valueBeforeClick = slider:GetValue()
+        if #tooltips > 0 then
+            ShowTooltips(slider, "ANCHOR_TOPLEFT", 0, 3, tooltips)
+        end
+    end
+    slider:SetScript("OnEnter", slider.onEnter)
+    slider.onLeave = function()
+        tex:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], .7)
+        CellTooltip:Hide()
+    end
+    slider:SetScript("OnLeave", slider.onLeave)
+
+    slider.onValueChangedFn = onValueChangedFn
+    slider.afterValueChangedFn = afterValueChangedFn
+    
+    -- if tooltip then slider.tooltipText = tooltip end
+
+    local oldValue
+    slider:SetScript("OnValueChanged", function(self, value, userChanged)
+        if oldValue == value then return end
+        oldValue = value
+
+        if math.floor(value) < value then -- decimal
+            value = tonumber(string.format("%.2f", value))
+        end
+
+        currentEditBox:SetText(value)
+        currentEditBox.oldValue = value
+        if userChanged and slider.onValueChangedFn then slider.onValueChangedFn(value) end
+    end)
+
+    -- local valueBeforeClick
+    -- slider:HookScript("OnEnter", function(self, button, isMouseOver)
+    --     valueBeforeClick = slider:GetValue()
+    -- end)
+
+    slider:SetScript("OnMouseUp", function(self, button, isMouseOver)
+        -- oldValue here == newValue, OnMouseUp called after OnValueChanged
+        if valueBeforeClick ~= oldValue and slider.afterValueChangedFn then
+            valueBeforeClick = oldValue
+            local value = slider:GetValue()
+            if math.floor(value) < value then -- decimal
+                value = tonumber(string.format("%.2f", value))
+            end
+            slider.afterValueChangedFn(value)
+        end
+    end)
+
+    --[[
+    slider:EnableMouseWheel(true)
+    slider:SetScript("OnMouseWheel", function(self, delta)
+        if not IsShiftKeyDown() then return end
+
+        -- NOTE: OnValueChanged may not be called: value == low
+        oldValue = oldValue and oldValue or low
+
+        local value
+        if delta == 1 then -- scroll up
+            value = oldValue + step
+            value = value > high and high or value
+        elseif delta == -1 then -- scroll down
+            value = oldValue - step
+            value = value < low and low or value
+        end
+        
+        if value ~= oldValue then
+            slider:SetValue(value)
+            if slider.onValueChangedFn then slider.onValueChangedFn(value) end
+            if slider.afterValueChangedFn then slider.afterValueChangedFn(value) end
+        end
+    end)
+    ]]
+    
+    slider:SetValue(low) -- NOTE: needs to be after OnValueChanged
+
+    slider:SetScript("OnDisable", function()
+        nameText:SetTextColor(.4, .4, .4)
+        currentEditBox:SetEnabled(false)
+        slider:SetScript("OnEnter", nil)
+        slider:SetScript("OnLeave", nil)
+        tex:SetColorTexture(.4, .4, .4, .7)
+        lowText:SetTextColor(.4, .4, .4)
+        highText:SetTextColor(.4, .4, .4)
+    end)
+    
+    slider:SetScript("OnEnable", function()
+        nameText:SetTextColor(1, 1, 1)
+        currentEditBox:SetEnabled(true)
+        slider:SetScript("OnEnter", slider.onEnter)
+        slider:SetScript("OnLeave", slider.onLeave)
+        tex:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], .7)
+        lowText:SetTextColor(unpack(colors.grey.t))
+        highText:SetTextColor(unpack(colors.grey.t))
+    end)
+
+    function slider:UpdateMinMaxValues(minV, maxV)
+        slider:SetMinMaxValues(minV, maxV)
+        slider.low = minV
+        slider.high = maxV
+        lowText:SetText(minV..unit)
+        highText:SetText(maxV..unit)
+    end
+    slider:UpdateMinMaxValues(low, high)
+    
+    return slider
+end
+
+-----------------------------------------
+-- switch
+-----------------------------------------
+function addon:CreateSwitch(parent, size, leftText, leftValue, rightText, rightValue, func)
+    local switch = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    P:Size(switch, size[1], size[2])
+    addon:StylizeFrame(switch, {0.115, 0.115, 0.115, 1})
+    
+    local textLeft = switch:CreateFontString(nil, "OVERLAY", font_name)
+    textLeft:SetPoint("LEFT", 2, 0)
+    textLeft:SetPoint("RIGHT", switch, "CENTER", -1, 0)
+    textLeft:SetText(leftText)
+    
+    local textRight = switch:CreateFontString(nil, "OVERLAY", font_name)
+    textRight:SetPoint("LEFT", switch, "CENTER", 1, 0)
+    textRight:SetPoint("RIGHT", -2, 0)
+    textRight:SetText(rightText)
+
+    local highlight = switch:CreateTexture(nil, "ARTWORK")
+    highlight:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], class=="PRIEST" and 0.35 or 0.45)
+
+    local function UpdateHighlight(which)
+        highlight:ClearAllPoints()
+        if which == "LEFT" then
+            highlight:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+            highlight:SetPoint("RIGHT", switch, "CENTER")
+            highlight:SetPoint("BOTTOM", 0, P:Scale(1))
+        else
+            highlight:SetPoint("TOPRIGHT", P:Scale(-1), P:Scale(-1))
+            highlight:SetPoint("LEFT", switch, "CENTER")
+            highlight:SetPoint("BOTTOM", 0, P:Scale(1))
+        end
+    end
+
+    local ag = highlight:CreateAnimationGroup()
+    local t1 = ag:CreateAnimation("Translation")
+    t1:SetOffset(highlight:GetWidth(), 0)
+    t1:SetDuration(0.2)
+    t1:SetSmoothing("IN_OUT")
+    ag:SetScript("OnPlay", function()
+        switch.isPlaying = true -- prevent continuous clicking
+    end)
+    ag:SetScript("OnFinished", function()
+        switch.isPlaying = false
+        if switch.selected == "LEFT" then
+            switch:SetSelected("RIGHT", true)
+        elseif switch.selected == "RIGHT" then
+            switch:SetSelected("LEFT", true)
+        end
+    end)
+    
+    function switch:SetSelected(value, runFunc)
+        if value == leftValue or value == "LEFT" then
+            switch.selected = "LEFT"
+            switch.selectedValue = leftValue
+            UpdateHighlight("LEFT")
+            t1:SetOffset(highlight:GetWidth(), 0)
+            
+        elseif value == rightValue or value == "RIGHT" then
+            switch.selected = "RIGHT"
+            switch.selectedValue = rightValue
+            UpdateHighlight("RIGHT")
+            t1:SetOffset(-highlight:GetWidth(), 0)
+        end
+
+        if func and runFunc then func(switch.selectedValue) end
+    end
+
+    switch:SetScript("OnMouseDown", function()
+        if switch.selected and not switch.isPlaying then
+            ag:Play()
+        end
+    end)
+
+    switch:SetScript("OnEnter", function()
+        highlight:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], class=="PRIEST" and 0.55 or 0.65)
+    end)
+
+    switch:SetScript("OnLeave", function()
+        highlight:SetColorTexture(accentColor.t[1], accentColor.t[2], accentColor.t[3], class=="PRIEST" and 0.35 or 0.45)
+    end)
+
+    return switch
+end
+
+-----------------------------------------
+-- status bar
+-----------------------------------------
+function addon:CreateStatusBar(name, parent, width, height, maxValue, smooth, func, showText, texture, color)
+    local bar = CreateFrame("StatusBar", name, parent, "BackdropTemplate")
+
+    if not color then color = {accentColor.t[1], accentColor.t[2], accentColor.t[3], 1} end
+    if not texture then
+        local tex = bar:CreateTexture(nil, "ARTWORK")
+        tex:SetColorTexture(1, 1, 1, 1)
+
+        bar:SetStatusBarTexture(tex)
+        bar:SetStatusBarColor(unpack(color))
+    else
+        bar:SetStatusBarTexture(texture)
+        bar:SetStatusBarColor(unpack(color))
+    end
+    
+    -- bar:GetStatusBarTexture():SetHorizTile(false)
+    -- REVIEW: in 9.0, edgeSize = -1 will case a thicker outline
+    local border = CreateFrame("Frame", nil, bar, "BackdropTemplate")
+    bar.border = border
+    border:SetBackdrop({edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=P:Scale(1)})
+    border:SetBackdropBorderColor(0, 0, 0, 1)
+    P:Point(border, "TOPLEFT", bar, "TOPLEFT", -1, 1)
+    P:Point(border, "BOTTOMRIGHT", bar, "BOTTOMRIGHT", 1, -1)
+
+    P:Width(bar, width)
+    P:Height(bar, height)
+    bar:SetBackdrop({bgFile="Interface\\Buttons\\WHITE8x8"})
+    bar:SetBackdropColor(.07, .07, .07, .9)
+    -- bar:SetBackdropBorderColor(0, 0, 0, 1)
+
+    if showText then
+        bar.text = bar:CreateFontString(nil, "OVERLAY", font_name)
+        bar.text:SetJustifyH("CENTER")
+        bar.text:SetJustifyV("MIDDLE")
+        bar.text:SetPoint("CENTER")
+        bar.text:SetText("0%")
+    end
+
+    bar:SetMinMaxValues(0, maxValue)
+    bar:SetValue(0)
+    if smooth then Mixin(bar, SmoothStatusBarMixin) end -- Interface\SharedXML\SmoothStatusBar.lua
+
+    function bar:SetMaxValue(m)
+        maxValue = m
+        if smooth then
+            bar:SetMinMaxSmoothedValue(0, m)
+        else
+            bar:SetMinMaxValues(0, m)
+        end
+    end
+    
+    function bar:Reset()
+        if smooth then
+            bar:SetSmoothedValue(0)
+        else
+            bar:SetValue(0)
+        end
+    end
+
+    bar:SetScript("OnValueChanged", function(self, value)
+        if showText then
+            bar.text:SetText(format("%d%%", value / maxValue * 100))
+        end
+        
+        if func then func() end
+    end)
+
+    bar:SetScript("OnHide", function()
+        bar:SetValue(0)
+    end)
+
+    function bar:UpdatePixelPerfect()
+        P:Resize(bar)
+        P:Repoint(bar)
+        border:SetBackdrop({edgeFile="Interface\\Buttons\\WHITE8x8", edgeSize=P:Scale(1)})
+        border:SetBackdropBorderColor(0, 0, 0, 1)
+        P:Repoint(border)
+    end
+
+    return bar
+end
+
+function addon:CreateStatusBarButton(parent, text, size, maxValue, template)
+    local b = Cell:CreateButton(parent, text, "accent-hover", size, false, true, nil, nil, template)
+    b:SetFrameLevel(parent:GetFrameLevel()+2)
+    b:SetBackdropColor(0, 0, 0, 0)
+    b:SetScript("OnEnter", function()
+        b:SetBackdropBorderColor(unpack(accentColor.t))
+    end)
+    b:SetScript("OnLeave", function()
+        b:SetBackdropBorderColor(0, 0, 0, 1)
+    end)
+    
+    local bar = CreateFrame("StatusBar", nil, b, "BackdropTemplate")
+    b.bar = bar
+    bar:SetPoint("TOPLEFT", b)
+    bar:SetPoint("BOTTOMRIGHT", b)
+    bar:SetStatusBarTexture("Interface\\AddOns\\Cell\\Media\\statusbar.tga")
+    bar:SetStatusBarColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], .5)
+    bar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1})
+    bar:SetBackdropColor(.115, .115, .115, 1)
+    bar:SetBackdropBorderColor(0, 0, 0, 0)
+    P:Size(bar, size[1], size[2])
+    bar:SetMinMaxValues(0, maxValue)
+    bar:SetValue(0)
+    bar:SetFrameLevel(parent:GetFrameLevel()+1)
+    
+    function b:Start()
+        bar:SetValue(select(2, bar:GetMinMaxValues()))
+        bar:SetScript("OnUpdate", function(self, elapsed)
+            bar:SetValue(bar:GetValue()-elapsed)
+            if bar:GetValue() <= 0 then
+                b:Stop()
+            end
+        end)
+    end
+
+    function b:Stop()
+        bar:SetValue(0)
+        bar:SetScript("OnUpdate", nil)
+    end
+
+    function b:SetMaxValue(value)
+        bar:SetMinMaxValues(0, value)
+        bar:SetValue(value)
+    end
+
+    b._UpdatePixelPerfect = b.UpdatePixelPerfect -- store UpdatePixelPerfect in CreateButton
+    function b:UpdatePixelPerfect()
+        b:_UpdatePixelPerfect()
+
+        P:Resize(bar)
+        P:Repoint(bar)
+
+        -- update bar
+        -- backup colors
+        local currentBackdropColor = {bar:GetBackdropColor()}
+        local currentBackdropBorderColor = {bar:GetBackdropBorderColor()}
+        -- update backdrop
+        bar:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+        -- restore colors
+        bar:SetBackdropColor(unpack(currentBackdropColor))
+        bar:SetBackdropBorderColor(unpack(currentBackdropBorderColor))
+        currentBackdropColor = nil
+        currentBackdropBorderColor = nil
+    end
+    
+    return b
+end
+
+-----------------------------------------
+-- mask
+-----------------------------------------
+function addon:CreateMask(parent, text, points) -- points = {topleftX, topleftY, bottomrightX, bottomrightY}
+    if not parent.mask then -- not init
+        parent.mask = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+        addon:StylizeFrame(parent.mask, {0.15, 0.15, 0.15, 0.7}, {0, 0, 0, 0})
+        parent.mask:SetFrameStrata("HIGH")
+        parent.mask:SetFrameLevel(parent:GetFrameLevel()+50)
+        parent.mask:EnableMouse(true) -- can't click-through
+        parent.mask:EnableMouseWheel(true) -- can't scroll-through
+
+        parent.mask.text = parent.mask:CreateFontString(nil, "OVERLAY", font_title_name)
+        parent.mask.text:SetTextColor(1, .2, .2)
+        parent.mask.text:SetPoint("LEFT", 5, 0)
+        parent.mask.text:SetPoint("RIGHT", -5, 0)
+
+        -- parent.mask:SetScript("OnUpdate", function()
+        -- 	if not parent:IsVisible() then
+        -- 		parent.mask:Hide()
+        -- 	end
+        -- end)
+    end
+
+    if not text then text = "" end
+    parent.mask.text:SetText(text)
+
+    parent.mask:ClearAllPoints() -- prepare for SetPoint()
+    if points then
+        local tlX, tlY, brX, brY = unpack(points)
+        parent.mask:SetPoint("TOPLEFT", P:Scale(tlX), P:Scale(tlY))
+        parent.mask:SetPoint("BOTTOMRIGHT", P:Scale(brX), P:Scale(brY))
+    else
+        parent.mask:SetAllPoints(parent) -- anchor points are set to those of its "parent"
+    end
+    parent.mask:Show()
+end
+
+-----------------------------------------
+-- create popup (delete/edit/... confirm) with mask
+-----------------------------------------
+function addon:CreateConfirmPopup(parent, width, text, onAccept, onReject, mask, hasEditBox, dropdowns)
+    if not parent.confirmPopup then -- not init
+        parent.confirmPopup = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+        parent.confirmPopup:SetSize(width, 100)
+        addon:StylizeFrame(parent.confirmPopup, {0.1, 0.1, 0.1, 0.95}, {accentColor.t[1], accentColor.t[2], accentColor.t[3], 1})
+        parent.confirmPopup:EnableMouse(true)
+        parent.confirmPopup:Hide()
+        
+        parent.confirmPopup:SetScript("OnHide", function()
+            parent.confirmPopup:Hide()
+            -- hide mask
+            if mask and parent.mask then parent.mask:Hide() end
+        end)
+
+        parent.confirmPopup.text = parent.confirmPopup:CreateFontString(nil, "OVERLAY", font_title_name)
+        parent.confirmPopup.text:SetWordWrap(true)
+        parent.confirmPopup.text:SetSpacing(3)
+        parent.confirmPopup.text:SetJustifyH("CENTER")
+        parent.confirmPopup.text:SetPoint("TOPLEFT", 5, -8)
+        parent.confirmPopup.text:SetPoint("TOPRIGHT", -5, -8)
+
+        -- yes
+        parent.confirmPopup.button1 = addon:CreateButton(parent.confirmPopup, L["Yes"], "green", {35, 15})
+        -- button1:SetPoint("BOTTOMRIGHT", -45, 0)
+        parent.confirmPopup.button1:SetPoint("BOTTOMRIGHT", -34, 0)
+        parent.confirmPopup.button1:SetBackdropBorderColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 1)
+        -- no
+        parent.confirmPopup.button2 = addon:CreateButton(parent.confirmPopup, L["No"], "red", {35, 15})
+        parent.confirmPopup.button2:SetPoint("LEFT", parent.confirmPopup.button1, "RIGHT", P:Scale(-1), 0)
+        parent.confirmPopup.button2:SetBackdropBorderColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 1)
+    end
+
+    if hasEditBox then
+        if not parent.confirmPopup.editBox then
+            parent.confirmPopup.editBox = addon:CreateEditBox(parent.confirmPopup, width-40, 20)
+            parent.confirmPopup.editBox:SetPoint("TOP", parent.confirmPopup.text, "BOTTOM", 0, -5)
+            parent.confirmPopup.editBox:SetAutoFocus(true)
+            parent.confirmPopup.editBox:SetScript("OnHide", function()
+                parent.confirmPopup.editBox:SetText("")
+            end)
+        end
+        parent.confirmPopup.editBox:Show()
+        -- disable yes if editBox empty
+        parent.confirmPopup.editBox:SetScript("OnTextChanged", function()
+            if not parent.confirmPopup.editBox:GetText() or strtrim(parent.confirmPopup.editBox:GetText()) == "" then
+                parent.confirmPopup.button1:SetEnabled(false)
+            else
+                parent.confirmPopup.button1:SetEnabled(true)
+            end
+        end)
+    elseif parent.confirmPopup.editBox then
+        parent.confirmPopup.editBox:Hide()
+        parent.confirmPopup.editBox:SetScript("OnTextChanged", nil)
+        parent.confirmPopup.button1:SetEnabled(true)
+    end
+
+    if dropdowns then
+        if not parent.confirmPopup.dropdown1 then
+            parent.confirmPopup.dropdown1 = addon:CreateDropdown(parent.confirmPopup, width-40)
+            parent.confirmPopup.dropdown1:SetPoint("LEFT", 20, 0)
+            if hasEditBox then
+                parent.confirmPopup.dropdown1:SetPoint("TOP", parent.confirmPopup.editBox, "BOTTOM", 0, -5)
+            else
+                parent.confirmPopup.dropdown1:SetPoint("TOP", parent.confirmPopup.text, "BOTTOM", 0, -5)
+            end
+        end
+        if not parent.confirmPopup.dropdown2 then
+            parent.confirmPopup.dropdown2 = addon:CreateDropdown(parent.confirmPopup, (width-40)/2-3)
+            parent.confirmPopup.dropdown2:SetPoint("LEFT", parent.confirmPopup.dropdown1, "RIGHT", 5, 0)
+        end
+
+        if dropdowns == 1 then
+            parent.confirmPopup.dropdown1:Show()
+            parent.confirmPopup.dropdown2:Hide()
+        elseif dropdowns == 2 then
+            parent.confirmPopup.dropdown1:Show()
+            parent.confirmPopup.dropdown2:Show()
+            parent.confirmPopup.dropdown1:SetWidth((width-40)/2-2)
+        end
+    elseif parent.confirmPopup.dropdown1 then
+        parent.confirmPopup.dropdown1:Hide()
+        parent.confirmPopup.dropdown2:Hide()
+    end
+
+    if mask then -- show mask?
+        if not parent.mask then
+            addon:CreateMask(parent, nil, {1, -1, -1, 1})
+        else
+            parent.mask:Show()
+        end
+    end
+
+    parent.confirmPopup.button1:SetScript("OnClick", function()
+        if onAccept then onAccept(parent.confirmPopup) end
+        -- hide mask
+        if mask and parent.mask then parent.mask:Hide() end
+        parent.confirmPopup:Hide()
+    end)
+
+    parent.confirmPopup.button2:SetScript("OnClick", function()
+        if onReject then onReject(parent.confirmPopup) end
+        -- hide mask
+        if mask and parent.mask then parent.mask:Hide() end
+        parent.confirmPopup:Hide()
+    end)
+    
+    parent.confirmPopup:SetWidth(width)
+    parent.confirmPopup.text:SetText(text)
+
+    -- update height
+    parent.confirmPopup:SetScript("OnUpdate", function(self, elapsed)
+        local newHeight = parent.confirmPopup.text:GetStringHeight() + 30
+        if hasEditBox then newHeight = newHeight + 30 end
+        if dropdowns then newHeight = newHeight + 30 end
+        parent.confirmPopup:SetHeight(newHeight)
+        -- run OnUpdate once, stop updating height
+        parent.confirmPopup:SetScript("OnUpdate", nil)
+    end)
+
+    parent.confirmPopup:SetFrameStrata("DIALOG")
+    parent.confirmPopup:SetFrameLevel(2)
+    parent.confirmPopup:ClearAllPoints() -- prepare for SetPoint()
+    parent.confirmPopup:Show()
+
+    return parent.confirmPopup
+end
+
+-----------------------------------------
+-- popup edit box
+-----------------------------------------
+function addon:CreatePopupEditBox(parent, func, multiLine)
+    if not parent.popupEditBox then
+        local eb = CreateFrame("EditBox", addonName.."PopupEditBox", parent, "BackdropTemplate")
+        parent.popupEditBox = eb
+        eb:Hide()
+        eb:SetAutoFocus(true)
+        eb:SetFontObject(font)
+        eb:SetJustifyH("LEFT")
+        eb:SetMultiLine(true)
+        eb:SetMaxLetters(255)
+        eb:SetTextInsets(5, 5, 3, 4)
+        addon:StylizeFrame(eb, {0.115, 0.115, 0.115, 1}, {accentColor.t[1], accentColor.t[2], accentColor.t[3], 1})
+        
+        eb:SetScript("OnEscapePressed", function()
+            eb:SetText("")
+            eb:Hide()
+        end)
+
+        function eb:ShowEditBox(text)
+            eb:SetText(text)
+            eb:Show()
+        end
+
+        local tipsText = eb:CreateFontString(nil, "OVERLAY", font_name)
+        tipsText:SetPoint("TOPLEFT", eb, "BOTTOMLEFT", 2, -1)
+        tipsText:SetJustifyH("LEFT")
+        tipsText:Hide()
+
+        local tipsBackground = eb:CreateTexture(nil, "ARTWORK")
+        tipsBackground:SetPoint("TOPLEFT", eb, "BOTTOMLEFT")
+        tipsBackground:SetPoint("TOPRIGHT", eb, "BOTTOMRIGHT")
+        tipsBackground:SetPoint("BOTTOM", tipsText, 0, -2)
+        tipsBackground:SetColorTexture(0.115, 0.115, 0.115, 0.9)
+        tipsBackground:Hide()
+
+        function eb:SetTips(text)
+            tipsText:SetText(text)
+            tipsText:Show()
+            tipsBackground:Show()
+        end
+
+        eb:SetScript("OnHide", function()
+            eb:Hide() -- hide self when parent hides
+            tipsText:Hide()
+            tipsBackground:Hide()
+        end)
+    end
+    
+    parent.popupEditBox:SetScript("OnEnterPressed", function(self)
+        if multiLine and IsShiftKeyDown() then -- new line
+            self:Insert("\n")
+        else
+            func(self:GetText())
+            self:Hide()
+            self:SetText("")
+        end
+    end)
+
+    -- set parent(for hiding) & size
+    parent.popupEditBox:ClearAllPoints()
+    parent.popupEditBox:SetFrameStrata("DIALOG")
+
+    return parent.popupEditBox
+end
+
+-----------------------------------------
+-- cascaded menu
+-----------------------------------------
+local menu = addon:CreateFrame(addonName.."CascadedMenu", UIParent, 100, 20)
+addon.menu = menu
+tinsert(UISpecialFrames, menu:GetName())
+menu:SetBackdropColor(0.115, 0.115, 0.115, 0.977)
+menu:SetBackdropBorderColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 1)
+menu:SetFrameStrata("TOOLTIP")
+menu.items = {}
+
+function menu:UpdatePixelPerfect()
+    menu:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+    menu:SetBackdropColor(0.115, 0.115, 0.115, 0.977)
+    menu:SetBackdropBorderColor(Cell:GetAccentColorRGB())
+end
+
+-- items: menu items table
+-- itemTable: table to store item buttons --> menu/submenu
+-- itemParent: menu/submenu
+-- level: menu level, 0, 1, 2, 3, ...
+local function CreateItemButtons(items, itemTable, itemParent, level)
+    itemParent:SetScript("OnHide", function(self) self:Hide() end)
+
+    for i, item in pairs(items) do
+        local b
+        if itemTable[i] and itemTable[i]:GetObjectType() == "Button" then
+            b = itemTable[i]
+            b:SetText(item.text)
+        else
+            b = addon:CreateButton(itemParent, item.text, "transparent-accent", {98 ,18}, true)
+            tinsert(itemTable, b)
+        end
+
+        b:SetParent(itemParent)
+        b:ClearAllPoints()
+        if i == 1 then
+            b:SetPoint("TOPLEFT", 1, -1)
+            b:SetPoint("RIGHT", -1, 0)
+        else
+            b:SetPoint("TOPLEFT", itemTable[i-1], "BOTTOMLEFT")
+            b:SetPoint("RIGHT", itemTable[i-1])
+        end
+
+        if item.textColor then
+            b:GetFontString():SetTextColor(unpack(item.textColor))
+        end
+
+        if item.icon then
+            if not b.icon then
+                b.iconBg = b:CreateTexture(nil, "BORDER")
+                P:Size(b.iconBg, 16, 16)
+                b.iconBg:SetPoint("TOPLEFT", P:Scale(5), P:Scale(-1))
+                b.iconBg:SetColorTexture(0, 0, 0, 1)
+
+                b.icon = b:CreateTexture(nil, "ARTWORK")
+                b.icon:SetPoint("TOPLEFT", b.iconBg, P:Scale(1), P:Scale(-1))
+                b.icon:SetPoint("BOTTOMRIGHT", b.iconBg, P:Scale(-1), P:Scale(1))
+                b.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+            end
+            b.icon:SetTexture(item.icon)
+            b.icon:Show()
+            b.iconBg:Show()
+            b:GetFontString():SetPoint("LEFT", b.iconBg, "RIGHT", P:Scale(2), 0)
+        else
+            if b.icon then
+                b.icon:Hide()
+                b.iconBg:Hide()
+            end
+            b:GetFontString():SetPoint("LEFT", P:Scale(5), 0)
+        end
+
+        if level == 0 then
+            b:Show()-- show valid top menu buttons
+        else
+            b:Hide()
+            b:SetScript("OnHide", function(self) self:Hide() end)
+        end
+        
+        if item.children then
+            -- create sub menu level+1
+            if not menu[level+1] then
+                -- menu[level+1] parent == menu[level]
+                menu[level+1] = addon:CreateFrame(addonName.."CascadedSubMenu"..level, level == 0 and menu or menu[level], 100, 20)
+                menu[level+1]:SetBackdropColor(.115, .115, .115, 1)
+                menu[level+1]:SetBackdropBorderColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 1)
+                -- menu[level+1]:SetScript("OnHide", function(self) self:Hide() end)
+            end
+
+            if not b.childrenSymbol then
+                b.childrenSymbol = b:CreateFontString(nil, "OVERLAY", font_name)
+                b.childrenSymbol:SetText("|cFF777777>")
+                b.childrenSymbol:SetPoint("RIGHT", -5, 0)
+            end
+            b.childrenSymbol:Show()
+
+            CreateItemButtons(item.children, b, menu[level+1], level+1) -- itemTable == b, insert children to its table
+            
+            b:SetScript("OnEnter", function()
+                b:SetBackdropColor(unpack(b.hoverColor))
+
+                menu[level+1]:Hide()
+
+                menu[level+1]:ClearAllPoints()
+                menu[level+1]:SetPoint("TOPLEFT", b, "TOPRIGHT", 2, 1)
+                menu[level+1]:Show()
+
+                for _, b in ipairs(b) do
+                    b:Show()
+                end
+            end)
+
+            -- clear parent menuItem's onClick
+            b:SetScript("OnClick", function()
+                PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
+            end)
+        else
+            if b.childrenSymbol then b.childrenSymbol:Hide() end
+
+            b:SetScript("OnEnter", function()
+                b:SetBackdropColor(unpack(b.hoverColor))
+
+                if menu[level+1] then menu[level+1]:Hide() end
+            end)
+
+            b:SetScript("OnClick", function()
+                PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
+                menu:Hide()
+                if item.onClick then item.onClick(item.text) end
+            end)
+        end
+    end
+
+    -- update menu/submenu height
+    itemParent:SetHeight(2 + #items*18)
+end
+
+local function CreateItemButtons_Scroll(items, itemTable, limit)
+    menu:SetScript("OnHide", function(self) self:Hide() end)
+
+    for i, item in pairs(items) do
+        local b
+        if itemTable[i] and itemTable[i]:GetObjectType() == "Button" then
+            b = itemTable[i]
+            b:SetText(item.text)
+        else
+            b = addon:CreateButton(menu.scrollFrame.content, item.text, "transparent-accent", {98 ,18}, true)
+            tinsert(itemTable, b)
+        end
+        
+        b:Show()
+        b:SetParent(menu.scrollFrame.content)
+        b:ClearAllPoints()
+        if i == 1 then
+            b:SetPoint("TOPLEFT", 1, -1)
+            b:SetPoint("RIGHT", -1, 0)
+        else
+            b:SetPoint("TOPLEFT", itemTable[i-1], "BOTTOMLEFT")
+            b:SetPoint("RIGHT", itemTable[i-1])
+        end
+
+        if item.textColor then
+            b:GetFontString():SetTextColor(unpack(item.textColor))
+        end
+
+        if item.icon then
+            if not b.icon then
+                b.iconBg = b:CreateTexture(nil, "BORDER")
+                P:Size(b.iconBg, 16, 16)
+                b.iconBg:SetPoint("TOPLEFT", P:Scale(5), P:Scale(-1))
+                b.iconBg:SetColorTexture(0, 0, 0, 1)
+
+                b.icon = b:CreateTexture(nil, "ARTWORK")
+                b.icon:SetPoint("TOPLEFT", b.iconBg, P:Scale(1), P:Scale(-1))
+                b.icon:SetPoint("BOTTOMRIGHT", b.iconBg, P:Scale(-1), P:Scale(1))
+                b.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+            end
+            b.icon:SetTexture(item.icon)
+            b.icon:Show()
+            b.iconBg:Show()
+            b:GetFontString():SetPoint("LEFT", b.iconBg, "RIGHT", P:Scale(2), 0)
+        else
+            if b.icon then
+                b.icon:Hide()
+                b.iconBg:Hide()
+            end
+            b:GetFontString():SetPoint("LEFT", P:Scale(5), 0)
+        end
+
+        if b.childrenSymbol then b.childrenSymbol:Hide() end
+
+        b:SetScript("OnEnter", function()
+            b:SetBackdropColor(unpack(b.hoverColor))
+        end)
+
+        b:SetScript("OnClick", function()
+            PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
+            menu:Hide()
+            if item.onClick then item.onClick(item.text) end
+        end)
+    end
+
+    -- update height
+    local n = #items
+    menu.scrollFrame:SetContentHeight(2 + n * 18)
+    if n <= limit then
+        menu:SetHeight(2 + n * 18)
+    else
+        menu:SetHeight(2 + limit * 18)
+    end
+end
+
+function menu:SetItems(items, limit)
+    -- clear topmenu
+    for _, b in pairs({menu:GetChildren()}) do
+        if b:GetObjectType() == "Button" then
+            b:Hide()
+        end
+    end
+
+    if not menu.scrollFrame then
+        addon:CreateScrollFrame(menu)
+        menu.scrollFrame:SetScrollStep(18)
+    end
+    menu.scrollFrame:Reset()
+
+    -- create buttons -- items, itemTable, itemParent, level
+    if limit then
+        menu.scrollFrame:Show()
+        CreateItemButtons_Scroll(items, menu.items, limit)
+    else
+        menu.scrollFrame:Hide()
+        CreateItemButtons(items, menu.items, menu, 0)
+    end
+end
+
+function menu:SetWidths(...)
+    local widths = {...}
+    P:Width(menu, widths[1])
+    if #widths == 1 then
+        for _, m in ipairs(menu) do
+            P:Width(m, widths[1])
+        end
+    else
+        for i, m in ipairs(menu) do
+            if widths[i+1] then P:Width(m, widths[i+1]) end
+        end
+    end
+end
+
+function menu:ShowMenu()
+    for i, m in ipairs(menu) do
+        m:Hide()
+    end
+    menu:Show()
+end
+
+function menu:SetMenuParent(parent)
+    menu:SetParent(parent)
+    menu:SetFrameStrata("TOOLTIP")
+end
+
+-----------------------------------------
+-- scroll text frame
+-----------------------------------------
+function addon:CreateScrollTextFrame(parent, s, timePerScroll, scrollStep, delayTime, noFadeIn)
+    if not delayTime then delayTime = 3 end
+    if not timePerScroll then timePerScroll = 0.025 end
+    if not scrollStep then scrollStep = 1 end
+
+    local frame = CreateFrame("ScrollFrame", nil, parent)
+    -- frame:Hide() -- hide by default
+    frame:SetHeight(20)
+
+    local content = CreateFrame("Frame", nil, frame)
+    content:SetSize(20, 20)
+    frame:SetScrollChild(content)
+
+    local text = content:CreateFontString(nil, "OVERLAY", font_name)
+    text:SetWordWrap(false)
+    text:SetPoint("LEFT")
+    text:SetText(s)
+
+    -- alpha changing animation
+    local fadeIn = text:CreateAnimationGroup()
+    local alpha = fadeIn:CreateAnimation("Alpha")
+    alpha:SetFromAlpha(0)
+    alpha:SetToAlpha(1)
+    alpha:SetDuration(.5)
+    
+    local fadeOutIn = text:CreateAnimationGroup()
+    local alpha1 = fadeOutIn:CreateAnimation("Alpha")
+    alpha1:SetStartDelay(delayTime)
+    alpha1:SetFromAlpha(1)
+    alpha1:SetToAlpha(0)
+    alpha1:SetDuration(.5)
+    alpha1:SetOrder(1)
+    local alpha2 = fadeOutIn:CreateAnimation("Alpha")
+    alpha2:SetFromAlpha(0)
+    alpha2:SetToAlpha(1)
+    alpha2:SetDuration(.5)
+    alpha2:SetOrder(2)
+    alpha2:SetStartDelay(.1)
+
+    local maxHScrollRange
+    local elapsedTime, delay, scroll = 0, 0, 0
+    local nextRound
+    
+    alpha1:SetScript("OnFinished", function()
+        frame:SetHorizontalScroll(0)
+    end)
+
+    fadeOutIn:SetScript("OnFinished", function()
+        delay = 0
+        scroll = 0
+        nextRound = false
+        wait = false
+    end)
+
+    -- init frame
+    frame:SetScript("OnShow", function()
+        -- init
+        if not noFadeIn then fadeIn:Play() end
+        frame:SetHorizontalScroll(0)
+        elapsedTime, delay, scroll = 0, 0, 0
+
+        -- NOTE: frame:GetWidth() is valid on next OnUpdate
+        frame:SetScript("OnUpdate", function()
+            if frame:GetWidth() ~= 0 then
+                frame:SetScript("OnUpdate", nil)
+
+                if text:GetStringWidth() <= frame:GetWidth() then -- NOTE: frame in a scrollFrame will cause frame:GetWidth() == 0
+                    frame:SetScript("OnUpdate", nil)
+                else
+                    maxHScrollRange = text:GetStringWidth() - frame:GetWidth()
+                    frame:SetScript("OnUpdate", function(self, elapsed)
+                        elapsedTime = elapsedTime + elapsed
+                        delay = delay + elapsed
+                        if elapsedTime >= timePerScroll then
+                            if not wait and delay >= delayTime then
+                                if nextRound then
+                                    wait = true
+                                    fadeOutIn:Play()
+                                elseif scroll >= maxHScrollRange then -- prepare for next round
+                                    nextRound = true
+                                else
+                                    frame:SetHorizontalScroll(scroll)
+                                    scroll = scroll + scrollStep
+                                end
+                            end
+                            elapsedTime = 0
+                        end
+                    end)
+                end
+            end
+        end)
+    end)
+
+    function frame:SetText(str)
+        text:SetText(str)
+        if frame:IsVisible() then
+            frame:GetScript("OnShow")()
+        end
+    end
+
+    return frame
+end
+
+-----------------------------------------------------------------------------------
+-- create scroll frame (with scrollbar & content frame)
+-----------------------------------------------------------------------------------
+function addon:CreateScrollFrame(parent, top, bottom, color, border)
+    -- create scrollFrame & scrollbar seperately (instead of UIPanelScrollFrameTemplate), in order to custom it
+    local scrollFrame = CreateFrame("ScrollFrame", parent:GetName() and parent:GetName().."ScrollFrame" or nil, parent, "BackdropTemplate")
+    parent.scrollFrame = scrollFrame
+    top = top or 0
+    bottom = bottom or 0
+    scrollFrame:SetPoint("TOPLEFT", 0, top)
+    scrollFrame:SetPoint("BOTTOMRIGHT", 0, bottom)
+
+    if color then
+        addon:StylizeFrame(scrollFrame, color, border)
+    end
+
+    function scrollFrame:Resize(newTop, newBottom)
+        top = newTop
+        bottom = newBottom
+        scrollFrame:SetPoint("TOPLEFT", 0, top)
+        scrollFrame:SetPoint("BOTTOMRIGHT", 0, bottom)
+    end
+    
+    -- content
+    local content = CreateFrame("Frame", nil, scrollFrame, "BackdropTemplate")
+    content:SetSize(scrollFrame:GetWidth(), 2)
+    scrollFrame:SetScrollChild(content)
+    scrollFrame.content = content
+    -- content:SetFrameLevel(2)
+    
+    -- scrollbar
+    local scrollbar = CreateFrame("Frame", nil, scrollFrame, "BackdropTemplate")
+    scrollbar:SetPoint("TOPLEFT", scrollFrame, "TOPRIGHT", 2, 0)
+    scrollbar:SetPoint("BOTTOMRIGHT", scrollFrame, 7, 0)
+    scrollbar:Hide()
+    addon:StylizeFrame(scrollbar, {0.1, 0.1, 0.1, 0.8})
+    scrollFrame.scrollbar = scrollbar
+    
+    -- scrollbar thumb
+    local scrollThumb = CreateFrame("Frame", nil, scrollbar, "BackdropTemplate")
+    scrollThumb:SetWidth(5) -- scrollbar's width is 5
+    scrollThumb:SetHeight(scrollbar:GetHeight())
+    scrollThumb:SetPoint("TOP")
+    addon:StylizeFrame(scrollThumb, {accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.8})
+    scrollThumb:EnableMouse(true)
+    scrollThumb:SetMovable(true)
+    scrollThumb:SetHitRectInsets(-5, -5, 0, 0) -- Frame:SetHitRectInsets(left, right, top, bottom)
+    scrollFrame.scrollThumb = scrollThumb
+    
+    -- reset content height manually ==> content:GetBoundsRect() make it right @OnUpdate
+    function scrollFrame:ResetHeight()
+        content:SetHeight(2)
+    end
+    
+    -- reset to top, useful when used with DropDownMenu (variable content height)
+    function scrollFrame:ResetScroll()
+        scrollFrame:SetVerticalScroll(0)
+        scrollThumb:SetPoint("TOP")
+    end
+    
+    -- FIXME: GetVerticalScrollRange goes wrong in 9.0.1
+    function scrollFrame:GetVerticalScrollRange()
+        local range = content:GetHeight() - scrollFrame:GetHeight()
+        return range > 0 and range or 0
+    end
+
+    -- local scrollRange -- ACCURATE scroll range, for SetVerticalScroll(), instead of scrollFrame:GetVerticalScrollRange()
+    function scrollFrame:VerticalScroll(step)
+        local scroll = scrollFrame:GetVerticalScroll() + step
+        -- if CANNOT SCROLL then scroll = -25/25, scrollFrame:GetVerticalScrollRange() = 0
+        -- then scrollFrame:SetVerticalScroll(0) and scrollFrame:SetVerticalScroll(scrollFrame:GetVerticalScrollRange()) ARE THE SAME
+        if scroll <= 0 then
+            scrollFrame:SetVerticalScroll(0)
+        elseif scroll >= scrollFrame:GetVerticalScrollRange() then
+            scrollFrame:SetVerticalScroll(scrollFrame:GetVerticalScrollRange())
+        else
+            scrollFrame:SetVerticalScroll(scroll)
+        end
+    end
+
+    -- NOTE: this func should not be called before Show, or GetVerticalScrollRange will be incorrect.
+    function scrollFrame:ScrollToBottom()
+        scrollFrame:SetVerticalScroll(scrollFrame:GetVerticalScrollRange())
+    end
+
+    function scrollFrame:SetContentHeight(height, num, spacing)
+        if num and spacing then
+            content:SetHeight(num*height+(num-1)*spacing)
+        else
+            content:SetHeight(height)
+        end
+    end
+
+    --[[ BUG: not reliable
+    -- to remove/hide widgets "widget:SetParent(nil)" MUST be called!!!
+    scrollFrame:SetScript("OnUpdate", function()
+        -- set content height, check if it CAN SCROLL
+        local x, y, w, h = content:GetBoundsRect()
+        -- NOTE: if content is not IN SCREEN -> x,y<0 -> h==-y!
+        if x > 0 and y > 0 then
+            content:SetHeight(h)
+        end
+    end)
+    ]]
+    
+    -- stores all widgets on content frame
+    -- local autoWidthWidgets = {}
+
+    function scrollFrame:ClearContent()
+        for _, c in pairs({content:GetChildren()}) do
+            c:SetParent(nil)  -- or it will show (OnUpdate)
+            c:ClearAllPoints()
+            c:Hide()
+        end
+        -- wipe(autoWidthWidgets)
+        scrollFrame:ResetHeight()
+    end
+
+    function scrollFrame:Reset()
+        scrollFrame:ResetScroll()
+        scrollFrame:ClearContent()
+    end
+    
+    -- function scrollFrame:SetWidgetAutoWidth(widget)
+    -- 	table.insert(autoWidthWidgets, widget)
+    -- end
+    
+    -- on width changed, make the same change to widgets
+    scrollFrame:SetScript("OnSizeChanged", function()
+        -- change widgets width (marked as auto width)
+        -- for i = 1, #autoWidthWidgets do
+        -- 	autoWidthWidgets[i]:SetWidth(scrollFrame:GetWidth())
+        -- end
+
+        -- update content width
+        content:SetWidth(scrollFrame:GetWidth())
+    end)
+
+    -- check if it can scroll
+    content:SetScript("OnSizeChanged", function()
+        -- set ACCURATE scroll range
+        -- scrollRange = content:GetHeight() - scrollFrame:GetHeight()
+
+        -- set thumb height (%)
+        local p = scrollFrame:GetHeight() / content:GetHeight()
+        p = tonumber(string.format("%.3f", p))
+        if p < 1 then -- can scroll
+            scrollThumb:SetHeight(scrollbar:GetHeight()*p)
+            -- space for scrollbar
+            scrollFrame:SetPoint("BOTTOMRIGHT", parent, -7, bottom)
+            scrollbar:Show()
+        else
+            scrollFrame:SetPoint("BOTTOMRIGHT", parent, 0, bottom)
+            scrollbar:Hide()
+            if scrollFrame:GetVerticalScroll() > 0 then scrollFrame:SetVerticalScroll(0) end
+        end
+    end)
+
+    -- DO NOT USE OnScrollRangeChanged to check whether it can scroll.
+    -- "invisible" widgets should be hidden, then the scroll range is NOT accurate!
+    -- scrollFrame:SetScript("OnScrollRangeChanged", function(self, xOffset, yOffset) end)
+    
+    -- dragging and scrolling
+    scrollThumb:SetScript("OnMouseDown", function(self, button)
+        if button ~= 'LeftButton' then return end
+        local offsetY = select(5, scrollThumb:GetPoint(1))
+        local mouseY = select(2, GetCursorPosition())
+        local uiScale = UIParent:GetEffectiveScale() -- https://wowpedia.fandom.com/wiki/API_GetCursorPosition
+        local currentScroll = scrollFrame:GetVerticalScroll()
+        self:SetScript("OnUpdate", function(self)
+            --------------------- y offset before dragging + mouse offset
+            local newOffsetY = offsetY + (select(2, GetCursorPosition()) - mouseY) / uiScale
+            
+            -- even scrollThumb:SetPoint is already done in OnVerticalScroll, but it's useful in some cases.
+            if newOffsetY >= 0 then -- @top
+                scrollThumb:SetPoint("TOP")
+                newOffsetY = 0
+            elseif (-newOffsetY) + scrollThumb:GetHeight() >= scrollbar:GetHeight() then -- @bottom
+                scrollThumb:SetPoint("TOP", 0, -(scrollbar:GetHeight() - scrollThumb:GetHeight()))
+                newOffsetY = -(scrollbar:GetHeight() - scrollThumb:GetHeight())
+            else
+                scrollThumb:SetPoint("TOP", 0, newOffsetY)
+            end
+            local vs = (-newOffsetY / (scrollbar:GetHeight()-scrollThumb:GetHeight())) * scrollFrame:GetVerticalScrollRange()
+            scrollFrame:SetVerticalScroll(vs)
+        end)
+    end)
+
+    scrollThumb:SetScript("OnMouseUp", function(self)
+        self:SetScript("OnUpdate", nil)
+    end)
+    
+    scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
+        if scrollFrame:GetVerticalScrollRange() ~= 0 then
+            local scrollP = scrollFrame:GetVerticalScroll()/scrollFrame:GetVerticalScrollRange()
+            local yoffset = -((scrollbar:GetHeight()-scrollThumb:GetHeight())*scrollP)
+            scrollThumb:SetPoint("TOP", 0, yoffset)
+        end
+    end)
+
+    function scrollFrame:UpdateSize()
+        content:GetScript("OnSizeChanged")(content)
+        scrollFrame:GetScript("OnVerticalScroll")(scrollFrame)
+        scrollFrame:VerticalScroll(0)
+    end
+    
+    local step = 25
+    function scrollFrame:SetScrollStep(s)
+        step = s
+    end
+    
+    -- enable mouse wheel scroll
+    scrollFrame:EnableMouseWheel(true)
+    scrollFrame:SetScript("OnMouseWheel", function(self, delta)
+        if delta == 1 then -- scroll up
+            scrollFrame:VerticalScroll(-step)
+        elseif delta == -1 then -- scroll down
+            scrollFrame:VerticalScroll(step)
+        end
+    end)
+    
+    return scrollFrame
+end
+
+------------------------------------------------
+-- dropdown menu
+------------------------------------------------
+local listInit, list, highlightTexture
+list = CreateFrame("Frame", addonName.."DropdownList", UIParent, "BackdropTemplate")
+list:SetIgnoreParentScale(true)
+-- addon:StylizeFrame(list, {0.115, 0.115, 0.115, 1})
+list:Hide()
+
+-- store created buttons
+list.items = {}
+
+-- highlight
+highlightTexture = CreateFrame("Frame", nil, list, "BackdropTemplate")
+-- highlightTexture:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+-- highlightTexture:SetBackdropBorderColor(unpack(accentColor.t))
+highlightTexture:Hide()
+
+list:SetScript("OnShow", function()
+    list:SetScale(list.menu:GetEffectiveScale())
+    list:SetFrameStrata(list.menu:GetFrameStrata())
+    list:SetFrameLevel(77) -- top of its strata
+end)
+list:SetScript("OnHide", function() list:Hide() end)
+
+-- close dropdown
+function addon:RegisterForCloseDropdown(f)
+    if f:GetObjectType() == "Button" or f:GetObjectType() == "CheckButton" then
+        f:HookScript("OnClick", function()
+            list:Hide()
+        end)
+    elseif f:GetObjectType() == "Slider" then
+        f:HookScript("OnValueChanged", function()
+            list:Hide()
+        end)
+    end
+end
+
+local function SetHighlightItem(i)
+    if not i then
+        highlightTexture:ClearAllPoints()
+        highlightTexture:Hide()
+    else
+        highlightTexture:SetParent(list.items[i]) -- buttons show/hide automatically when scroll, so let highlightTexture to be the same
+        highlightTexture:ClearAllPoints()
+        highlightTexture:SetAllPoints(list.items[i])
+        highlightTexture:Show()
+    end
+end
+
+function addon:CreateDropdown(parent, width, dropdownType, isMini)
+    local menu = CreateFrame("Frame", nil, parent, "BackdropTemplate")
+    P:Size(menu, width, 20)
+    menu:EnableMouse(true)
+    -- menu:SetFrameLevel(5)
+    addon:StylizeFrame(menu, {0.115, 0.115, 0.115, 1})
+    
+    -- button: open/close menu list
+    if isMini then
+        menu.button = addon:CreateButton(menu, "", "transparent-accent", {18 ,18})
+        menu.button:SetAllPoints(menu)
+        menu.button:SetFrameLevel(menu:GetFrameLevel()+1)
+        -- selected item
+        menu.text = menu.button:CreateFontString(nil, "OVERLAY", font_name)
+        menu.text:SetPoint("LEFT", P:Scale(1), 0)
+        menu.text:SetPoint("RIGHT", P:Scale(-1), 0)
+        menu.text:SetJustifyH("CENTER")
+    else
+        menu.button = addon:CreateButton(menu, "", "transparent-accent", {18 ,20})
+        addon:StylizeFrame(menu.button, {0.115, 0.115, 0.115, 1})
+        menu.button:SetPoint("TOPRIGHT")
+        menu.button:SetFrameLevel(menu:GetFrameLevel()+1)
+        menu.button:SetNormalTexture([[Interface\AddOns\Cell\Media\Icons\dropdown-normal]])
+        menu.button:SetPushedTexture([[Interface\AddOns\Cell\Media\Icons\dropdown-pushed]])
+
+        local disabledTexture = menu.button:CreateTexture(nil, "OVERLAY")
+        disabledTexture:SetTexture([[Interface\AddOns\Cell\Media\Icons\dropdown-normal]])
+        disabledTexture:SetVertexColor(0.4, 0.4, 0.4, 1)
+        menu.button:SetDisabledTexture(disabledTexture)
+        -- selected item
+        menu.text = menu:CreateFontString(nil, "OVERLAY", font_name)
+        menu.text:SetPoint("TOPLEFT", P:Scale(5), P:Scale(-1))
+        menu.text:SetPoint("BOTTOMRIGHT", P:Scale(-18), P:Scale(1))
+        menu.text:SetJustifyH("LEFT")
+    end
+
+    -- selected item
+    menu.text:SetJustifyV("MIDDLE")
+    menu.text:SetWordWrap(false)
+
+    if dropdownType == "texture" then
+        menu.texture = menu:CreateTexture(nil, "ARTWORK")
+        menu.texture:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+        menu.texture:SetPoint("BOTTOMRIGHT", P:Scale(-18), P:Scale(1))
+        menu.texture:SetVertexColor(1, 1, 1, 0.7)
+    end
+    
+    -- keep all menu item buttons
+    menu.items = {}
+
+    -- index in items
+    -- menu.selected
+    
+    function menu:SetSelected(text, value)
+        local valid
+        for i, item in pairs(menu.items) do
+            if item.text == text then
+                valid = true
+                -- store index for list
+                menu.selected = i
+                menu.text:SetText(text)
+                if dropdownType == "texture" then
+                    menu.texture:SetTexture(value)
+                elseif dropdownType == "font" then
+                    menu.text:SetFont(value, 13+fontSizeOffset)
+                end
+                break
+            end
+        end
+        if not valid then
+            menu.selected = nil
+            menu.text:SetText("")
+        end
+    end
+
+    function menu:SetSelectedValue(value)
+        for i, item in pairs(menu.items) do
+            if item.value == value then
+                menu.selected = i
+                menu.text:SetText(item.text)
+                break
+            end
+        end
+    end
+
+    function menu:GetSelected()
+        if menu.selected then
+            return menu.items[menu.selected].value or menu.items[menu.selected].text
+        end
+        return nil
+    end
+
+    function menu:SetSelectedItem(itemNum)
+        local item = menu.items[itemNum]
+        menu.text:SetText(item.text)
+        menu.selected = itemNum
+    end
+
+    -- items = {
+    -- 	{
+    -- 		["text"] = (string),
+    -- 		["value"] = (obj),
+    -- 		["texture"] = (string),
+    -- 		["onClick"] = (function)
+    -- 	},
+    -- }
+    function menu:SetItems(items)
+        menu.items = items
+        menu.reloadRequired = true
+    end
+
+    function menu:AddItem(item)
+        tinsert(menu.items, item)
+        menu.reloadRequired = true
+    end
+
+    function menu:RemoveCurrentItem()
+        tremove(menu.items, menu.selected)
+        menu.reloadRequired = true
+    end
+
+    function menu:ClearItems()
+        wipe(menu.items)
+        menu.selected = nil
+        menu.text:SetText("")
+    end
+
+    function menu:SetCurrentItem(item)
+        menu.items[menu.selected] = item
+        -- usually, update current item means to change its name (text) and func
+        menu.text:SetText(item["text"])
+        menu.reloadRequired = true
+    end
+
+    local function LoadItems()
+        if not listInit then
+            listInit = true
+            addon:CreateScrollFrame(list)
+            list.scrollFrame:SetScrollStep(18)
+            addon:StylizeFrame(list, {0.115, 0.115, 0.115, 1})
+            highlightTexture:SetBackdrop({edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+            highlightTexture:SetBackdropBorderColor(unpack(accentColor.t))
+        end
+
+        -- hide highlight
+        SetHighlightItem()
+        -- hide all list items
+        list.scrollFrame:Reset()
+
+        -- load current dropdown
+        for i, item in pairs(menu.items) do
+            local b
+            if not list.items[i] then
+                -- init
+                b = addon:CreateButton(list.scrollFrame.content, item.text, "transparent-accent", {18 ,18}, true) --! width is not important
+                table.insert(list.items, b)
+
+                -- texture
+                b.texture = b:CreateTexture(nil, "ARTWORK")
+                b.texture:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+                b.texture:SetPoint("BOTTOMRIGHT", P:Scale(-1), P:Scale(1))
+                b.texture:SetVertexColor(1, 1, 1, 0.7)
+                b.texture:Hide()
+            else
+                b = list.items[i]
+                b:SetText(item.text)
+            end
+
+            local fs = b:GetFontString()
+            if isMini then
+                fs:ClearAllPoints()
+                fs:SetJustifyH("CENTER")
+                fs:SetPoint("LEFT", 1, 0)
+                fs:SetPoint("RIGHT", -1, 0)
+            else
+                fs:ClearAllPoints()
+                fs:SetJustifyH("LEFT")
+                fs:SetPoint("LEFT", 5, 0)
+                fs:SetPoint("RIGHT", -5, 0)
+            end
+
+            b:SetEnabled(not item.disabled)
+
+            -- texture
+            if item.texture then
+                b.texture:SetTexture(item.texture)
+                b.texture:Show()
+            else
+                b.texture:Hide()
+            end
+
+            -- font
+            local f, s = font:GetFont()
+            if item.font then
+                b:GetFontString():SetFont(item.font, s)
+            else
+                b:GetFontString():SetFont(f, s)
+            end
+
+            -- highlight
+            if menu.selected == i then
+                SetHighlightItem(i)
+            end
+
+            b:SetScript("OnClick", function()
+                PlaySound(SOUNDKIT.U_CHAT_SCROLL_BUTTON)
+                if dropdownType == "texture" then
+                    menu:SetSelected(item.text, item.texture)
+                elseif dropdownType == "font" then
+                    menu:SetSelected(item.text, item.font)
+                else
+                    menu:SetSelected(item.text)
+                end
+                list:Hide()
+                if item.onClick then item.onClick(item.text) end
+            end)
+
+            -- update point
+            b:SetParent(list.scrollFrame.content)
+            b:Show()
+            if i == 1 then
+                b:SetPoint("TOPLEFT", P:Scale(1), P:Scale(-1))
+                b:SetPoint("TOPRIGHT", P:Scale(-1), P:Scale(-1))
+            else
+                b:SetPoint("TOPLEFT", list.items[i-1], "BOTTOMLEFT")
+                b:SetPoint("TOPRIGHT", list.items[i-1], "BOTTOMRIGHT")
+            end
+        end
+
+        -- update list size
+        list.menu = menu -- menu's OnHide -> list:Hide
+        list:ClearAllPoints()
+        list:SetPoint("TOPLEFT", menu, "BOTTOMLEFT", 0, -2)
+        
+        if #menu.items == 0 then
+            list:SetSize(menu:GetWidth(), P:Scale(5))
+        elseif #menu.items <= 10 then
+            list:SetSize(menu:GetWidth(), P:Scale(2) + #menu.items*P:Scale(18))
+            list.scrollFrame:SetContentHeight(P:Scale(2) + #menu.items*P:Scale(18))
+        else
+            list:SetSize(menu:GetWidth(), P:Scale(2) + 10*P:Scale(18))
+            -- update list scrollFrame
+            list.scrollFrame:SetContentHeight(P:Scale(2) + #menu.items*P:Scale(18))
+        end
+    end
+
+    function menu:SetEnabled(f)
+        menu.button:SetEnabled(f)
+        if f then
+            menu.text:SetTextColor(1, 1, 1)
+        else
+            menu.text:SetTextColor(0.4, 0.4, 0.4)
+        end
+    end
+
+    menu:SetScript("OnHide", function()
+        if list.menu == menu then
+            list:Hide()
+        end
+    end)
+    
+    -- scripts
+    menu.button:HookScript("OnClick", function()
+        if list.menu ~= menu then -- list shown by other dropdown
+            LoadItems()
+            list:Show()
+
+        elseif list:IsShown() then -- list showing by this, hide it
+            list:Hide()
+
+        else
+            if menu.reloadRequired then
+                LoadItems()
+                menu.reloadRequired = false
+            else
+                -- update highlight
+                if menu.selected then
+                    SetHighlightItem(menu.selected)
+                end
+            end
+            list:Show()
+        end
+    end)
+    
+    return menu
+end
+
+-----------------------------------------
+-- binding button
+-----------------------------------------
+local function GetModifier()
+    local modifier = "" -- "shift-", "ctrl-", "alt-", "ctrl-shift-", "alt-shift-", "alt-ctrl-", "alt-ctrl-shift-"
+    local alt, ctrl, shift = IsAltKeyDown(), IsControlKeyDown(), IsShiftKeyDown()
+    if alt and ctrl and shift then
+        modifier = "alt-ctrl-shift-"
+    elseif alt and ctrl then
+        modifier = "alt-ctrl-"
+    elseif alt and shift then
+        modifier = "alt-shift-"
+    elseif ctrl and shift then
+        modifier = "ctrl-shift-"
+    elseif alt then
+        modifier = "alt-"
+    elseif ctrl then
+        modifier = "ctrl-"
+    elseif shift then
+        modifier = "shift-"
+    end
+    return modifier
+end
+
+function addon:CreateBindingButton(parent, width)
+    if not parent.bindingButton then
+        parent.bindingButton = addon:CreateFrame("CellClickCastings_BindingButton", parent, 50, 20)
+        parent.bindingButton:SetFrameStrata("TOOLTIP")
+        parent.bindingButton:Hide()
+        tinsert(UISpecialFrames, parent.bindingButton:GetName())
+        addon:StylizeFrame(parent.bindingButton, {.1, .1, .1, 1}, {accentColor.t[1], accentColor.t[2], accentColor.t[3]})
+
+        parent.bindingButton.close = addon:CreateButton(parent.bindingButton, "×", "red", {18, 18}, true, true, "CELL_FONT_SPECIAL", "CELL_FONT_SPECIAL")
+        parent.bindingButton.close:SetPoint("TOPRIGHT", -1, -1)
+        parent.bindingButton.close:SetScript("OnClick", function()
+            parent.bindingButton:Hide()
+        end)
+        
+        parent.bindingButton.text = parent.bindingButton:CreateFontString(nil, "OVERLAY", font_name)
+        parent.bindingButton.text:SetPoint("LEFT")
+        parent.bindingButton.text:SetPoint("RIGHT", parent.bindingButton.close, "LEFT")
+        parent.bindingButton.text:SetText(L["Press Key to Bind"])
+
+        parent.bindingButton:SetScript("OnHide", function()
+            parent.bindingButton:Hide()
+        end)
+
+        parent.bindingButton:EnableMouse(true)
+        parent.bindingButton:EnableMouseWheel(true)
+        parent.bindingButton:EnableKeyboard(true)
+
+        -- mouse
+        parent.bindingButton:SetScript("OnMouseDown", function(self, key)
+            parent.bindingButton:Hide()
+            if key == "LeftButton" then
+                key = "Left"
+            elseif key == "RightButton" then
+                key = "Right"
+            elseif key == "MiddleButton" then
+                key = "Middle"
+            end
+
+            if parent.bindingButton.func then parent.bindingButton.func(GetModifier(), key) end
+        end)
+        
+        -- mouse wheel
+        parent.bindingButton:SetScript("OnMouseWheel", function(self, key)
+            parent.bindingButton:Hide()
+            if parent.bindingButton.func then parent.bindingButton.func(GetModifier(), (key==1) and "ScrollUp" or "ScrollDown") end
+        end)
+        
+        -- keyboard
+        parent.bindingButton:SetScript("OnKeyDown", function(self, key)
+            if key == "ESCAPE" or key == "LALT" or key == "RALT" or key == "LCTRL" or key == "RCTRL" or key == "LSHIFT" or key ==  "RSHIFT" then return end
+            parent.bindingButton:Hide()
+            if parent.bindingButton.func then parent.bindingButton.func(GetModifier(), key) end
+        end)
+        
+        function parent.bindingButton:SetFunc(func)
+            parent.bindingButton.func = func
+        end
+    end
+
+    parent.bindingButton:ClearAllPoints()
+    P:Width(parent.bindingButton, width)
+
+    return parent.bindingButton
+end
+
+-----------------------------------------
+-- binding list button
+-----------------------------------------
+local function CreateGrid(parent, text, width)
+    local grid = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    grid:SetFrameLevel(6)
+    grid:SetSize(width, P:Scale(20))
+    grid:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+    grid:SetBackdropColor(0, 0, 0, 0) 
+    grid:SetBackdropBorderColor(0, 0, 0, 1)
+
+    -- to avoid SetText("") -> GetFontString() == nil
+    grid.text = grid:CreateFontString(nil, "OVERLAY", font_name)
+    grid.text:SetWordWrap(false)
+    grid.text:SetJustifyH("LEFT")
+    grid.text:SetPoint("LEFT", P:Scale(5), 0)
+    grid.text:SetPoint("RIGHT", P:Scale(-5), 0)
+    grid.text:SetText(text)
+
+    function grid:SetText(s)
+        grid.text:SetText(s)
+    end
+
+    function grid:GetText()
+        return grid.text:GetText()
+    end
+
+    function grid:IsTruncated()
+        return grid.text:IsTruncated()
+    end
+
+    grid:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+    grid:SetScript("OnEnter", function() 
+        grid:SetBackdropColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], .15)
+        parent:Highlight()
+    end)
+
+    grid:SetScript("OnLeave", function()
+        grid:SetBackdropColor(0, 0, 0, 0)
+        parent:Unhighlight()
+    end)
+
+    return grid
+end
+
+function addon:CreateBindingListButton(parent, modifier, bindKey, bindType, bindAction)
+    local b = CreateFrame("Button", nil, parent, "BackdropTemplate")
+    b:SetFrameLevel(5)
+    P:Size(b, 100, 20)
+    b:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = P:Scale(1)})
+    b:SetBackdropColor(0.115, 0.115, 0.115, 1) 
+    b:SetBackdropBorderColor(0, 0, 0, 1)
+
+    function b:Highlight()
+        b:SetBackdropColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 0.1)
+    end
+
+    function b:Unhighlight()
+        b:SetBackdropColor(0.115, 0.115, 0.115, 1)
+    end
+
+    local keyGrid = CreateGrid(b, modifier..bindKey, 130)
+    b.keyGrid = keyGrid
+    keyGrid:SetPoint("BOTTOMLEFT")
+
+    local typeGrid = CreateGrid(b, bindType, 70)
+    b.typeGrid = typeGrid
+    typeGrid:SetPoint("BOTTOMLEFT", keyGrid, "BOTTOMRIGHT", P:Scale(-1), 0)
+
+    local actionGrid = CreateGrid(b, bindAction, 100)
+    b.actionGrid = actionGrid
+    actionGrid:SetPoint("BOTTOMLEFT", typeGrid, "BOTTOMRIGHT", P:Scale(-1), 0)
+    actionGrid:SetPoint("BOTTOMRIGHT")
+
+    actionGrid:HookScript("OnEnter", function()
+        if actionGrid:IsTruncated() then
+            CellTooltip:SetOwner(actionGrid, "ANCHOR_TOPLEFT", 0, P:Scale(1))
+            CellTooltip:AddLine(L["Action"])
+            CellTooltip:AddLine("|cffffffff" .. actionGrid:GetText())
+            CellTooltip:Show()
+        end
+    end)
+    actionGrid:HookScript("OnLeave", function()
+        CellTooltip:Hide()
+    end)
+
+    -- spell icon
+    local spellIconBg = actionGrid:CreateTexture(nil, "BORDER")
+    P:Size(spellIconBg, 16, 16)
+    spellIconBg:SetPoint("TOPLEFT", P:Scale(2), P:Scale(-2))
+    spellIconBg:SetColorTexture(0, 0, 0, 1)
+    spellIconBg:Hide()
+
+    local spellIcon = actionGrid:CreateTexture(nil, "OVERLAY")
+    spellIcon:SetPoint("TOPLEFT", spellIconBg, P:Scale(1), P:Scale(-1))
+    spellIcon:SetPoint("BOTTOMRIGHT", spellIconBg, P:Scale(-1), P:Scale(1))
+    spellIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+    spellIcon:Hide()
+
+    function b:ShowSpellIcon(spellName)
+        spellIcon:SetTexture(GetSpellTexture(spellName) or 134400)
+        spellIconBg:Show()
+        spellIcon:Show()
+        -- actionGrid.text:ClearAllPoints()
+        actionGrid.text:SetPoint("LEFT", spellIconBg, "RIGHT", P:Scale(2), 0)
+        -- actionGrid.text:SetPoint("RIGHT", P:Scale(-5), 0)
+    end
+
+    function b:HideSpellIcon()
+        spellIconBg:Hide()
+        spellIcon:Hide()
+        -- actionGrid.text:ClearAllPoints()
+        actionGrid.text:SetPoint("LEFT", P:Scale(5), 0)
+        -- actionGrid.text:SetPoint("RIGHT", P:Scale(-5), 0)
+    end
+
+    function b:SetBorderColor(...)
+        keyGrid:SetBackdropBorderColor(...)
+        typeGrid:SetBackdropBorderColor(...)
+        actionGrid:SetBackdropBorderColor(...)
+    end
+
+    function b:SetChanged(isChanged)
+        if isChanged then
+            b:SetBorderColor(accentColor.t[1], accentColor.t[2], accentColor.t[3], 1)
+        else
+            b:SetBorderColor(0, 0, 0, 1)
+        end
+    end
+
+    return b
+end
+
+-----------------------------------------
+-- receiving frame
+-----------------------------------------
+function addon:CreateReceivingFrame(parent)
+    local f = CreateFrame("Frame", "CellReceivingFrame", parent, "BackdropTemplate")
+    f:EnableMouse(true)
+    f:SetMovable(true)
+    f:SetUserPlaced(true)
+    f:RegisterForDrag("LeftButton")
+    f:SetFrameStrata("DIALOG")
+    f:SetFrameLevel(277)
+    f:SetClampedToScreen(true)
+    P:Size(f, 249, 135)
+    f:SetPoint("TOPRIGHT", UIParent, "CENTER")
+    addon:StylizeFrame(f)
+
+    f:SetScript("OnDragStart", function() f:StartMoving() end)
+    f:SetScript("OnDragStop", function() f:StopMovingOrSizing() end)
+
+    -- labels
+    local typeLabel = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_CLASS")
+    typeLabel:SetPoint("TOPLEFT", 10, -10)
+    typeLabel:SetText(L["Type: "])
+
+    local nameLabel = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_CLASS")
+    nameLabel:SetPoint("LEFT", 10, 0)
+    nameLabel:SetText(L["Name: "])
+
+    local fromLabel = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_CLASS")
+    fromLabel:SetPoint("LEFT", 10, 0)
+    fromLabel:SetText(L["From: "])
+
+    local dataLabel = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_CLASS")
+    dataLabel:SetPoint("LEFT", 10, 0)
+    dataLabel:Hide()
+
+    -- texts
+    local typeText = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_WIDGET")
+    typeText:SetPoint("TOPLEFT", typeLabel, "TOPRIGHT")
+    typeText:SetPoint("RIGHT", -10, 0)
+    typeText:SetJustifyH("LEFT")
+
+    nameLabel:SetPoint("TOP", typeText, "BOTTOM", 0, -10)
+
+    local nameText = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_WIDGET")
+    nameText:SetPoint("TOPLEFT", nameLabel, "TOPRIGHT")
+    nameText:SetPoint("RIGHT", -10, 0)
+    nameText:SetJustifyH("LEFT")
+    nameText:SetWordWrap(true)
+
+    fromLabel:SetPoint("TOP", nameText, "BOTTOM", 0, -10)
+    
+    local fromText = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_WIDGET")
+    fromText:SetPoint("TOPLEFT", fromLabel, "TOPRIGHT")
+    fromText:SetPoint("RIGHT", -10, 0)
+    fromText:SetJustifyH("LEFT")
+    fromText:SetWordWrap(true)
+
+    dataLabel:SetPoint("TOP", fromText, "BOTTOM", 0, -10)
+
+    local dataText = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_WIDGET")
+    dataText:SetPoint("TOPLEFT", dataLabel, "TOPRIGHT")
+    dataText:SetPoint("RIGHT", -10, 0)
+    dataText:SetJustifyH("LEFT")
+    dataText:SetWordWrap(true)
+    dataText:Hide()
+
+    -- error
+    local infoMsg = f:CreateFontString(nil, "OVERLAY", "CELL_FONT_WIDGET")
+    infoMsg:SetJustifyH("LEFT")
+    infoMsg:SetTextColor(unpack(colors.firebrick.t))
+    infoMsg:SetWordWrap(true)
+    infoMsg:Hide()
+
+    function infoMsg:SetMsg(msg, anchorTo)
+        infoMsg:SetText(msg)
+        infoMsg:ClearAllPoints()
+        infoMsg:SetPoint("LEFT", 10, 0)
+        infoMsg:SetPoint("RIGHT", -10, 0)
+        infoMsg:SetPoint("TOP", anchorTo, "BOTTOM", 0, -10)
+    end
+
+    -- buttons
+    local requestBtn = addon:CreateButton(f, L["Request"], "green", {125, 20})
+    requestBtn:SetPoint("BOTTOMLEFT")
+
+    local importBtn = addon:CreateButton(f, L["Import"], "green", {125, 20})
+    importBtn:SetPoint("BOTTOMLEFT")
+    
+    local cancelBtn = addon:CreateButton(f, L["Cancel"], "red", {125, 20})
+    cancelBtn:SetPoint("BOTTOMLEFT", importBtn, "BOTTOMRIGHT", -1, 0)
+    cancelBtn:SetPoint("BOTTOMRIGHT")
+
+    -- bar
+    local progressBar = addon:CreateStatusBar("CellReceivingFrameBar", f, 198, 18, 0, true, nil, true, "Interface\\AddOns\\Cell\\Media\\statusbar.tga", {0.7, 0.7, 0, 1})
+    progressBar:SetPoint("BOTTOMLEFT", 1, 1)
+    progressBar:SetPoint("BOTTOMRIGHT", cancelBtn, "BOTTOMLEFT")
+    progressBar:Hide()
+
+    function f:ShowFrame(type, playerName, name1, name2)
+        P:Size(f, 249, 20) -- reset size
+        typeLabel:Hide()
+        nameLabel:Hide()
+        fromLabel:Hide()
+        typeText:Hide()
+        nameText:Hide()
+        fromText:Hide()
+
+        typeText:SetText(L[type])
+        if name2 then
+            nameText:SetText(name2.." ("..name1..")")
+        else
+            nameText:SetText(name1)
+        end
+        fromText:SetText(playerName)
+
+        local lines = typeText:GetNumLines() + nameText:GetNumLines() + fromText:GetNumLines()
+        addon:ChangeSizeWithAnimation(f, 249, 40 + lines*math.ceil(typeLabel:GetStringHeight()*1.4), 7, nil, function()
+            typeLabel:Show()
+            nameLabel:Show()
+            fromLabel:Show()
+            typeText:Show()
+            nameText:Show()
+            fromText:Show()
+        end)
+
+        -- NOTE: you cannot send to yourself
+        requestBtn:SetEnabled(playerName ~= Cell.vars.playerNameFull)
+        importBtn:Hide()
+        dataLabel:Hide()
+        dataText:Hide()
+        infoMsg:Hide()
+        requestBtn:Show()
+
+        f:Show()
+    end
+
+    local timeout
+    function f:SetOnRequest(func)
+        requestBtn:SetScript("OnClick", function(self)
+            requestBtn:Hide()
+            progressBar:SetValue(0)
+            progressBar:Show()
+            addon:ChangeSizeWithAnimation(importBtn, 200, 20, 7)
+            func(self)
+            
+            infoMsg:Hide()
+            -- NOTE: timeout in 10 sec if can't receive any data
+            timeout = C_Timer.NewTimer(10, function()
+                if f:IsShown() and progressBar:GetValue() == 0 then
+                    infoMsg:SetMsg(L["To transfer across realm, you need to be in the same group"], fromText)
+                    addon:ChangeSizeWithAnimation(f, 249, f.height+15+math.ceil(infoMsg:GetStringHeight()), 7, nil, function()
+                        infoMsg:Show()
+                    end)
+                end
+            end)
+        end)
+    end
+
+    function f:SetOnCancel(func)
+        cancelBtn:SetScript("OnClick", function(self)
+            f:Hide()
+            progressBar:Hide()
+            importBtn:SetWidth(125)
+            func(self)
+        end)
+    end
+    
+    function f:ShowProgress(done, total)
+        progressBar:SetMaxValue(total)
+        progressBar:SetSmoothedValue(done)
+    end
+
+    function f:ShowImport(status, received, func)
+        if timeout then
+            timeout:Cancel()
+            timeout = nil
+        end
+        addon:ChangeSizeWithAnimation(importBtn, 125, 20, 7)
+        progressBar:Hide()
+        importBtn:Show()
+        importBtn:SetEnabled(false)
+
+        if status then
+            if received["type"] == "Debuffs" then
+                local isCompatible = type(received["version"]) == "number" and received["version"] >= Cell.MIN_DEBUFFS_VERSION
+                
+                F:Debug("|cffFFDAB9RECEIVED DEBUFFS:|r ", received["instanceId"], received["bossId"], received["data"])
+                local builtIn, custom = F:CalcRaidDebuffs(received["instanceId"], received["bossId"], received["data"])
+
+                dataLabel:SetText(L["Debuffs"] .. ": ")
+                dataText:SetText("|cff90EE90"..builtIn.." "..L["built-in(s)"].."|r, |cffFFB5C5"..custom.." "..L["custom(s)"].."|r")
+
+                importBtn:SetScript("OnClick", function()
+                    F:UpdateRaidDebuffs(received["instanceId"], received["bossId"], received["data"], nameText:GetText())
+                    F:ShowInstanceDebuffs(received["instanceId"], received["bossId"])
+                    f:Hide()
+                end)
+                
+                C_Timer.After(0.5, function()
+                    if isCompatible then
+                        infoMsg:SetMsg(L["This will overwrite your debuffs"], dataText)
+                    else
+                        infoMsg:SetMsg(L["Incompatible Version"], dataText)
+                    end
+                    addon:ChangeSizeWithAnimation(f, 249, f.height+15+math.ceil(dataText:GetStringHeight()+infoMsg:GetStringHeight()), 7, nil, function()
+                        dataLabel:Show()
+                        dataText:Show()
+                        infoMsg:Show()
+                        importBtn:SetEnabled(isCompatible)
+                        if func then func() end
+                    end)
+                end)
+
+            elseif received["type"] == "Layout" then
+                local isCompatible = type(received["version"]) == "number" and received["version"] >= Cell.MIN_LAYOUTS_VERSION
+
+                F:Debug("|cffFFDAB9RECEIVED LAYOUT:|r ", received["name"], received["data"])
+
+                importBtn:SetScript("OnClick", function()
+                    -- check layout name
+                    local layoutName = received["name"]
+                    if CellDB["layouts"][layoutName] then
+                        local i = 1
+                        while true do
+                            if not CellDB["layouts"][layoutName.." "..i] then
+                                layoutName = layoutName.." "..i
+                                break
+                            end
+                            i = i + 1
+                        end
+                    end
+                    -- save
+                    CellDB["layouts"][layoutName] = received["data"]
+                    F:ShowLayout(layoutName)
+                    f:Hide()
+                end)
+
+                C_Timer.After(0.5, function()
+                    if isCompatible then
+                        infoMsg:SetMsg(L["It will be renamed if this layout name already exists"], fromText)
+                    else
+                        infoMsg:SetMsg(L["Incompatible Version"], fromText)
+                    end
+                    addon:ChangeSizeWithAnimation(f, 249, f.height+15+math.ceil(infoMsg:GetStringHeight()), 7, nil, function()
+                        dataLabel:Show()
+                        dataText:Show()
+                        infoMsg:Show()
+                        importBtn:SetEnabled(isCompatible)
+                        if func then func() end
+                    end)
+                end)
+            end
+        else
+            infoMsg:SetMsg(L["Data transfer failed..."], fromText)
+            addon:ChangeSizeWithAnimation(f, 249, f.height+15+math.ceil(infoMsg:GetStringHeight()), 7, nil, function()
+                infoMsg:Show()
+                if func then func() end
+            end)
+        end
+    end
+
+    return f
 end
