@@ -2,12 +2,12 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
------------------------------------------
+---------------------------------------------------------------------
 -- Penalize Frame
------------------------------------------
+---------------------------------------------------------------------
 local pType, pReason, pValue, pSelected, pDate, pIndex = nil, nil, nil, {}, nil, nil
 
-local penalizeFrame = GRA:CreateMovableFrame(L["Penalize"], "GRA_PenalizeFrame", 400, 400, nil, "DIALOG")
+local penalizeFrame = GRA.CreateMovableFrame(L["Penalize"], "GRA_PenalizeFrame", 400, 400, nil, "DIALOG")
 penalizeFrame:SetToplevel(true)
 gra.penalizeFrame = penalizeFrame
 
@@ -20,7 +20,7 @@ pReasonText:SetText("|cff80FF00" .. L["Reason"])
 pReasonText:SetPoint("TOPLEFT", 10, -10)
 
 -- penalize reason editbox
-local pReasonEditBox = GRA:CreateEditBox(penalizeFrame, 160, 20)
+local pReasonEditBox = GRA.CreateEditBox(penalizeFrame, 160, 20)
 pReasonEditBox:SetPoint("TOPLEFT", pReasonText, 10, -15)
 
 -- penalize value text
@@ -28,15 +28,15 @@ local pValueText = penalizeFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMAL
 pValueText:SetText("|cff80FF00" .. L["Value"])
 pValueText:SetPoint("LEFT", pReasonText, 200, 0)
 
-local pValueEditBox = GRA:CreateEditBox(penalizeFrame, 122, 20)
+local pValueEditBox = GRA.CreateEditBox(penalizeFrame, 122, 20)
 pValueEditBox:SetPoint("TOPLEFT", pValueText, 10, -15)
 pValueEditBox:SetNumeric(true) -- only accept positive number
 
 -- epgp buttons
-local epButton = GRA:CreateButton(penalizeFrame, "EP", nil, {20, 20}, "GRA_FONT_SMALL")
+local epButton = GRA.CreateButton(penalizeFrame, "EP", nil, {20, 20}, "GRA_FONT_SMALL")
 epButton:SetPoint("LEFT", pValueEditBox, "RIGHT", -1, 0)
 
-local gpButton = GRA:CreateButton(penalizeFrame, "GP", nil, {20, 20}, "GRA_FONT_SMALL")
+local gpButton = GRA.CreateButton(penalizeFrame, "GP", nil, {20, 20}, "GRA_FONT_SMALL")
 gpButton:SetPoint("LEFT", epButton, "RIGHT", -1, 0)
 
 epButton:SetScript("OnClick", function()
@@ -69,21 +69,21 @@ absenteesText:SetText("|cff80FF00" .. L["Absentees"])
 
 local attendeeCBs, absenteeCBs = {}, {}
 
-local penalizeBtn = GRA:CreateButton(penalizeFrame, L["Guilty!"] .. "(0)", "red", {penalizeFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
+local penalizeBtn = GRA.CreateButton(penalizeFrame, L["Guilty!"] .. "(0)", "red", {penalizeFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
 penalizeBtn:SetPoint("BOTTOM")
 penalizeBtn:SetScript("OnClick", function()
     -- change officer note
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then
         if pIndex then
-            GRA:ModifyPenalizeEPGP(pDate, pType, pValue, pReason, pSelected, pIndex)
+            GRA.ModifyPenalizeEPGP(pDate, pType, pValue, pReason, pSelected, pIndex)
         else
-            GRA:PenalizeEPGP(pDate, pType, pValue, pReason, pSelected)
+            GRA.PenalizeEPGP(pDate, pType, pValue, pReason, pSelected)
         end
     else -- dkp
         if pIndex then
-            GRA:ModifyPenalizeDKP(pDate, pValue, pReason, pSelected, pIndex)
+            GRA.ModifyPenalizeDKP(pDate, pValue, pReason, pSelected, pIndex)
         else
-            GRA:PenalizeDKP(pDate, pValue, pReason, pSelected)
+            GRA.PenalizeDKP(pDate, pValue, pReason, pSelected)
         end
     end
     penalizeFrame:Hide()
@@ -92,7 +92,7 @@ end)
 local function SortByClass(t)
 	table.sort(t, function(a, b)
 		if a[2] ~= b[2] then
-			return GRA:GetIndex(gra.CLASS_ORDER, a[2]) < GRA:GetIndex(gra.CLASS_ORDER, b[2])
+			return GRA.GetIndex(gra.CLASS_ORDER, a[2]) < GRA.GetIndex(gra.CLASS_ORDER, b[2])
 		else
             return a[1] < b[1]
 		end
@@ -104,8 +104,8 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
     for _, n in pairs(playerTbl) do
-        if _G[GRA_R_Roster][n] then -- ignore deleted
-            table.insert(sorted, {n, _G[GRA_R_Roster][n]["class"], GRA:GetShortName(n)}) -- {"fullName", "class", "shortName"}
+        if GRA_Roster[n] then -- ignore deleted
+            table.insert(sorted, {n, GRA_Roster[n]["class"], GRA.GetShortName(n)}) -- {"fullName", "class", "shortName"}
         end
     end
     SortByClass(sorted)
@@ -113,11 +113,11 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     for _, t in pairs(sorted) do
         -- create cbs
         if not cbTbl[t[1]] then
-            cbTbl[t[1]] = GRA:CreateCheckButton(penalizeFrame, t[3], RAID_CLASS_COLORS[t[2]], function(checked)
+            cbTbl[t[1]] = GRA.CreateCheckButton(penalizeFrame, t[3], RAID_CLASS_COLORS[t[2]], function(checked)
                 if checked then
                     table.insert(pSelected, t[1])
                 else
-                    GRA:Remove(pSelected, t[1])
+                    GRA.Remove(pSelected, t[1])
                 end
                 penalizeBtn:SetText(L["Guilty!"] .. " (" .. #pSelected .. ")")
             end)
@@ -129,7 +129,7 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
                 self:ClearAllPoints() -- prepare for next SetPoint
             end)
         end
-        
+
         -- SetPoint
         count = count + 1
         if lastCB then
@@ -146,10 +146,10 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     end
 end
 
-function GRA:ShowPenalizeFrame(d, type, reason, value, selected, index)
+function GRA.ShowPenalizeFrame(d, type, reason, value, selected, index)
     pDate = d
     pIndex = index
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then
         epButton:Show()
         gpButton:Show()
         pValueEditBox:SetWidth(122)
@@ -166,16 +166,16 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, index)
     -- selected == {} --> unselect all
     if not selected then selected = {} end
 
-    local attendees, absentees = GRA:GetAttendeesAndAbsentees(_G[GRA_R_RaidLogs][d], true)
+    local attendees, absentees = GRA.GetAttendeesAndAbsentees(GRA_Logs[d], true)
     CreatePlayerCheckBoxes(attendeesText, attendees, attendeeCBs)
-    absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendees)/4)*26-20)
+    absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA.Getn(attendees)/4)*26-20)
     CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)
 
-    penalizeFrame:SetHeight(120 + ceil(GRA:Getn(attendees)/4)*26 + ceil(GRA:Getn(absentees)/4)*26)
+    penalizeFrame:SetHeight(120 + ceil(GRA.Getn(attendees)/4)*26 + ceil(GRA.Getn(absentees)/4)*26)
 
     -- update cb state
     for name, cb in pairs(attendeeCBs) do
-        if GRA:TContains(selected, name) then
+        if GRA.TContains(selected, name) then
             cb:SetChecked(true)
         else
             cb:SetChecked(false)
@@ -183,18 +183,18 @@ function GRA:ShowPenalizeFrame(d, type, reason, value, selected, index)
     end
 
     for name, cb in pairs(absenteeCBs) do
-        if GRA:TContains(selected, name) then
+        if GRA.TContains(selected, name) then
             cb:SetChecked(true)
         else
             cb:SetChecked(false)
         end
     end
 
-    pSelected = GRA:Copy(selected)
+    pSelected = GRA.Copy(selected)
 
     penalizeBtn:SetText(L["Guilty!"] .. " (" .. #pSelected .. ")")
 
-    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToSeconds(d)))
+    dateText:SetText(gra.colors.grey.s .. date("%x", GRA.DateToSeconds(d)))
 
     penalizeFrame:Show()
 end

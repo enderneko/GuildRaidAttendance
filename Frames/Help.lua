@@ -4,22 +4,22 @@ local L = addonTable.L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
 -- TODO: incomplete
-local helpFrame = GRA:CreateMovableFrame("GRA " .. L["Help"] .. " (OUTDATED)", "GRA_HelpFrame", 550, 400, "GRA_FONT_NORMAL", "HIGH")
+local helpFrame = GRA.CreateMovableFrame("GRA " .. L["Help"] .. " (OUTDATED)", "GRA_HelpFrame", 550, 400, "GRA_FONT_NORMAL", "HIGH")
 gra.helpFrame = helpFrame
 helpFrame:SetToplevel(true)
 helpFrame:SetScript("OnShow", function()
     LPP:PixelPerfectPoint(helpFrame)
 end)
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- list
---------------------------------------------------------
+---------------------------------------------------------------------
 local listRegion = CreateFrame("Frame", nil ,helpFrame, "BackdropTemplate")
-GRA:StylizeFrame(listRegion, {.15, .15, .15, .7})
+GRA.StylizeFrame(listRegion, {.15, .15, .15, .7})
 listRegion:SetPoint("TOPLEFT")
 listRegion:SetPoint("BOTTOMRIGHT", helpFrame, "BOTTOMLEFT", 150, 0)
 
--- local listScroll = GRA:CreateScrollFrame(listRegion)
+-- local listScroll = GRA.CreateScrollFrame(listRegion)
 -- listScroll:SetScrollStep(19)
 
 local list = CreateFrame("SimpleHTML", nil, listRegion)
@@ -47,14 +47,14 @@ list:SetText([[
     </body></html>
 ]])
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- content
---------------------------------------------------------
+---------------------------------------------------------------------
 local contentRegion = CreateFrame("Frame", nil ,helpFrame)
 contentRegion:SetPoint("TOPLEFT", 149, 0)
 contentRegion:SetPoint("BOTTOMRIGHT")
 
-local contentScroll = GRA:CreateScrollFrame(contentRegion)
+local contentScroll = GRA.CreateScrollFrame(contentRegion)
 
 local content = CreateFrame("SimpleHTML", nil, contentScroll.content)
 content:SetResizable(true)
@@ -107,13 +107,13 @@ local about = [[
 content:SetHeight(390)
 content:SetText(about)
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- on click
---------------------------------------------------------
-local copyEB = GRA:CreateEditBox(contentRegion, 200, 20)
+---------------------------------------------------------------------
+local copyEB = GRA.CreateEditBox(contentRegion, 200, 20)
 copyEB:Hide()
 copyEB:SetFrameStrata("DIALOG")
-GRA:StylizeFrame(copyEB, {.1, .1, .1, 1}, {1, .82, 0, 1})
+GRA.StylizeFrame(copyEB, {.1, .1, .1, 1}, {1, .82, 0, 1})
 copyEB:SetScript("OnShow", function() copyEB:SetFocus(true) end)
 copyEB:SetScript("OnEditFocusLost", function() copyEB:Hide() end)
 
@@ -127,8 +127,8 @@ list:SetScript("OnHyperlinkClick", function(self, linkData, link, button)
     else
         content:SetText([[
             <html><body>
-            <p></p>]] .. 
-            L[page] .. 
+            <p></p>]] ..
+            L[page] ..
             [[</body></html>
         ]])
     end
@@ -142,7 +142,7 @@ content:SetScript("OnHyperlinkClick", function(self, linkData, link, button)
         copyEB:SetCursorPosition(0)
         copyEB:HighlightText()
         copyEB:ClearAllPoints()
-        local x, y = GRA:GetCursorPosition()
+        local x, y = GRA.GetCursorPosition()
         copyEB:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x, y)
         copyEB:Show()
     else
@@ -151,8 +151,8 @@ content:SetScript("OnHyperlinkClick", function(self, linkData, link, button)
         contentScroll:ResetHeight()
         content:SetText([[
             <html><body>
-            <p></p>]] .. 
-            L[page] .. 
+            <p></p>]] ..
+            L[page] ..
             [[</body></html>
         ]])
         copyEB:Hide()

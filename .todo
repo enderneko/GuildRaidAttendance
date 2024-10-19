@@ -3,7 +3,7 @@ General:
     ✔ import / export @done(19-04-22 01:08)
     ✔ 群体邀请，排除自己 @critical @done(19-03-04 17:44)
     ☐ start tracking 可以选择记录到的日期，不仅限于"resume last raid"
-    
+
 Modules/Frames:
     Config:
         ☐ help button glow @high
@@ -29,8 +29,8 @@ Modules/Frames:
         ✔ role count text @done(18-09-07 15:34)
     Util:
         ✘ 将util分类，GRA.Util.DateUtil.function @low @cancelled(19-04-24 02:45)
-        ✔ GRA:Copy @critical @done(19-03-04 17:46)
-        ☐ GRA:RemoveElementsByKeys 内部直接赋值，不需要再次赋值 @critical 
+        ✔ GRA.Copy @critical @done(19-03-04 17:46)
+        ☐ GRA.RemoveElementsByKeys 内部直接赋值，不需要再次赋值 @critical
 
 Widgets:
     ScrollFrame:
@@ -40,7 +40,7 @@ Widgets:
         ☐ update all old button groups @low
 
 Appearance:
-    ☐ larger font and frame, add GRA:Resize() in Appearance.lua
-    
+    ☐ larger font and frame, add GRA.Resize() in Appearance.lua
+
 Archive:
   ✘ 循环加分，待命密语 @cancelled(18-08-14 02:58) @project(New Features)

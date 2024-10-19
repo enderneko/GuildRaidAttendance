@@ -7,7 +7,7 @@ local date1, date2 = nil, nil
 local isCalculating = false
 local Shrink, Reset
 
-local exportFrame = GRA:CreateMovableFrame(L["Export"] .. " (Beta)", "GRA_ExportFrame", 400, HEIGHT_NORMAL, nil, "DIALOG")
+local exportFrame = GRA.CreateMovableFrame(L["Export"] .. " (Beta)", "GRA_ExportFrame", 400, HEIGHT_NORMAL, nil, "DIALOG")
 exportFrame:SetToplevel(true)
 gra.exportFrame = exportFrame
 
@@ -15,14 +15,14 @@ local text = exportFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 text:SetText(gra.colors.chartreuse.s .. "Submit a ticket on GitHub, if this doesn't meet your needs.")
 text:SetPoint("TOPLEFT", 5, -5)
 
------------------------------------------
+---------------------------------------------------------------------
 -- period
------------------------------------------
+---------------------------------------------------------------------
 local periodText = exportFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 periodText:SetText(gra.colors.chartreuse.s .. L["Period"] .. ": ")
 periodText:SetPoint("TOPLEFT", 5, -25)
 
-local fromDropDown = GRA:CreateScrollDropDownMenu(exportFrame, 80)
+local fromDropDown = GRA.CreateScrollDropDownMenu(exportFrame, 80)
 fromDropDown:SetPoint("TOPLEFT", 50, -21)
 
 local periodToText = exportFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
@@ -30,13 +30,13 @@ periodToText:SetText(gra.colors.chartreuse.s .. L["to"])
 periodToText:SetPoint("LEFT", fromDropDown, "RIGHT", 5, 0)
 periodToText:Hide()
 
-local toDropDown = GRA:CreateScrollDropDownMenu(exportFrame, 80)
+local toDropDown = GRA.CreateScrollDropDownMenu(exportFrame, 80)
 toDropDown:SetPoint("LEFT", fromDropDown, "RIGHT", 20, 0)
 toDropDown:Hide()
 
------------------------------------------
+---------------------------------------------------------------------
 -- columns
------------------------------------------
+---------------------------------------------------------------------
 local columns, dateColumns = {}, {}
 local cbs = {}
 
@@ -48,11 +48,11 @@ columnsText:SetPoint("TOPLEFT", 5, -50)
 local function CreateCheckButtons()
     columns = {"AR", "AR30", "AR60", "AR90", "SR", "Present", "Late/LeaveEarly", "Absent", "OnLeave", "SitOut", "Loots", "DailyAttendance"}
     for _, c in ipairs(columns) do
-        cbs[c] = GRA:CreateCheckButton(exportFrame, L[c], nil, function(checked)
+        cbs[c] = GRA.CreateCheckButton(exportFrame, L[c], nil, function(checked)
             if checked then
                 table.insert(columns, c)
             else
-                GRA:Remove(columns, c)
+                GRA.Remove(columns, c)
             end
             -- shrink
             Shrink()
@@ -60,14 +60,14 @@ local function CreateCheckButtons()
     end
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- copy box
------------------------------------------
+---------------------------------------------------------------------
 local resultFrame = CreateFrame("EditBox", nil, exportFrame, "BackdropTemplate")
 resultFrame:SetPoint("TOPLEFT", 5, - HEIGHT_NORMAL + 25)
 resultFrame:SetPoint("BOTTOMRIGHT", -5, 5)
-GRA:StylizeFrame(resultFrame)
-GRA:CreateScrollEditBox(resultFrame)
+GRA.StylizeFrame(resultFrame)
+GRA.CreateScrollEditBox(resultFrame)
 resultFrame:Hide()
 
 resultFrame:SetScript("OnHide", function()
@@ -76,16 +76,16 @@ resultFrame:SetScript("OnHide", function()
     resultFrame.editBox:SetText("")
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- function
------------------------------------------
+---------------------------------------------------------------------
 Shrink = function()
     fromDropDown:Close()
     toDropDown:Close()
     -- reset height
     if floor(exportFrame:GetHeight() + .5) ~= HEIGHT_NORMAL then
         resultFrame:Hide()
-        GRA:ChangeSizeWithAnimation(exportFrame, nil, HEIGHT_NORMAL, function() exportFrame.generateBtn:SetEnabled(false) end, function() exportFrame.generateBtn:SetEnabled(true) end)
+        GRA.ChangeSizeWithAnimation(exportFrame, nil, HEIGHT_NORMAL, function() exportFrame.generateBtn:SetEnabled(false) end, function() exportFrame.generateBtn:SetEnabled(true) end)
         exportFrame.generateBtn:Show()
     end
 end
@@ -107,7 +107,7 @@ local function SetWidgetsEnabled(enabled)
     for _, cb in pairs(cbs) do
         cb:SetEnabled(enabled)
     end
-    
+
     fromDropDown:SetEnabled(enabled)
     fromDropDown:Close()
     -- toDropDown:SetEnabled(enabled) -- TODO:
@@ -122,7 +122,7 @@ local function ShowOverallLayout()
     for _, c in ipairs(columns) do
         cbs[c]:SetChecked(true)
     end
-    
+
     cbs["AR"]:Show()    cbs["AR"]:SetPoint("LEFT", columnsText, 65, 0)
     cbs["AR30"]:Show()  cbs["AR30"]:SetPoint("LEFT", cbs["AR"], 65, 0)
     cbs["AR60"]:Show()  cbs["AR60"]:SetPoint("LEFT", cbs["AR30"], 65, 0)
@@ -133,7 +133,7 @@ local function ShowOverallLayout()
     cbs["Absent"]:Show()    cbs["Absent"]:SetPoint("LEFT", cbs["Present"], 65, 0)
     cbs["OnLeave"]:Show()   cbs["OnLeave"]:SetPoint("LEFT", cbs["Absent"], 65, 0)
     cbs["SitOut"]:Show()    cbs["SitOut"]:SetPoint("LEFT", cbs["OnLeave"], 65, 0)
-    
+
     cbs["Loots"]:Show()             cbs["Loots"]:SetPoint("TOP", cbs["Present"], 0, -20)
     cbs["Late/LeaveEarly"]:Show()   cbs["Late/LeaveEarly"]:SetPoint("LEFT", cbs["Loots"], 65, 0)
 end
@@ -153,7 +153,7 @@ local function ShowSingleDayLayout()
     for _, c in ipairs(columns) do
         cbs[c]:SetChecked(true)
     end
-    
+
     cbs["AR"]:Show()                cbs["AR"]:SetPoint("LEFT", columnsText, 65, 0)
     cbs["SR"]:Show()                cbs["SR"]:SetPoint("LEFT", cbs["AR"], 65, 0)
     cbs["Loots"]:Show()             cbs["Loots"]:SetPoint("LEFT", cbs["SR"], 65, 0)
@@ -181,14 +181,14 @@ local function LoadDropDown()
 
     -- dates
     local dates = {}
-    for d, _ in pairs(_G[GRA_R_RaidLogs]) do
+    for d, _ in pairs(GRA_Logs) do
         table.insert(dates, d)
     end
     table.sort(dates)
 
     for _, d in ipairs(dates) do
         table.insert(fromItems, {
-            ["text"] = date("%x", GRA:DateToSeconds(d)),
+            ["text"] = date("%x", GRA.DateToSeconds(d)),
             ["onClick"] = function()
                 date1 = d
                 ShowSingleDayLayout() -- TODO: check toDropDown
@@ -196,7 +196,7 @@ local function LoadDropDown()
         })
         -- TODO:
         -- table.insert(toItems, {
-        --     ["text"] = date("%x", GRA:DateToSeconds(d)),
+        --     ["text"] = date("%x", GRA.DateToSeconds(d)),
         --     ["onClick"] = function()
 
         --     end,
@@ -214,7 +214,7 @@ end
 local COLUMN_ORDER = {"AR", "AR30", "AR60", "AR90", "SR", "Present", "Late/LeaveEarly", "Absent", "OnLeave", "SitOut", "Loots", "DailyAttendance"}
 local function SortColumn()
     table.sort(columns, function(a, b)
-		return GRA:GetIndex(COLUMN_ORDER, a) < GRA:GetIndex(COLUMN_ORDER, b)
+		return GRA.GetIndex(COLUMN_ORDER, a) < GRA.GetIndex(COLUMN_ORDER, b)
 	end)
 end
 
@@ -224,19 +224,19 @@ local function PrepareResult()
     wipe(result)
     -- disable
     SetWidgetsEnabled(false)
-    
+
     exportFrame.generateBtn:Hide()
     exportFrame.progressBar:Show()
 
     if date1 and date2 then -- multi days
-        GRA:Debug("|cff00FF7FShowExportFrame_PrepareResult:|r " .. date1 .. " to " .. date2)
+        GRA.Debug("|cff00FF7FShowExportFrame_PrepareResult:|r " .. date1 .. " to " .. date2)
 
     elseif date1 then -- single day
-        GRA:Debug("|cff00FF7FShowExportFrame_PrepareResult:|r " .. date1)
-        local playerAtts, playerLoots, dates = GRA:CalcAtendanceRateAndLoots(date1, date1, exportFrame.progressBar)
+        GRA.Debug("|cff00FF7FShowExportFrame_PrepareResult:|r " .. date1)
+        local playerAtts, playerLoots, dates = GRA.CalcAtendanceRateAndLoots(date1, date1, exportFrame.progressBar)
         dateColumns = dates
 
-        for name, t in pairs(_G[GRA_R_Roster]) do
+        for name, t in pairs(GRA_Roster) do
             if not t["altOf"] then
                 result[name] = {
                     ["AR"] = tonumber(format("%.1f", t["attLifetime"][5])) .. "%",
@@ -248,9 +248,9 @@ local function PrepareResult()
         end
 
     else -- overall
-        GRA:Debug("|cff00FF7FShowExportFrame_PrepareResult:|r Overall")
-        GRA:CalcAtendanceRateAndLoots(nil, nil, exportFrame.progressBar, true)
-        for name, t in pairs(_G[GRA_R_Roster]) do
+        GRA.Debug("|cff00FF7FShowExportFrame_PrepareResult:|r Overall")
+        GRA.CalcAtendanceRateAndLoots(nil, nil, exportFrame.progressBar, true)
+        for name, t in pairs(GRA_Roster) do
             if not t["altOf"] then
                 result[name] = {
                     ["AR"] = tonumber(format("%.1f", t["attLifetime"][5])) .. "%",
@@ -285,20 +285,20 @@ local function ShowResult()
     -- date columns
     if cbs["DailyAttendance"]:GetChecked() then
         for i, d in ipairs(dateColumns) do
-            resultFrame.editBox:Insert("," .. date("%x", GRA:DateToSeconds(d)))
+            resultFrame.editBox:Insert("," .. date("%x", GRA.DateToSeconds(d)))
         end
     end
 
-    for name, t in pairs(_G[GRA_R_Roster]) do
+    for name, t in pairs(GRA_Roster) do
         if not t["altOf"] then
-            resultFrame.editBox:Insert("\n" .. GRA:GetShortName(name))
+            resultFrame.editBox:Insert("\n" .. GRA.GetShortName(name))
             for _, c in ipairs(columns) do
                 -- concat selected columns
                 if cbs[c]:GetChecked() then
                     if c == "DailyAttendance" then
                         for _, d in ipairs(dateColumns) do
                             if result[name]["DailyAttendance"][d] then -- player has attendance on d
-                                resultFrame.editBox:Insert("," .. (GRA:SecondsToTime(result[name]["DailyAttendance"][d][1]) .. "-" .. GRA:SecondsToTime(result[name]["DailyAttendance"][d][2])))
+                                resultFrame.editBox:Insert("," .. (GRA.SecondsToTime(result[name]["DailyAttendance"][d][1]) .. "-" .. GRA.SecondsToTime(result[name]["DailyAttendance"][d][2])))
                             else
                                 resultFrame.editBox:Insert(",")
                             end
@@ -312,25 +312,25 @@ local function ShowResult()
     end
 
     for _, c in ipairs(columns) do
-        
+
     end
 
     resultFrame:Show()
 end
 
-function GRA:ShowExportFrame(d)
-    GRA:Debug("|cff00FF7FShowExportFrame:|r " .. (d or "Overall"))
+function GRA.ShowExportFrame(d)
+    GRA.Debug("|cff00FF7FShowExportFrame:|r " .. (d or "Overall"))
     if isCalculating then
-        GRA:Print(L["Calculating...Please wait."])
+        GRA.Print(L["Calculating...Please wait."])
         return
     end
 
-    if GRA:Getn(cbs) == 0 then CreateCheckButtons() end
+    if GRA.Getn(cbs) == 0 then CreateCheckButtons() end
     LoadDropDown()
 
     if d then
         date1 = d
-        fromDropDown:SetSelected(date("%x", GRA:DateToSeconds(d)))
+        fromDropDown:SetSelected(date("%x", GRA.DateToSeconds(d)))
         ShowSingleDayLayout()
     else
         fromDropDown:SetSelected(L["Overall"])
@@ -339,21 +339,21 @@ function GRA:ShowExportFrame(d)
     exportFrame:Show()
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- generate button
------------------------------------------
-local generateBtn = GRA:CreateButton(exportFrame, L["Generate!"], "red", {exportFrame:GetWidth()-10, 20}, "GRA_FONT_SMALL")
+---------------------------------------------------------------------
+local generateBtn = GRA.CreateButton(exportFrame, L["Generate!"], "red", {exportFrame:GetWidth()-10, 20}, "GRA_FONT_SMALL")
 exportFrame.generateBtn = generateBtn
 generateBtn:SetPoint("BOTTOM", 0, 5)
 generateBtn:SetScript("OnClick", function()
     PrepareResult()
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- progress bar
------------------------------------------
+---------------------------------------------------------------------
 local progressBar
-progressBar = GRA:CreateProgressBar(exportFrame, generateBtn:GetWidth(), generateBtn:GetHeight(), 0, function()
+progressBar = GRA.CreateProgressBar(exportFrame, generateBtn:GetWidth(), generateBtn:GetHeight(), 0, function()
     progressBar.fadeOut:Play()
 end, true, [[Interface\AddOns\GuildRaidAttendance\Media\bar.tga]])
 exportFrame.progressBar = progressBar
@@ -364,7 +364,7 @@ progressBar.fadeOut = progressBar:CreateAnimationGroup()
 progressBar.fadeOut:SetScript("OnFinished", function()
     progressBar:Hide()
     progressBar:Reset()
-    GRA:ChangeSizeWithAnimation(exportFrame, nil, HEIGHT_EXPAND, function() generateBtn:SetEnabled(false) end, function() generateBtn:SetEnabled(true) end)
+    GRA.ChangeSizeWithAnimation(exportFrame, nil, HEIGHT_EXPAND, function() generateBtn:SetEnabled(false) end, function() generateBtn:SetEnabled(true) end)
     -- re-enable
     SetWidgetsEnabled(true)
     ShowResult()
@@ -377,9 +377,9 @@ fadeOutAlpha:SetToAlpha(0)
 fadeOutAlpha:SetDuration(.3)
 fadeOutAlpha:SetStartDelay(.5)
 
------------------------------------------
+---------------------------------------------------------------------
 -- script
------------------------------------------
+---------------------------------------------------------------------
 exportFrame:SetScript("OnShow", function()
     LPP:PixelPerfectPoint(exportFrame)
 end)

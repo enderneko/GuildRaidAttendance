@@ -17,18 +17,18 @@ local function GetSelectedDates()
 	return selectedDates
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- archived logs frame
------------------------------------------
+---------------------------------------------------------------------
 local archivedLogsFrame = CreateFrame("Frame", "GRA_ArchivedLogsFrame", gra.mainFrame)
 archivedLogsFrame:SetPoint("TOPLEFT", gra.mainFrame, 8, -30)
 archivedLogsFrame:SetPoint("BOTTOMRIGHT", gra.mainFrame, -8, 29)
 archivedLogsFrame:Hide()
 gra.archivedLogsFrame = archivedLogsFrame
 
------------------------------------------
+---------------------------------------------------------------------
 -- title
------------------------------------------
+---------------------------------------------------------------------
 local titleFrame = CreateFrame("Frame", nil, archivedLogsFrame)
 titleFrame:SetPoint("TOPLEFT")
 titleFrame:SetPoint("BOTTOMRIGHT", archivedLogsFrame, "TOPRIGHT", 0, -16)
@@ -36,42 +36,42 @@ titleFrame:SetPoint("BOTTOMRIGHT", archivedLogsFrame, "TOPRIGHT", 0, -16)
 local titleText = titleFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 titleText:SetPoint("LEFT", 5, 0)
 local function UpdateTitleText(d)
-	titleText:SetText(gra.colors.chartreuse.s .. L["Raids: "] .. "|r" .. GRA:Getn(_G[GRA_R_Archived][selectedArchiveName])
-		.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA:DateToSeconds(d))
-		.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA:SecondsToTime(_G[GRA_R_Archived][selectedArchiveName][d]["startTime"]) .. " - " ..  GRA:SecondsToTime(_G[GRA_R_Archived][selectedArchiveName][d]["endTime"]))
+	titleText:SetText(gra.colors.chartreuse.s .. L["Raids: "] .. "|r" .. GRA.Getn(_G[GRA_R_Archived][selectedArchiveName])
+		.. "    |cff80FF00" .. L["Current: "] .. "|r" .. date("%x", GRA.DateToSeconds(d))
+		.. "    |cff80FF00" .. L["Raid Hours"] .. ":|r " .. GRA.SecondsToTime(_G[GRA_R_Archived][selectedArchiveName][d]["startTime"]) .. " - " ..  GRA.SecondsToTime(_G[GRA_R_Archived][selectedArchiveName][d]["endTime"]))
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- button frame
------------------------------------------
+---------------------------------------------------------------------
 local buttonFrame = CreateFrame("Frame", nil, archivedLogsFrame)
 buttonFrame:SetPoint("TOPLEFT", archivedLogsFrame, "BOTTOMLEFT", 0, 20)
 buttonFrame:SetPoint("BOTTOMRIGHT")
 
-local archivedDropDownMenu = GRA:CreateDropDownMenu(buttonFrame, 205)
+local archivedDropDownMenu = GRA.CreateDropDownMenu(buttonFrame, 205)
 archivedDropDownMenu:SetPoint("BOTTOMLEFT")
 
------------------------------------------
+---------------------------------------------------------------------
 -- date list
------------------------------------------
+---------------------------------------------------------------------
 local listFrame = CreateFrame("Frame", nil, archivedLogsFrame, "BackdropTemplate")
-GRA:StylizeFrame(listFrame, {.5, .5, .5, .1})
+GRA.StylizeFrame(listFrame, {.5, .5, .5, .1})
 listFrame:SetPoint("TOPLEFT", 0, -16)
 listFrame:SetPoint("BOTTOMRIGHT", archivedLogsFrame, "BOTTOMLEFT", 170, 24)
 -- listFrame:SetPoint("TOPRIGHT", archivedLogsFrame, "TOPLEFT", 100, 0)
 -- listFrame:SetHeight(300)
-GRA:CreateScrollFrame(listFrame)
+GRA.CreateScrollFrame(listFrame)
 listFrame.scrollFrame:SetScrollStep(15)
 
------------------------------------------
+---------------------------------------------------------------------
 -- tabs
------------------------------------------
+---------------------------------------------------------------------
 local tabs, tabButtons = {}, {}
 local currentTab
 local function ShowTab(tabToShow, d)
 	if not tabToShow then return end -- no logs, no date list, no button to click
 	if not d then d = sortedDates[selected] end
-	GRA:Debug("|cffFFC0CBShowTab:|r " .. tabToShow .. " " .. (d or "nil"))
+	GRA.Debug("|cffFFC0CBShowTab:|r " .. tabToShow .. " " .. (d or "nil"))
 	for n, tab in pairs(tabs) do
 		local b = tabButtons[n]
 		if n == tabToShow then
@@ -90,37 +90,37 @@ local function ShowTab(tabToShow, d)
 	currentTab = tabToShow
 end
 
-tabButtons["details"] = GRA:CreateButton(titleFrame, L["Details"], "blue-hover", {70, 17})
+tabButtons["details"] = GRA.CreateButton(titleFrame, L["Details"], "blue-hover", {70, 17})
 tabButtons["details"]:SetPoint("BOTTOMRIGHT", 0, -1)
 tabButtons["details"]:SetEnabled(false)
 tabButtons["details"]:SetScript("OnClick", function(self)
 	ShowTab("details", sortedDates[selected])
 end)
 
-tabButtons["attendances"] = GRA:CreateButton(titleFrame, L["Attendances"], "green-hover", {70, 17})
+tabButtons["attendances"] = GRA.CreateButton(titleFrame, L["Attendances"], "green-hover", {70, 17})
 tabButtons["attendances"]:SetPoint("RIGHT", tabButtons["details"], "LEFT", 1, 0)
 tabButtons["attendances"]:SetEnabled(false)
 tabButtons["attendances"]:SetScript("OnClick", function(self)
 	ShowTab("attendances", sortedDates[selected])
 end)
 
-tabButtons["summary"] = GRA:CreateButton(titleFrame, L["Summary"], "red-hover", {70, 17})
+tabButtons["summary"] = GRA.CreateButton(titleFrame, L["Summary"], "red-hover", {70, 17})
 tabButtons["summary"]:SetPoint("RIGHT", tabButtons["attendances"], "LEFT", 1, 0)
 tabButtons["summary"]:SetScript("OnClick", function(self)
 	ShowTab("summary", sortedDates[selected])
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- summary
------------------------------------------
+---------------------------------------------------------------------
 local summaryTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Summary", archivedLogsFrame, "BackdropTemplate")
 tabs["summary"] = summaryTab
-GRA:StylizeFrame(summaryTab, {.5, .5, .5, .1})
+GRA.StylizeFrame(summaryTab, {.5, .5, .5, .1})
 summaryTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
 summaryTab:SetPoint("BOTTOMRIGHT", 0, 24)
 
 local noteFrame = CreateFrame("Frame", nil, summaryTab, "BackdropTemplate")
-GRA:StylizeFrame(noteFrame, {0, 0, 0, 0})
+GRA.StylizeFrame(noteFrame, {0, 0, 0, 0})
 noteFrame:SetPoint("TOPLEFT")
 noteFrame:SetPoint("RIGHT")
 noteFrame:SetHeight(36)
@@ -141,7 +141,7 @@ local function GetNote(note)
 end
 
 local attendeesFrame = CreateFrame("Frame", nil, summaryTab, "BackdropTemplate")
-GRA:StylizeFrame(attendeesFrame, {0, 0, 0, 0})
+GRA.StylizeFrame(attendeesFrame, {0, 0, 0, 0})
 attendeesFrame:SetPoint("TOPLEFT", noteFrame, "BOTTOMLEFT", 0, 1)
 attendeesFrame:SetPoint("RIGHT")
 attendeesFrame:SetHeight(51)
@@ -156,7 +156,7 @@ attendeesFrame.text:SetJustifyH("LEFT")
 attendeesFrame.text:SetJustifyV("TOP")
 
 local absenteesFrame = CreateFrame("Frame", nil, summaryTab, "BackdropTemplate")
-GRA:StylizeFrame(absenteesFrame, {0, 0, 0, 0})
+GRA.StylizeFrame(absenteesFrame, {0, 0, 0, 0})
 absenteesFrame:SetPoint("TOPLEFT", attendeesFrame, "BOTTOMLEFT", 0, 1)
 absenteesFrame:SetPoint("RIGHT")
 absenteesFrame:SetHeight(51)
@@ -171,91 +171,91 @@ absenteesFrame.text:SetJustifyH("LEFT")
 absenteesFrame.text:SetJustifyV("TOP")
 
 local bossesFrame = CreateFrame("Frame", nil, summaryTab, "BackdropTemplate")
-GRA:StylizeFrame(bossesFrame, {0, 0, 0, 0})
+GRA.StylizeFrame(bossesFrame, {0, 0, 0, 0})
 bossesFrame:SetPoint("TOPLEFT", absenteesFrame, "BOTTOMLEFT", 0, 1)
 bossesFrame:SetPoint("BOTTOMRIGHT")
-GRA:CreateScrollFrame(bossesFrame, -5, 6)
+GRA.CreateScrollFrame(bossesFrame, -5, 6)
 bossesFrame.scrollFrame:SetScrollStep(41)
 
-local exportBtn = GRA:CreateButton(summaryTab, L["Export CSV"], "blue", {70, 20})
+local exportBtn = GRA.CreateButton(summaryTab, L["Export CSV"], "blue", {70, 20})
 exportBtn:SetPoint("BOTTOMRIGHT", buttonFrame)
 exportBtn:SetEnabled(false)
 exportBtn:SetScript("OnClick", function()
-	GRA:ShowExportFrame(sortedDates[selected])
+	GRA.ShowExportFrame(sortedDates[selected])
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- attendances
------------------------------------------
+---------------------------------------------------------------------
 local attendancesTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Attendance", archivedLogsFrame, "BackdropTemplate")
 tabs["attendances"] = attendancesTab
-GRA:StylizeFrame(attendancesTab, {.5, .5, .5, .1})
+GRA.StylizeFrame(attendancesTab, {.5, .5, .5, .1})
 attendancesTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
 attendancesTab:SetPoint("BOTTOMRIGHT", 0, 24)
 attendancesTab:Hide()
 -- attendance editor
-local attendanceEditor = GRA:CreateAttendanceEditor(attendancesTab)
+local attendanceEditor = GRA.CreateAttendanceEditor(attendancesTab)
 attendanceEditor:SetAllPoints(attendancesTab)
 attendanceEditor.discardBtn:SetPoint("BOTTOMRIGHT", buttonFrame)
 attendanceEditor.saveBtn:SetPoint("RIGHT", attendanceEditor.discardBtn, "LEFT", -5, 0)
 
------------------------------------------
+---------------------------------------------------------------------
 -- details/loots
------------------------------------------
+---------------------------------------------------------------------
 local detailsTab = CreateFrame("Frame", "GRA_ArchivedLogsFrame_Details", archivedLogsFrame, "BackdropTemplate")
 tabs["details"] = detailsTab
-GRA:StylizeFrame(detailsTab, {.5, .5, .5, .1})
+GRA.StylizeFrame(detailsTab, {.5, .5, .5, .1})
 detailsTab:SetPoint("TOPLEFT", listFrame, "TOPRIGHT", 5, 0)
 detailsTab:SetPoint("BOTTOMRIGHT", 0, 24)
 detailsTab:Hide()
-GRA:CreateScrollFrame(detailsTab, -13, 13)
+GRA.CreateScrollFrame(detailsTab, -13, 13)
 detailsTab.scrollFrame:SetScrollStep(25)
 
------------------------------------------
+---------------------------------------------------------------------
 -- buttonFrame buttons
------------------------------------------
-local sendBtn = GRA:CreateButton(buttonFrame, L["Send"], "blue", {70, 20}, nil, false,
+---------------------------------------------------------------------
+local sendBtn = GRA.CreateButton(buttonFrame, L["Send"], "blue", {70, 20}, nil, false,
 	L["Send archived logs to raid members"],
 	L["GRA must be installed to receive data."])
 sendBtn:SetPoint("LEFT", archivedDropDownMenu, "RIGHT", 5, 0)
 sendBtn:Hide()
 sendBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmPopup(archivedLogsFrame, 180, L["Send archived logs data to raid/party members?"], function()
+	local confirm = GRA.CreateConfirmPopup(archivedLogsFrame, 180, L["Send archived logs data to raid/party members?"], function()
 
 	end, true)
 	confirm:SetPoint("CENTER")
 end)
 -- disabled while sending
 sendBtn:SetScript("OnUpdate", function()
-	sendBtn:SetEnabled(IsInGroup("LE_PARTY_CATEGORY_HOME") and not gra.sending)
+	sendBtn:SetEnabled(IsInGroup("LE_PARTY_CATEGORY_HOME") and not GRA.vars.sending)
 end)
 
-local deleteBtn = GRA:CreateButton(buttonFrame, L["Delete"], "blue", {70, 20}, nil, false,
+local deleteBtn = GRA.CreateButton(buttonFrame, L["Delete"], "blue", {70, 20}, nil, false,
 L["Delete archived log"],
 L["Delete archived raid logs."])
 deleteBtn:SetPoint("LEFT", archivedDropDownMenu, "RIGHT", 5, 0)
 deleteBtn:SetScript("OnClick", function()
 	local text = L["Delete selected raid logs?"]
 
-	local confirm = GRA:CreateConfirmPopup(archivedLogsFrame, 180, gra.colors.firebrick.s .. text, function()
+	local confirm = GRA.CreateConfirmPopup(archivedLogsFrame, 180, gra.colors.firebrick.s .. text, function()
 		local selectedDates = GetSelectedDates()
-		_G[GRA_R_Archived][selectedArchiveName] = GRA:RemoveElementsByKeys(_G[GRA_R_Archived][selectedArchiveName], selectedDates)
-		GRA:Print(L["Deleted archived logs: "] .. GRA:TableToString(selectedDates))
+		_G[GRA_R_Archived][selectedArchiveName] = GRA.RemoveElementsByKeys(_G[GRA_R_Archived][selectedArchiveName], selectedDates)
+		GRA.Print(L["Deleted archived logs: "] .. GRA.TableToString(selectedDates))
 		-- hide
 		UpdateList()
 	end, true)
 	confirm:SetPoint("CENTER")
 end)
 
-local editBtn = GRA:CreateButton(buttonFrame, L["Edit"], "blue", {70, 20}, nil, false)
+local editBtn = GRA.CreateButton(buttonFrame, L["Edit"], "blue", {70, 20}, nil, false)
 editBtn:Hide()
 
------------------------------------------
+---------------------------------------------------------------------
 -- tab content functions
------------------------------------------
+---------------------------------------------------------------------
 local function SortByClass(a, b)
-	local classA = _G[GRA_R_Roster][a] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][a]["class"]) or 99
-	local classB = _G[GRA_R_Roster][b] and GRA:GetIndex(gra.CLASS_ORDER, _G[GRA_R_Roster][b]["class"]) or 99
+	local classA = GRA_Roster[a] and GRA.GetIndex(gra.CLASS_ORDER, GRA_Roster[a]["class"]) or 99
+	local classB = GRA_Roster[b] and GRA.GetIndex(gra.CLASS_ORDER, GRA_Roster[b]["class"]) or 99
 	if classA ~= classB then
 		return 	classA < classB
 	else
@@ -269,16 +269,16 @@ summaryTab.func = function(d)
 	local attendeesString, absenteesString = "", ""
 
 	-- fill table
-	local attendees, absentees = GRA:GetAttendeesAndAbsentees(t, true)
+	local attendees, absentees = GRA.GetAttendeesAndAbsentees(t, true)
 	-- sort by class
 	table.sort(attendees, function(a, b) return SortByClass(a, b) end)
 	table.sort(absentees, function(a, b) return SortByClass(a, b) end)
 
 	for _, n in pairs(attendees) do
-		attendeesString = attendeesString .. GRA:GetClassColoredName(n) .. " "
+		attendeesString = attendeesString .. GRA.GetClassColoredName(n) .. " "
 	end
 	for _, n in pairs(absentees) do
-		absenteesString = absenteesString .. GRA:GetClassColoredName(n) .. " "
+		absenteesString = absenteesString .. GRA.GetClassColoredName(n) .. " "
 	end
 
 	if t["note"] and t["note"] ~= "" then
@@ -286,8 +286,8 @@ summaryTab.func = function(d)
 	else
 		noteFrame.text:SetText(gra.colors.chartreuse.s .. L["Note"] .. ": |r" .. gra.colors.grey.s .. L["Right-click to edit. Characters in [square brackets] will be shown in red color."])
 	end
-	attendeesFrame.text:SetText(gra.colors.chartreuse.s .. L["Attendees"] .. "(" .. GRA:Getn(attendees) .. "): " .. attendeesString)
-	absenteesFrame.text:SetText(gra.colors.chartreuse.s .. L["Absentees"] .. "(" .. GRA:Getn(absentees) .. "): " .. absenteesString)
+	attendeesFrame.text:SetText(gra.colors.chartreuse.s .. L["Attendees"] .. "(" .. GRA.Getn(attendees) .. "): " .. attendeesString)
+	absenteesFrame.text:SetText(gra.colors.chartreuse.s .. L["Absentees"] .. "(" .. GRA.Getn(absentees) .. "): " .. absenteesString)
 
 	wipe(attendees)
 	wipe(absentees)
@@ -296,7 +296,7 @@ summaryTab.func = function(d)
 	bossesFrame.scrollFrame:Reset()
 	local last
 	for _, boss in pairs(t["bosses"]) do
-		local b = GRA:CreateBossButton(bossesFrame.scrollFrame.content, boss)
+		local b = GRA.CreateBossButton(bossesFrame.scrollFrame.content, boss)
 		b:SetPoint("LEFT", 5, 0)
 		b:SetPoint("RIGHT", -5, 0)
 
@@ -309,7 +309,7 @@ summaryTab.func = function(d)
 
 		if gra.isAdmin then
 			b:SetScript("OnClick", function()
-				GRA:Print("Editing boss details is WIP.")
+				GRA.Print("Editing boss details is WIP.")
 			end)
 		end
 	end
@@ -322,28 +322,28 @@ end
 
 -- ShowRaidAttendances
 attendancesTab.func = function(d)
-	GRA:ShowAttendanceEditor(d)
+	GRA.ShowAttendanceEditor(d)
 end
 
 -- Show Details/Loots
 detailsTab.func = function(d)
 	detailsTab.scrollFrame:Reset()
-	
+
 	details = {}
 	local t = _G[GRA_R_Archived][selectedArchiveName][d]
 
 	local last
 	for k, detail in pairs(t["details"]) do
 		local b
-		
-		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-			b = GRA:CreateDetailButton_EPGP(detailsTab.scrollFrame.content, detail)
-		elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-			b = GRA:CreateDetailButton_DKP(detailsTab.scrollFrame.content, detail)
+
+		if GRA_Config["raidInfo"]["system"] == "EPGP" then
+			b = GRA.CreateDetailButton_EPGP(detailsTab.scrollFrame.content, detail)
+		elseif GRA_Config["raidInfo"]["system"] == "DKP" then
+			b = GRA.CreateDetailButton_DKP(detailsTab.scrollFrame.content, detail)
 		else -- loot council
-			b = GRA:CreateLootButton(detailsTab.scrollFrame.content, detail)
+			b = GRA.CreateLootButton(detailsTab.scrollFrame.content, detail)
 		end
-		
+
 		if b then
 			b:SetPoint("LEFT", 5, 0)
 			b:SetPoint("RIGHT", -5, 0)
@@ -385,7 +385,7 @@ detailsTab.func = function(d)
 							GRA_Tooltip:AddLine(L["Penalize"] .. " (" .. #detail[4] .. ")")
 						end
 						for i = 1, #detail[4], 2 do
-							GRA_Tooltip:AddDoubleLine(GRA:GetClassColoredName(detail[4][i]), GRA:GetClassColoredName(detail[4][i+1]))
+							GRA_Tooltip:AddDoubleLine(GRA.GetClassColoredName(detail[4][i]), GRA.GetClassColoredName(detail[4][i+1]))
 						end
 						GRA_Tooltip:Show()
 					end
@@ -398,7 +398,7 @@ detailsTab.func = function(d)
 
 			if gra.isAdmin then
 				b.deleteBtn:Show()
-				if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+				if GRA_Config["raidInfo"]["system"] == "EPGP" then
 					if detail[1] == "GP" then
 						b.noteFrame.text:SetPoint("RIGHT", -25, 0)
 					else
@@ -407,13 +407,13 @@ detailsTab.func = function(d)
 
 					-- delete detail entry
 					b.deleteBtn:SetScript("OnClick", function()
-						local confirm = GRA:CreateConfirmPopup(detailsTab, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("EP/GP") .. "|r\n" 
+						local confirm = GRA.CreateConfirmPopup(detailsTab, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("EP/GP") .. "|r\n"
 						.. detail[3] .. ": " .. detail[2] .. " " .. (string.find(detail[1], "EP") and "EP" or "GP")
 						, function()
 							if string.find(detail[1], "P") == 1 then
-								GRA:UndoPenalizeEPGP(d, k)
+								GRA.UndoPenalizeEPGP(d, k)
 							else
-								GRA:UndoEPGP(d, k)
+								GRA.UndoEPGP(d, k)
 							end
 							ShowTab("details", d)
 							detailsTab.scrollFrame:ResetScroll()
@@ -424,15 +424,15 @@ detailsTab.func = function(d)
 					-- modify detail entry
 					b:SetScript("OnClick", function()
 						if detail[1] == "EP" then
-							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
+							GRA.ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
 						elseif detail[1] == "GP" then
-							GRA:ShowCreditFrame(d, detail[3], detail[2], detail[4], detail[5], k)
+							GRA.ShowCreditFrame(d, detail[3], detail[2], detail[4], detail[5], k)
 						else -- PGP/PEP
-							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
+							GRA.ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
 						end
 					end)
 
-				elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+				elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 					if detail[1] == "DKP_C" then
 						b.noteFrame.text:SetPoint("RIGHT", -25, 0)
 					else
@@ -441,13 +441,13 @@ detailsTab.func = function(d)
 
 					-- delete detail entry
 					b.deleteBtn:SetScript("OnClick", function()
-						local confirm = GRA:CreateConfirmPopup(detailsTab, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("DKP") .. "|r\n" 
+						local confirm = GRA.CreateConfirmPopup(detailsTab, 200, gra.colors.firebrick.s .. L["Delete this entry and undo changes to %s?"]:format("DKP") .. "|r\n"
 						.. detail[3] .. ": " .. detail[2] .. " DKP"
 						, function()
 							if detail[1] == "DKP_P" then
-								GRA:UndoPenalizeDKP(d, k)
+								GRA.UndoPenalizeDKP(d, k)
 							else
-								GRA:UndoDKP(d, k)
+								GRA.UndoDKP(d, k)
 							end
 							ShowTab("details", d)
 							detailsTab.scrollFrame:ResetScroll()
@@ -458,11 +458,11 @@ detailsTab.func = function(d)
 					-- modify detail entry
 					b:SetScript("OnClick", function()
 						if detail[1] == "DKP_A" then
-							GRA:ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
+							GRA.ShowAwardFrame(d, detail[3], detail[2], detail[4], k)
 						elseif detail[1] == "DKP_C" then
-							GRA:ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], k)
+							GRA.ShowCreditFrame(d, detail[3], -detail[2], detail[4], detail[5], k)
 						else -- DKP_P
-							GRA:ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
+							GRA.ShowPenalizeFrame(d, detail[1], detail[3], detail[2], detail[4], k)
 						end
 					end)
 
@@ -470,13 +470,13 @@ detailsTab.func = function(d)
 					b.noteFrame.text:SetPoint("RIGHT", -25, 0)
 					-- delete detail entry
 					b.deleteBtn:SetScript("OnClick", function()
-						local confirm = GRA:CreateConfirmPopup(detailsTab, 200, gra.colors.firebrick.s .. L["Delete this entry?"] .. "|r\n" 
-						.. detail[2] .. " " .. GRA:GetClassColoredName(detail[3])
+						local confirm = GRA.CreateConfirmPopup(detailsTab, 200, gra.colors.firebrick.s .. L["Delete this entry?"] .. "|r\n"
+						.. detail[2] .. " " .. GRA.GetClassColoredName(detail[3])
 						, function()
 							-- delete from logs
 							table.remove(_G[GRA_R_Archived][selectedArchiveName][d]["details"], k)
 							-- fake GRA_ENTRY_UNDO event, refresh sheet by date
-							GRA:FireEvent("GRA_ENTRY_UNDO", d)
+							GRA.Fire("GRA_ENTRY_UNDO", d)
 							ShowTab("details", d)
 							detailsTab.scrollFrame:ResetScroll()
 						end, true)
@@ -485,7 +485,7 @@ detailsTab.func = function(d)
 
 					-- modify detail entry
 					b:SetScript("OnClick", function()
-						GRA:ShowRecordLootFrame(d, detail[2], detail[4], detail[3], k)
+						GRA.ShowRecordLootFrame(d, detail[2], detail[4], detail[3], k)
 					end)
 				end
 			end
@@ -498,11 +498,11 @@ detailsTab.func = function(d)
 	end
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- load date list
------------------------------------------
+---------------------------------------------------------------------
 local function LoadDateList()
-	GRA:Debug("|cffFFC0CBLoading date list...|r ")
+	GRA.Debug("|cffFFC0CBLoading date list...|r ")
 
 	for d, t in pairs(_G[GRA_R_Archived][selectedArchiveName]) do
 		table.insert(sortedDates, d)
@@ -513,7 +513,7 @@ local function LoadDateList()
 		local d = sortedDates[i]
 		if not dates[d] then
 			local note = _G[GRA_R_Archived][selectedArchiveName][d]["note"] and (" " .. GetNote(_G[GRA_R_Archived][selectedArchiveName][d]["note"])) or ""
-			dates[d] = GRA:CreateListButton(listFrame.scrollFrame.content, date("%x", GRA:DateToSeconds(d)) .. note, "transparent-light", {listFrame.scrollFrame.content:GetWidth(), gra.size.height-4})
+			dates[d] = GRA.CreateListButton(listFrame.scrollFrame.content, date("%x", GRA.DateToSeconds(d)) .. note, "transparent-light", {listFrame.scrollFrame.content:GetWidth(), gra.size.height-4})
 			listFrame.scrollFrame:SetWidgetAutoWidth(dates[d])
 
 			-- highlight selected, dehighlight others
@@ -554,9 +554,9 @@ local function LoadDateList()
 							dates[sortedDates[i]]:Deselect()
 						end
 					end
-					
+
 					ShowTab("summary", d)
-					UpdateTitleText(d)					
+					UpdateTitleText(d)
 				end
 			end)
 		end
@@ -581,8 +581,8 @@ end
 
 local function PrepareRaidLogs()
 	wipe(sortedDates)
-	if not selectedArchiveName or GRA:Getn(_G[GRA_R_Archived][selectedArchiveName]) == 0 then
-		GRA:CreateMask(archivedLogsFrame, L["No archived log"], {-1, 1, 1, -1})
+	if not selectedArchiveName or GRA.Getn(_G[GRA_R_Archived][selectedArchiveName]) == 0 then
+		GRA.CreateMask(archivedLogsFrame, L["No archived log"], {-1, 1, 1, -1})
 		titleText:SetText("")
 		noteFrame.text:SetText("")
 		attendeesFrame.text:SetText("")
@@ -597,7 +597,7 @@ local function PrepareRaidLogs()
 		LoadDateList()
 		-- show last log by default
 		local dateToShow = sortedDates[#sortedDates]
-		GRA:Debug("|cffFFC0CBShowing log: |r" .. (dateToShow or "nil"))
+		GRA.Debug("|cffFFC0CBShowing log: |r" .. (dateToShow or "nil"))
 		if dates[dateToShow] then
 			dates[dateToShow]:Click() -- highlight this date button and load its content
 			-- scroll list
@@ -612,7 +612,7 @@ local function PrepareRaidLogs()
 	end
 
 	-- update detailsTab title
-	tabButtons["details"]:SetText(_G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" and L["Details"] or L["Loots"])
+	tabButtons["details"]:SetText(GRA_Config["raidInfo"]["system"] == "EPGP" and L["Details"] or L["Loots"])
 end
 
 -- update list and scroll
@@ -653,7 +653,7 @@ archivedLogsFrame:SetScript("OnShow", function()
 	end
 end)
 
-GRA:RegisterEvent("GRA_LOGS_ACV", "ArchivedLogsFrame_RaidLogsArchived", function(dates, archivedTo)
+GRA.RegisterCallback("GRA_LOGS_ACV", "ArchivedLogsFrame_RaidLogsArchived", function(dates, archivedTo)
 	if archivedTo == archivedDropDownMenu.selected then
 		if archivedLogsFrame:IsVisible() then
 			UpdateList()
@@ -663,10 +663,10 @@ GRA:RegisterEvent("GRA_LOGS_ACV", "ArchivedLogsFrame_RaidLogsArchived", function
 	end
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- permission
------------------------------------------
--- GRA:RegisterEvent("GRA_PERMISSION", "ArchivedLogsFrame_CheckPermissions", function(isAdmin)
+---------------------------------------------------------------------
+-- GRA.RegisterCallback("GRA_PERMISSION", "ArchivedLogsFrame_CheckPermissions", function(isAdmin)
 -- 	if isAdmin then
 -- 		sendBtn:Show()
 -- 		deleteBtn:SetPoint("LEFT", sendBtn, "RIGHT", 5, 0)
@@ -674,7 +674,7 @@ end)
 -- 		exportBtn:Show()
 
 -- 		-- current tab = details
--- 		if GRA:Getn(dates) ~= 0 and currentTab == "details" then
+-- 		if GRA.Getn(dates) ~= 0 and currentTab == "details" then
 -- 			ShowTab("details", sortedDates[selected])
 -- 		end
 -- 	end

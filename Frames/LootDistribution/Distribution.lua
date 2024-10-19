@@ -7,12 +7,12 @@ local Comm = LibStub:GetLibrary("AceComm-3.0")
 local I = LibStub("LibItemUpgradeInfo-1.0")
 
 -- 262, 15 rows
-local distributionFrame = GRA:CreateMovableFrame("GRA Distribution Frame", "GRA_DistributionFrame", 478, 357, "GRA_FONT_TITLE", "DIALOG")
+local distributionFrame = GRA.CreateMovableFrame("GRA Distribution Frame", "GRA_DistributionFrame", 478, 357, "GRA_FONT_TITLE", "DIALOG")
 gra.distributionFrame = distributionFrame
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- var
---------------------------------------------------------
+---------------------------------------------------------------------
 gra.isLootMaster = false
 local indices = {} -- 防止buttons顺序错乱，出现于end session时。 同步distribution与loot的顺序。
 local currentIndex = 1
@@ -25,9 +25,9 @@ local itemsNotFound, playerItemsNotFound = {}, {}
 local buttons, frames = {}, {}
 local replyColors = { "|cffFF3333", "|cffFF9933", "|cffFFFF33", "|cff99FF33", "|cff33FF33", "|cff33FF99", "|cff33FFFF"}
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- set button point and show frame
---------------------------------------------------------
+---------------------------------------------------------------------
 local function ShowButtons()
     local last
     local maxIndex = (#indices > 10) and 10 or #indices
@@ -44,7 +44,7 @@ local function ShowButtons()
 end
 
 local function ShowFrame(itemSig)
-    currentIndex = GRA:GetIndex(indices, itemSig)
+    currentIndex = GRA.GetIndex(indices, itemSig)
     if currentIndex == nil then -- all sessions ended
         distributionFrame:Hide()
         return
@@ -65,9 +65,9 @@ local function ShowFrame(itemSig)
     end
 end
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- create player row for each frame
---------------------------------------------------------
+---------------------------------------------------------------------
 local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
     local row = CreateFrame("Button", nil, frames[itemSig].scrollFrame.content)
     frames[itemSig].scrollFrame:SetWidgetAutoWidth(row)
@@ -75,14 +75,14 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
     row:SetFrameLevel(5)
     row:SetSize(frames[itemSig].scrollFrame.content:GetWidth(), 20)
     row:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1, insets = {left=1,top=1,right=1,bottom=1}})
-	row:SetBackdropColor(.5, .5, .5, .1) 
+	row:SetBackdropColor(.5, .5, .5, .1)
     row:SetBackdropBorderColor(0, 0, 0, 1)
-    
-    row.spec = GRA:CreateIconButton(row, 16, 16, "INTERFACE\\ICONS\\INV_MISC_QUESTIONMARK")
+
+    row.spec = GRA.CreateIconButton(row, 16, 16, "INTERFACE\\ICONS\\INV_MISC_QUESTIONMARK")
     row.spec:SetPoint("LEFT", 8, 0)
     row.spec:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .3) end)
     row.spec:SetScript("OnLeave", function() row:SetBackdropColor(.5, .5, .5, .1) end)
-    
+
     local class = select(2, GetClassInfo(playerClassID))
     if playerClassID and playerSpecID then
         -- specID, name, description, iconID, role, isRecommended, isAllowed = GetSpecializationInfoForClassID(classID, specNum)
@@ -100,22 +100,22 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
 
     row.name = row:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
     if class then
-        row.name:SetText(GRA:GetClassColoredName(playerName, class))
+        row.name:SetText(GRA.GetClassColoredName(playerName, class))
     else
         row.name:SetText(gra.colors.grey.s .. playerName)
     end
     row.name:SetWidth(80)
     row.name:SetWordWrap(false)
     row.name:SetPoint("LEFT", row.spec, "RIGHT", 2, 0)
-    
+
     row.response = row:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
     row.response:SetWidth(100)
     row.response:SetWordWrap(false)
     row.response:SetPoint("LEFT", row.name, "RIGHT", 5, 0)
 
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then
         row.pr = row:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
-        row.prValue = GRA:GetPR(playerName) -- sort key
+        row.prValue = GRA.GetPR(playerName) -- sort key
         if row.prValue == 0 then
             row.pr:SetText(gra.colors.grey.s .. row.prValue)
         else
@@ -124,9 +124,9 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
         row.pr:SetWidth(45)
         row.pr:SetWordWrap(false)
         row.pr:SetPoint("LEFT", row.response, "RIGHT", 5, 0)
-    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+    elseif GRA_Config["raidInfo"]["system"] == "DKP" then
         row.dkp = row:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
-        row.dkpValue = GRA:GetDKP(playerName) -- sort key
+        row.dkpValue = GRA.GetDKP(playerName) -- sort key
         if row.dkpValue == 0 then
             row.dkp:SetText(gra.colors.grey.s .. row.dkpValue)
         else
@@ -136,19 +136,19 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
         row.dkp:SetWordWrap(false)
         row.dkp:SetPoint("LEFT", row.response, "RIGHT", 5, 0)
     end
-    
-    row.g1 = GRA:CreateIconButton(row, 16, 16)
+
+    row.g1 = GRA.CreateIconButton(row, 16, 16)
     row.g1:Hide()
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then
         row.g1:SetPoint("LEFT", row.pr, "RIGHT", 5, 0)
-    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+    elseif GRA_Config["raidInfo"]["system"] == "DKP" then
         row.g1:SetPoint("LEFT", row.dkp, "RIGHT", 5, 0)
     else
         row.g1:SetPoint("LEFT", row.response, "RIGHT", 5, 0)
     end
     row.g1:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .3) end)
     row.g1:SetScript("OnLeave", function() row:SetBackdropColor(.5, .5, .5, .1) end)
-    
+
     function row.g1:SetItem(link)
         -- local _, _, _, _, _, _, _, _, _, iconFileDataID = GetItemInfo(link)
         local iconFileDataID = GetItemIcon(link)
@@ -177,8 +177,8 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
         row.g1:HookScript("OnLeave", function() GRA_Tooltip:Hide() end)
         row.g1:Show()
     end
-    
-    row.g2 = GRA:CreateIconButton(row, 16, 16)
+
+    row.g2 = GRA.CreateIconButton(row, 16, 16)
     row.g2:Hide()
     row.g2:SetPoint("LEFT", row.g1, "RIGHT", 52, 0)
     row.g2:SetScript("OnEnter", function() row:SetBackdropColor(.5, .5, .5, .3) end)
@@ -235,24 +235,24 @@ local function CreateRow(playerName, playerClassID, playerSpecID, itemSig)
         row:SetBackdropColor(.5, .5, .5, .1)
         GRA_Tooltip:Hide()
     end)
-    
+
     row:SetScript("OnEnter", function(self) self:SetBackdropColor(.5, .5, .5, .3) end)
 	row:SetScript("OnLeave", function(self) self:SetBackdropColor(.5, .5, .5, .1) end)
-	
+
 	return row
 end
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- sort by reply
---------------------------------------------------------
+---------------------------------------------------------------------
 local function Sort(itemSig)
     local sorted = {}
-    
+
     for name, row in pairs(frames[itemSig]["rows"]) do
         table.insert(sorted, row)
     end
 
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then
         table.sort(sorted, function(a, b)
             if a.responseIndex ~= b.responseIndex then
                 return a.responseIndex < b.responseIndex
@@ -260,7 +260,7 @@ local function Sort(itemSig)
                 return a.prValue > b.prValue
             end
         end)
-    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+    elseif GRA_Config["raidInfo"]["system"] == "DKP" then
         table.sort(sorted, function(a, b)
             if a.responseIndex ~= b.responseIndex then
                 return a.responseIndex < b.responseIndex
@@ -288,38 +288,38 @@ local function Sort(itemSig)
     frames[itemSig].scrollFrame:ResetHeight()
 end
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- update row info
---------------------------------------------------------
+---------------------------------------------------------------------
 local function SetMemberResponse(playerName, playerClassID, playerSpecID, itemSig, responseIndex, g1, g2, note)
     if not frames[itemSig] then return end -- session already ended
-    if not string.find(playerName, "-") then playerName = playerName .. "-" .. GRA:GetRealmName() end
+    if not string.find(playerName, "-") then playerName = playerName .. "-" .. GRA.GetRealmName() end
     local row = frames[itemSig]["rows"][playerName] or CreateRow(playerName, playerClassID, playerSpecID, itemSig)
-    
+
     row.responseIndex = responseIndex -- response index
     if responseIndex == 9 then -- considering
         row.response:SetText(gra.colors.grey.s .. L["Considering..."])
     elseif responseIndex == 8 then -- pass
-        frames[itemSig]["rows"] = GRA:RemoveElementsByKeys(frames[itemSig]["rows"], {playerName})
+        frames[itemSig]["rows"] = GRA.RemoveElementsByKeys(frames[itemSig]["rows"], {playerName})
         row:SetParent(nil)
         row:ClearAllPoints()
         row:Hide()
     else
-        row.response:SetText((replyColors[responseIndex] or gra.colors.grey.s) .. (_G[GRA_R_Config]["replies"][responseIndex] or "Unkonw Reply"))
+        row.response:SetText((replyColors[responseIndex] or gra.colors.grey.s) .. (GRA_Config["replies"][responseIndex] or "Unkonw Reply"))
         -- if g1 and string.find(g1, "|Hitem") then row.g1:SetItem(g1) end
         -- if g2 and string.find(g2, "|Hitem") then row.g2:SetItem(g2) end
         if g1 then
             if GetItemInfo(g1) then
                 row.g1:SetItem(g1)
             else
-                table.insert(playerItemsNotFound, {GRA:GetItemID(g1), row.g1, g1})
+                table.insert(playerItemsNotFound, {GRA.GetItemID(g1), row.g1, g1})
             end
         end
         if g2 then
             if GetItemInfo(g2) then
                 row.g2:SetItem(g2)
             else
-                table.insert(playerItemsNotFound, {GRA:GetItemID(g2), row.g2, g2})
+                table.insert(playerItemsNotFound, {GRA.GetItemID(g2), row.g2, g2})
             end
         end
 
@@ -328,35 +328,35 @@ local function SetMemberResponse(playerName, playerClassID, playerSpecID, itemSi
     Sort(itemSig)
 end
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- create item detail frame
---------------------------------------------------------
+---------------------------------------------------------------------
 local function CreateItemFrame(itemSig, itemLink, count)
     -- itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, iconFileDataID, itemSellPrice, itemClassID, itemSubClassID, bindType, expacID, itemSetID, isCraftingReagent = GetItemInfo(itemLink)
     local _, _, itemRarity, iLevel, _, itemType, itemSubType, _, itemEquipLoc, iconFileDataID = GetItemInfo(itemLink)
-    local tokenID, tierVersion = GRA:IsTier(itemSig)
+    local tokenID, tierVersion = GRA.IsTier(itemSig)
     if tokenID then
-        itemEquipLoc, iLevel = GRA:GetTierInfo(tokenID, tierVersion)
+        itemEquipLoc, iLevel = GRA.GetTierInfo(tokenID, tierVersion)
     else
         iLevel = I:GetUpgradedItemLevel(itemLink)
     end
-    
+
     local f = CreateFrame("Frame", nil, distributionFrame)
     f:Hide()
     f:SetAllPoints(distributionFrame)
     -- save ilvl for row diff
     f.iLevel = iLevel
-    
+
     -- icon, info, end session
     local titleFrame = CreateFrame("Frame", nil, f, "BackdropTemplate")
     titleFrame:SetPoint("TOPLEFT")
     titleFrame:SetPoint("BOTTOMRIGHT", f, "TOPRIGHT", 0, -51)
-    GRA:StylizeFrame(titleFrame, {1, 1, 1, .1}, {0, 0, 0, 1})
+    GRA.StylizeFrame(titleFrame, {1, 1, 1, .1}, {0, 0, 0, 1})
 
-    local icon = GRA:CreateIconButton(titleFrame, 35, 35, iconFileDataID)
+    local icon = GRA.CreateIconButton(titleFrame, 35, 35, iconFileDataID)
     icon:SetPoint("TOPLEFT", 8, -8)
-    
-    -- GRA:CreateIconOverlay(icon, itemLink, itemSig)
+
+    -- GRA.CreateIconOverlay(icon, itemLink, itemSig)
 
     icon:SetScript("OnEnter", function(self)
         GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
@@ -374,29 +374,29 @@ local function CreateItemFrame(itemSig, itemLink, count)
     end
 
     -- info text
-    local itemStatus = GRA:GetItemStatus(itemLink)
+    local itemStatus = GRA.GetItemStatus(itemLink)
     if itemStatus ~= "" then itemStatus = " " .. itemStatus end -- add space
     local itemSocket = (select(2, string.split(":", itemSig)) ~= "0") and (" " .. gra.colors.skyblue.s .. L["Socket"]) or ""
-    local bindType, localizedBindType = GRA:GetItemBindType(itemLink)
+    local bindType, localizedBindType = GRA.GetItemBindType(itemLink)
     if bindType == "BoE" or bindType == "BoU" then
         localizedBindType = " " .. gra.colors.firebrick.s .. localizedBindType
     else
 		localizedBindType = ""
 	end
-    
+
     local infoText = titleFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_TEXT")
     infoText:SetPoint("BOTTOMLEFT", icon, "BOTTOMRIGHT", 8, 4)
     infoText:SetText(L["iLevel: "] .. iLevel .. itemStatus .. itemSocket .. localizedBindType .. "    " .. gra.colors.grey.s .. (itemSubType or "") .. " " .. (_G[itemEquipLoc] or ""))
-    
+
     -- end session button
-    local closeBtn = GRA:CreateButton(titleFrame, gra.isLootMaster and L["End Session"] or L["Dismiss"], "red", {90, 20})
+    local closeBtn = GRA.CreateButton(titleFrame, gra.isLootMaster and L["End Session"] or L["Dismiss"], "red", {90, 20})
     closeBtn:SetPoint("RIGHT", -8, 0)
     closeBtn:SetScript("OnClick", function()
         if gra.isLootMaster then
             -- hide loot frame
             Comm:SendCommMessage("GRA_LOOT_E", itemSig, "RAID", nil, "ALERT")
         end
-        
+
         local nextIndex
         if currentIndex == #indices then -- 删除最后一个
             nextIndex = currentIndex - 1
@@ -417,9 +417,9 @@ local function CreateItemFrame(itemSig, itemLink, count)
         -- hide frame and button
         f:Hide()
         buttons[itemSig]:Hide()
-        frames = GRA:RemoveElementsByKeys(frames, {itemSig})
-        buttons = GRA:RemoveElementsByKeys(buttons, {itemSig})
-        lootsToSend = GRA:RemoveElementsByKeys(lootsToSend, {itemSig})
+        frames = GRA.RemoveElementsByKeys(frames, {itemSig})
+        buttons = GRA.RemoveElementsByKeys(buttons, {itemSig})
+        lootsToSend = GRA.RemoveElementsByKeys(lootsToSend, {itemSig})
         table.remove(indices, currentIndex)
         -- show
         ShowButtons()
@@ -427,7 +427,7 @@ local function CreateItemFrame(itemSig, itemLink, count)
     end)
 
     -- scroll frame
-    f.scrollFrame = GRA:CreateScrollFrame(f, -71)
+    f.scrollFrame = GRA.CreateScrollFrame(f, -71)
     f.scrollFrame:SetScrollStep(19)
 
     -- header
@@ -450,11 +450,11 @@ local function CreateItemFrame(itemSig, itemLink, count)
     -- hCurrentGear:SetPoint("BOTTOMLEFT", f.scrollFrame, "TOPLEFT", 216, 4)
     -- hNotes:SetPoint("BOTTOMLEFT", f.scrollFrame, "TOPLEFT", 354, 4)
     hResponse:SetPoint("LEFT", hName, 85, 0)
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then
         distributionFrame:SetWidth(528)
         hPR:SetPoint("LEFT", hResponse, 105, 0)
         hCurrentGear:SetPoint("LEFT", hPR, 50, 0)
-    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+    elseif GRA_Config["raidInfo"]["system"] == "DKP" then
         distributionFrame:SetWidth(528)
         hDKP:SetPoint("LEFT", hResponse, 105, 0)
         hCurrentGear:SetPoint("LEFT", hDKP, 50, 0)
@@ -464,10 +464,10 @@ local function CreateItemFrame(itemSig, itemLink, count)
     end
     hNotes:SetPoint("LEFT", hCurrentGear, 138, 0)
 
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then -- update epgp
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then -- update epgp
         f:SetScript("OnShow", function()
             for playerName, row in pairs(f["rows"]) do
-                row.prValue = GRA:GetPR(playerName)
+                row.prValue = GRA.GetPR(playerName)
                 if row.prValue == 0 then
                     row.pr:SetText(gra.colors.grey.s .. row.prValue)
                 else
@@ -477,10 +477,10 @@ local function CreateItemFrame(itemSig, itemLink, count)
             -- re-sort
             Sort(itemSig)
         end)
-    elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then -- update dkp
+    elseif GRA_Config["raidInfo"]["system"] == "DKP" then -- update dkp
         f:SetScript("OnShow", function()
             for playerName, row in pairs(f["rows"]) do
-                row.dkpValue = GRA:GetDKP(playerName)
+                row.dkpValue = GRA.GetDKP(playerName)
                 if row.dkpValue == 0 then
                     row.dkp:SetText(gra.colors.grey.s .. row.dkpValue)
                 else
@@ -495,16 +495,16 @@ local function CreateItemFrame(itemSig, itemLink, count)
     return f
 end
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- create item button (left)
---------------------------------------------------------
+---------------------------------------------------------------------
 local function CreateItemButton(itemSig, itemLink, count)
     -- button
-    local itemBtn = GRA:CreateIconButton(distributionFrame, 35, 35, GetItemIcon(itemLink))
+    local itemBtn = GRA.CreateIconButton(distributionFrame, 35, 35, GetItemIcon(itemLink))
     buttons[itemSig] = itemBtn
     itemBtn:SetFrameLevel(2)
 
-    GRA:CreateIconOverlay(itemBtn, itemLink, itemSig)
+    GRA.CreateIconOverlay(itemBtn, itemLink, itemSig)
 
     ShowButtons()
 
@@ -518,12 +518,12 @@ local function CreateItemButton(itemSig, itemLink, count)
     end)
 end
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- announce loots
---------------------------------------------------------
+---------------------------------------------------------------------
 local function SendLoots()
     -- send replies
-    Comm:SendCommMessage("GRA_LOOT", Serializer:Serialize(_G[GRA_R_Config]["replies"]), "RAID", nil, "ALERT")
+    Comm:SendCommMessage("GRA_LOOT", Serializer:Serialize(GRA_Config["replies"]), "RAID", nil, "ALERT")
 
     -- send items to loot frame
     -- texplore(lootsToSend)
@@ -536,9 +536,9 @@ local function SendLoots()
     end
 end
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- prepare data and show main frame
---------------------------------------------------------
+---------------------------------------------------------------------
 local function ShowDistributionFrame()
     -- loots[itemSig] = {itemLink, quantity}
     for itemSig, t in pairs(loots) do
@@ -563,23 +563,23 @@ distributionFrame:SetScript("OnShow", function()
     end
 end)
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- event
---------------------------------------------------------
+---------------------------------------------------------------------
 -- distributionFrame:RegisterEvent("ADDON_LOADED")
 distributionFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 distributionFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 distributionFrame:RegisterEvent("PARTY_LOOT_METHOD_CHANGED")
 -- distributionFrame:RegisterEvent("LOOT_OPENED")
 -- distributionFrame:RegisterEvent("LOOT_SLOT_CLEARED")
-function GRA:UpdateLootMaster()
+function GRA.UpdateLootMaster()
     local method, partyMaster, raidMaster = GetLootMethod()
     -- master looter and player is loot master
     gra.isLootMaster = (method == "master") and (raidMaster == UnitInRaid("player")) and IsInInstance()
 
-    if gra.isLootMaster and _G[GRA_R_Config]["enableLootDistr"] then 
+    if gra.isLootMaster and GRA_Config["enableLootDistr"] then
         distributionFrame:RegisterEvent("LOOT_OPENED")
-        GRA:Print(L["Loot distribution tool enabled."])
+        GRA.Print(L["Loot distribution tool enabled."])
     else
         distributionFrame:UnregisterEvent("LOOT_OPENED")
     end
@@ -587,7 +587,7 @@ end
 
 distributionFrame:SetScript("OnEvent", function(self, event, arg1)
     if event == "PLAYER_ENTERING_WORLD" or event == "PARTY_LOOT_METHOD_CHANGED" then
-        GRA:UpdateLootMaster()
+        GRA.UpdateLootMaster()
 
     elseif event == "LOOT_OPENED" then
         wipe(loots) -- clear loots
@@ -605,7 +605,7 @@ distributionFrame:SetScript("OnEvent", function(self, event, arg1)
             local texture, itemName, quantity, quality = GetLootSlotInfo(i)
             if itemLink and quality and quality > 3 then -- TODO: filter
                 -- 同一件物品 不同bonusID 应视为不同物品
-                local itemSig = strjoin(":", GRA:GetItemSignatures(itemLink))
+                local itemSig = strjoin(":", GRA.GetItemSignatures(itemLink))
                 if loots[itemSig] then
                     loots[itemSig][2] = loots[itemSig][2] + 1
                 else
@@ -615,12 +615,12 @@ distributionFrame:SetScript("OnEvent", function(self, event, arg1)
         end
         ShowDistributionFrame()
         -- texplore(loots)
-    
+
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         -- for non loot master
         -- for i = #itemsNotFound, 1, -1 do
         --     if tonumber(arg1) == itemsNotFound[i][1] then
-        --         local itemSig = strjoin(":", GRA:GetItemSignatures(itemsNotFound[i][2]))
+        --         local itemSig = strjoin(":", GRA.GetItemSignatures(itemsNotFound[i][2]))
         --         if not lootsToSend[itemSig] then
         --             table.insert(indices, itemSig)
         --             CreateItemButton(itemSig, itemsNotFound[i][2], itemsNotFound[i][3])
@@ -629,7 +629,7 @@ distributionFrame:SetScript("OnEvent", function(self, event, arg1)
         --     end
         -- end
 
-        for i = #playerItemsNotFound, 1, -1 do 
+        for i = #playerItemsNotFound, 1, -1 do
             if tonumber(arg1) == playerItemsNotFound[i][1] then
                 playerItemsNotFound[i][2]:SetItem(playerItemsNotFound[i][3])
                 table.remove(playerItemsNotFound, i)
@@ -638,9 +638,9 @@ distributionFrame:SetScript("OnEvent", function(self, event, arg1)
     end
 end)
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- comm
---------------------------------------------------------
+---------------------------------------------------------------------
 -- GRA_LOOT: send all "replies"
 -- GRA_LOOT_R: reply/response
 -- GRA_LOOT_S: start/send loot
@@ -654,16 +654,16 @@ Comm:RegisterComm("GRA_LOOT_R", function(prefix, message, channel, sender)
     end
 end)
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- for non loot master
---------------------------------------------------------
-function GRA:DistributionFrame_AddItem(itemSig, itemLink, count)
+---------------------------------------------------------------------
+function GRA.DistributionFrame_AddItem(itemSig, itemLink, count)
     table.insert(indices, itemSig)
     CreateItemButton(itemSig, itemLink, count)
 end
 
-function GRA:DistributionFrame_RemoveItem(itemSig)
-    local indexToRemove = GRA:GetIndex(indices, itemSig)
+function GRA.DistributionFrame_RemoveItem(itemSig)
+    local indexToRemove = GRA.GetIndex(indices, itemSig)
     if not indexToRemove then return end -- no such frame
 
     local nextIndex
@@ -676,18 +676,18 @@ function GRA:DistributionFrame_RemoveItem(itemSig)
     -- hide frame and button
     frames[itemSig]:Hide()
     buttons[itemSig]:Hide()
-    frames = GRA:RemoveElementsByKeys(frames, {itemSig})
-    buttons = GRA:RemoveElementsByKeys(buttons, {itemSig})
+    frames = GRA.RemoveElementsByKeys(frames, {itemSig})
+    buttons = GRA.RemoveElementsByKeys(buttons, {itemSig})
     table.remove(indices, indexToRemove)
-    
+
     -- show
     ShowButtons()
     ShowFrame(indices[nextIndex])
 end
 
---------------------------------------------------------
+---------------------------------------------------------------------
 -- loot distr test
---------------------------------------------------------
+---------------------------------------------------------------------
 --@debug@
 SLASH_LOOTDISTRTEST1 = "/ldtest"
 function SlashCmdList.LOOTDISTRTEST(msg, editbox)
@@ -704,7 +704,7 @@ function SlashCmdList.LOOTDISTRTEST(msg, editbox)
         -- local itemLink = GetInventoryItemLink("player", i)
         local itemLink = GetContainerItemLink(0, i)
         if itemLink then
-            local itemSig = strjoin(":", GRA:GetItemSignatures(itemLink))
+            local itemSig = strjoin(":", GRA.GetItemSignatures(itemLink))
             loots[itemSig] = {itemLink, math.random(i)}
         end
     end
@@ -712,11 +712,11 @@ function SlashCmdList.LOOTDISTRTEST(msg, editbox)
     ShowDistributionFrame()
 
     local replies = {}
-    for i in ipairs(_G[GRA_R_Config]["replies"]) do
+    for i in ipairs(GRA_Config["replies"]) do
         table.insert(replies, i)
     end
     table.insert(replies, 8)
-    
+
     for i = 1, #indices do
         for j = 1, 20 do
             SetMemberResponse("player" .. j, math.random(12), math.random(2), indices[i], replies[math.random(#replies)], nil, nil, [[Best in slot (also "best-in-slot"; usually shortened to "BiS")]])

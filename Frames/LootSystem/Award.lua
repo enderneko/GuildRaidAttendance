@@ -2,12 +2,12 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
------------------------------------------
+---------------------------------------------------------------------
 -- Award Frame
------------------------------------------
+---------------------------------------------------------------------
 local aReason, aValue, aSelected, aDate, aIndex, aFloatBtn = nil, nil, {}, nil, nil, nil
 
-local awardFrame = GRA:CreateMovableFrame("XX Award", "GRA_AwardFrame", 400, 400, nil, "DIALOG")
+local awardFrame = GRA.CreateMovableFrame("XX Award", "GRA_AwardFrame", 400, 400, nil, "DIALOG")
 awardFrame:SetToplevel(true)
 gra.awardFrame = awardFrame
 
@@ -20,7 +20,7 @@ aReasonText:SetText("|cff80FF00" .. L["Reason"])
 aReasonText:SetPoint("TOPLEFT", 10, -10)
 
 -- reason editbox
-local aReasonEditBox = GRA:CreateEditBox(awardFrame, 160, 20)
+local aReasonEditBox = GRA.CreateEditBox(awardFrame, 160, 20)
 aReasonEditBox:SetPoint("TOPLEFT", aReasonText, 10, -15)
 
 -- value text
@@ -28,18 +28,18 @@ local aValueText = awardFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 aValueText:SetText("|cff80FF00" .. L["Value"])
 aValueText:SetPoint("LEFT", aReasonText, 200, 0)
 
-local aValueEditBox = GRA:CreateEditBox(awardFrame, 160, 20)
+local aValueEditBox = GRA.CreateEditBox(awardFrame, 160, 20)
 aValueEditBox:SetPoint("TOPLEFT", aValueText, 10, -15)
 aValueEditBox:SetScript("OnEnterPressed", function()
     local ex = aValueEditBox:GetText()
     if string.find(ex,"=") == 1 then
         ex = string.sub(ex, 2)
-        local status, result = GRA:Calc(ex)
+        local status, result = GRA.Calc(ex)
         if status then
             aValueEditBox:SetText(result)
             aValueEditBox:ClearFocus()
         else
-            GRA:ShowNotificationString(awardFrame, gra.colors.firebrick.s .. result, "TOPLEFT", aValueEditBox, "BOTTOMLEFT", 0, -3)
+            GRA.ShowNotificationString(awardFrame, gra.colors.firebrick.s .. result, "TOPLEFT", aValueEditBox, "BOTTOMLEFT", 0, -3)
         end
     else
         aValueEditBox:ClearFocus()
@@ -56,21 +56,21 @@ attendeesText:SetPoint("TOPLEFT", aReasonText, 0, -50)
 
 local attendeeCBs, absenteeCBs = {}, {}
 
-local awardBtn = GRA:CreateButton(awardFrame, "Award XX" .. "(0)", "red", {awardFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
+local awardBtn = GRA.CreateButton(awardFrame, "Award XX" .. "(0)", "red", {awardFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
 awardBtn:SetPoint("BOTTOM")
 awardBtn:SetScript("OnClick", function()
     -- change officer note
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then
         if aIndex then
-            GRA:ModifyEP(aDate, aValue, aReason, aSelected, aIndex)
+            GRA.ModifyEP(aDate, aValue, aReason, aSelected, aIndex)
         else
-            GRA:AwardEP(aDate, aValue, aReason, aSelected)
+            GRA.AwardEP(aDate, aValue, aReason, aSelected)
         end
     else -- dkp
         if aIndex then
-            GRA:ModifyDKP_A(aDate, aValue, aReason, aSelected, aIndex)
+            GRA.ModifyDKP_A(aDate, aValue, aReason, aSelected, aIndex)
         else
-            GRA:AwardDKP(aDate, aValue, aReason, aSelected)
+            GRA.AwardDKP(aDate, aValue, aReason, aSelected)
         end
     end
     awardFrame:Hide()
@@ -83,28 +83,28 @@ local function UpdateAwardBtnText()
     awardBtn:SetText((aIndex and L["Modify " .. system] or L["Award " .. system]) .. " (" .. #aSelected .. ")")
 end
 
-local unSelectAllAttendees = GRA:CreateButton(awardFrame, L["Unselect All"], nil, {70, 16}, "GRA_FONT_SMALL")
+local unSelectAllAttendees = GRA.CreateButton(awardFrame, L["Unselect All"], nil, {70, 16}, "GRA_FONT_SMALL")
 unSelectAllAttendees:SetPoint("LEFT", attendeesText, 140, 0)
 unSelectAllAttendees:SetScript("OnClick", function()
     -- aSelected = {}
     for name, cb in pairs(attendeeCBs) do
         if cb:IsShown() then -- only select shown cbs
             cb:SetChecked(false)
-            GRA:Remove(aSelected, name)
+            GRA.Remove(aSelected, name)
         end
     end
     UpdateAwardBtnText()
 end)
 
-local selectAllAttendees = GRA:CreateButton(awardFrame, L["Select All"], nil, {70, 16}, "GRA_FONT_SMALL")
+local selectAllAttendees = GRA.CreateButton(awardFrame, L["Select All"], nil, {70, 16}, "GRA_FONT_SMALL")
 selectAllAttendees:SetPoint("RIGHT", unSelectAllAttendees, "LEFT", -5, 0)
 selectAllAttendees:SetScript("OnClick", function()
-    -- print(GRA:TableToString(aSelected))
+    -- print(GRA.TableToString(aSelected))
     -- aSelected = {}
     for name, cb in pairs(attendeeCBs) do
         if cb:IsShown() then -- only select shown cbs
             cb:SetChecked(true)
-            if not GRA:TContains(aSelected, name) then
+            if not GRA.TContains(aSelected, name) then
                 table.insert(aSelected, name)
             end
         end
@@ -122,12 +122,12 @@ end)
 --     end
 --     attendees[name] = {"", classes[random(1, 12)]}
 -- end
---------------------------------------------------
+---------------------------------------------------------------------
 
 local function SortByClass(t)
 	table.sort(t, function(a, b)
 		if a[2] ~= b[2] then
-			return GRA:GetIndex(gra.CLASS_ORDER, a[2]) < GRA:GetIndex(gra.CLASS_ORDER, b[2])
+			return GRA.GetIndex(gra.CLASS_ORDER, a[2]) < GRA.GetIndex(gra.CLASS_ORDER, b[2])
 		else
             return a[1] < b[1]
 		end
@@ -139,8 +139,8 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
     for _, n in pairs(playerTbl) do
-        if _G[GRA_R_Roster][n] then -- ignore deleted
-            table.insert(sorted, {n, _G[GRA_R_Roster][n]["class"], GRA:GetShortName(n)}) -- {"fullName", "class", "shortName"}
+        if GRA_Roster[n] then -- ignore deleted
+            table.insert(sorted, {n, GRA_Roster[n]["class"], GRA.GetShortName(n)}) -- {"fullName", "class", "shortName"}
         end
     end
     SortByClass(sorted)
@@ -148,11 +148,11 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     for _, t in pairs(sorted) do
         -- create cbs
         if not cbTbl[t[1]] then
-            cbTbl[t[1]] = GRA:CreateCheckButton(awardFrame, t[3], RAID_CLASS_COLORS[t[2]], function(checked)
+            cbTbl[t[1]] = GRA.CreateCheckButton(awardFrame, t[3], RAID_CLASS_COLORS[t[2]], function(checked)
                 if checked then
                     table.insert(aSelected, t[1])
                 else
-                    GRA:Remove(aSelected, t[1])
+                    GRA.Remove(aSelected, t[1])
                 end
                 UpdateAwardBtnText()
             end)
@@ -164,7 +164,7 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
                 self:ClearAllPoints() -- prepare for next SetPoint
             end)
         end
-        
+
         -- SetPoint
         count = count + 1
         if lastCB then
@@ -181,7 +181,7 @@ local function CreatePlayerCheckBoxes(point, playerTbl, cbTbl)
     end
 end
 
-function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
+function GRA.ShowAwardFrame(d, reason, value, selected, index, floatBtn)
     aDate = d
     aIndex = index
     aFloatBtn = floatBtn
@@ -191,16 +191,16 @@ function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
     -- selected == {} --> unselect all
     if not selected then selected = {} end
 
-    local attendees = GRA:GetAttendeesAndAbsentees(_G[GRA_R_RaidLogs][d], true)
+    local attendees = GRA.GetAttendeesAndAbsentees(GRA_Logs[d], true)
     CreatePlayerCheckBoxes(attendeesText, attendees, attendeeCBs)
-    -- absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA:Getn(attendees)/4)*26-20)
+    -- absenteesText:SetPoint("TOPLEFT", attendeesText, 0, -ceil(GRA.Getn(attendees)/4)*26-20)
     -- CreatePlayerCheckBoxes(absenteesText, absentees, absenteeCBs)
 
-    awardFrame:SetHeight(100 + ceil(GRA:Getn(attendees)/4)*26)
+    awardFrame:SetHeight(100 + ceil(GRA.Getn(attendees)/4)*26)
 
     -- update cb state
     for name, cb in pairs(attendeeCBs) do
-        if GRA:TContains(selected, name) then
+        if GRA.TContains(selected, name) then
             cb:SetChecked(true)
         else
             cb:SetChecked(false)
@@ -208,16 +208,16 @@ function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
     end
 
     for name, cb in pairs(absenteeCBs) do
-        if GRA:TContains(selected, name) then
+        if GRA.TContains(selected, name) then
             cb:SetChecked(true)
         else
             cb:SetChecked(false)
         end
     end
 
-    aSelected = GRA:Copy(selected)
+    aSelected = GRA.Copy(selected)
 
-    if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+    if GRA_Config["raidInfo"]["system"] == "EPGP" then
         system = "EP"
     else -- dkp
         system = "DKP"
@@ -225,7 +225,7 @@ function GRA:ShowAwardFrame(d, reason, value, selected, index, floatBtn)
     awardFrame.header.text:SetText(L[system .. " Award"])
     UpdateAwardBtnText()
 
-    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToSeconds(d)))
+    dateText:SetText(gra.colors.grey.s .. date("%x", GRA.DateToSeconds(d)))
 
     awardFrame:Show()
 end

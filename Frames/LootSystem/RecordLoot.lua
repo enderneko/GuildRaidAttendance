@@ -2,25 +2,25 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
------------------------------------------
+---------------------------------------------------------------------
 -- Record Loot
------------------------------------------
+---------------------------------------------------------------------
 local rlItem, rlNote, rlLooter, rlDate, rlIndex, rlFloatBtn
 
-local recordLootFrame = GRA:CreateMovableFrame(L["Record Loot"], "GRA_RecordLootFrame", 200, 300, nil, "DIALOG")
+local recordLootFrame = GRA.CreateMovableFrame(L["Record Loot"], "GRA_RecordLootFrame", 200, 300, nil, "DIALOG")
 recordLootFrame:SetToplevel(true)
 gra.recordLootFrame = recordLootFrame
 
-local recordBtn = GRA:CreateButton(recordLootFrame, L["Record it!"], "red", {recordLootFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
+local recordBtn = GRA.CreateButton(recordLootFrame, L["Record it!"], "red", {recordLootFrame:GetWidth(), 20}, "GRA_FONT_SMALL")
 recordBtn:SetPoint("BOTTOM")
 recordBtn:SetScript("OnClick", function()
     local lootTable = {"LOOT", rlItem, rlLooter, rlNote}
     if rlIndex then -- modify
-        _G[GRA_R_RaidLogs][rlDate]["details"][rlIndex] = lootTable
-        GRA:FireEvent("GRA_ENTRY_MODIFY", rlDate)
+        GRA_Logs[rlDate]["details"][rlIndex] = lootTable
+        GRA.Fire("GRA_ENTRY_MODIFY", rlDate)
     else -- create new
-        table.insert(_G[GRA_R_RaidLogs][rlDate]["details"], lootTable)
-        GRA:FireEvent("GRA_ENTRY", rlDate)
+        table.insert(GRA_Logs[rlDate]["details"], lootTable)
+        GRA.Fire("GRA_ENTRY", rlDate)
     end
     recordLootFrame:Hide()
 
@@ -33,7 +33,7 @@ lootText:SetText("|cff80FF00" .. L["Item"])
 lootText:SetPoint("TOPLEFT", 10, -10)
 
 -- loot editbox
-local lootEditBox = GRA:CreateEditBox(recordLootFrame, 160, 20)
+local lootEditBox = GRA.CreateEditBox(recordLootFrame, 160, 20)
 lootEditBox:SetPoint("TOPLEFT", lootText, 10, -15)
 
 -- Interface\FrameXML\ChatFrame.lua  ChatEdit_InsertLink
@@ -48,14 +48,14 @@ local noteText = recordLootFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMAL
 noteText:SetText("|cff80FF00" .. L["Note"])
 noteText:SetPoint("TOPLEFT", lootText, 0, -45)
 
-local noteEditBox = GRA:CreateEditBox(recordLootFrame, 160, 20)
+local noteEditBox = GRA.CreateEditBox(recordLootFrame, 160, 20)
 noteEditBox:SetPoint("TOPLEFT", noteText, 10, -15)
 
 local looterText = recordLootFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 looterText:SetText("|cff80FF00" .. L["Looter"])
 looterText:SetPoint("TOPLEFT", noteText, 0, -45)
 
-local looterDropDown = GRA:CreateScrollDropDownMenu(recordLootFrame, 160, 100)
+local looterDropDown = GRA.CreateScrollDropDownMenu(recordLootFrame, 160, 100)
 looterDropDown:SetPoint("TOPLEFT", looterText, 10, -15)
 
 local dateText = recordLootFrame.header:CreateFontString(nil, "OVERLAY", "GRA_FONT_PIXEL")
@@ -71,19 +71,19 @@ dateText:SetPoint("LEFT", 10, 0)
 --     end
 --     attendees[name] = {"", classes[random(1, 12)]}
 -- end
---------------------------------------------------
+---------------------------------------------------------------------
 
 local function SortByClass(t)
 	table.sort(t, function(a, b)
 		if a[2] ~= b[2] then
-			return GRA:GetIndex(gra.CLASS_ORDER, a[2]) < GRA:GetIndex(gra.CLASS_ORDER, b[2])
+			return GRA.GetIndex(gra.CLASS_ORDER, a[2]) < GRA.GetIndex(gra.CLASS_ORDER, b[2])
 		else
             return a[1] < b[1]
 		end
 	end)
 end
 
-function GRA:ShowRecordLootFrame(d, link, note, looter, index, floatBtn)
+function GRA.ShowRecordLootFrame(d, link, note, looter, index, floatBtn)
     rlDate = d
     rlIndex = index
     if type(looter) ~= "string" then looter = nil end
@@ -93,12 +93,12 @@ function GRA:ShowRecordLootFrame(d, link, note, looter, index, floatBtn)
     lootEditBox:SetText(link or "")
     noteEditBox:SetText(note or "")
 
-    local attendees = GRA:GetAttendeesAndAbsentees(_G[GRA_R_RaidLogs][d])
+    local attendees = GRA.GetAttendeesAndAbsentees(GRA_Logs[d])
     -- sort gra.attendees k1:class k2:name
     local sorted = {}
     for _, n in pairs(attendees) do
-        if _G[GRA_R_Roster][n] then
-            table.insert(sorted, {n, _G[GRA_R_Roster][n]["class"]}) -- {"name", "class"}
+        if GRA_Roster[n] then
+            table.insert(sorted, {n, GRA_Roster[n]["class"]}) -- {"name", "class"}
         end
     end
     SortByClass(sorted)
@@ -106,7 +106,7 @@ function GRA:ShowRecordLootFrame(d, link, note, looter, index, floatBtn)
     local items = {}
     for _, t in pairs(sorted) do
         local item = {
-            ["text"] = GRA:GetClassColoredName(t[1], t[2]),
+            ["text"] = GRA.GetClassColoredName(t[1], t[2]),
             ["onClick"] = function(text)
                 rlLooter = t[1]
             end,
@@ -116,12 +116,12 @@ function GRA:ShowRecordLootFrame(d, link, note, looter, index, floatBtn)
 
     looterDropDown:SetItems(items)
     if looter then
-        looterDropDown:SetSelected(GRA:GetClassColoredName(looter))
+        looterDropDown:SetSelected(GRA.GetClassColoredName(looter))
     else
         looterDropDown:SetSelected("")
     end
 
-    dateText:SetText(gra.colors.grey.s .. date("%x", GRA:DateToSeconds(d)))
+    dateText:SetText(gra.colors.grey.s .. date("%x", GRA.DateToSeconds(d)))
 
     recordLootFrame:Show()
 end
@@ -143,7 +143,7 @@ recordLootFrame:SetScript("OnShow", function()
     LPP:PixelPerfectPoint(recordLootFrame)
 end)
 
-local tooltip = GRA:CreateTooltip("GRA_RecordLootTooltip")
+local tooltip = GRA.CreateTooltip("GRA_RecordLootTooltip")
 
 recordLootFrame:SetScript("OnHide", function()
     tooltip:Hide()

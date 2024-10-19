@@ -19,7 +19,7 @@ local relicSlots = {
 	[128402] = {"Blood", "Shadow", "Iron"}, -- Blood DK
 	[128292] = {"Frost", "Shadow", "Frost"}, -- Frost DK
     [128403] = {"Fire", "Shadow", "Blood"}, -- Unholy DK
-    
+
     [127829] = {"Fel", "Shadow", "Fel"}, -- Havoc DH
 	[128832] = {"Iron", "Arcane", "Fel"}, -- Vengeance DH
 
@@ -78,7 +78,7 @@ local relicTypes = {
 	["Wind"] = RELIC_SLOT_TYPE_WIND,
 }
 
-function GRA:IsRelic(itemLink)
+function GRA.IsRelic(itemLink)
     -- texplore(GetItemStats(itemLink))
 	--或者使用 GetItemStats(itemLink) --> RELIC_ITEM_LEVEL_INCREASE
 	local itemSubType = select(7, GetItemInfo(itemLink))
@@ -87,7 +87,7 @@ function GRA:IsRelic(itemLink)
 	end
 end
 
-function GRA:GetRelicType(itemLink)
+function GRA.GetRelicType(itemLink)
 	GRA_ScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 	GRA_ScanningTooltip:SetHyperlink(itemLink)
 	for i = 2, 6 do
@@ -104,14 +104,14 @@ function GRA:GetRelicType(itemLink)
 end
 
 -- get relic from artifact link, SMARTER!
-function GRA:GetEquipedRelicLink(relicTypeSource)
+function GRA.GetEquipedRelicLink(relicTypeSource)
     local relic1, relic2
 
     local artifactID = classArtifact[select(2, UnitClass("player"))][GetSpecialization()]
 
     for relicSlotIndex, relicType in pairs(relicSlots[artifactID]) do
         if relicTypeSource == relicType then
-            local relicLink = select(2, GetItemGem(GetInventoryItemLink("player", 16), relicSlotIndex)) 
+            local relicLink = select(2, GetItemGem(GetInventoryItemLink("player", 16), relicSlotIndex))
                 or select(2, GetItemGem(GetInventoryItemLink("player", 17), relicSlotIndex))
             if not relic1 then
                 relic1 = relicLink
@@ -125,16 +125,16 @@ function GRA:GetEquipedRelicLink(relicTypeSource)
 end
 
 --[[
-function GRA:GetEquipedRelicLink2(relicTypeSource)
+function GRA.GetEquipedRelicLink2(relicTypeSource)
     local relic1, relic2
     SocketInventoryItem(17)
 	SocketInventoryItem(16)
     LoadAddOn("Blizzard_ArtifactUI")
-    
+
     for i = 1, C_ArtifactUI.GetNumRelicSlots() do
         local relicName, relicIcon, relicType, relicLink = C_ArtifactUI.GetRelicInfo(i);
         if relicLink then
-            local relicType = GRA:GetRelicType(relicLink)
+            local relicType = GRA.GetRelicType(relicLink)
             if relicTypeSource:lower() == relicType:lower() then
                 if not relic1 then
                     relic1 = relicLink

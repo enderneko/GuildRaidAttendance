@@ -1,65 +1,66 @@
-## Interface: 90002
-## Title: |cff80FF00Guild|r Raid Attendance
-## Notes: Keeps track of raid loot and attendance for guild.
-## Notes-zhCN: 记录公会活动出勤与拾取。
+## Interface: 110002
+## Title: |cff03fc9cGuild|r Raid Attendance
+## Notes: Keeps track of raid loot and attendance for guild
+## Notes-zhCN: 记录公会活动出勤与拾取
 ## Version: r97-release
-## Author: KevinSK
-## SavedVariables: GRA_A_RaidLogs, GRA_A_Archived, GRA_A_Roster, GRA_A_Config, GRA_A_Variables
-## SavedVariablesPerCharacter: GRA_RaidLogs, GRA_Archived, GRA_Roster, GRA_Config, GRA_Variables
+## Author: enderneko
+## SavedVariables: GRA_A_Logs, GRA_A_Archived, GRA_A_Roster, GRA_A_Config, GRA_A_Variables
+## SavedVariablesPerCharacter: GRA_C_Logs, GRA_C_Archived, GRA_C_Roster, GRA_C_Config, GRA_C_Variables
+## Dependencies: AbstractWidgets
 
-## X-Email: kevin.liyang@live.com
+## X-Email: enderneko-dev@outlook.com
 ## X-Website: https://www.curseforge.com/wow/addons/guild-raid-attendance
 ## X-Issues: https://github.com/enderneko/GuildRaidAttendance/issues
 
-embeds.xml
+Libs\LoadLibs.xml
 
 Core.lua
-Revise.lua
+# Revise.lua
 
 Locales\enUS.lua
 Locales\zhCN.lua
 
 Utils.lua
-CustomEvents.lua
-EPGP.lua
-DKP.lua
+# CustomEvents.lua
+# EPGP.lua
+# DKP.lua
 Comm.lua
 Track.lua
 
-Widgets\TooltipTemplate.xml
-Widgets\Tooltip.lua
-Widgets\Widgets.lua
-Widgets\ScrollFrame.lua
-Widgets\Popups.lua
-Widgets\DropDownMenu.lua
-Widgets\ContextMenu.lua
+# Widgets\TooltipTemplate.xml
+# Widgets\Tooltip.lua
+# Widgets\Widgets.lua
+# Widgets\ScrollFrame.lua
+# Widgets\Popups.lua
+# Widgets\DropDownMenu.lua
+# Widgets\ContextMenu.lua
 
 Frames\Main.lua
-Frames\Appearance.lua
-Frames\GetStarted.lua
-Frames\Attendance.lua
-Frames\Calender.lua
-Frames\AttendanceEditor.lua
-Frames\NewRaidLog.lua
-Frames\RaidLogsArchiveFrame.lua
-Frames\RaidLogsEditFrame.lua
-Frames\RaidLogs.lua
-Frames\ArchivedLogs.lua
-Frames\LootSystem\Award.lua
-Frames\LootSystem\Credit.lua
-Frames\LootSystem\Penalize.lua
-Frames\LootSystem\RecordLoot.lua
-Frames\LootSystem\EPGPOptions.lua
-Frames\LootSystem\DKPOptions.lua
-# Frames\FloatButtons.lua
-Frames\Config.lua
-Frames\RosterEditor.lua
-Frames\MemberAttendance.lua
-Frames\Import.lua
-Frames\Export.lua
-Frames\Profiles.lua
-Frames\Help.lua
-Frames\WhatsNew.lua
+# Frames\Appearance.lua
+# Frames\GetStarted.lua
+# Frames\Attendance.lua
+# Frames\Calender.lua
+# Frames\AttendanceEditor.lua
+# Frames\NewRaidLog.lua
+# Frames\RaidLogsArchiveFrame.lua
+# Frames\RaidLogsEditFrame.lua
+# Frames\RaidLogs.lua
+# Frames\ArchivedLogs.lua
+# Frames\LootSystem\Award.lua
+# Frames\LootSystem\Credit.lua
+# Frames\LootSystem\Penalize.lua
+# Frames\LootSystem\RecordLoot.lua
+# Frames\LootSystem\EPGPOptions.lua
+# Frames\LootSystem\DKPOptions.lua
+# # Frames\FloatButtons.lua
+# Frames\Config.lua
+# Frames\RosterEditor.lua
+# Frames\MemberAttendance.lua
+# Frames\Import.lua
+# Frames\Export.lua
+# Frames\Profiles.lua
+# Frames\Help.lua
+# Frames\WhatsNew.lua
 
 # Frames\LootDistribution\Common.lua
 # Frames\LootDistribution\Token.lua

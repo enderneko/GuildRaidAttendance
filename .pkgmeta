@@ -1,20 +1,25 @@
 package-as: GuildRaidAttendance
 enable-nolib-creation: no
 
+required-dependencies:
+  - abstractwidgets
+
 externals:
   Libs/LibStub: https://repos.curseforge.com/wow/libstub/trunk
   Libs/CallbackHandler-1.0: https://repos.curseforge.com/wow/callbackhandler/trunk/CallbackHandler-1.0
   Libs/AceComm-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceComm-3.0
   Libs/LibSerialize: https://github.com/rossnichols/LibSerialize
-  Libs/LibCustomGlow-1.0: https://github.com/Stanzilla/LibCustomGlow
   Libs/LibDeflate: https://github.com/SafeteeWoW/LibDeflate
+  Libs/LibCustomGlow-1.0: https://github.com/Stanzilla/LibCustomGlow
   Libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
   Libs/LibDBIcon-1.0: https://repos.curseforge.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
-  Libs/LibItemUpgradeInfo-1.0: https://repos.curseforge.com/wow/libitemupgradeinfo-1-0
 
 ignore:
   - Libs/LibDeflate/docs
   - Libs/LibDeflate/examples
   - Libs/LibDeflate/CONTRIBUTING.md
   - Libs/LibStub/tests
-  - Libs/LibItemUpgradeInfo-1.0/LibStub
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown

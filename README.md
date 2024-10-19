@@ -23,7 +23,7 @@ Please leave me a pm on curseforge if you want to help with the localization.</b
 ## Guide (Admin)
 
 1. **Assign admin:** **In order to use GRA, your guild must have a GRA admin.**  
-Add a newline for example: **#GRA:Archimonde** or multiple admins **#GRA:Archimonde,Sageras** to **guild information** (no spaces). Require a UI reload.
+Add a newline for example: **#GRA.Archimonde** or multiple admins **#GRA.Archimonde,Sageras** to **guild information** (no spaces). Require a UI reload.
 
 2. **Import members:** ***Config > Import*** to select your raid members.
 

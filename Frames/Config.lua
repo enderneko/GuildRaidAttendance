@@ -1,45 +1,45 @@
 local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 
------------------------------------------
--- config frame 
------------------------------------------
-local configFrame = GRA:CreateFrame(L["Config"], "GRA_ConfigFrame", gra.mainFrame, 191, gra.mainFrame:GetHeight())
+---------------------------------------------------------------------
+-- config frame
+---------------------------------------------------------------------
+local configFrame = GRA.CreateFrame(L["Config"], "GRA_ConfigFrame", gra.mainFrame, 191, gra.mainFrame:GetHeight())
 gra.configFrame = configFrame
 configFrame:SetPoint("TOPLEFT", gra.mainFrame, "TOPRIGHT", 2, 0)
 
------------------------------------------
+---------------------------------------------------------------------
 -- roster settings
------------------------------------------
+---------------------------------------------------------------------
 local rosterSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 rosterSection:SetText("|cff80FF00"..L["Roster"].."|r")
 rosterSection:SetPoint("TOPLEFT", 5, -5)
-GRA:CreateSeparator(configFrame, rosterSection)
+GRA.CreateSeparator(configFrame, rosterSection)
 
 -- for showing mask
 local rosterFrame = CreateFrame("Frame", nil, configFrame)
 rosterFrame:SetPoint("TOPLEFT", rosterSection, 0, -20)
 rosterFrame:SetPoint("BOTTOMRIGHT", rosterSection, "TOPLEFT", configFrame:GetWidth()-10, -80)
------------------------------------------
+---------------------------------------------------------------------
 -- roster settings (user)
------------------------------------------
+---------------------------------------------------------------------
 local rosterUserFrame = CreateFrame("Frame", nil, rosterFrame)
 rosterUserFrame:SetAllPoints(rosterFrame)
 rosterUserFrame:Hide()
 
-local rosterUserMinimalModeCB = GRA:CreateCheckButton(rosterUserFrame, L["Minimal Mode"], nil, function(checked, cb)
+local rosterUserMinimalModeCB = GRA.CreateCheckButton(rosterUserFrame, L["Minimal Mode"], nil, function(checked, cb)
 	cb:SetChecked(GRA_Variables["minimalMode"])
-	local text 
+	local text
 	if GRA_Variables["minimalMode"] then
 		text = L["Switch to full mode?"]
 	else
 		text = L["Switch to minimal mode?\nYou cannot receive raid logs in this mode."]
 	end
-	
-	local confirm = GRA:CreateConfirmPopup(configFrame, configFrame:GetWidth()-10, text, function()
+
+	local confirm = GRA.CreateConfirmPopup(configFrame, configFrame:GetWidth()-10, text, function()
 		GRA_Variables["minimalMode"] = not GRA_Variables["minimalMode"]
 		cb:SetChecked(GRA_Variables["minimalMode"])
-		GRA:FireEvent("GRA_MINI", GRA_Variables["minimalMode"])
+		GRA.Fire("GRA_MINI", GRA_Variables["minimalMode"])
 	end, true)
 	confirm:SetPoint("TOP", 0, -45)
 end, "GRA_FONT_SMALL")
@@ -52,28 +52,28 @@ rosterUserLastUpdatedText:SetPoint("TOPLEFT", 0, -20)
 rosterUserLastUpdatedText:SetWidth(rosterUserFrame:GetWidth())
 rosterUserLastUpdatedText:SetWordWrap(false)
 
------------------------------------------
+---------------------------------------------------------------------
 -- roster settings (admin)
------------------------------------------
+---------------------------------------------------------------------
 local rosterAdminFrame = CreateFrame("Frame", nil, rosterFrame)
 rosterAdminFrame:SetAllPoints(rosterFrame)
 rosterAdminFrame:Hide()
 
-local editBtn = GRA:CreateButton(rosterAdminFrame, L["Edit"], nil, {61, 18}, "GRA_FONT_SMALL")
+local editBtn = GRA.CreateButton(rosterAdminFrame, L["Edit"], nil, {61, 18}, "GRA_FONT_SMALL")
 editBtn:SetPoint("TOPLEFT")
 editBtn:SetScript("OnClick", function()
 	configFrame:Hide()
 	gra.rosterEditorFrame:Show()
 end)
 
-local importBtn = GRA:CreateButton(rosterAdminFrame, L["Import"], nil, {61, 18}, "GRA_FONT_SMALL")
+local importBtn = GRA.CreateButton(rosterAdminFrame, L["Import"], nil, {61, 18}, "GRA_FONT_SMALL")
 importBtn:SetPoint("LEFT", editBtn, "RIGHT", -1, 0)
 importBtn:SetScript("OnClick", function()
 	configFrame:Hide()
 	gra.importFrame:Show()
 end)
 
-local sendRosterBtn = GRA:CreateButton(rosterAdminFrame, L["Send"], nil, {61, 18}, "GRA_FONT_SMALL", false,
+local sendRosterBtn = GRA.CreateButton(rosterAdminFrame, L["Send"], nil, {61, 18}, "GRA_FONT_SMALL", false,
 	L["Send roster data to raid members"],
 	L["GRA must be installed to receive data."],
 	L["Raid members data (including attendance rate)."],
@@ -81,19 +81,19 @@ local sendRosterBtn = GRA:CreateButton(rosterAdminFrame, L["Send"], nil, {61, 18
 	gra.colors.firebrick.s .. L["Loot system settings (important)."])
 sendRosterBtn:SetPoint("LEFT", importBtn, "RIGHT", -1, 0)
 sendRosterBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmPopup(configFrame, configFrame:GetWidth()-10, L["Send raid roster data to raid/party members?"], function()
-		GRA:SendRosterToRaid()
+	local confirm = GRA.CreateConfirmPopup(configFrame, configFrame:GetWidth()-10, L["Send raid roster data to raid/party members?"], function()
+		GRA.SendRosterToRaid()
 	end, true)
 	confirm:SetPoint("TOPRIGHT", sendRosterBtn)
 end)
 
--- local exportBtn = GRA:CreateButton(rosterAdminFrame, L["Export CSV"], "red", {91, 20}, "GRA_FONT_SMALL")
+-- local exportBtn = GRA.CreateButton(rosterAdminFrame, L["Export CSV"], "red", {91, 20}, "GRA_FONT_SMALL")
 -- exportBtn:SetPoint("TOPLEFT", editBtn, "BOTTOMLEFT", 0, -5)
 -- exportBtn:SetScript("OnClick", function()
--- 	GRA:ShowExportFrame()
+-- 	GRA.ShowExportFrame()
 -- end)
 
-local epgpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["EPGP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
+local epgpOptionsBtn = GRA.CreateButton(rosterAdminFrame, L["EPGP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
 epgpOptionsBtn:SetPoint("TOPLEFT", editBtn, "BOTTOMLEFT", 0, -5)
 epgpOptionsBtn:SetScript("OnClick", function()
 	configFrame:Hide()
@@ -101,7 +101,7 @@ epgpOptionsBtn:SetScript("OnClick", function()
 end)
 epgpOptionsBtn:SetEnabled(true)
 
-local dkpOptionsBtn = GRA:CreateButton(rosterAdminFrame, L["DKP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
+local dkpOptionsBtn = GRA.CreateButton(rosterAdminFrame, L["DKP Options"], "red", {91, 20}, "GRA_FONT_SMALL")
 dkpOptionsBtn:SetPoint("LEFT", epgpOptionsBtn, "RIGHT", -1, 0)
 dkpOptionsBtn:SetScript("OnClick", function()
 	configFrame:Hide()
@@ -109,13 +109,13 @@ dkpOptionsBtn:SetScript("OnClick", function()
 end)
 dkpOptionsBtn:SetEnabled(true)
 
------------------------------------------
+---------------------------------------------------------------------
 -- attendance sheet settings
------------------------------------------
+---------------------------------------------------------------------
 local sheetSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 sheetSection:SetText("|cff80FF00"..L["Attendance Sheet"].."|r")
 sheetSection:SetPoint("TOPLEFT", 5, -95)
-GRA:CreateSeparator(configFrame, sheetSection)
+GRA.CreateSeparator(configFrame, sheetSection)
 
 local sheetText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 sheetText:SetJustifyH("LEFT")
@@ -133,13 +133,13 @@ daysFrame:SetSize(configFrame:GetWidth()-10, 42)
 daysFrame:SetPoint("TOPLEFT", sheetSection, 0, -33)
 
 local days = {} -- {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
-days[1] = GRA:CreateCheckButton(daysFrame, L["Sun"], nil, nil, "GRA_FONT_SMALL")
-days[2] = GRA:CreateCheckButton(daysFrame, L["Mon"], nil, nil, "GRA_FONT_SMALL")
-days[3] = GRA:CreateCheckButton(daysFrame, L["Tue"], nil, nil, "GRA_FONT_SMALL")
-days[4] = GRA:CreateCheckButton(daysFrame, L["Wed"], nil, nil, "GRA_FONT_SMALL")
-days[5] = GRA:CreateCheckButton(daysFrame, L["Thu"], nil, nil, "GRA_FONT_SMALL")
-days[6] = GRA:CreateCheckButton(daysFrame, L["Fri"], nil, nil, "GRA_FONT_SMALL")
-days[7] = GRA:CreateCheckButton(daysFrame, L["Sat"], nil, nil, "GRA_FONT_SMALL")
+days[1] = GRA.CreateCheckButton(daysFrame, L["Sun"], nil, nil, "GRA_FONT_SMALL")
+days[2] = GRA.CreateCheckButton(daysFrame, L["Mon"], nil, nil, "GRA_FONT_SMALL")
+days[3] = GRA.CreateCheckButton(daysFrame, L["Tue"], nil, nil, "GRA_FONT_SMALL")
+days[4] = GRA.CreateCheckButton(daysFrame, L["Wed"], nil, nil, "GRA_FONT_SMALL")
+days[5] = GRA.CreateCheckButton(daysFrame, L["Thu"], nil, nil, "GRA_FONT_SMALL")
+days[6] = GRA.CreateCheckButton(daysFrame, L["Fri"], nil, nil, "GRA_FONT_SMALL")
+days[7] = GRA.CreateCheckButton(daysFrame, L["Sat"], nil, nil, "GRA_FONT_SMALL")
 
 -- highlight the RAID_LOCKOUTS_RESET day
 days[gra.RAID_LOCKOUTS_RESET].label:SetTextColor(1, .2, .2)
@@ -156,9 +156,9 @@ for i = 1, 7 do
 	end
 	temp = (temp == 7) and 1 or (temp + 1)
 end
------------------------------------------
+---------------------------------------------------------------------
 
-local setBtn = GRA:CreateButton(configFrame, "", nil, {18, 18}, "GRA_FONT_SMALL")
+local setBtn = GRA.CreateButton(configFrame, "", nil, {18, 18}, "GRA_FONT_SMALL")
 -- setBtn:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -2)
 setBtn:SetPoint("BOTTOMRIGHT", daysFrame, -27, 3)
 setBtn:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\RefreshArrow]])
@@ -174,11 +174,11 @@ setBtn:SetScript("OnClick", function()
 	if #temp == 0 then -- select none
 		temp = {gra.RAID_LOCKOUTS_RESET}
 		days[gra.RAID_LOCKOUTS_RESET]:SetChecked(true) -- force
-	end 
-	_G[GRA_R_Config]["raidInfo"]["days"] = temp
-	GRA:Debug("raidInfo: " .. GRA:TableToString(temp))
+	end
+	GRA_Config["raidInfo"]["days"] = temp
+	GRA.Debug("raidInfo: " .. GRA.TableToString(temp))
 
-	GRA:ShowAttendanceSheet()
+	GRA.ShowAttendanceSheet()
 end)
 
 -- columns ------------------------------
@@ -186,29 +186,29 @@ local columnText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL"
 columnText:SetText(L["Attendance Rate Columns"])
 columnText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -4)
 
-local ar30CB = GRA:CreateCheckButton(daysFrame, L["30 days"], nil, function(checked)
+local ar30CB = GRA.CreateCheckButton(daysFrame, L["30 days"], nil, function(checked)
 	GRA_Variables["columns"]["AR_30"] = checked
-	GRA:SetColumns()
+	GRA.SetColumns()
 end, "GRA_FONT_SMALL")
 
-local ar60CB = GRA:CreateCheckButton(daysFrame, L["60 days"], nil, function(checked)
+local ar60CB = GRA.CreateCheckButton(daysFrame, L["60 days"], nil, function(checked)
 	GRA_Variables["columns"]["AR_60"] = checked
-	GRA:SetColumns()
+	GRA.SetColumns()
 end, "GRA_FONT_SMALL")
 
-local ar90CB = GRA:CreateCheckButton(daysFrame, L["90 days"], nil, function(checked)
+local ar90CB = GRA.CreateCheckButton(daysFrame, L["90 days"], nil, function(checked)
 	GRA_Variables["columns"]["AR_90"] = checked
-	GRA:SetColumns()
+	GRA.SetColumns()
 end, "GRA_FONT_SMALL")
 
-local arCB = GRA:CreateCheckButton(daysFrame, L["Lifetime"], nil, function(checked)
+local arCB = GRA.CreateCheckButton(daysFrame, L["Lifetime"], nil, function(checked)
 	GRA_Variables["columns"]["AR_Lifetime"] = checked
-	GRA:SetColumns()
+	GRA.SetColumns()
 end, "GRA_FONT_SMALL")
 
-local sitOutCB = GRA:CreateCheckButton(daysFrame, L["Sit Out"], nil, function(checked)
+local sitOutCB = GRA.CreateCheckButton(daysFrame, L["Sit Out"], nil, function(checked)
 	GRA_Variables["columns"]["Sit_Out"] = checked
-	GRA:SetColumns()
+	GRA.SetColumns()
 end, "GRA_FONT_SMALL")
 
 ar30CB:SetPoint("TOPLEFT", columnText, "BOTTOMLEFT", 0, -4)
@@ -223,24 +223,24 @@ arCalculationText:Hide()
 arCalculationText:SetPoint("TOPLEFT", daysFrame, "BOTTOMLEFT", 0, -82)
 arCalculationText:SetText(L["AR Calculation Method"] .. ": ")
 
-local arcmBtn2 = GRA:CreateButton(configFrame, L["B"], nil, {25, 18}, "GRA_FONT_SMALL", false,
+local arcmBtn2 = GRA.CreateButton(configFrame, L["B"], nil, {25, 18}, "GRA_FONT_SMALL", false,
 	L["Method"] .. " B", L["AR = PRESENT / ALL RAID DAYS"])
 arcmBtn2:Hide()
 arcmBtn2:SetPoint("TOPRIGHT", daysFrame, "BOTTOMRIGHT", 0, -78) -- not point to arCalculationText to make pixelperfectpoint
 
-local arcmBtn1 = GRA:CreateButton(configFrame, L["A"], nil, {25, 18}, "GRA_FONT_SMALL", false,
+local arcmBtn1 = GRA.CreateButton(configFrame, L["A"], nil, {25, 18}, "GRA_FONT_SMALL", false,
 	L["Method"] .. " A", L["AR = PRESENT / (PRESENT + ABSENT)"])
 arcmBtn1:Hide()
 arcmBtn1:SetPoint("RIGHT", arcmBtn2, "LEFT", 1, 0)
 
 local function SetARCalculationMethod(method)
-	if _G[GRA_R_Config]["arCalculationMethod"] ~= method then
-		_G[GRA_R_Config]["arCalculationMethod"] = method
-		GRA:FireEvent("GRA_ARCM", method)
-		GRA:Print(L["Attendance rate calculation method has been changed."])
+	if GRA_Config["arCalculationMethod"] ~= method then
+		GRA_Config["arCalculationMethod"] = method
+		GRA.Fire("GRA_ARCM", method)
+		GRA.Print(L["Attendance rate calculation method has been changed."])
 	end
 end
-local arcms = GRA:CreateButtonGroup(SetARCalculationMethod, arcmBtn1, arcmBtn2)
+local arcms = GRA.CreateButtonGroup(SetARCalculationMethod, arcmBtn1, arcmBtn2)
 
 -- raid hours ---------------------------
 local raidHoursTitle = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
@@ -251,19 +251,19 @@ local raidHoursText = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMA
 raidHoursText:Hide()
 raidHoursText:SetPoint("LEFT", raidHoursTitle, "RIGHT", 5, 0)
 
-local raidStartTimeEditBox, raidEndTimeEditBox, rstConfirmBtn, retConfirmBtn = GRA:CreateRaidHoursEditBox(configFrame, 
+local raidStartTimeEditBox, raidEndTimeEditBox, rstConfirmBtn, retConfirmBtn = GRA.CreateRaidHoursEditBox(configFrame,
 function(startTime)
-	_G[GRA_R_Config]["raidInfo"]["startTime"] = startTime
+	GRA_Config["raidInfo"]["startTime"] = startTime
 end, function(endTime)
-	_G[GRA_R_Config]["raidInfo"]["endTime"] = endTime
+	GRA_Config["raidInfo"]["endTime"] = endTime
 end)
 
 rstConfirmBtn:HookScript("OnClick", function()
-	GRA:ShowNotificationString(configFrame, gra.colors.firebrick.s .. L["Raid hours has been updated."], "TOPRIGHT", raidEndTimeEditBox, "BOTTOMRIGHT", 0, -5)
+	GRA.ShowNotificationString(configFrame, gra.colors.firebrick.s .. L["Raid hours has been updated."], "TOPRIGHT", raidEndTimeEditBox, "BOTTOMRIGHT", 0, -5)
 end)
 
 retConfirmBtn:HookScript("OnClick", function()
-	GRA:ShowNotificationString(configFrame, gra.colors.firebrick.s .. L["Raid hours has been updated."], "TOPRIGHT", raidEndTimeEditBox, "BOTTOMRIGHT", 0, -5)
+	GRA.ShowNotificationString(configFrame, gra.colors.firebrick.s .. L["Raid hours has been updated."], "TOPRIGHT", raidEndTimeEditBox, "BOTTOMRIGHT", 0, -5)
 end)
 
 raidEndTimeEditBox:Hide()
@@ -298,19 +298,19 @@ raidEndTimeEditBox:SetScript("OnEnter", function(self)
 	GRA_Tooltip:SetWidth(250)
 	GRA_Tooltip:Show()
 end)
-----------------------------------------
+---------------------------------------------------------------------
 
 local function RefreshRaidSchedule()
 	for i = 1, 7 do
-		if GRA:TContains(_G[GRA_R_Config]["raidInfo"]["days"], i) then -- raid day
+		if GRA.TContains(GRA_Config["raidInfo"]["days"], i) then -- raid day
 			days[i]:SetChecked(true)
 		else
 			days[i]:SetChecked(false)
 		end
 	end
 
-	local startTime = _G[GRA_R_Config]["raidInfo"]["startTime"]
-	local endTime = _G[GRA_R_Config]["raidInfo"]["endTime"]
+	local startTime = GRA_Config["raidInfo"]["startTime"]
+	local endTime = GRA_Config["raidInfo"]["endTime"]
 	if startTime and endTime then
 		raidStartTimeEditBox:SetText(startTime)
 		raidEndTimeEditBox:SetText(endTime)
@@ -318,22 +318,22 @@ local function RefreshRaidSchedule()
 	end
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- misc
------------------------------------------
+---------------------------------------------------------------------
 local miscSection = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 miscSection:SetText("|cff80FF00"..L["Misc"].."|r")
 miscSection:SetPoint("TOPLEFT", 5, -320)
-GRA:CreateSeparator(configFrame, miscSection)
+GRA.CreateSeparator(configFrame, miscSection)
 
-local appearanceBtn = GRA:CreateButton(configFrame, L["Appearance"], "red", {91, 20}, "GRA_FONT_SMALL")
+local appearanceBtn = GRA.CreateButton(configFrame, L["Appearance"], "red", {91, 20}, "GRA_FONT_SMALL")
 appearanceBtn:SetPoint("TOPLEFT", miscSection, 0, -20)
 appearanceBtn:SetScript("OnClick", function()
 	configFrame:Hide()
 	gra.appearanceFrame:Show()
 end)
 
-local lootDistrBtn = GRA:CreateButton(configFrame, L["Loot Distr"], "red", {91, 20}, "GRA_FONT_SMALL")
+local lootDistrBtn = GRA.CreateButton(configFrame, L["Loot Distr"], "red", {91, 20}, "GRA_FONT_SMALL")
 lootDistrBtn:SetPoint("LEFT", appearanceBtn, "RIGHT", -1, 0)
 lootDistrBtn:SetScript("OnClick", function()
 	gra.profilesFrame:Hide()
@@ -354,10 +354,10 @@ local memUsage = configFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 memUsage:SetPoint("TOPLEFT", miscSection, 0, -60)
 local memUsageTimer
 
------------------------------------------
+---------------------------------------------------------------------
 -- help, anchor, profile
------------------------------------------
-local profilesBtn = GRA:CreateButton(configFrame, L["Profiles"], "red", {57, 20}, "GRA_FONT_SMALL")
+---------------------------------------------------------------------
+local profilesBtn = GRA.CreateButton(configFrame, L["Profiles"], "red", {57, 20}, "GRA_FONT_SMALL")
 profilesBtn:SetPoint("BOTTOMRIGHT", -5, 5)
 profilesBtn:SetScript("OnClick", function()
 	-- gra.lootDistrConfigFrame:Hide()
@@ -368,14 +368,14 @@ profilesBtn:SetScript("OnClick", function()
 	end
 end)
 
-local anchorBtn = GRA:CreateButton(configFrame, L["Anchor"], "red", {57, 20}, "GRA_FONT_SMALL")
+local anchorBtn = GRA.CreateButton(configFrame, L["Anchor"], "red", {57, 20}, "GRA_FONT_SMALL")
 anchorBtn:SetPoint("RIGHT", profilesBtn, "LEFT", -5, 0)
 anchorBtn:SetScript("OnClick", function()
-	GRA:ShowHidePopupsAnchor()
-	-- GRA:ShowHideFloatButtonsAnchor()
+	GRA.ShowHidePopupsAnchor()
+	-- GRA.ShowHideFloatButtonsAnchor()
 end)
 
-local helpBtn = GRA:CreateButton(configFrame, L["Help"], "red", {57, 20}, "GRA_FONT_SMALL")
+local helpBtn = GRA.CreateButton(configFrame, L["Help"], "red", {57, 20}, "GRA_FONT_SMALL")
 helpBtn:SetPoint("RIGHT", anchorBtn, "LEFT", -5, 0)
 helpBtn:SetScript("OnClick", function()
 	-- configFrame:Hide()
@@ -384,12 +384,12 @@ helpBtn:SetScript("OnClick", function()
 	-- GRA_A_Variables["helpViewed"] = true -- TODO: take it back when help is complete
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- permission control
------------------------------------------
+---------------------------------------------------------------------
 -- permission check mask
-GRA:CreateMask(rosterFrame, L["Checking Permissions..."])
-GRA:RegisterEvent("GRA_PERMISSION", "ConfigFrame_CheckPermissions", function(isAdmin)
+GRA.CreateMask(rosterFrame, L["Checking Permissions..."])
+GRA.RegisterCallback("GRA_PERMISSION", "ConfigFrame_CheckPermissions", function(isAdmin)
 	rosterFrame.mask:Hide()
 	if isAdmin then
 		rosterAdminFrame:Show()
@@ -421,41 +421,41 @@ GRA:RegisterEvent("GRA_PERMISSION", "ConfigFrame_CheckPermissions", function(isA
 end)
 
 configFrame:SetScript("OnUpdate", function(self, elapsed)
-	local f = GRA:Getn(_G[GRA_R_Roster]) ~= 0
+	local f = GRA.Getn(GRA_Roster) ~= 0
 	editBtn:SetEnabled(f)
 	-- disabled while sending
-	sendRosterBtn:SetEnabled(f and IsInGroup("LE_PARTY_CATEGORY_HOME") and not gra.sending)
+	sendRosterBtn:SetEnabled(f and IsInGroup("LE_PARTY_CATEGORY_HOME") and not GRA.vars.sending)
 end)
 
------------------------------------------
--- _G[GRA_R_Roster] & _G[GRA_R_Config]["raidInfo"] received
------------------------------------------
-GRA:RegisterEvent("GRA_R_DONE", "ConfigFrame_RosterReceived", function()
-	GRA:Print(L["Raid roster has been received."])
-	_G[GRA_R_Config]["lastUpdatedTime"] = date("%x")
-	rosterUserLastUpdatedText:SetText(L["Last updated time: "] .. "|cff0080FF" .. _G[GRA_R_Config]["lastUpdatedTime"])
+---------------------------------------------------------------------
+-- GRA_Roster & GRA_Config["raidInfo"] received
+---------------------------------------------------------------------
+GRA.RegisterCallback("GRA_R_DONE", "ConfigFrame_RosterReceived", function()
+	GRA.Print(L["Raid roster has been received."])
+	GRA_Config["lastUpdatedTime"] = date("%x")
+	rosterUserLastUpdatedText:SetText(L["Last updated time: "] .. "|cff0080FF" .. GRA_Config["lastUpdatedTime"])
 	-- set loot system
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "" then
-		GRA:FireEvent("GRA_SYSTEM", "")
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-		GRA:SetEPGPEnabled(true)
+	if GRA_Config["raidInfo"]["system"] == "" then
+		GRA.Fire("GRA_SYSTEM", "")
+	elseif GRA_Config["raidInfo"]["system"] == "EPGP" then
+		GRA.SetEPGPEnabled(true)
 	else -- dkp
-		GRA:SetDKPEnabled(true)
+		GRA.SetDKPEnabled(true)
 	end
 	RefreshRaidSchedule()
-	GRA:ShowAttendanceSheet()
+	GRA.ShowAttendanceSheet()
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- OnShow & OnHide
------------------------------------------
+---------------------------------------------------------------------
 local function EnableMiniMode(f)
 	for i = 1, 7 do
 		days[i]:SetEnabled(not f)
 	end
 	setBtn:SetEnabled(not f)
 
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "" then
+	if GRA_Config["raidInfo"]["system"] == "" then
 		ar30CB:SetEnabled(not f)
 		ar60CB:SetEnabled(not f)
 		ar90CB:SetEnabled(not f)
@@ -473,12 +473,12 @@ local function EnableMiniMode(f)
 			GRA_Variables["columns"]["AR_90"] = true
 			GRA_Variables["columns"]["AR_Lifetime"] = true
 			GRA_Variables["columns"]["Sit_Out"] = true
-			GRA:SetColumns()
+			GRA.SetColumns()
 		end
 	end
 end
 
-GRA:RegisterEvent("GRA_MINI", "ConfigFrame_MiniMode", function(enabled)
+GRA.RegisterCallback("GRA_MINI", "ConfigFrame_MiniMode", function(enabled)
 	EnableMiniMode(enabled)
 end)
 
@@ -487,11 +487,11 @@ configFrame:SetScript("OnShow", function(self)
 		-- ActionButton_ShowOverlayGlow(helpBtn) -- TODO: take it back when help is complete
 	end
 	EnableMiniMode(GRA_Variables["minimalMode"])
-	rosterUserLastUpdatedText:SetText(L["Last updated time: "] .. "|cff0080FF" .. (_G[GRA_R_Config]["lastUpdatedTime"] or L["never"]))
+	rosterUserLastUpdatedText:SetText(L["Last updated time: "] .. "|cff0080FF" .. (GRA_Config["lastUpdatedTime"] or L["never"]))
 	rosterUserMinimalModeCB:SetChecked(GRA_Variables["minimalMode"])
 
 	RefreshRaidSchedule()
-	arcms.HighlightButton(_G[GRA_R_Config]["arCalculationMethod"])
+	arcms.HighlightButton(GRA_Config["arCalculationMethod"])
 
 	ar30CB:SetChecked(GRA_Variables["columns"]["AR_30"])
 	ar60CB:SetChecked(GRA_Variables["columns"]["AR_60"])

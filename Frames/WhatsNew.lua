@@ -2,7 +2,7 @@ local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 local LPP = LibStub:GetLibrary("LibPixelPerfect")
 
-local whatsNewFrame = GRA:CreateMovableFrame(L["What's New"], "GRA_WhatsNewFrame", 450, 350, "GRA_FONT_NORMAL", "HIGH")
+local whatsNewFrame = GRA.CreateMovableFrame(L["What's New"], "GRA_WhatsNewFrame", 450, 350, "GRA_FONT_NORMAL", "HIGH")
 gra.whatsNewFrame = whatsNewFrame
 whatsNewFrame:SetToplevel(true)
 

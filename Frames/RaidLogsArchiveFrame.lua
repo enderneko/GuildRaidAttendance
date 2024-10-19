@@ -20,12 +20,12 @@ end
 
 local function CreateRaidLogsArchiveFrame(parent)
     raidLogsArchiveFrame = CreateFrame("Frame", "GRA_RaidLogsArchiveFrame", parent, "BackdropTemplate")
-	GRA:StylizeFrame(raidLogsArchiveFrame)
+	GRA.StylizeFrame(raidLogsArchiveFrame)
 	raidLogsArchiveFrame:EnableMouse(true)
 	raidLogsArchiveFrame:SetFrameStrata("DIALOG")
     raidLogsArchiveFrame:SetSize(170,115)
-    
-    local closeBtn = GRA:CreateButton(raidLogsArchiveFrame, "×", "red", {16, 16}, "GRA_FONT_BUTTON")
+
+    local closeBtn = GRA.CreateButton(raidLogsArchiveFrame, "×", "red", {16, 16}, "GRA_FONT_BUTTON")
     closeBtn:SetPoint("TOPRIGHT", -5, -5)
     closeBtn:SetScript("OnClick", function() raidLogsArchiveFrame:Hide() end)
 
@@ -33,15 +33,15 @@ local function CreateRaidLogsArchiveFrame(parent)
 	local archiveToSection = raidLogsArchiveFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 	archiveToSection:SetText("|cff80FF00"..L["Archive To"].."|r")
 	archiveToSection:SetPoint("TOPLEFT", 5, -20)
-    GRA:CreateSeparator(raidLogsArchiveFrame, archiveToSection)
-    
+    GRA.CreateSeparator(raidLogsArchiveFrame, archiveToSection)
+
     -- dropdown
-    local archiveToDropdown = GRA:CreateDropDownMenu(raidLogsArchiveFrame, 160)
+    local archiveToDropdown = GRA.CreateDropDownMenu(raidLogsArchiveFrame, 160)
     raidLogsArchiveFrame.archiveToDropdown = archiveToDropdown
     archiveToDropdown:SetPoint("TOPLEFT", 5, -40)
 
     -- editbox
-    local archiveToEditBox = GRA:CreateEditBox(raidLogsArchiveFrame, raidLogsArchiveFrame:GetWidth()-10, 20, false, "GRA_FONT_SMALL")
+    local archiveToEditBox = GRA.CreateEditBox(raidLogsArchiveFrame, raidLogsArchiveFrame:GetWidth()-10, 20, false, "GRA_FONT_SMALL")
     raidLogsArchiveFrame.archiveToEditBox = archiveToEditBox
 	archiveToEditBox:SetPoint("TOPLEFT", archiveToDropdown, "BOTTOMLEFT", 0, -5)
     archiveToEditBox:SetPoint("RIGHT", archiveToDropdown)
@@ -56,7 +56,7 @@ local function CreateRaidLogsArchiveFrame(parent)
     end)
 
     -- archive button
-    local archiveBtn = GRA:CreateButton(raidLogsArchiveFrame, L["Archive"], "green", {raidLogsArchiveFrame:GetWidth()-10, 20})
+    local archiveBtn = GRA.CreateButton(raidLogsArchiveFrame, L["Archive"], "green", {raidLogsArchiveFrame:GetWidth()-10, 20})
 	raidLogsArchiveFrame.archiveBtn = archiveBtn
 	archiveBtn:SetPoint("BOTTOM", 0, 5)
 	archiveBtn:SetEnabled(false)
@@ -71,25 +71,25 @@ local function CreateRaidLogsArchiveFrame(parent)
 
         for _, d in pairs(raidDates) do
             -- copy
-            _G[GRA_R_Archived][archiveTo][d] = GRA:Copy(_G[GRA_R_RaidLogs][d])
+            _G[GRA_R_Archived][archiveTo][d] = GRA.Copy(GRA_Logs[d])
             -- delete
-            _G[GRA_R_RaidLogs][d] = nil
+            GRA_Logs[d] = nil
         end
         raidLogsArchiveFrame:Hide()
-        GRA:FireEvent("GRA_LOGS_ACV", raidDates, archiveTo)
+        GRA.Fire("GRA_LOGS_ACV", raidDates, archiveTo)
     end)
 end
 
-function GRA:ShowRaidLogsArchiveFrame(parent, dates)
+function GRA.ShowRaidLogsArchiveFrame(parent, dates)
     if not raidLogsArchiveFrame then CreateRaidLogsArchiveFrame(parent) end
 
     raidLogsArchiveFrame:SetParent(parent)
     raidLogsArchiveFrame:ClearAllPoints()
     raidLogsArchiveFrame:SetPoint("BOTTOM", parent, "TOP", 0, 1)
     raidLogsArchiveFrame:Show()
-    
+
     raidDates = dates
-    
+
     local items = {
         {
             ["text"] = L["New Archive"],

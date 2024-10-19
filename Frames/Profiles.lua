@@ -1,16 +1,16 @@
 local GRA, gra = unpack(select(2, ...))
 local L = select(2, ...).L
 
-local profilesFrame = GRA:CreateFrame(L["Profiles"], "GRA_ProfilesFrame", gra.configFrame, 191, 190)
+local profilesFrame = GRA.CreateFrame(L["Profiles"], "GRA_ProfilesFrame", gra.configFrame, 191, 190)
 gra.profilesFrame = profilesFrame
 profilesFrame:SetPoint("BOTTOMLEFT", gra.configFrame, "BOTTOMRIGHT", 2, 0)
 
 local currentProfile = profilesFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 currentProfile:SetPoint("TOPLEFT", 5, -5)
 
------------------------------------------
+---------------------------------------------------------------------
 -- tips
------------------------------------------
+---------------------------------------------------------------------
 local tips1 = profilesFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 tips1:SetPoint("TOPLEFT", currentProfile, "BOTTOMLEFT", 0, -15)
 tips1:SetText(gra.colors.firebrick.s .. L["Back it up before you lose it!"])
@@ -55,29 +55,29 @@ tips3Frame:SetScript("OnLeave", function()
     GRA_Tooltip:Hide()
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- reset
------------------------------------------
-local resetBtn = GRA:CreateButton(profilesFrame, L["Reset Current Profile"], "red", {profilesFrame:GetWidth()-10, 20}, "GRA_FONT_SMALL")
+---------------------------------------------------------------------
+local resetBtn = GRA.CreateButton(profilesFrame, L["Reset Current Profile"], "red", {profilesFrame:GetWidth()-10, 20}, "GRA_FONT_SMALL")
 resetBtn:SetPoint("BOTTOM", 0, 5)
 resetBtn:SetScript("OnClick", function()
-	local confirm = GRA:CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset current profile?"] .. "|r \n" .. L["Including roster, logs and settings."], function()
-		_G[GRA_R_RaidLogs] = nil
-		_G[GRA_R_Roster] = nil
-		_G[GRA_R_Config] = nil
+	local confirm = GRA.CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, gra.colors.firebrick.s .. L["Reset current profile?"] .. "|r \n" .. L["Including roster, logs and settings."], function()
+		GRA_Logs = nil
+		GRA_Roster = nil
+		GRA_Config = nil
 		ReloadUI()
 	end, true)
 	confirm:SetPoint("CENTER", profilesFrame)
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- switch
------------------------------------------
+---------------------------------------------------------------------
 local profileToSwitchTo
-local switchAndOverrideBtn = GRA:CreateButton(profilesFrame, L["Switch And Override"], "blue", {profilesFrame:GetWidth()-10, 20})
+local switchAndOverrideBtn = GRA.CreateButton(profilesFrame, L["Switch And Override"], "blue", {profilesFrame:GetWidth()-10, 20})
 switchAndOverrideBtn:SetPoint("BOTTOM", resetBtn, "TOP", 0, 5)
 switchAndOverrideBtn:SetScript("OnClick", function()
-    local confirm = GRA:CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, (L["Switch to %s profile?"]):format(profileToSwitchTo) .. "\n" .. L["Override %s profile with current profile."]:format(profileToSwitchTo), function()
+    local confirm = GRA.CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, (L["Switch to %s profile?"]):format(profileToSwitchTo) .. "\n" .. L["Override %s profile with current profile."]:format(profileToSwitchTo), function()
         -- override
         if GRA_Variables["useAccountProfile"] then
             GRA_RaidLogs = GRA_A_RaidLogs
@@ -95,10 +95,10 @@ switchAndOverrideBtn:SetScript("OnClick", function()
 	confirm:SetPoint("CENTER", profilesFrame)
 end)
 
-local switchBtn = GRA:CreateButton(profilesFrame, L["Switch"], "blue", {profilesFrame:GetWidth()-10, 20})
+local switchBtn = GRA.CreateButton(profilesFrame, L["Switch"], "blue", {profilesFrame:GetWidth()-10, 20})
 switchBtn:SetPoint("BOTTOM", switchAndOverrideBtn, "TOP", 0, 5)
 switchBtn:SetScript("OnClick", function()
-    local confirm = GRA:CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, (L["Switch to %s profile?"]):format(profileToSwitchTo), function()
+    local confirm = GRA.CreateConfirmPopup(profilesFrame, profilesFrame:GetWidth()-10, (L["Switch to %s profile?"]):format(profileToSwitchTo), function()
 		GRA_Variables["useAccountProfile"] = not GRA_Variables["useAccountProfile"]
 		ReloadUI()
 	end, true)
@@ -108,9 +108,9 @@ end)
 local switchTo = profilesFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 switchTo:SetPoint("BOTTOMLEFT", switchBtn, "TOPLEFT", 0, 5)
 
------------------------------------------
+---------------------------------------------------------------------
 -- show/hide
------------------------------------------
+---------------------------------------------------------------------
 profilesFrame:SetScript("OnShow", function()
     currentProfile:SetText(gra.colors.chartreuse.s .. L["Current Profile: "] .. gra.colors.firebrick.s .. (GRA_Variables["useAccountProfile"] and L["Account"] or L["Character"]))
     profileToSwitchTo = gra.colors.firebrick.s .. (GRA_Variables["useAccountProfile"] and L["Character"] or L["Account"]) .. "|r"

@@ -4,10 +4,10 @@ local LPP = LibStub:GetLibrary("LibPixelPerfect")
 local LSSB = LibStub:GetLibrary("LibSmoothStatusBar-1.0")
 
 local ShowAR, CalcAR
--- local tooltip = GRA:CreateTooltip("GRA_AttendanceSheetTooltip")
------------------------------------------
+-- local tooltip = GRA.CreateTooltip("GRA_AttendanceSheetTooltip")
+---------------------------------------------------------------------
 -- attendance frame
------------------------------------------
+---------------------------------------------------------------------
 local attendanceFrame = CreateFrame("Frame", "GRA_AttendanceFrame", gra.mainFrame)
 attendanceFrame:SetPoint("TOPLEFT", gra.mainFrame, 8, -30)
 attendanceFrame:SetPoint("BOTTOMRIGHT", gra.mainFrame, -8, 27)
@@ -24,15 +24,15 @@ local function GetRow(name)
 	end
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- sheet
------------------------------------------
-GRA:CreateScrollFrame(attendanceFrame, -25, 20, {0, 0, 0, 0})
+---------------------------------------------------------------------
+GRA.CreateScrollFrame(attendanceFrame, -25, 20, {0, 0, 0, 0})
 attendanceFrame.scrollFrame:SetScrollStep(19)
 
------------------------------------------
+---------------------------------------------------------------------
 -- status frame
------------------------------------------
+---------------------------------------------------------------------
 local statusFrame = CreateFrame("Frame", nil, attendanceFrame)
 statusFrame:SetPoint("TOPLEFT", attendanceFrame.scrollFrame, "BOTTOMLEFT")
 statusFrame:SetPoint("BOTTOMRIGHT", attendanceFrame)
@@ -53,7 +53,7 @@ local healerIcon = "|TInterface\\AddOns\\GuildRaidAttendance\\Media\\Roles\\HEAL
 local dpsIcon = "|TInterface\\AddOns\\GuildRaidAttendance\\Media\\Roles\\DPS.blp:0|t"
 local function UpdateMemberInfo()
 	local tank, healer, dps = 0, 0, 0
-	for n, t in pairs(_G[GRA_R_Roster]) do
+	for n, t in pairs(GRA_Roster) do
 		if t["role"] == "TANK" then
 			tank = tank + 1
 		elseif t["role"] == "HEALER" then
@@ -62,31 +62,31 @@ local function UpdateMemberInfo()
 			dps = dps + 1
 		end
 	end
-	membersText:SetText("|cff80FF00" .. L["Members: "] .. "|r" .. GRA:Getn(_G[GRA_R_Roster]) .. "   "
+	membersText:SetText("|cff80FF00" .. L["Members: "] .. "|r" .. GRA.Getn(GRA_Roster) .. "   "
 		.. tankIcon .. tank .. "  " .. healerIcon .. healer .. "  " .. dpsIcon .. dps)
 end
 
 function attendanceFrame:UpdateRaidInfoStrings() -- TODO: use event
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-		baseGPText:SetText("|cff80FF00" .. L["Base GP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][1])
-		minEPText:SetText("|cff80FF00" .. L["Min EP"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][2])
-		decayText:SetText("|cff80FF00" .. L["Decay"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["EPGP"][3] .. "%")
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
+		baseGPText:SetText("|cff80FF00" .. L["Base GP"] .. ": |r" .. GRA_Config["raidInfo"]["EPGP"][1])
+		minEPText:SetText("|cff80FF00" .. L["Min EP"] .. ": |r" .. GRA_Config["raidInfo"]["EPGP"][2])
+		decayText:SetText("|cff80FF00" .. L["Decay"] .. ": |r" .. GRA_Config["raidInfo"]["EPGP"][3] .. "%")
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		baseGPText:SetText("")
 		minEPText:SetText("")
-		decayText:SetText("|cff80FF00" .. L["Decay"] .. ": |r" .. _G[GRA_R_Config]["raidInfo"]["DKP"] .. "%")
+		decayText:SetText("|cff80FF00" .. L["Decay"] .. ": |r" .. GRA_Config["raidInfo"]["DKP"] .. "%")
 	end
 end
 
 -- roster received
-GRA:RegisterEvent("GRA_R_DONE", "AttendanceFrame_RosterReceived", function()
+GRA.RegisterCallback("GRA_R_DONE", "AttendanceFrame_RosterReceived", function()
 	UpdateMemberInfo()
 	attendanceFrame:UpdateRaidInfoStrings()
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- sort
------------------------------------------
+---------------------------------------------------------------------
 local function SetRowPoints()
 	local last = nil
 	for i = 1, #loaded do
@@ -109,11 +109,11 @@ SortSheetByName = function()
 end
 
 SortSheetByClass = function()
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		-- class pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.class ~= b.class then
-				return GRA:GetIndex(gra.CLASS_ORDER, a.class) < GRA:GetIndex(gra.CLASS_ORDER, b.class)
+				return GRA.GetIndex(gra.CLASS_ORDER, a.class) < GRA.GetIndex(gra.CLASS_ORDER, b.class)
 			elseif a.pr ~= b.pr then
 				return a.pr > b.pr
 			elseif a.ep ~= b.ep then
@@ -124,11 +124,11 @@ SortSheetByClass = function()
 				return a.name < b.name
 			end
 		end)
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		-- class current total spent name
 		table.sort(loaded, function(a, b)
 			if a.class ~= b.class then
-				return GRA:GetIndex(gra.CLASS_ORDER, a.class) < GRA:GetIndex(gra.CLASS_ORDER, b.class)
+				return GRA.GetIndex(gra.CLASS_ORDER, a.class) < GRA.GetIndex(gra.CLASS_ORDER, b.class)
 			elseif a.current ~= b.current then
 				return a.current > b.current
 			elseif a.total ~= b.total then
@@ -143,7 +143,7 @@ SortSheetByClass = function()
 		-- class ar ar30 name
 		table.sort(loaded, function(a, b)
 			if a.class ~= b.class then
-				return GRA:GetIndex(gra.CLASS_ORDER, a.class) < GRA:GetIndex(gra.CLASS_ORDER, b.class)
+				return GRA.GetIndex(gra.CLASS_ORDER, a.class) < GRA.GetIndex(gra.CLASS_ORDER, b.class)
 			elseif a.arLifetime ~= b.arLifetime then
 				return a.arLifetime > b.arLifetime
 			elseif a.ar30 ~= b.ar30 then
@@ -158,7 +158,7 @@ SortSheetByClass = function()
 end
 
 SortSheetByATT = function()
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		-- att late ar pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.attLifetime ~= b.attLifetime then
@@ -177,7 +177,7 @@ SortSheetByATT = function()
 				return a.name < b.name
 			end
 		end)
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		-- att ar current total spent name
 		table.sort(loaded, function(a, b)
 			if a.attLifetime ~= b.attLifetime then
@@ -213,7 +213,7 @@ SortSheetByATT = function()
 end
 
 SortSheetByAR = function()
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		-- ar pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.arLifetime ~= b.arLifetime then
@@ -230,7 +230,7 @@ SortSheetByAR = function()
 				return a.name < b.name
 			end
 		end)
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		-- ar current total spent name
 		table.sort(loaded, function(a, b)
 			if a.arLifetime ~= b.arLifetime then
@@ -266,7 +266,7 @@ SortSheetByAR = function()
 end
 
 SortSheetByATT30 = function()
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		-- att late ar pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.att30 ~= b.att30 then
@@ -283,7 +283,7 @@ SortSheetByATT30 = function()
 				return a.name < b.name
 			end
 		end)
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		-- att ar current total spent name
 		table.sort(loaded, function(a, b)
 			if a.att30 ~= b.att30 then
@@ -359,7 +359,7 @@ SortSheetByATT90 = function()
 end
 
 SortSheetByAR30 = function()
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		-- ar30 pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.ar30 ~= b.ar30 then
@@ -376,7 +376,7 @@ SortSheetByAR30 = function()
 				return a.name < b.name
 			end
 		end)
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		-- ar30 current total spent name
 		table.sort(loaded, function(a, b)
 			if a.ar30 ~= b.ar30 then
@@ -414,7 +414,7 @@ SortSheetByAR30 = function()
 end
 
 SortSheetByAR60 = function()
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		-- ar60 pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.ar60 ~= b.ar60 then
@@ -431,7 +431,7 @@ SortSheetByAR60 = function()
 				return a.name < b.name
 			end
 		end)
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		-- ar60 current total spent name
 		table.sort(loaded, function(a, b)
 			if a.ar60 ~= b.ar60 then
@@ -469,7 +469,7 @@ SortSheetByAR60 = function()
 end
 
 SortSheetByAR90 = function()
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		-- ar90 pr ep gp name
 		table.sort(loaded, function(a, b)
 			if a.ar90 ~= b.ar90 then
@@ -486,7 +486,7 @@ SortSheetByAR90 = function()
 				return a.name < b.name
 			end
 		end)
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		-- ar90 current total spent name
 		table.sort(loaded, function(a, b)
 			if a.ar90 ~= b.ar90 then
@@ -699,12 +699,12 @@ local function SortSheet(key)
 	end
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- class filter
------------------------------------------
+---------------------------------------------------------------------
 --[=[
 local classFilterCBs = {}
-classFilterCBs["ALL"] = GRA:CreateCheckButton(statusFrame, L["All"], nil, nil, "GRA_FONT_SMALL")
+classFilterCBs["ALL"] = GRA.CreateCheckButton(statusFrame, L["All"], nil, nil, "GRA_FONT_SMALL")
 classFilterCBs["ALL"]:SetScript("OnClick", function(self)
 	self:SetChecked(true) -- force check
 	for i = 1, 12 do
@@ -712,7 +712,7 @@ classFilterCBs["ALL"]:SetScript("OnClick", function(self)
 		GRA_Variables["classFilter"][gra.CLASS_ORDER[i]] = true
 	end
 	-- reload sheet
-	GRA:ShowAttendanceSheet()
+	GRA.ShowAttendanceSheet()
 end)
 
 -- refresh "all classes" CB's state
@@ -731,12 +731,12 @@ local lastCB = nil
 for i = 1, 12 do
 	local class = gra.CLASS_ORDER[i]
 	-- create 12 CBs
-	classFilterCBs[class] = GRA:CreateCheckButton(statusFrame, "", nil, function(checked)
+	classFilterCBs[class] = GRA.CreateCheckButton(statusFrame, "", nil, function(checked)
 		GRA_Variables["classFilter"][class] = checked
 		refreshCB_ALL()
 		-- reload sheet
-		GRA:ShowAttendanceSheet()
-	end, nil, GRA:GetLocalizedClassName(class), L["Check to show this class."]) --, L["Check to show this class.\nFrequently clicking will cause high memory usage."])
+		GRA.ShowAttendanceSheet()
+	end, nil, GRA.GetLocalizedClassName(class), L["Check to show this class."]) --, L["Check to show this class.\nFrequently clicking will cause high memory usage."])
 
 	-- class color
 	classFilterCBs[class]:SetNormalTexture([[Interface\AddOns\GuildRaidAttendance\Media\CheckBox\CheckBox-Normal-]] .. class .. "-16x16")
@@ -754,21 +754,21 @@ end
 classFilterCBs["ALL"]:SetPoint("LEFT", lastCB, "RIGHT", 10, 0)
 ]=]
 
------------------------------------------
+---------------------------------------------------------------------
 -- refresh button & date picker
------------------------------------------
+---------------------------------------------------------------------
 -- force refresh
 local refreshCD = 10
-local refreshBtn = GRA:CreateButton(statusFrame, L["Refresh"], nil, {55, 20}, "GRA_FONT_SMALL")
+local refreshBtn = GRA.CreateButton(statusFrame, L["Refresh"], nil, {55, 20}, "GRA_FONT_SMALL")
 -- refreshBtn:SetPoint("BOTTOMRIGHT", 0, 1)
 refreshBtn:SetFrameLevel(8)
 refreshBtn:SetScript("OnClick", function()
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
-		GRA:RefreshEPGP()
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-		GRA:RefreshDKP()
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
+		GRA.RefreshEPGP()
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
+		GRA.RefreshDKP()
 	end
-	GRA:ShowAttendanceSheet()
+	GRA.ShowAttendanceSheet()
 	-- re-calc attendance rate
 	CalcAR()
 
@@ -796,16 +796,16 @@ refreshBtn:SetScript("OnEvent", function(self, event)
 end)
 
 -- date picker
-local datePicker = GRA:CreateDatePicker(statusFrame, 70, 20, function(d)
-	_G[GRA_R_Config]["startDate"] = d
-	GRA:ShowAttendanceSheet()
+local datePicker = GRA.CreateDatePicker(statusFrame, 70, 20, function(d)
+	GRA_Config["startDate"] = d
+	GRA.ShowAttendanceSheet()
 end)
 datePicker:SetPoint("RIGHT", refreshBtn, "LEFT", 1, 0)
 datePicker:SetFrameLevel(8)
 
------------------------------------------
+---------------------------------------------------------------------
 -- sheet legend
------------------------------------------
+---------------------------------------------------------------------
 local legendFrame = CreateFrame("Frame", nil, gra.mainFrame.header)
 legendFrame:SetSize(29, 8)
 legendFrame:SetPoint("BOTTOMRIGHT", gra.mainFrame.header.closeBtn, "BOTTOMLEFT", -1, 0)
@@ -827,9 +827,9 @@ legendFrame:SetScript("OnLeave", function(self)
 	GRA_Tooltip:Hide()
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- sheet header frame
------------------------------------------
+---------------------------------------------------------------------
 local newWidth
 local headerFrame = CreateFrame("Frame", nil, attendanceFrame)
 headerFrame:SetPoint("TOPLEFT", attendanceFrame)
@@ -837,7 +837,7 @@ headerFrame:SetPoint("BOTTOMRIGHT", attendanceFrame.scrollFrame, "TOPRIGHT")
 headerFrame:EnableMouse(true)
 headerFrame:SetFrameLevel(7)
 
-local nameText = GRA:CreateGrid(headerFrame, 95, L["Name"], nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by name."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by class."])
+local nameText = GRA.CreateGrid(headerFrame, 95, L["Name"], nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by name."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by class."])
 nameText:GetFontString():ClearAllPoints()
 nameText:GetFontString():SetWidth(90)
 nameText:GetFontString():SetPoint("BOTTOMLEFT", 20, 1)
@@ -847,139 +847,139 @@ nameText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 nameText:SetScript("OnClick", function(self, button)
 	if button == "LeftButton" then
 		SortSheetByName()
-		GRA:Print(L["Sort attendance sheet by name."])
+		GRA.Print(L["Sort attendance sheet by name."])
 	elseif button == "RightButton" then
 		SortSheetByClass()
-		GRA:Print(L["Sort attendance sheet by class."])
+		GRA.Print(L["Sort attendance sheet by class."])
 	end
 end)
 
 -- epgp
-local epText = GRA:CreateGrid(headerFrame, 50, "EP", nil, false, L["Sort: "], L["Sort attendance sheet by EP."])
+local epText = GRA.CreateGrid(headerFrame, 50, "EP", nil, false, L["Sort: "], L["Sort attendance sheet by EP."])
 epText:GetFontString():ClearAllPoints()
 epText:GetFontString():SetPoint("BOTTOM", 0, 1)
 epText:SetScript("OnClick", function()
 	SortSheetByEP()
-	GRA:Print(L["Sort attendance sheet by EP."])
+	GRA.Print(L["Sort attendance sheet by EP."])
 end)
 
-local gpText = GRA:CreateGrid(headerFrame, 50, "GP", nil, false, L["Sort: "], L["Sort attendance sheet by GP."])
+local gpText = GRA.CreateGrid(headerFrame, 50, "GP", nil, false, L["Sort: "], L["Sort attendance sheet by GP."])
 gpText:GetFontString():ClearAllPoints()
 gpText:GetFontString():SetPoint("BOTTOM", 0, 1)
 gpText:SetScript("OnClick", function()
 	SortSheetByGP()
-	GRA:Print(L["Sort attendance sheet by GP."])
+	GRA.Print(L["Sort attendance sheet by GP."])
 end)
 
-local prText = GRA:CreateGrid(headerFrame, 50, "PR", nil, false, L["Sort: "], L["Sort attendance sheet by PR."])
+local prText = GRA.CreateGrid(headerFrame, 50, "PR", nil, false, L["Sort: "], L["Sort attendance sheet by PR."])
 prText:GetFontString():ClearAllPoints()
 prText:GetFontString():SetPoint("BOTTOM", 0, 1)
 prText:SetScript("OnClick", function()
 	SortSheetByPR()
-	GRA:Print(L["Sort attendance sheet by PR."])
+	GRA.Print(L["Sort attendance sheet by PR."])
 end)
 
 -- dkp
-local currentText = GRA:CreateGrid(headerFrame, 50, L["Current"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (current)."])
+local currentText = GRA.CreateGrid(headerFrame, 50, L["Current"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (current)."])
 currentText:GetFontString():ClearAllPoints()
 currentText:GetFontString():SetPoint("BOTTOM", 0, 1)
 currentText:SetScript("OnClick", function()
 	SortSheetByCurrentDKP()
-	GRA:Print(L["Sort attendance sheet by DKP (current)."])
+	GRA.Print(L["Sort attendance sheet by DKP (current)."])
 end)
 
-local spentText = GRA:CreateGrid(headerFrame, 50, L["Spent"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (spent)."])
+local spentText = GRA.CreateGrid(headerFrame, 50, L["Spent"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (spent)."])
 spentText:GetFontString():ClearAllPoints()
 spentText:GetFontString():SetPoint("BOTTOM", 0, 1)
 spentText:SetScript("OnClick", function()
 	SortSheetBySpentDKP()
-	GRA:Print(L["Sort attendance sheet by DKP (spent)."])
+	GRA.Print(L["Sort attendance sheet by DKP (spent)."])
 end)
 
-local totalText = GRA:CreateGrid(headerFrame, 50, L["Total"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (total)."])
+local totalText = GRA.CreateGrid(headerFrame, 50, L["Total"], nil, false, L["Sort: "], L["Sort attendance sheet by DKP (total)."])
 totalText:GetFontString():ClearAllPoints()
 totalText:GetFontString():SetPoint("BOTTOM", 0, 1)
 totalText:SetScript("OnClick", function()
 	SortSheetByTotalDKP()
-	GRA:Print(L["Sort attendance sheet by DKP (total)."])
+	GRA.Print(L["Sort attendance sheet by DKP (total)."])
 end)
 
 -- attendance rate
-local ar30Text = GRA:CreateGrid(headerFrame, 50, "AR 30", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (30 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (30 days)."])
+local ar30Text = GRA.CreateGrid(headerFrame, 50, "AR 30", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (30 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (30 days)."])
 ar30Text:GetFontString():ClearAllPoints()
 ar30Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar30Text:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 ar30Text:SetScript("OnClick", function(self, button)
 	if button == "LeftButton" then
 		SortSheetByAR30()
-		GRA:Print(L["Sort attendance sheet by attendance rate (30 days)."])
+		GRA.Print(L["Sort attendance sheet by attendance rate (30 days)."])
 	elseif button == "RightButton" then
 		SortSheetByATT30()
-		GRA:Print(L["Sort attendance sheet by attendance (30 days)."])
+		GRA.Print(L["Sort attendance sheet by attendance (30 days)."])
 	end
 end)
 
-local ar60Text = GRA:CreateGrid(headerFrame, 50, "AR 60", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (60 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (60 days)."])
+local ar60Text = GRA.CreateGrid(headerFrame, 50, "AR 60", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (60 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (60 days)."])
 ar60Text:GetFontString():ClearAllPoints()
 ar60Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar60Text:SetScript("OnClick", function()
 	if button == "LeftButton" then
 		SortSheetByAR60()
-		GRA:Print(L["Sort attendance sheet by attendance rate (60 days)."])
+		GRA.Print(L["Sort attendance sheet by attendance rate (60 days)."])
 	elseif button == "RightButton" then
 		SortSheetByATT60()
-		GRA:Print(L["Sort attendance sheet by attendance (60 days)."])
+		GRA.Print(L["Sort attendance sheet by attendance (60 days)."])
 	end
 end)
 
-local ar90Text = GRA:CreateGrid(headerFrame, 50, "AR 90", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (90 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (90 days)."])
+local ar90Text = GRA.CreateGrid(headerFrame, 50, "AR 90", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (90 days)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (90 days)."])
 ar90Text:GetFontString():ClearAllPoints()
 ar90Text:GetFontString():SetPoint("BOTTOM", 0, 1)
 ar90Text:SetScript("OnClick", function()
 	if button == "LeftButton" then
 		SortSheetByAR90()
-		GRA:Print(L["Sort attendance sheet by attendance rate (90 days)."])
+		GRA.Print(L["Sort attendance sheet by attendance rate (90 days)."])
 	elseif button == "RightButton" then
 		SortSheetByATT90()
-		GRA:Print(L["Sort attendance sheet by attendance (90 days)."])
+		GRA.Print(L["Sort attendance sheet by attendance (90 days)."])
 	end
 end)
 
-local arLifetimeText = GRA:CreateGrid(headerFrame, 50, "AR", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (lifetime)."])
+local arLifetimeText = GRA.CreateGrid(headerFrame, 50, "AR", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by attendance (lifetime)."])
 arLifetimeText:GetFontString():ClearAllPoints()
 arLifetimeText:GetFontString():SetPoint("BOTTOM", 0, 1)
 arLifetimeText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 arLifetimeText:SetScript("OnClick", function(self, button)
 	if button == "LeftButton" then
 		SortSheetByAR()
-		GRA:Print(L["Sort attendance sheet by attendance rate (lifetime)."])
+		GRA.Print(L["Sort attendance sheet by attendance rate (lifetime)."])
 	elseif button == "RightButton" then
 		SortSheetByATT()
-		GRA:Print(L["Sort attendance sheet by attendance (lifetime)."])
+		GRA.Print(L["Sort attendance sheet by attendance (lifetime)."])
 	end
 end)
 
-local sitOutText = GRA:CreateGrid(headerFrame, 50, "SR", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out (lifetime)."])
+local sitOutText = GRA.CreateGrid(headerFrame, 50, "SR", nil, false, L["Sort: "], "|cffFFD100" .. L["Left-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out rate (lifetime)."] .. "\n|cffFFD100" .. L["Right-Click: "] .. "|cffFFFFFF" .. L["Sort attendance sheet by sit-out (lifetime)."])
 sitOutText:GetFontString():ClearAllPoints()
 sitOutText:GetFontString():SetPoint("BOTTOM", 0, 1)
 sitOutText:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 sitOutText:SetScript("OnClick", function(self, button)
 	if button == "LeftButton" then
 		SortSheetBySR()
-		GRA:Print(L["Sort attendance sheet by sit-out rate (lifetime)."])
+		GRA.Print(L["Sort attendance sheet by sit-out rate (lifetime)."])
 	elseif button == "RightButton" then
 		SortSheetBySO()
-		GRA:Print(L["Sort attendance sheet by sit-out (lifetime)."])
+		GRA.Print(L["Sort attendance sheet by sit-out (lifetime)."])
 	end
 end)
 
 -- dates
 local dateGrids = {}
 local function CreateDateHeader()
-	local days = _G[GRA_R_Config]["raidInfo"]["days"]
+	local days = GRA_Config["raidInfo"]["days"]
 	local daysPerWeek = #days
 	local weeks = 0
-	
+
 	-- show x weeks in sheet
 	if daysPerWeek == 1 then weeks = 16 -- 1 day every week --> 1d*16w = 16
 	elseif daysPerWeek == 2 then weeks = 8 -- 2 days every week --> 2d*8w = 16
@@ -993,18 +993,18 @@ local function CreateDateHeader()
 	local firstRaidDay, temp = nil, gra.RAID_LOCKOUTS_RESET
 	-- calc first raid day after RAID_LOCKOUTS_RESET day
 	for i = 1, 7 do
-		if GRA:TContains(days, temp) then
+		if GRA.TContains(days, temp) then
 			firstRaidDay = temp
 			break
 		end
 		temp = (temp == 7) and 1 or (temp + 1)
 	end
 
-	local startDate = _G[GRA_R_Config]["startDate"]
+	local startDate = GRA_Config["startDate"]
 	for i = 1, weeks do
 		for j = 1, 7 do -- 7 days
-			local wday = select(2, GRA:DateToWeekday(startDate))
-			if GRA:TContains(days, wday) then -- is a raid day
+			local wday = select(2, GRA.DateToWeekday(startDate))
+			if GRA.TContains(days, wday) then -- is a raid day
 				-- color first day for every raid lockouts period
 				-- one day per week = white
 				if daysPerWeek ~= 1 and (wday == gra.RAID_LOCKOUTS_RESET or wday == firstRaidDay) then
@@ -1012,10 +1012,10 @@ local function CreateDateHeader()
 				else
 					color = "|cffFFFFFF"
 				end
-				dateGrids[#dateGrids+1] = GRA:CreateGrid(headerFrame, gra.size.grid_dates, color..GRA:FormatDateHeader(startDate), nil)
+				dateGrids[#dateGrids+1] = GRA.CreateGrid(headerFrame, gra.size.grid_dates, color..GRA.FormatDateHeader(startDate), nil)
 				dateGrids[#dateGrids]:GetFontString():ClearAllPoints()
 				dateGrids[#dateGrids]:GetFontString():SetPoint("BOTTOM", 0, 1)
-				-- store date(string "20170330"), use it for _G[GRA_R_Roster]["playerName"]["details"]["date"]
+				-- store date(string "20170330"), use it for GRA_Roster["playerName"]["details"]["date"]
 				dateGrids[#dateGrids]["date"] = startDate
 				if #dateGrids == 1 then -- first
 					-- dateGrids[#dateGrids]:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
@@ -1024,18 +1024,18 @@ local function CreateDateHeader()
 				end
 				color = "|cffFFFFFF"
 			end
-			startDate = GRA:NextDate(startDate)
+			startDate = GRA.NextDate(startDate)
 		end
 	end
 end
 
-function GRA:SetColumns()
-	if GRA:Getn(_G[GRA_R_Roster]) == 0 then return end
-	
+function GRA.SetColumns()
+	if GRA.Getn(GRA_Roster) == 0 then return end
+
 	-- set point left, align left
 	LPP:PixelPerfectPoint(gra.mainFrame)
 	-- re-set mainFrame width
-	-- local width = GRA:Round(dateGrids[#dateGrids]:GetRight() - nameText:GetLeft() + 16)
+	-- local width = GRA.Round(dateGrids[#dateGrids]:GetRight() - nameText:GetLeft() + 16)
 	-- local width2 = 75+(45*3)-3+16+(#dateGrids*30)-#dateGrids
 	-- print(width2)
 	-- newWidth = 16 + 75 + (#dateGrids * 30) - #dateGrids
@@ -1046,7 +1046,7 @@ function GRA:SetColumns()
 
 	local lastColumn = nameText
 
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		epText:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 		epText:Show()
 		gpText:SetPoint("LEFT", epText, "RIGHT", -1, 0)
@@ -1060,11 +1060,11 @@ function GRA:SetColumns()
 		currentText:Hide()
 		spentText:Hide()
 		totalText:Hide()
-		
+
 		minEPText:Show()
 		baseGPText:Show()
 		decayText:Show()
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		currentText:SetPoint("LEFT", lastColumn, "RIGHT", -1, 0)
 		currentText:Show()
 		spentText:SetPoint("LEFT", currentText, "RIGHT", -1, 0)
@@ -1153,27 +1153,27 @@ function GRA:SetColumns()
 	if attendanceFrame:IsVisible() then gra.mainFrame:SetWidth(newWidth) end
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- sheet data function
------------------------------------------
+---------------------------------------------------------------------
 -- for EPGPOptions only
-function GRA:RecalcPR()
-	local baseGP = tonumber(_G[GRA_R_Config]["raidInfo"]["EPGP"][1])
-	local minEP = _G[GRA_R_Config]["raidInfo"]["EPGP"][2]
+function GRA.RecalcPR()
+	local baseGP = tonumber(GRA_Config["raidInfo"]["EPGP"][1])
+	local minEP = GRA_Config["raidInfo"]["EPGP"][2]
 	for _, row in pairs(loaded) do
-		local ep = _G[GRA_R_Roster][row.name]["EP"]
-		local gp = _G[GRA_R_Roster][row.name]["GP"]
-		GRA:UpdatePlayerData_EPGP(row.name, ep, gp, true)
+		local ep = GRA_Roster[row.name]["EP"]
+		local gp = GRA_Roster[row.name]["GP"]
+		GRA.UpdatePlayerData_EPGP(row.name, ep, gp, true)
 	end
 	-- sort after recalc
 	SortSheet(GRA_Variables["sortKey"])
 end
 
-function GRA:UpdatePlayerData_EPGP(name, ep, gp, noSort)
-	if _G[GRA_R_Roster][name]["altOf"] then return end
+function GRA.UpdatePlayerData_EPGP(name, ep, gp, noSort)
+	if GRA_Roster[name]["altOf"] then return end
 
-	local baseGP = _G[GRA_R_Config]["raidInfo"]["EPGP"][1]
-	local minEP = _G[GRA_R_Config]["raidInfo"]["EPGP"][2]
+	local baseGP = GRA_Config["raidInfo"]["EPGP"][1]
+	local minEP = GRA_Config["raidInfo"]["EPGP"][2]
 
 	local row = GetRow(name)
 	row.epGrid:SetText(ep)
@@ -1212,8 +1212,8 @@ function GRA:UpdatePlayerData_EPGP(name, ep, gp, noSort)
 	end
 end
 
-function GRA:UpdatePlayerData_DKP(name, current, spent, total)
-	if _G[GRA_R_Roster][name]["altOf"] then return end
+function GRA.UpdatePlayerData_DKP(name, current, spent, total)
+	if GRA_Roster[name]["altOf"] then return end
 
 	local row = GetRow(name)
 	row.current = current
@@ -1227,17 +1227,17 @@ function GRA:UpdatePlayerData_DKP(name, current, spent, total)
 	SortSheet(GRA_Variables["sortKey"])
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- attendance rate function
------------------------------------------
+---------------------------------------------------------------------
 ShowAR = function()
-	-- GRA:Debug("|cff1E90FFShow attendance rate")
+	-- GRA.Debug("|cff1E90FFShow attendance rate")
 	for _, row in pairs(loaded) do
-		local att30 = _G[GRA_R_Roster][row.name]["att30"] or {0, 0, 0, 0, 0}
-		local att60 = _G[GRA_R_Roster][row.name]["att60"] or {0, 0, 0, 0, 0}
-		local att90 = _G[GRA_R_Roster][row.name]["att90"] or {0, 0, 0, 0, 0}
-		local attLifetime = _G[GRA_R_Roster][row.name]["attLifetime"] or {0, 0, 0, 0, 0, 0}
-		
+		local att30 = GRA_Roster[row.name]["att30"] or {0, 0, 0, 0, 0}
+		local att60 = GRA_Roster[row.name]["att60"] or {0, 0, 0, 0, 0}
+		local att90 = GRA_Roster[row.name]["att90"] or {0, 0, 0, 0, 0}
+		local attLifetime = GRA_Roster[row.name]["attLifetime"] or {0, 0, 0, 0, 0, 0}
+
 		-- attendance count
 		row.att30 = att30[1]
 		row.att60 = att60[1]
@@ -1257,12 +1257,12 @@ ShowAR = function()
 		row.ar90Grid:SetText(row.ar90 .. "%")
 		row.arLifetimeGrid:SetText(row.arLifetime .. "%")
 		row.sitOutGrid:SetText(row.sitOutRate .. "%" )
-		
+
 		-- tooltip
 		row.ar30Grid:HookScript("OnEnter", function(self)
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
-			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
+			GRA_Tooltip:AddLine(GRA.GetClassColoredName(row.name))
 			if att30[3] and att30[3] ~= 0 then
 				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att30[1] .. " |cffffff00(" .. att30[3] .. ")")
 			else
@@ -1280,7 +1280,7 @@ ShowAR = function()
 		row.ar60Grid:HookScript("OnEnter", function(self)
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
-			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
+			GRA_Tooltip:AddLine(GRA.GetClassColoredName(row.name))
 			if att60[3] and att60[3] ~= 0 then
 				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att60[1] .. " |cffffff00(" .. att60[3] .. ")")
 			else
@@ -1298,7 +1298,7 @@ ShowAR = function()
 		row.ar90Grid:HookScript("OnEnter", function(self)
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
-			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
+			GRA_Tooltip:AddLine(GRA.GetClassColoredName(row.name))
 			if att90[3] and att90[3] ~= 0 then
 				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. att90[1] .. " |cffffff00(" .. att90[3] .. ")")
 			else
@@ -1316,7 +1316,7 @@ ShowAR = function()
 		row.arLifetimeGrid:HookScript("OnEnter", function(self)
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
-			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
+			GRA_Tooltip:AddLine(GRA.GetClassColoredName(row.name))
 			if attLifetime[3] and attLifetime[3] ~= 0 then
 				GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. attLifetime[1] .. " |cffffff00(" .. attLifetime[3] .. ")")
 			else
@@ -1334,7 +1334,7 @@ ShowAR = function()
 		row.sitOutGrid:HookScript("OnEnter", function(self)
 			GRA_Tooltip:SetOwner(self, "ANCHOR_NONE")
 			GRA_Tooltip:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 1, 0)
-			GRA_Tooltip:AddLine(GRA:GetClassColoredName(row.name))
+			GRA_Tooltip:AddLine(GRA.GetClassColoredName(row.name))
 			GRA_Tooltip:AddDoubleLine(L["Sit Out"] .. ": ", "|cff00e6ff" .. attLifetime[6])
 			GRA_Tooltip:AddDoubleLine(L["Present"] .. ": ", "|cff00ff00" .. attLifetime[1])
 			GRA_Tooltip:Show()
@@ -1349,7 +1349,7 @@ local calcARProgressFrame
 local function ShowCalcARProgressFrame()
 	if not calcARProgressFrame then
 		calcARProgressFrame = CreateFrame("Frame", nil, attendanceFrame.scrollFrame, "BackdropTemplate")
-		GRA:StylizeFrame(calcARProgressFrame, {.1, .1, .1, .95}, {0, 0, 0, 0})
+		GRA.StylizeFrame(calcARProgressFrame, {.1, .1, .1, .95}, {0, 0, 0, 0})
 		calcARProgressFrame:SetSize(156, 18)
 		calcARProgressFrame:SetPoint("BOTTOMLEFT", attendanceFrame.scrollFrame, 1, 1)
 		calcARProgressFrame:Hide()
@@ -1378,7 +1378,7 @@ local function ShowCalcARProgressFrame()
 			calcARProgressFrame:Hide()
 		end)
 
-		calcARProgressFrame.bar = GRA:CreateProgressBar(calcARProgressFrame, 155, 2, 0, function()
+		calcARProgressFrame.bar = GRA.CreateProgressBar(calcARProgressFrame, 155, 2, 0, function()
 			calcARProgressFrame.fadeOut:Play()
 		end)
 		calcARProgressFrame.bar:SetPoint("BOTTOMLEFT")
@@ -1401,37 +1401,37 @@ end
 -- admin only, calculate AR
 local updateRequired
 CalcAR = function()
-	if GRA:Getn(_G[GRA_R_RaidLogs]) == 0 then return end
-	
+	if GRA.Getn(GRA_Logs) == 0 then return end
+
 	if gra.isAdmin == nil then -- wait for GRA_PERMISSION
-		GRA:RegisterEvent("GRA_PERMISSION", "CalcAR_CheckPermission", function()
+		GRA.RegisterCallback("GRA_PERMISSION", "CalcAR_CheckPermission", function()
 			CalcAR()
 		end)
 		return
 	elseif gra.isAdmin == false then -- not admin
 		return
 	end
-	
+
 	ShowCalcARProgressFrame()
-	GRA:CalcAtendanceRateAndLoots(nil, nil, calcARProgressFrame.bar, true)
+	GRA.CalcAtendanceRateAndLoots(nil, nil, calcARProgressFrame.bar, true)
 	updateRequired = nil
-	
+
 	ShowAR()
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- sheet grid function
------------------------------------------
+---------------------------------------------------------------------
 local gps, eps = {}, {} -- details
 local todaysGP, todaysEP = {}, {} -- points
 local function CountByDate_EPGP(d)
-	if _G[GRA_R_RaidLogs][d] then
+	if GRA_Logs[d] then
 		gps[d] = {}
 		eps[d] = {}
 		todaysGP[d] = {}
 		todaysEP[d] = {}
 
-		local details = _G[GRA_R_RaidLogs][d]["details"]
+		local details = GRA_Logs[d]["details"]
 		-- scan each gp/ep
 		for _, detail in pairs(details) do
 			if detail[1] == "GP" then
@@ -1466,13 +1466,13 @@ local function CountByDate_EPGP(d)
 end
 
 local function CountByDate_DKP(d)
-	if _G[GRA_R_RaidLogs][d] then
+	if GRA_Logs[d] then
 		gps[d] = {}
 		eps[d] = {}
 		todaysGP[d] = {}
 		todaysEP[d] = {}
 
-		local details = _G[GRA_R_RaidLogs][d]["details"]
+		local details = GRA_Logs[d]["details"]
 		-- scan each dkp
 		for _, detail in pairs(details) do
 			if detail[1] == "DKP_C" then
@@ -1502,13 +1502,13 @@ local function CountByDate_DKP(d)
 end
 
 local function CountByDate(d)
-	if _G[GRA_R_RaidLogs][d] then
+	if GRA_Logs[d] then
 		gps[d] = {}
 		eps[d] = {}
 		todaysGP[d] = {}
 		todaysEP[d] = {}
 
-		local details = _G[GRA_R_RaidLogs][d]["details"]
+		local details = GRA_Logs[d]["details"]
 		-- scan each loot
 		for _, detail in pairs(details) do
 			if detail[1] == "LOOT" then
@@ -1526,9 +1526,9 @@ local function CountAll()
 	-- count each day in sheet
 	for k, dateGrid in pairs(dateGrids) do
 		local d = dateGrid.date
-		if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+		if GRA_Config["raidInfo"]["system"] == "EPGP" then
 			CountByDate_EPGP(d)
-		elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+		elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 			CountByDate_DKP(d)
 		else
 			CountByDate(d)
@@ -1545,11 +1545,11 @@ local function UpdateGrid(g, d, name, altGs)
 		g:SetText("")
 	end
 
-	local att, joinTime, leaveTime, _, isSitOut = GRA:GetMainAltAttendance(d, name)
+	local att, joinTime, leaveTime, _, isSitOut = GRA.GetMainAltAttendance(d, name)
 	if altGs then
 		-- 设置大号出勤状态
-		if _G[GRA_R_RaidLogs][d]["attendances"][name] then -- main is not IGNORED
-			if not _G[GRA_R_RaidLogs][d]["attendances"][name][3] then -- 大号没出勤
+		if GRA_Logs[d]["attendances"][name] then -- main is not IGNORED
+			if not GRA_Logs[d]["attendances"][name][3] then -- 大号没出勤
 				if att ~= "ABSENT" and att ~= "ONLEAVE" then -- 小号有出勤
 					g:SetAttendance("IGNORED")
 				else
@@ -1572,15 +1572,15 @@ local function UpdateGrid(g, d, name, altGs)
 				altG:SetText("")
 			end
 
-			if _G[GRA_R_RaidLogs][d]["attendances"][altName] then
-				if _G[GRA_R_RaidLogs][d]["attendances"][altName][3] then -- alt has attendance
+			if GRA_Logs[d]["attendances"][altName] then
+				if GRA_Logs[d]["attendances"][altName][3] then -- alt has attendance
 					altG:SetAttendance(att)
 					-- sit out mark
 					altG:ShowSitOutMark(isSitOut)
-				elseif not _G[GRA_R_RaidLogs][d]["attendances"][name] then -- alt is ABSENT/ONLEAVE and main is IGNORED
+				elseif not GRA_Logs[d]["attendances"][name] then -- alt is ABSENT/ONLEAVE and main is IGNORED
 					altG:SetAttendance(att)
 				end
-				if _G[GRA_R_RaidLogs][d]["attendances"][altName][2] then
+				if GRA_Logs[d]["attendances"][altName][2] then
 					altG:ShowNoteMark(true)
 				end
 			else
@@ -1594,7 +1594,7 @@ local function UpdateGrid(g, d, name, altGs)
 			if eps[d][altName] then -- 小号有EP
 				if not eps[d][name] then eps[d][name] = {} end -- 如果大号没有则创建table
 				for k, altEP in pairs(eps[d][altName]) do
-					table.insert(eps[d][name], altEP .. " (" .. GRA:GetClassColoredName(altName) .. "|cffffffff)")
+					table.insert(eps[d][name], altEP .. " (" .. GRA.GetClassColoredName(altName) .. "|cffffffff)")
 				end
 			end
 
@@ -1605,7 +1605,7 @@ local function UpdateGrid(g, d, name, altGs)
 				if not gps[d][name] then gps[d][name] = {} end -- 如果大号没有则创建table
 				for k, altGP in pairs(gps[d][altName]) do
 					if k ~= "loots" then
-						table.insert(gps[d][name], altGP .. " (" .. GRA:GetClassColoredName(altName) .. "|cffffffff)")
+						table.insert(gps[d][name], altGP .. " (" .. GRA.GetClassColoredName(altName) .. "|cffffffff)")
 					end
 				end
 			end
@@ -1617,7 +1617,7 @@ local function UpdateGrid(g, d, name, altGs)
 	end
 
 	-- mark
-	if _G[GRA_R_RaidLogs][d]["attendances"][name] and _G[GRA_R_RaidLogs][d]["attendances"][name][2] then
+	if GRA_Logs[d]["attendances"][name] and GRA_Logs[d]["attendances"][name][2] then
 		g:ShowNoteMark(true)
 	end
 
@@ -1627,23 +1627,23 @@ local function UpdateGrid(g, d, name, altGs)
 		GRA_Tooltip:SetPoint("BOTTOMRIGHT", g, "BOTTOMLEFT", 1, 0)
 		GRA_Tooltip:SetPoint("RIGHT", g, "LEFT", 1, 0)
 		GRA_Tooltip:SetPoint("BOTTOM", g:GetParent(), 0, 0)
-		GRA_Tooltip:AddLine(GRA:GetClassColoredName(name))
+		GRA_Tooltip:AddLine(GRA.GetClassColoredName(name))
 
 		-- join time
 		if att == "PRESENT" or att == "PARTIAL" then
-			GRA_Tooltip:AddLine(GRA:SecondsToTime(joinTime) .. " - " .. (GRA:SecondsToTime(leaveTime)))
+			GRA_Tooltip:AddLine(GRA.SecondsToTime(joinTime) .. " - " .. (GRA.SecondsToTime(leaveTime)))
 			GRA_Tooltip:Show()
 		end
 
 		-- note
-		if _G[GRA_R_RaidLogs][d]["attendances"][name] and _G[GRA_R_RaidLogs][d]["attendances"][name][2] then
-			GRA_Tooltip:AddLine("|cffFFFFFF" .. _G[GRA_R_RaidLogs][d]["attendances"][name][2])
+		if GRA_Logs[d]["attendances"][name] and GRA_Logs[d]["attendances"][name][2] then
+			GRA_Tooltip:AddLine("|cffFFFFFF" .. GRA_Logs[d]["attendances"][name][2])
 			GRA_Tooltip:Show()
 		end
 		if altGs then -- FIXME: alts should have no notes
 			for altName, _ in pairs(altGs) do
-				if _G[GRA_R_RaidLogs][d]["attendances"][altName] and _G[GRA_R_RaidLogs][d]["attendances"][altName][2] then
-					GRA_Tooltip:AddLine("|cffFFFFFF" .. _G[GRA_R_RaidLogs][d]["attendances"][altName][2])
+				if GRA_Logs[d]["attendances"][altName] and GRA_Logs[d]["attendances"][altName][2] then
+					GRA_Tooltip:AddLine("|cffFFFFFF" .. GRA_Logs[d]["attendances"][altName][2])
 				end
 			end
 			GRA_Tooltip:Show()
@@ -1652,24 +1652,24 @@ local function UpdateGrid(g, d, name, altGs)
 		if eps[d][name] then
 			GRA_Tooltip:AddLine(" ")
 
-			if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+			if GRA_Config["raidInfo"]["system"] == "EPGP" then
 				GRA_Tooltip:AddLine(L["Today's EP: "] .. todaysEP[d][name])
-			elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+			elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 				GRA_Tooltip:AddLine(L["Today's DKP (awarded): "] .. todaysEP[d][name])
 			end
-			
+
 			for _, v in pairs(eps[d][name]) do
 				GRA_Tooltip:AddLine(v)
 			end
 			GRA_Tooltip:Show()
 		end
-		
+
 		if gps[d][name] then
 			GRA_Tooltip:AddLine(" ")
 
-			if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+			if GRA_Config["raidInfo"]["system"] == "EPGP" then
 				GRA_Tooltip:AddLine(L["Today's GP: "] .. todaysGP[d][name])
-			elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+			elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 				GRA_Tooltip:AddLine(L["Today's DKP (spent/penalized): "] .. todaysGP[d][name])
 			end
 
@@ -1688,8 +1688,8 @@ end
 local function LoadRowDetails(row)
 	for k, g in pairs(row.dateGrids) do
 		local d = dateGrids[k].date
-		
-		if _G[GRA_R_RaidLogs][d] then
+
+		if GRA_Logs[d] then
 			if row.alts then
 				local altGs = {}
 				for altName, altTable in pairs(row.alts) do
@@ -1752,12 +1752,12 @@ local function RefreshSheetByDate(d)
 	end
 
 	-- if no logs exist, deleted
-	if not _G[GRA_R_RaidLogs][d] then return end
+	if not GRA_Logs[d] then return end
 
 	-- count on this day
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		CountByDate_EPGP(d)
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
 		CountByDate_DKP(d)
 	else
 		CountByDate(d)
@@ -1782,13 +1782,13 @@ local function RefreshSheetByDates(dates)
 	end
 end
 
-GRA:RegisterEvent("GRA_ENTRY", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
-GRA:RegisterEvent("GRA_ENTRY_MODIFY", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
-GRA:RegisterEvent("GRA_ENTRY_UNDO", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
+GRA.RegisterCallback("GRA_ENTRY", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
+GRA.RegisterCallback("GRA_ENTRY_MODIFY", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
+GRA.RegisterCallback("GRA_ENTRY_UNDO", "AttendanceSheet_DetailsRefresh", RefreshSheetByDate)
 
 -- raid logs (attendance) changed
 local refreshTimer
-GRA:RegisterEvent("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
+GRA.RegisterCallback("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
 	if attendanceFrame:IsVisible() then
 		-- update ONCE EVERY 1S!!!
 		if refreshTimer then
@@ -1804,7 +1804,7 @@ GRA:RegisterEvent("GRA_RAIDLOGS", "AttendanceSheet_DetailsRefresh", function(d)
 	else
 		-- if updateRequired ~= nil and sheet not updated yet.
 		if type(updateRequired) == "table" then
-			if not GRA:TContains(updateRequired, d) then
+			if not GRA.TContains(updateRequired, d) then
 				table.insert(updateRequired, d)
 			end
 		elseif type(updateRequired) == "string" then
@@ -1839,7 +1839,7 @@ local function AttendanceSheet_DetailsRefreshByDates(dates)
 			end
 
 		elseif type(updateRequired) == "string" then
-			if not GRA:TContains(dates, d) then
+			if not GRA.TContains(dates, d) then
 				table.insert(dates, d)
 			end
 			updateRequired = dates
@@ -1850,25 +1850,25 @@ local function AttendanceSheet_DetailsRefreshByDates(dates)
 end
 
 -- raid logs deleted
-GRA:RegisterEvent("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", AttendanceSheet_DetailsRefreshByDates)
+GRA.RegisterCallback("GRA_LOGS_DEL", "AttendanceSheet_DetailsRefresh", AttendanceSheet_DetailsRefreshByDates)
 
 -- raid logs archived
-GRA:RegisterEvent("GRA_LOGS_ACV", "AttendanceSheet_DetailsRefresh", AttendanceSheet_DetailsRefreshByDates)
+GRA.RegisterCallback("GRA_LOGS_ACV", "AttendanceSheet_DetailsRefresh", AttendanceSheet_DetailsRefreshByDates)
 
 -- raid start time update (RaidLogsEditFrame/AttendanceEditor)
-GRA:RegisterEvent("GRA_RH_UPDATE", "AttendanceSheet_RaidHoursUpdate", function(d)
-	GRA:Debug("|cff66CD00GRA_RH_UPDATE:|r " .. d)
-	GRA:UpdateAttendanceStatus(d)
+GRA.RegisterCallback("GRA_RH_UPDATE", "AttendanceSheet_RaidHoursUpdate", function(d)
+	GRA.Debug("|cff66CD00GRA_RH_UPDATE:|r " .. d)
+	GRA.UpdateAttendanceStatus(d)
 	RefreshSheetByDate(d)
 	updateRequired = true -- CalcAR
 end)
 
 -- system changed
-GRA:RegisterEvent("GRA_SYSTEM", "AttendanceSheet_SystemChanged", function(system)
-	if GRA:Getn(_G[GRA_R_Roster]) == 0 then return end
+GRA.RegisterCallback("GRA_SYSTEM", "AttendanceSheet_SystemChanged", function(system)
+	if GRA.Getn(GRA_Roster) == 0 then return end
 	attendanceFrame:UpdateRaidInfoStrings()
 	-- show columns
-	GRA:SetColumns()
+	GRA.SetColumns()
 	-- refresh tooltip
 	gps, eps = {}, {}
 	todaysGP, todaysEP = {}, {}
@@ -1878,18 +1878,18 @@ GRA:RegisterEvent("GRA_SYSTEM", "AttendanceSheet_SystemChanged", function(system
 end)
 
 -- refresh on raid logs received
-GRA:RegisterEvent("GRA_LOGS_DONE", "AttendanceFrame_LogsReceived", function(count, dates)
+GRA.RegisterCallback("GRA_LOGS_DONE", "AttendanceFrame_LogsReceived", function(count, dates)
 	RefreshSheetByDates(dates)
 	-- refresh attendance rate
 	ShowAR()
 end)
 
-GRA:RegisterEvent("GRA_MAINALT", "AttendanceFrame_MainAltChanged", function()
+GRA.RegisterCallback("GRA_MAINALT", "AttendanceFrame_MainAltChanged", function()
 	CalcAR()
 end)
 
 -- attendance rate calculation method changed
-GRA:RegisterEvent("GRA_ARCM", "AttendanceFrame_ARCMChanged", function()
+GRA.RegisterCallback("GRA_ARCM", "AttendanceFrame_ARCMChanged", function()
 	if attendanceFrame:IsVisible() then
 		CalcAR()
 	else
@@ -1897,34 +1897,34 @@ GRA:RegisterEvent("GRA_ARCM", "AttendanceFrame_ARCMChanged", function()
 	end
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- load sheet (create row)
------------------------------------------
+---------------------------------------------------------------------
 local function LoadSheet()
 	CountAll()
-	GRA:UpdateMainAlt()
+	GRA.UpdateMainAlt()
 	-- process mains and alts
-	for pName, pTable in pairs(_G[GRA_R_Roster]) do
+	for pName, pTable in pairs(GRA_Roster) do
 		if not pTable["altOf"] then
-			local row = GRA:CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), pName,
-				function() GRA:ShowMemberAttendance(pName) end)
+			local row = GRA.CreateRow(attendanceFrame.scrollFrame.content, attendanceFrame.scrollFrame:GetWidth(), pName,
+				function() GRA.ShowMemberAttendance(pName) end)
 			row.name = pName -- sort key
 			row.class = pTable["class"] -- sort key
-			
+
 			-- prepare for sorting (or it may be nil)
 			row.ep = pTable["EP"] or 0
 			row.gp = pTable["GP"] or 0
-			row.pr = row.ep / (row.gp + _G[GRA_R_Config]["raidInfo"]["EPGP"][1])
+			row.pr = row.ep / (row.gp + GRA_Config["raidInfo"]["EPGP"][1])
 			-- dkp
 			row.current = pTable["DKP_Current"] or 0
 			row.spent = pTable["DKP_Spent"] or 0
 			row.total = pTable["DKP_Total"] or 0
-			
+
 			-- disabled in minimal mode
 			if not GRA_Variables["minimalMode"] then
 				row:CreateGrid(#dateGrids)
 			end
-			
+
 			-- load alts
 			if gra.mainAlt[pName] then
 				for _, altName in pairs(gra.mainAlt[pName]) do
@@ -1936,7 +1936,7 @@ local function LoadSheet()
 			if not GRA_Variables["minimalMode"] then
 				LoadRowDetails(row)
 			end
-			
+
 			table.insert(loaded, row)
 			attendanceFrame.scrollFrame:SetWidgetAutoWidth(row)
 			-- attendanceFrame.loaded = attendanceFrame.loaded + 1
@@ -1959,16 +1959,16 @@ local function HideAll()
 	attendanceFrame.scrollFrame:Reset()
 end
 
-function GRA:ShowAttendanceSheet()
+function GRA.ShowAttendanceSheet()
 	HideAll()
 
-	if GRA:Getn(_G[GRA_R_Roster]) ~= 0 then
-		GRA:Debug("|cff1E90FFShowAttendanceSheet|r")
-		
+	if GRA.Getn(GRA_Roster) ~= 0 then
+		GRA.Debug("|cff1E90FFShowAttendanceSheet|r")
+
 		if not GRA_Variables["minimalMode"] then CreateDateHeader() end
 		LoadSheet()
 		-- after sheet row loaded set columns and WIDTH!!!
-		GRA:SetColumns()
+		GRA.SetColumns()
 		-- load attendance rate and sort
 		ShowAR()
 
@@ -1981,18 +1981,18 @@ function GRA:ShowAttendanceSheet()
 		if attendanceFrame.scrollFrame.mask then attendanceFrame.scrollFrame.mask:Hide() end
 	else
 		-- print("No member!")
-		GRA:CreateMask(attendanceFrame.scrollFrame, L["No member"], {1, -1, -1, 1})
+		GRA.CreateMask(attendanceFrame.scrollFrame, L["No member"], {1, -1, -1, 1})
 	end
 
 	-- schedule changed (mainFrame's width changed) may cause frame not pixel perfect, fix it!
 	LPP:PixelPerfectPoint(gra.mainFrame)
-	
+
 	-- update!
-	if _G[GRA_R_Config]["raidInfo"]["system"] == "EPGP" then
+	if GRA_Config["raidInfo"]["system"] == "EPGP" then
 		-- register/unregister GUILD_OFFICER_NOTE_CHANGED
-		GRA:UpdateRosterEPGP()
-	elseif _G[GRA_R_Config]["raidInfo"]["system"] == "DKP" then
-		GRA:UpdateRosterDKP()
+		GRA.UpdateRosterEPGP()
+	elseif GRA_Config["raidInfo"]["system"] == "DKP" then
+		GRA.UpdateRosterDKP()
 	end
 end
 
@@ -2002,7 +2002,7 @@ local function EnableMiniMode(f)
 		datePicker:Hide()
 		refreshBtn:ClearAllPoints()
 		refreshBtn:SetPoint("BOTTOMRIGHT", gra.mainFrame, -62, 5)
-		
+
 		-- membersText:ClearAllPoints()
 		-- membersText:SetPoint("TOPLEFT", 0, -20)
 		decayText:ClearAllPoints()
@@ -2015,7 +2015,7 @@ local function EnableMiniMode(f)
 		datePicker:Show()
 		refreshBtn:ClearAllPoints()
 		refreshBtn:SetPoint("BOTTOMRIGHT", 0, 1)
-		
+
 		-- membersText:ClearAllPoints()
 		-- membersText:SetPoint("LEFT", 245, 0)
 		decayText:ClearAllPoints()
@@ -2023,18 +2023,18 @@ local function EnableMiniMode(f)
 	end
 end
 
-GRA:RegisterEvent("GRA_MINI", "AttendanceFrame_MiniMode", function(enabled)
+GRA.RegisterCallback("GRA_MINI", "AttendanceFrame_MiniMode", function(enabled)
 	EnableMiniMode(enabled)
-	GRA:ShowAttendanceSheet()
+	GRA.ShowAttendanceSheet()
 end)
 
-GRA:RegisterEvent("GRA_ROSTER", "AttendanceFrame_RosterUpdate", function()
-	GRA:ShowAttendanceSheet()
+GRA.RegisterCallback("GRA_ROSTER", "AttendanceFrame_RosterUpdate", function()
+	GRA.ShowAttendanceSheet()
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- script
------------------------------------------
+---------------------------------------------------------------------
 attendanceFrame:SetScript("OnShow", function()
 	EnableMiniMode(GRA_Variables["minimalMode"])
 	LPP:PixelPerfectPoint(gra.mainFrame)
@@ -2048,8 +2048,8 @@ attendanceFrame:SetScript("OnShow", function()
 	refreshCB_ALL()
 	]=]
 
-	datePicker:SetDate(_G[GRA_R_Config]["startDate"])
-	
+	datePicker:SetDate(GRA_Config["startDate"])
+
 	if updateRequired then
 		if type(updateRequired) == "table" then
 			RefreshSheetByDates(updateRequired)
@@ -2063,7 +2063,7 @@ attendanceFrame:SetScript("OnShow", function()
 		return
 	end
 
-	GRA:ShowAttendanceSheet()
+	GRA.ShowAttendanceSheet()
 	-- admin calc attendance rate
 	CalcAR()
 end)
@@ -2072,15 +2072,15 @@ attendanceFrame:SetScript("OnHide", function()
 	legendFrame:Hide()
 end)
 
-if GRA:Debug() then
-	-- GRA:StylizeFrame(attendanceFrame, {.5, 0, 0, 0})
-	-- GRA:StylizeFrame(headerFrame, {0, .7, 0, .1}, {0, 0, 0, 0})
-	-- GRA:StylizeFrame(statusFrame, {1, 0, 0, .1}, {0, 0, 0, 0})
+if GRA.Debug() then
+	-- GRA.StylizeFrame(attendanceFrame, {.5, 0, 0, 0})
+	-- GRA.StylizeFrame(headerFrame, {0, .7, 0, .1}, {0, 0, 0, 0})
+	-- GRA.StylizeFrame(statusFrame, {1, 0, 0, .1}, {0, 0, 0, 0})
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- resize
------------------------------------------
+---------------------------------------------------------------------
 function attendanceFrame:Resize()
 	attendanceFrame:ClearAllPoints()
 	attendanceFrame:SetPoint("TOPLEFT", gra.mainFrame, 8, gra.size.attendanceFrame[1])

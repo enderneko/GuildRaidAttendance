@@ -32,7 +32,7 @@ local bindTypes = {
 	[ITEM_BIND_ON_USE] = "BoU"
 }
 
-function GRA:GetItemBindType(itemLink)
+function GRA.GetItemBindType(itemLink)
 	GRA_ScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 	GRA_ScanningTooltip:SetHyperlink(itemLink)
 
@@ -47,11 +47,11 @@ function GRA:GetItemBindType(itemLink)
 	end
 end
 
-function GRA:GetItemStatus(itemLink)
+function GRA.GetItemStatus(itemLink)
 	if not itemLink then return "" end
 	GRA_ScanningTooltip:SetOwner(UIParent, "ANCHOR_NONE")
 	GRA_ScanningTooltip:SetHyperlink(itemLink)
-	
+
 	local t = ""
 	if GRA_ScanningTooltipTextLeft2 then
 		t = GRA_ScanningTooltipTextLeft2:GetText()
@@ -61,12 +61,12 @@ function GRA:GetItemStatus(itemLink)
 	return t
 end
 
-function GRA:GetItemID(itemLink)
+function GRA.GetItemID(itemLink)
     local itemID = select(2, string.split(":", string.match(itemLink, "item[%-?%d:]+")))
     return tonumber(itemID)
 end
 
-function GRA:GetItemSignatures(itemLink)
+function GRA.GetItemSignatures(itemLink)
 	local itemString = string.match(itemLink, "item[%-?%d:]+")
 	-- print(itemString)
 	-- item:itemID:enchantID:gemID1:gemID2:gemID3:gemID4:suffixID:uniqueID:linkLevel:specializationID:upgradeTypeID:instanceDifficultyID:numBonusIDs[:bonusID1:bonusID2:...][:upgradeValue1:upgradeValue2:...]:relic1NumBonusIDs[:relic1BonusID1:relic1BonusID2:...]:relic2NumBonusIDs[:relic2BonusID1:relic2BonusID2:...]:relic3NumBonusIDs[:relic3BonusID1:relic3BonusID2:...]
@@ -84,7 +84,7 @@ function GRA:GetItemSignatures(itemLink)
     --         end
     --     end
     -- end
-    
+
     -- socket
     local itemStats = GetItemStats(itemLink)
     if itemStats and itemStats["EMPTY_SOCKET_PRISMATIC"] then sockets = itemStats["EMPTY_SOCKET_PRISMATIC"] end
@@ -93,9 +93,9 @@ function GRA:GetItemSignatures(itemLink)
     return tonumber(itemID), sockets, tonumber(numBonusIDs) or "", tonumber(bonusID1) or "", tonumber(bonusID2) or "" -- , tonumber(bonusID3) or "", tonumber(bonusID4) or ""
 end
 
-function GRA:GetSlotID(itemEquipLoc)
+function GRA.GetSlotID(itemEquipLoc)
 	if not itemEquipLoc or itemEquipLoc == "" then return end
-	
+
     if type(slotIDs[itemEquipLoc]) == "table" then
         return unpack(slotIDs[itemEquipLoc])
     else
@@ -103,14 +103,14 @@ function GRA:GetSlotID(itemEquipLoc)
     end
 end
 
-function GRA:CreateIconOverlay(icon, itemLink, itemSig)
+function GRA.CreateIconOverlay(icon, itemLink, itemSig)
 	local _, _, itemRarity, itemLevel = GetItemInfo(itemLink)
-    local tokenID, tierVersion = GRA:IsTier(itemSig)
+    local tokenID, tierVersion = GRA.IsTier(itemSig)
 	if tokenID then
-		_, itemLevel = GRA:GetTierInfo(tokenID, tierVersion)
+		_, itemLevel = GRA.GetTierInfo(tokenID, tierVersion)
 	end
 
-    local itemStatus = string.lower(GRA:GetItemStatus(itemLink))
+    local itemStatus = string.lower(GRA.GetItemStatus(itemLink))
     icon.ilvlTex = icon:CreateTexture()
     if string.find(itemStatus:lower(), L["Warforged"]:lower()) or string.find(itemStatus:lower(), L["Titanforged"]:lower()) then
         icon.ilvlTex:SetColorTexture(unpack(gra.colors.firebrick.t))
@@ -123,19 +123,18 @@ function GRA:CreateIconOverlay(icon, itemLink, itemSig)
     icon.ilvlTex:SetPoint("RIGHT", -1, 0)
     icon.ilvlTex:SetDrawLayer("OVERLAY")
 
-    icon.ilvlText = icon:CreateFontString(nil, "OVERLAY", "GRA_FONT_GRID")
+    icon.ilvlText = icon:CreateFontString(nil, "OVERLAY", "GRA_FONTGRA_RosterID")
     icon.ilvlText:SetPoint("BOTTOM", 0, 1)
     if select(2, string.split(":", itemSig)) ~= "0" then
         icon.ilvlText:SetText(itemLevel .. gra.colors.skyblue.s .. " S")
     else
         icon.ilvlText:SetText(itemLevel)
 	end
-	
+
 	icon.bindTypeText = icon:CreateFontString(nil, "OVERLAY", "GRA_FONT_PIXEL")
 	icon.bindTypeText:SetPoint("TOPLEFT", 2, -1)
-	local bindType = GRA:GetItemBindType(itemLink)
+	local bindType = GRA.GetItemBindType(itemLink)
 	if bindType == "BoE" or bindType == "BoU" then
 		icon.bindTypeText:SetText(gra.colors.firebrick.s .. bindType)
 	end
 end
-

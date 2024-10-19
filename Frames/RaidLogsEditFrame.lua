@@ -16,7 +16,7 @@ end
 -- note
 local function SetOrClearNotes(bName)
 	if bName == L["Set"] then
-		GRA:ChangeSizeWithAnimation(raidLogsEditFrame, nil, 225, function()
+		GRA.ChangeSizeWithAnimation(raidLogsEditFrame, nil, 225, function()
 			if not raidLogsEditFrame.noteEditBox:IsShown() then -- ignore when already shown
 				raidLogsEditFrame.noteEditBox:Show()
 				noteChanged = false
@@ -24,7 +24,7 @@ local function SetOrClearNotes(bName)
 			end
 		end, nil, true)
 	elseif bName == L["Clear"] then
-		GRA:ChangeSizeWithAnimation(raidLogsEditFrame, nil, 140, function()
+		GRA.ChangeSizeWithAnimation(raidLogsEditFrame, nil, 140, function()
 			raidLogsEditFrame.noteEditBox:ClearFocus()
 			raidLogsEditFrame.noteEditBox:SetText("")
 			noteChanged = true
@@ -37,7 +37,7 @@ end
 
 local function CreateRaidLogsEditFrame(parent)
 	raidLogsEditFrame = CreateFrame("Frame", "GRA_RaidLogsEditFrame", parent, "BackdropTemplate")
-	GRA:StylizeFrame(raidLogsEditFrame)
+	GRA.StylizeFrame(raidLogsEditFrame)
 	raidLogsEditFrame:EnableMouse(true)
 	raidLogsEditFrame:SetFrameStrata("DIALOG")
 	raidLogsEditFrame:SetSize(220,140)
@@ -51,18 +51,18 @@ local function CreateRaidLogsEditFrame(parent)
 	local noteSection = raidLogsEditFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 	noteSection:SetText("|cff80FF00"..L["Note"].."|r")
 	noteSection:SetPoint("TOPLEFT", 5, -20)
-	GRA:CreateSeparator(raidLogsEditFrame, noteSection)
+	GRA.CreateSeparator(raidLogsEditFrame, noteSection)
 
 	-- note group buttons
-	local setButton = GRA:CreateButton(raidLogsEditFrame, L["Set"], "green-hover", {50, 20})
+	local setButton = GRA.CreateButton(raidLogsEditFrame, L["Set"], "green-hover", {50, 20})
 	setButton:SetPoint("TOPLEFT", 5, -40)
-	local clearButton = GRA:CreateButton(raidLogsEditFrame, L["Clear"], "red-hover", {50, 20})
+	local clearButton = GRA.CreateButton(raidLogsEditFrame, L["Clear"], "red-hover", {50, 20})
 	clearButton:SetPoint("LEFT", setButton, "RIGHT", -1, 0)
 
-	local noteButtons = GRA:CreateButtonGroup(SetOrClearNotes, setButton, clearButton)
+	local noteButtons = GRA.CreateButtonGroup(SetOrClearNotes, setButton, clearButton)
 
 	-- note
-	raidLogsEditFrame.noteEditBox = GRA:CreateEditBox(raidLogsEditFrame, raidLogsEditFrame:GetWidth()-10, 80, false, "GRA_FONT_SMALL")
+	raidLogsEditFrame.noteEditBox = GRA.CreateEditBox(raidLogsEditFrame, raidLogsEditFrame:GetWidth()-10, 80, false, "GRA_FONT_SMALL")
 	raidLogsEditFrame.noteEditBox:SetPoint("TOPLEFT", setButton, "BOTTOMLEFT", 0, 1)
 	raidLogsEditFrame.noteEditBox:SetPoint("BOTTOMRIGHT", raidLogsEditFrame, -5, 80)
 	raidLogsEditFrame.noteEditBox:SetMultiLine(true)
@@ -85,10 +85,10 @@ local function CreateRaidLogsEditFrame(parent)
 	local rhSection = raidLogsEditFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 	rhSection:SetText("|cff80FF00"..L["Raid Hours"].."|r")
 	rhSection:SetPoint("BOTTOMLEFT", 5, 60)
-	GRA:CreateSeparator(raidLogsEditFrame, rhSection)
+	GRA.CreateSeparator(raidLogsEditFrame, rhSection)
 
 	-- raid hours editbox
-	raidLogsEditFrame.rstEditBox, raidLogsEditFrame.retEditBox, raidLogsEditFrame.rstConfirmBtn, raidLogsEditFrame.retConfirmBtn = GRA:CreateRaidHoursEditBox(raidLogsEditFrame,
+	raidLogsEditFrame.rstEditBox, raidLogsEditFrame.retEditBox, raidLogsEditFrame.rstConfirmBtn, raidLogsEditFrame.retConfirmBtn = GRA.CreateRaidHoursEditBox(raidLogsEditFrame,
 	function(startTime)
 		raidStartTime = startTime
 		raidHoursChanged = true
@@ -101,21 +101,21 @@ local function CreateRaidLogsEditFrame(parent)
 
 	raidLogsEditFrame.rstEditBox:SetPoint("BOTTOMLEFT", 35, 30)
 	raidLogsEditFrame.retEditBox:SetPoint("BOTTOMRIGHT", raidLogsEditFrame, -25, 30)
-	
+
 	local startText = raidLogsEditFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 	startText:SetText(gra.colors.chartreuse.s .. L["Start"])
 	startText:SetPoint("RIGHT", raidLogsEditFrame.rstEditBox, "LEFT", -5, 0)
-	
+
 	local endText = raidLogsEditFrame:CreateFontString(nil, "OVERLAY", "GRA_FONT_SMALL")
 	endText:SetText(gra.colors.chartreuse.s .. L["End"])
 	endText:SetPoint("RIGHT", raidLogsEditFrame.retEditBox, "LEFT", -5, 0)
-	
+
 	-- button
-	local closeBtn = GRA:CreateButton(raidLogsEditFrame, "×", "red", {16, 16}, "GRA_FONT_BUTTON")
+	local closeBtn = GRA.CreateButton(raidLogsEditFrame, "×", "red", {16, 16}, "GRA_FONT_BUTTON")
 	closeBtn:SetPoint("TOPRIGHT", -5, -5)
 	closeBtn:SetScript("OnClick", function() raidLogsEditFrame:Hide() end)
 
-	local applyBtn = GRA:CreateButton(raidLogsEditFrame, L["Apply"], "green", {raidLogsEditFrame:GetWidth()-10, 20})
+	local applyBtn = GRA.CreateButton(raidLogsEditFrame, L["Apply"], "green", {raidLogsEditFrame:GetWidth()-10, 20})
 	raidLogsEditFrame.applyBtn = applyBtn
 	applyBtn:SetPoint("BOTTOM", 0, 5)
 	applyBtn:SetEnabled(false)
@@ -124,33 +124,33 @@ local function CreateRaidLogsEditFrame(parent)
 			if raidStartTime or raidEndTime then
 				-- update startTime
 				if raidStartTime then
-					_G[GRA_R_RaidLogs][d]["startTime"] = GRA:DateToSeconds(d .. raidStartTime, true)
+					GRA_Logs[d]["startTime"] = GRA.DateToSeconds(d .. raidStartTime, true)
 					print(d .. raidStartTime)
 				end
 				-- update endTime
 				if raidEndTime then
-					if GRA:GetRaidStartTime(d) > raidEndTime then
-						_G[GRA_R_RaidLogs][d]["endTime"] = GRA:DateToSeconds((d + 1) .. raidEndTime, true)
+					if GRA.GetRaidStartTime(d) > raidEndTime then
+						GRA_Logs[d]["endTime"] = GRA.DateToSeconds((d + 1) .. raidEndTime, true)
 						print((d + 1) .. raidEndTime)
 					else
-						_G[GRA_R_RaidLogs][d]["endTime"] = GRA:DateToSeconds(d .. raidEndTime, true)
+						GRA_Logs[d]["endTime"] = GRA.DateToSeconds(d .. raidEndTime, true)
 						print(d .. raidEndTime)
 					end
 				end
 				-- notify raid hours changes
-				GRA:FireEvent("GRA_RH_UPDATE", d)
+				GRA.Fire("GRA_RH_UPDATE", d)
 			end
 
 			-- notify raid note changes
 			if raidNote then
-				_G[GRA_R_RaidLogs][d]["note"] = raidNote
-				GRA:FireEvent("GRA_RN_UPDATE", d)
+				GRA_Logs[d]["note"] = raidNote
+				GRA.Fire("GRA_RN_UPDATE", d)
 			elseif noteChanged then -- clear
-				_G[GRA_R_RaidLogs][d]["note"] = nil
-				GRA:FireEvent("GRA_RN_UPDATE", d)
+				GRA_Logs[d]["note"] = nil
+				GRA.Fire("GRA_RN_UPDATE", d)
 			end
 		end
-		GRA:Print(L["Raid logs updated: "] .. GRA:TableToString(raidDates))
+		GRA.Print(L["Raid logs updated: "] .. GRA.TableToString(raidDates))
 		raidLogsEditFrame:Hide()
 	end)
 
@@ -176,7 +176,7 @@ local function CreateRaidLogsEditFrame(parent)
 	end)
 end
 
-function GRA:ShowRaidLogsEditFrame(parent, dates)
+function GRA.ShowRaidLogsEditFrame(parent, dates)
 	if not raidLogsEditFrame then CreateRaidLogsEditFrame(parent) end
 
     raidLogsEditFrame:SetParent(parent)

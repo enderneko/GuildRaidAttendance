@@ -1,5 +1,8 @@
-local GRA, gra = unpack(select(2, ...))
-local L = select(2, ...).L
+---@class GRA
+local GRA = select(2, ...)
+local L = GRA.L
+---@class AbstractWidgets
+local AW = _G.AbstractWidgets
 
 local Compresser = LibStub:GetLibrary("LibCompress")
 local Encoder = Compresser:GetAddonEncodeTable()
@@ -17,12 +20,12 @@ local function StringToTable(inString)
     local decoded = Encoder:Decode(inString)
     local decompressed, errorMsg = Compresser:Decompress(decoded)
     if not(decompressed) then
-        GRA:Debug("Error decompressing: " .. errorMsg)
+        GRA.Debug("Error decompressing: " .. errorMsg)
         return nil
     end
     local success, deserialized = Serializer:Deserialize(decompressed)
     if not(success) then
-        GRA:Debug("Error deserializing: " .. deserialized)
+        GRA.Debug("Error deserializing: " .. deserialized)
         return nil
     end
     return deserialized
@@ -42,34 +45,34 @@ local function UpdateSendChannel()
     end
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- send roster
------------------------------------------
+---------------------------------------------------------------------
 local receiveRosterPopup, sendRosterPopup, rosterAccepted, rosterReceived, receivedRoster
 local function OnRosterReceived()
     if rosterAccepted and rosterReceived and receivedRoster then
-        _G[GRA_R_Roster] = receivedRoster[1]
-        _G[GRA_R_Config]["raidInfo"] = receivedRoster[2]
+        GRA_Roster = receivedRoster[1]
+        GRA_Config["raidInfo"] = receivedRoster[2]
 
-        GRA:FireEvent("GRA_R_DONE")
+        GRA.Fire("GRA_R_DONE")
         wipe(receivedRoster)
     end
 end
 
 -- send roster data and raidInfo to raid members
-function GRA:SendRosterToRaid()
+function GRA.SendRosterToRaid()
     UpdateSendChannel()
     Comm:SendCommMessage("GRA_R_ASK", " ", sendChannel, nil, "ALERT")
     sendRosterPopup = nil
-    gra.sending = true
+    GRA.vars.sending = true
 
-    local encoded = TableToString({_G[GRA_R_Roster], _G[GRA_R_Config]["raidInfo"]})
-    
+    local encoded = TableToString({GRA_Roster, GRA_Config["raidInfo"]})
+
     -- send roster
     Comm:SendCommMessage("GRA_R_SEND", encoded, sendChannel, nil, "BULK", function(arg, done, total)
         if not sendRosterPopup then
-            sendRosterPopup = GRA:CreateDataTransferPopup(gra.colors.chartreuse.s..L["Sending roster data"], total, function()
-                gra.sending = false
+            sendRosterPopup = GRA.CreateDataTransferPopup(AW.WrapTextInColor(L["Sending roster data"], "GRA"), total, function()
+                GRA.vars.sending = nil
             end)
         end
         sendRosterPopup:SetValue(done)
@@ -85,7 +88,7 @@ Comm:RegisterComm("GRA_R_ASK", function(prefix, message, channel, sender)
     rosterAccepted = false
     rosterReceived = false
 
-    GRA:CreateStaticPopup(L["Receive Raid Roster"], L["Receive roster data from %s?"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))),
+    GRA.CreateStaticPopup(L["Receive Raid Roster"], L["Receive roster data from %s?"]:format(GRA.GetClassColoredName(sender, select(2, UnitClass(sender)))),
     function()
         rosterAccepted = true
         OnRosterReceived() -- maybe already received
@@ -102,7 +105,7 @@ end)
 -- recieve roster finished
 Comm:RegisterComm("GRA_R_SEND", function(prefix, message, channel, sender)
     if sender == UnitName("player") then return end
-    
+
     receivedRoster = StringToTable(message)
     rosterReceived = true
     OnRosterReceived()
@@ -111,57 +114,57 @@ end)
 -- recieve roster progress
 Comm:RegisterComm("GRA_R_PROG", function(prefix, message, channel, sender)
     if sender == UnitName("player") then return end
-    
+
     if not rosterAccepted then return end
 
     local done, total = strsplit("|", message)
     done, total = tonumber(done), tonumber(total)
     if not receiveRosterPopup then
-        receiveRosterPopup = GRA:CreateDataTransferPopup(L["Receiving roster data from %s"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))), total)
+        receiveRosterPopup = GRA.CreateDataTransferPopup(L["Receiving roster data from %s"]:format(GRA.GetClassColoredName(sender, select(2, UnitClass(sender)))), total)
     end
     -- progress bar
     receiveRosterPopup:SetValue(done)
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- send logs
------------------------------------------
+---------------------------------------------------------------------
 local receiveLogsPopup, sendLogsPopup, logsAccepted, logsReceived, receivedLogs
 local dates
 local function OnLogsReceived()
     -- TODO: version mismatch warning
     if logsAccepted and logsReceived and receivedLogs then
         for d, tbl in pairs(receivedLogs[1]) do
-            _G[GRA_R_RaidLogs][d] = tbl
+            GRA_Logs[d] = tbl
         end
-        -- TODO: send AR only, not all _G[GRA_R_Roster]
-        _G[GRA_R_Roster] = receivedLogs[2]
+        -- TODO: send AR only, not all GRA_Roster
+        GRA_Roster = receivedLogs[2]
         -- tell addon to show logs
-        GRA:FireEvent("GRA_LOGS_DONE", GRA:Getn(receivedLogs[1]), dates)
+        GRA.Fire("GRA_LOGS_DONE", GRA.Getn(receivedLogs[1]), dates)
         wipe(receivedLogs)
     end
 end
 
-function GRA:SendLogsToRaid(selectedDates)
+function GRA.SendLogsToRaid(selectedDates)
     dates = selectedDates
     local encoded = TableToString(selectedDates)
     UpdateSendChannel()
     Comm:SendCommMessage("GRA_LOGS_ASK", encoded, sendChannel, nil, "ALERT")
     sendLogsPopup = nil
-    gra.sending = true
+    GRA.vars.sending = true
 
     local t = {}
     for _, d in pairs(selectedDates) do
-        t[d] = _G[GRA_R_RaidLogs][d]
+        t[d] = GRA_Logs[d]
     end
-    -- TODO: send AR only, not all _G[GRA_R_Roster]
-    encoded = TableToString({t, _G[GRA_R_Roster]})
-    
+    -- TODO: send AR only, not all GRA_Roster
+    encoded = TableToString({t, GRA_Roster})
+
     -- send logs
     Comm:SendCommMessage("GRA_LOGS_SEND", encoded, sendChannel, nil, "BULK", function(arg, done, total)
         if not sendLogsPopup then
-            sendLogsPopup = GRA:CreateDataTransferPopup(gra.colors.chartreuse.s..L["Sending raid logs data"], total, function()
-                gra.sending = false
+            sendLogsPopup = GRA.CreateDataTransferPopup(AW.WrapTextInColor(L["Sending raid logs data"], "GRA"), total, function()
+                GRA.vars.sending = nil
             end)
         end
         sendLogsPopup:SetValue(done)
@@ -178,8 +181,8 @@ Comm:RegisterComm("GRA_LOGS_ASK", function(prefix, message, channel, sender)
     logsReceived = false
 
     dates = StringToTable(message)
-    GRA:CreateStaticPopup(L["Receive Raid Logs"], L["Receive raid logs data from %s?"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))) .. "\n" ..
-    GRA:TableToString(dates), -- TODO: text format
+    GRA.CreateStaticPopup(L["Receive Raid Logs"], L["Receive raid logs data from %s?"]:format(GRA.GetClassColoredName(sender, select(2, UnitClass(sender)))) .. "\n" ..
+    GRA.TableToString(dates), -- TODO: text format
     function()
         logsAccepted = true
         OnLogsReceived()
@@ -212,15 +215,15 @@ Comm:RegisterComm("GRA_LOGS_PROG", function(prefix, message, channel, sender)
     done, total = tonumber(done), tonumber(total)
     if not receiveLogsPopup then
         -- UnitClass(name) is available for raid/party members
-        receiveLogsPopup = GRA:CreateDataTransferPopup(L["Receiving raid logs data from %s"]:format(GRA:GetClassColoredName(sender, select(2, UnitClass(sender)))), total)
+        receiveLogsPopup = GRA.CreateDataTransferPopup(L["Receiving raid logs data from %s"]:format(GRA.GetClassColoredName(sender, select(2, UnitClass(sender)))), total)
     end
     -- progress bar
     receiveLogsPopup:SetValue(done)
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- hide data transfer popup when leave group
------------------------------------------
+---------------------------------------------------------------------
 eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 function eventFrame:GROUP_ROSTER_UPDATE()
     if not IsInGroup("LE_PARTY_CATEGORY_HOME") then
@@ -229,36 +232,36 @@ function eventFrame:GROUP_ROSTER_UPDATE()
     end
 end
 
------------------------------------------
+---------------------------------------------------------------------
 -- Check Version
------------------------------------------
+---------------------------------------------------------------------
 local versionChecked = false
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 function eventFrame:PLAYER_ENTERING_WORLD()
     eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
     if IsInGuild() then
-        Comm:SendCommMessage("GRA_VERSION", gra.version, "GUILD", nil, "BULK")
+        Comm:SendCommMessage("GRA_VERSION", GRA.version, "GUILD", nil, "BULK")
     end
 end
 
 Comm:RegisterComm("GRA_VERSION", function(prefix, message, channel, sender)
     if sender == UnitName("player") then return end
-    if not versionChecked and gra.version < message then
+    if not versionChecked and GRA.version < message then
         versionChecked = true
-        GRA:Print(L["New version found (%s). Please visit %s to get the latest version."]:format(message, gra.colors.skyblue.s .. "https://www.curseforge.com/wow/addons/guild-raid-attendance|r"))
+        GRA.Print(L["New version found (%s). Please visit %s to get the latest version."]:format(message, AW.WrapTextInColor("https://www.curseforge.com/wow/addons/guild-raid-attendance", "GRA")))
     end
 end)
 
------------------------------------------
+---------------------------------------------------------------------
 -- popup message
------------------------------------------
-function GRA:SendEntryMsg(msgType, name, value, reason)
-    if UnitIsConnected(GRA:GetShortName(name)) then
+---------------------------------------------------------------------
+function GRA.SendEntryMsg(msgType, name, value, reason)
+    if UnitIsConnected(GRA.GetShortName(name)) then
         Comm:SendCommMessage("GRA_MSG", "|cff80FF00" .. msgType .. ":|r " .. value
         .. "  |cff80FF00" .. L["Reason"] .. ":|r " .. reason, "WHISPER", name, "ALERT")
     end
 end
 
 Comm:RegisterComm("GRA_MSG", function(prefix, message, channel, sender)
-    GRA:CreatePopup(message)
+    GRA.CreatePopup(message)
 end)

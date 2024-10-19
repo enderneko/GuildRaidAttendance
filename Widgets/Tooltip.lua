@@ -1,9 +1,9 @@
 local _, Cell = ...
 local P = Cell.pixelPerfectFuncs
 
------------------------------------------
+---------------------------------------------------------------------
 -- Tooltip
------------------------------------------
+---------------------------------------------------------------------
 local function CreateTooltip(name)
     local tooltip = CreateFrame("GameTooltip", name, nil, "CellTooltipTemplate,BackdropTemplate")
     tooltip:SetBackdrop({bgFile = "Interface\\Buttons\\WHITE8x8", edgeFile = "Interface\\Buttons\\WHITE8x8", edgeSize = 1})

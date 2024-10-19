@@ -38,7 +38,7 @@ local tierInfo = {
 	[147322] = {"INVTYPE_HEAD", "t20"},
 	[147323] = {"INVTYPE_HEAD", "t20"},
 	[147324] = {"INVTYPE_HEAD", "t20"},
-	
+
 	[147328] = {"INVTYPE_SHOULDER", "t20"},
 	[147329] = {"INVTYPE_SHOULDER", "t20"},
 	[147330] = {"INVTYPE_SHOULDER", "t20"},
@@ -67,7 +67,7 @@ local tierInfo = {
 	[143566] = {"INVTYPE_SHOULDER", "t19"},
 	[143576] = {"INVTYPE_SHOULDER", "t19"},
 	[143570] = {"INVTYPE_SHOULDER", "t19"},
-	
+
 	[143562] = {"INVTYPE_CHEST", "t19"},
 	[143572] = {"INVTYPE_CHEST", "t19"},
 	[143571] = {"INVTYPE_CHEST", "t19"},
@@ -75,11 +75,11 @@ local tierInfo = {
 	[143563] = {"INVTYPE_HAND", "t19"},
 	[143573] = {"INVTYPE_HAND", "t19"},
 	[143567] = {"INVTYPE_HAND", "t19"},
-	
+
 	[143564] = {"INVTYPE_LEGS", "t19"},
 	[143574] = {"INVTYPE_LEGS", "t19"},
 	[143569] = {"INVTYPE_LEGS", "t19"},
-	
+
 	[143577] = {"INVTYPE_BACK", "t19"},
 	[143579] = {"INVTYPE_BACK", "t19"},
 	[143578] = {"INVTYPE_BACK", "t19"},
@@ -88,7 +88,7 @@ local tierInfo = {
 	[127956] = {"INVTYPE_HEAD", "t18"},
 	[127959] = {"INVTYPE_HEAD", "t18"},
 	[127966] = {"INVTYPE_HEAD", "t18"},
-	
+
 	[127957] = {"INVTYPE_SHOULDER", "t18"},
 	[127961] = {"INVTYPE_SHOULDER", "t18"},
 	[127967] = {"INVTYPE_SHOULDER", "t18"},
@@ -113,15 +113,15 @@ local tierInfo = {
 	[119308] = {"INVTYPE_HEAD", "t17"},
 	[119312] = {"INVTYPE_HEAD", "t17"},
     [119321] = {"INVTYPE_HEAD", "t17"},
-    
+
 	[119309] = {"INVTYPE_SHOULDER", "t17"},
 	[119314] = {"INVTYPE_SHOULDER", "t17"},
     [119322] = {"INVTYPE_SHOULDER", "t17"},
-    
+
 	[119305] = {"INVTYPE_CHEST", "t17"},
 	[119315] = {"INVTYPE_CHEST", "t17"},
     [119318] = {"INVTYPE_CHEST", "t17"},
-    
+
 	[119306] = {"INVTYPE_HAND", "t17"},
 	[119311] = {"INVTYPE_HAND", "t17"},
 	[119319] = {"INVTYPE_HAND", "t17"},
@@ -131,7 +131,7 @@ local tierInfo = {
 	[119320] = {"INVTYPE_LEGS", "t17"},
 }
 
-function GRA:IsTier(itemSig)
+function GRA.IsTier(itemSig)
 	local itemID, _, _, bonusID1 = string.split(":", itemSig)
 	itemID = tonumber(itemID)
 	bonusID1 = tonumber(bonusID1)
@@ -151,7 +151,7 @@ function GRA:IsTier(itemSig)
     end
 end
 
-function GRA:GetTierInfo(tokenID, tierVersion)
+function GRA.GetTierInfo(tokenID, tierVersion)
 	-- slot, ilvl
 	return tierInfo[tokenID][1], tierLevel[tierInfo[tokenID][2]][tierVersion]
 end

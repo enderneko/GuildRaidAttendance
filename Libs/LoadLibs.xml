@@ -1,7 +1,6 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
-..\FrameXML\UI.xsd">
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/ https://raw.githubusercontent.com/Gethe/wow-ui-source/live/Interface/AddOns/Blizzard_SharedXML/UI.xsd">
     <Script file="CallbackHandler.lua"/>
-    <Script file="PixelPerfect.lua"/>
     <Script file="GuildNotes.lua"/>
     <!-- externals -->
     <Script file="LibStub\LibStub.lua"/>
@@ -12,5 +11,4 @@
     <Include file="LibDeflate\lib.xml"/>
     <Script file="LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
     <Include file="LibDBIcon-1.0\lib.xml"/>
-    <Script file="LibItemUpgradeInfo-1.0\Core.lua"/>
 </Ui>
