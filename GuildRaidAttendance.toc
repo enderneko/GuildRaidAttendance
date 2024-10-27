@@ -1,11 +1,11 @@
 ## Interface: 110002
-## Title: |cff03fc9cGuild|r Raid Attendance
+## Title: |cff80ff00Guild|r Raid Attendance
 ## Notes: Keeps track of raid loot and attendance for guild
 ## Notes-zhCN: 记录公会活动出勤与拾取
 ## Version: r97-release
 ## Author: enderneko
-## SavedVariables: GRA_A_Logs, GRA_A_Archived, GRA_A_Roster, GRA_A_Config, GRA_A_Variables
-## SavedVariablesPerCharacter: GRA_C_Logs, GRA_C_Archived, GRA_C_Roster, GRA_C_Config, GRA_C_Variables
+## SavedVariables: GRA_A_Logs, GRA_A_Archived, GRA_A_Roster, GRA_A_Config, GRA_A_Vars
+## SavedVariablesPerCharacter: GRA_C_Logs, GRA_C_Archived, GRA_C_Roster, GRA_C_Config, GRA_C_Vars
 ## Dependencies: AbstractWidgets
 
 ## X-Email: enderneko-dev@outlook.com
@@ -38,7 +38,7 @@ Track.lua
 Frames\Main.lua
 # Frames\Appearance.lua
 # Frames\GetStarted.lua
-# Frames\Attendance.lua
+Frames\Attendance.lua
 # Frames\Calender.lua
 # Frames\AttendanceEditor.lua
 # Frames\NewRaidLog.lua

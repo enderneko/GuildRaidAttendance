@@ -2,6 +2,8 @@
 local GRA = select(2, ...)
 _G.GRA = GRA
 
+GRA.name = ...
+
 ---@class BFI
 ---@field L table
 ---@field vars table
@@ -55,7 +57,9 @@ GRA.vars.CLASS_ORDER = {"DEATHKNIGHT", "DEMONHUNTER", "DRUID", "EVOKER", "HUNTER
 ---------------------------------------------------------------------
 -- colors
 ---------------------------------------------------------------------
-AW.AddColor("GRA", {0.01, 0.99, 0.61, 1})
+AW.RegisterAddonForAccentColor(GRA.name)
+-- AW.SetAccentColor("guild", "GRA")
+AW.SetAccentColor({0.5, 1, 0, 1}, "GRA")
 
 ---------------------------------------------------------------------
 -- size
@@ -104,7 +108,7 @@ AW.AddColor("GRA", {0.01, 0.99, 0.61, 1})
 ---------------------------------------------------------------------
 -- font
 ---------------------------------------------------------------------
-GRA_FORCE_ENGLISH = false
+GRA_FORCE_ENGLISH = true
 ---------------------------------------------------------------------
 -- local font = "Interface\\AddOns\\GuildRaidAttendance\\Media\\Fonts\\calibrib.ttf"
 -- local useGameFont = false
@@ -241,16 +245,12 @@ GRA_FORCE_ENGLISH = false
 -- LDB
 ---------------------------------------------------------------------
 local icon = LibStub("LibDBIcon-1.0")
-local GRA_LDB = LibStub("LibDataBroker-1.1"):NewDataObject("GuildRaidAttendance", {
+local GRA_LDB = LibStub("LibDataBroker-1.1"):NewDataObject(GRA.name, {
     type = "data source",
     text = "|cff03fc9cGuild|r Raid Attendance",
     icon = "Interface\\AddOns\\GuildRaidAttendance\\Media\\minimap",
     OnClick = function()
-        if GRA_MainFrame:IsVisible() then
-            GRA_MainFrame:Hide()
-        else
-            GRA_MainFrame:Show()
-        end
+        F.ToggleGRA()
     end,
 })
 
@@ -262,7 +262,7 @@ frame:RegisterEvent("ADDON_LOADED")
 
 -- initialize!
 function frame:ADDON_LOADED(arg1)
-    if arg1 == "GuildRaidAttendance" then
+    if arg1 == GRA.name then
         frame:UnregisterEvent("ADDON_LOADED")
 
         -- account saved variables
@@ -314,7 +314,7 @@ function frame:ADDON_LOADED(arg1)
         if type(GRA_A_Vars.minimap) ~= "table" then
             GRA_A_Vars.minimap = {hide = false}
         end
-        icon:Register("GuildRaidAttendance", GRA_LDB, GRA_A_Vars.minimap)
+        icon:Register(GRA.name, GRA_LDB, GRA_A_Vars.minimap)
         -- minimal mode
         if type(GRA_A_Vars.minimalMode) ~= "boolean" then
             GRA_A_Vars.minimalMode = false
@@ -374,7 +374,7 @@ function frame:ADDON_LOADED(arg1)
         end
         ---------------------------------------------------------------------
 
-        GRA.version = C_AddOns.GetAddOnMetadata("GuildRaidAttendance", "version")
+        GRA.version = C_AddOns.GetAddOnMetadata(GRA.name, "version")
         -- GRA.UpdateFont()
     end
 end
@@ -392,7 +392,7 @@ SLASH_GUILDRAIDATTENDANCE1 = "/gra"
 function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
     local command, rest = msg:match("^(%S*)%s*(.-)$")
     if command == "" then
-        GRA_MainFrame:Show()
+        F.ToggleGRA()
     elseif command == "anchor" then
         F.ShowHidePopupsAnchor()
     elseif command == "exportlocale" then
@@ -424,9 +424,9 @@ function SlashCmdList.GUILDRAIDATTENDANCE(msg, editbox)
     elseif command == "minimap" then
         GRA_A_Vars.minimap.hide = not GRA_A_Vars.minimap.hide
         if GRA_A_Vars.minimap.hide then
-            icon:Hide("GuildRaidAttendance")
+            icon:Hide(GRA.name)
         else
-            icon:Show("GuildRaidAttendance")
+            icon:Show(GRA.name)
         end
     elseif command == "loot" then
         GRA_DistributionFrame:Show()

@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------
 -- File: GuildNotes.lua
 -- Author: enderneko (enderneko-dev@outlook.com)
--- Modified: 2024-10-19 13:22 +08:00
+-- Modified: 2024-10-24 16:50 +08:00
 ---------------------------------------------------------------------
 
 local lib = LibStub:NewLibrary("LibGuildNotes", 2)
@@ -155,57 +155,64 @@ end
 ---------------------------------------------------------------------
 local f = CreateFrame("Frame")
 f:RegisterEvent("GUILD_ROSTER_UPDATE")
-f:SetScript("OnEvent", function(self, event)
-    if event == "GUILD_ROSTER_UPDATE" then
-        local n = GetNumGuildMembers()
-        if n ~= 0 then -- get guild roster successful
-            if trial then
-                trial:Cancel()
-                trial = nil
-            end
 
-            updating = true
-
-            local fetched = 0
-            for i = 1, n do
-                -- fullName, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName, achievementPoints, achievementRank, isMobile, canSoR, reputation = GetGuildRosterInfo(index)
-                local fullName, _, _, _, _, _, pnote, onote = GetGuildRosterInfo(i)
-                if fullName then
-                    if not cache[fullName] then
-                        cache[fullName] = {}
-                    end
-                    if cache[fullName].pnote and pnote ~= cache[fullName].pnote then
-                        lib.callbacks:Fire("GUILD_PUBLIC_NOTE_CHANGED", fullName, pnote)
-                        Print(fullName .. "'s public note changed: " .. pnote)
-                    end
-                    if cache[fullName].pnote and onote ~= cache[fullName].onote then
-                        lib.callbacks:Fire("GUILD_OFFICER_NOTE_CHANGED", fullName, onote)
-                        Print(fullName .. "'s officer note changed: " .. onote)
-                    end
-                    cache[fullName].index = i
-                    cache[fullName].pnote = pnote
-                    cache[fullName].onote = onote
-                    fetched = fetched + 1
-                end
-            end
-
-            if not initialized then
-                lib.callbacks:Fire("GUILD_NOTE_INITIALIZED")
-                Print("|cff66CD00GUILD_NOTE_INITIALIZED|r " .. fetched .. "/" .. n .. " entries.")
-                initialized = true
-            end
-
-            if forceRefresh then
-                lib.callbacks:Fire("GUILD_NOTE_REFRESHED")
-                Print("|cff66CD00GUILD_NOTE_REFRESHED|r " .. fetched .. "/" .. n .. " entries.")
-                forceRefresh = false
-            end
-
-            updating = false
-            -- lib.callbacks:Fire("GUILD_NOTE_UPDATED")
-        else
-            trial = C_Timer.NewTimer(5, function() securecall(GuildRoster) end)
-            Print("Retry in 5 sec.")
+local function Update()
+    local n = GetNumGuildMembers()
+    if n ~= 0 then -- get guild roster successful
+        if trial then
+            trial:Cancel()
+            trial = nil
         end
+
+        updating = true
+
+        local fetched = 0
+        for i = 1, n do
+            -- fullName, rank, rankIndex, level, class, zone, note, officernote, online, status, classFileName, achievementPoints, achievementRank, isMobile, canSoR, reputation = GetGuildRosterInfo(index)
+            local fullName, _, _, _, _, _, pnote, onote = GetGuildRosterInfo(i)
+            if fullName then
+                if not cache[fullName] then
+                    cache[fullName] = {}
+                end
+                if cache[fullName].pnote and pnote ~= cache[fullName].pnote then
+                    lib.callbacks:Fire("GUILD_PUBLIC_NOTE_CHANGED", fullName, pnote)
+                    Print(fullName .. "'s public note changed: " .. pnote)
+                end
+                if cache[fullName].pnote and onote ~= cache[fullName].onote then
+                    lib.callbacks:Fire("GUILD_OFFICER_NOTE_CHANGED", fullName, onote)
+                    Print(fullName .. "'s officer note changed: " .. onote)
+                end
+                cache[fullName].index = i
+                cache[fullName].pnote = pnote
+                cache[fullName].onote = onote
+                fetched = fetched + 1
+            end
+        end
+
+        if not initialized and fetched ~= 0 then
+            lib.callbacks:Fire("GUILD_NOTE_INITIALIZED")
+            Print("|cff66CD00GUILD_NOTE_INITIALIZED|r " .. fetched .. "/" .. n .. " entries.")
+            initialized = true
+        end
+
+        if forceRefresh then
+            lib.callbacks:Fire("GUILD_NOTE_REFRESHED")
+            Print("|cff66CD00GUILD_NOTE_REFRESHED|r " .. fetched .. "/" .. n .. " entries.")
+            forceRefresh = false
+        end
+
+        updating = false
+        -- lib.callbacks:Fire("GUILD_NOTE_UPDATED")
+    else
+        trial = C_Timer.NewTimer(5, function() securecall(GuildRoster) end)
+        Print("Retry in 5 sec.")
     end
-end)
+end
+
+local timer
+local function DelayedUpdate()
+    if timer then timer:Cancel() end
+    timer = C_Timer.NewTimer(2, Update)
+end
+
+f:SetScript("OnEvent", DelayedUpdate)

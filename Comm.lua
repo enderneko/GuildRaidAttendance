@@ -4,31 +4,30 @@ local L = GRA.L
 ---@class AbstractWidgets
 local AW = _G.AbstractWidgets
 
-local Compresser = LibStub:GetLibrary("LibCompress")
-local Encoder = Compresser:GetAddonEncodeTable()
-local Serializer = LibStub:GetLibrary("AceSerializer-3.0")
+local LibDeflate = LibStub:GetLibrary("LibDeflate")
+local deflateConfig = {level = 9}
+local Serializer = LibStub:GetLibrary("LibSerialize")
 local Comm = LibStub:GetLibrary("AceComm-3.0")
 
--- from WeakAuras
-local function TableToString(inTable)
-    local serialized = Serializer:Serialize(inTable)
-    local compressed = Compresser:CompressHuffman(serialized)
-    return Encoder:Encode(compressed)
+local function Serialize(data)
+    local serialized = Serializer:Serialize(data) -- serialize
+    local compressed = LibDeflate:CompressDeflate(serialized, deflateConfig) -- compress
+    return LibDeflate:EncodeForWoWAddonChannel(compressed) -- encode
 end
 
-local function StringToTable(inString)
-    local decoded = Encoder:Decode(inString)
-    local decompressed, errorMsg = Compresser:Decompress(decoded)
-    if not(decompressed) then
-        GRA.Debug("Error decompressing: " .. errorMsg)
-        return nil
+local function Deserialize(encoded)
+    local decoded = LibDeflate:DecodeForWoWAddonChannel(encoded) -- decode
+    local decompressed = LibDeflate:DecompressDeflate(decoded) -- decompress
+    if not decompressed then
+        F:Debug("Error decompressing: " .. errorMsg)
+        return
     end
-    local success, deserialized = Serializer:Deserialize(decompressed)
-    if not(success) then
-        GRA.Debug("Error deserializing: " .. deserialized)
-        return nil
+    local success, data = Serializer:Deserialize(decompressed) -- deserialize
+    if not success then
+        F:Debug("Error deserializing: " .. data)
+        return
     end
-    return deserialized
+    return data
 end
 
 local eventFrame = CreateFrame("Frame")
@@ -66,7 +65,7 @@ function GRA.SendRosterToRaid()
     sendRosterPopup = nil
     GRA.vars.sending = true
 
-    local encoded = TableToString({GRA_Roster, GRA_Config["raidInfo"]})
+    local encoded = Serialize({GRA_Roster, GRA_Config["raidInfo"]})
 
     -- send roster
     Comm:SendCommMessage("GRA_R_SEND", encoded, sendChannel, nil, "BULK", function(arg, done, total)
@@ -147,7 +146,7 @@ end
 
 function GRA.SendLogsToRaid(selectedDates)
     dates = selectedDates
-    local encoded = TableToString(selectedDates)
+    local encoded = Serialize(selectedDates)
     UpdateSendChannel()
     Comm:SendCommMessage("GRA_LOGS_ASK", encoded, sendChannel, nil, "ALERT")
     sendLogsPopup = nil
@@ -158,7 +157,7 @@ function GRA.SendLogsToRaid(selectedDates)
         t[d] = GRA_Logs[d]
     end
     -- TODO: send AR only, not all GRA_Roster
-    encoded = TableToString({t, GRA_Roster})
+    encoded = Serialize({t, GRA_Roster})
 
     -- send logs
     Comm:SendCommMessage("GRA_LOGS_SEND", encoded, sendChannel, nil, "BULK", function(arg, done, total)
@@ -182,7 +181,7 @@ Comm:RegisterComm("GRA_LOGS_ASK", function(prefix, message, channel, sender)
 
     dates = StringToTable(message)
     GRA.CreateStaticPopup(L["Receive Raid Logs"], L["Receive raid logs data from %s?"]:format(GRA.GetClassColoredName(sender, select(2, UnitClass(sender)))) .. "\n" ..
-    GRA.TableToString(dates), -- TODO: text format
+    GRA.Serialize(dates), -- TODO: text format
     function()
         logsAccepted = true
         OnLogsReceived()

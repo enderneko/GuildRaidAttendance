@@ -1,6 +1,8 @@
-local addonName, E = ...
-local GRA, gra = unpack(E)
-local L = select(2, ...).L
+---@class GRA
+local GRA = select(2, ...)
+local L = GRA.L
+---@class Funcs
+local F = GRA.funcs
 
 local LGN = LibStub:GetLibrary("LibGuildNotes")
 local f = CreateFrame("Frame")
@@ -8,7 +10,7 @@ local f = CreateFrame("Frame")
 ---------------------------------------------------------------------
 -- get ep and gp
 ---------------------------------------------------------------------
-function GRA.GetEPGP(name, note)
+function F.GetEPGP(name, note)
     if not note then note = LGN:GetOfficerNote(name) or "" end
     local ep, gp = string.split(",", note)
     ep, gp = tonumber(ep), tonumber(gp)
@@ -22,8 +24,8 @@ function GRA.GetEPGP(name, note)
 end
 
 -- 用于显示的PR
-function GRA.GetPR(fullName)
-    local main = GRA.IsAlt(fullName)
+function F.GetPR(fullName)
+    local main = F.IsAlt(fullName)
     if not GRA_Roster[main or fullName] then return 0 end
 
     local ep = GRA_Roster[main or fullName]["EP"] or 0
@@ -48,8 +50,8 @@ end
 ---------------------------------------------------------------------
 -- reset
 ---------------------------------------------------------------------
-function GRA.ResetEPGP()
-	local players = GRA.GetPlayers()
+function F.ResetEPGP()
+	local players = F.GetPlayers()
 	for _, player in pairs(players) do
 		LGN:SetOfficerNote(player, "0,0")
 	end
@@ -58,13 +60,13 @@ end
 ---------------------------------------------------------------------
 -- decay
 ---------------------------------------------------------------------
-function GRA.DecayEPGP(p)
+function F.DecayEPGP(p)
     -- local decay = GRA_Config["raidInfo"]["EPGP"][3] / 100
     local decay = p / 100
     local baseGP = GRA_Config["raidInfo"]["EPGP"][1]
     local ep, gp
     for name, _ in pairs(GRA_Roster) do
-        ep, gp = GRA.GetEPGP(name)
+        ep, gp = F.GetEPGP(name)
         ep = ep - math.ceil(ep * decay)
         gp = gp - math.ceil((baseGP + gp) * decay)
         LGN:SetOfficerNote(name, ep .. "," .. ((gp <= 0) and 0 or gp))
@@ -74,20 +76,20 @@ end
 ---------------------------------------------------------------------
 -- epgp undo
 ---------------------------------------------------------------------
-function GRA.UndoEPGP(epgpDate, index)
+function F.UndoEPGP(epgpDate, index)
     local t = GRA_Logs[epgpDate]["details"][index]
 
     if t[1] == "EP" then
         for _, n in pairs(t[4]) do
-            local epOld, gp = GRA.GetEPGP(n)
+            local epOld, gp = F.GetEPGP(n)
             LGN:SetOfficerNote(n, (epOld - t[2]) .. "," .. gp)
-            GRA.SendEntryMsg(L["EP Undo"], n, t[2], t[3])
+            F.SendEntryMsg(L["EP Undo"], n, t[2], t[3])
         end
     else
-        local main = GRA.IsAlt(t[4])
-        local ep, gpOld = GRA.GetEPGP(main or t[4])
+        local main = F.IsAlt(t[4])
+        local ep, gpOld = F.GetEPGP(main or t[4])
         LGN:SetOfficerNote(main or t[4], ep .. "," .. (gpOld - t[2]))
-        GRA.SendEntryMsg(L["GP Undo"], t[4], t[2], t[3])
+        F.SendEntryMsg(L["GP Undo"], t[4], t[2], t[3])
     end
 
     table.remove(GRA_Logs[epgpDate]["details"], index)
@@ -97,12 +99,12 @@ end
 ---------------------------------------------------------------------
 -- ep award/modify
 ---------------------------------------------------------------------
-function GRA.AwardEP(epDate, ep, reason, players)
+function F.AwardEP(epDate, ep, reason, players)
     -- set officer note
     for _, name in pairs(players) do
-        local epOld, gp = GRA.GetEPGP(name)
+        local epOld, gp = F.GetEPGP(name)
         LGN:SetOfficerNote(name, ((ep + epOld > 0) and (ep + epOld) or 0) .. "," .. gp)
-        GRA.SendEntryMsg(L["EP Award"], name, ep, reason)
+        F.SendEntryMsg(L["EP Award"], name, ep, reason)
     end
 
     -- add to GRA_Logs
@@ -112,18 +114,18 @@ function GRA.AwardEP(epDate, ep, reason, players)
     GRA.Fire("GRA_ENTRY", epDate)
 end
 
-function GRA.ModifyEP(epDate, ep, reason, players, index)
+function F.ModifyEP(epDate, ep, reason, players, index)
     local t = GRA_Logs[epDate]["details"][index]
     local changes = {}
 
     -- modify exist
     for _, n in pairs(t[4]) do
-        if GRA.TContains(players, n) then -- ep changed
+        if F.TContains(players, n) then -- ep changed
             changes[n] = ep - t[2]
-            GRA.SendEntryMsg(L["EP Modify"], n, ep, reason)
+            F.SendEntryMsg(L["EP Modify"], n, ep, reason)
         else -- ep undo
             changes[n] = -t[2]
-            GRA.SendEntryMsg(L["EP Undo"], n, t[2], reason)
+            F.SendEntryMsg(L["EP Undo"], n, t[2], reason)
         end
     end
 
@@ -131,13 +133,13 @@ function GRA.ModifyEP(epDate, ep, reason, players, index)
     for _, n in pairs(players) do
         if not changes[n] then
             changes[n] = ep
-            GRA.SendEntryMsg(L["EP Award"], n, ep, reason)
+            F.SendEntryMsg(L["EP Award"], n, ep, reason)
         end
     end
 
     -- set officer note
     for n, epChange in pairs(changes) do
-        local epOld, gp = GRA.GetEPGP(n)
+        local epOld, gp = F.GetEPGP(n)
         LGN:SetOfficerNote(n, ((epChange + epOld > 0) and (epChange + epOld) or 0) .. "," .. gp)
     end
 
@@ -148,12 +150,12 @@ end
 ---------------------------------------------------------------------
 -- gp credit/modify
 ---------------------------------------------------------------------
-function GRA.CreditGP(gpDate, gp, reason, looter, note)
-    local main = GRA.IsAlt(looter)
+function F.CreditGP(gpDate, gp, reason, looter, note)
+    local main = F.IsAlt(looter)
     -- set officer note
-    local ep, gpOld = GRA.GetEPGP(main or looter)
+    local ep, gpOld = F.GetEPGP(main or looter)
     LGN:SetOfficerNote(main or looter, ep .. "," .. (gp + gpOld))
-    GRA.SendEntryMsg(L["GP Credit"], looter, gp, reason)
+    F.SendEntryMsg(L["GP Credit"], looter, gp, reason)
 
     -- add to GRA_Logs
     local gpTable = {"GP", gp, reason, looter, note}
@@ -162,25 +164,25 @@ function GRA.CreditGP(gpDate, gp, reason, looter, note)
     GRA.Fire("GRA_ENTRY", gpDate)
 end
 
-function GRA.ModifyGP(gpDate, gp, reason, looter, note, index)
-    local main = GRA.IsAlt(looter)
+function F.ModifyGP(gpDate, gp, reason, looter, note, index)
+    local main = F.IsAlt(looter)
     local t = GRA_Logs[gpDate]["details"][index]
-    local previousMain = GRA.IsAlt(t[4])
+    local previousMain = F.IsAlt(t[4])
 
     -- same looter, main -> alt, alt -> main, alt -> alt
     if t[4] == looter or t[4] == main or previousMain == looter or (main and previousMain and main == previousMain) then
-        local ep, gpOld = GRA.GetEPGP(main or looter)
+        local ep, gpOld = F.GetEPGP(main or looter)
         LGN:SetOfficerNote(main or looter, ep .. "," .. (gpOld + (gp - t[2])))
-        GRA.SendEntryMsg(L["GP Modify"], looter, gp, reason)
+        F.SendEntryMsg(L["GP Modify"], looter, gp, reason)
     else -- change looter
         -- undo previous looter
-        local ep, gpOld = GRA.GetEPGP(previousMain or t[4])
+        local ep, gpOld = F.GetEPGP(previousMain or t[4])
         LGN:SetOfficerNote(previousMain or t[4], ep .. "," .. (gpOld - t[2]))
-        GRA.SendEntryMsg(L["GP Undo"], t[4], t[2], t[3])
+        F.SendEntryMsg(L["GP Undo"], t[4], t[2], t[3])
         -- change to new looter
-        ep, gpOld = GRA.GetEPGP(main or looter)
+        ep, gpOld = F.GetEPGP(main or looter)
         LGN:SetOfficerNote(main or looter, ep .. "," .. (gpOld + gp))
-        GRA.SendEntryMsg(L["GP Credit"], looter, gp, reason)
+        F.SendEntryMsg(L["GP Credit"], looter, gp, reason)
     end
 
     GRA_Logs[gpDate]["details"][index] = {"GP", gp, reason, looter, note}
@@ -190,20 +192,20 @@ end
 ---------------------------------------------------------------------
 -- penalize
 ---------------------------------------------------------------------
-function GRA.PenalizeEPGP(pDate, pType, value, reason, players)
+function F.PenalizeEPGP(pDate, pType, value, reason, players)
     if pType == "PEP" then
         value = -value
         -- set officer note
         for _, name in pairs(players) do
-            local epOld, gp = GRA.GetEPGP(name)
+            local epOld, gp = F.GetEPGP(name)
             LGN:SetOfficerNote(name, ((value + epOld > 0) and (value + epOld) or 0) .. "," .. gp)
-            GRA.SendEntryMsg(L["EP Penalize"], name, value, reason)
+            F.SendEntryMsg(L["EP Penalize"], name, value, reason)
         end
     else -- PGP
         for _, name in pairs(players) do
-            local ep, gpOld = GRA.GetEPGP(name)
+            local ep, gpOld = F.GetEPGP(name)
             LGN:SetOfficerNote(name, ep .. "," .. (gpOld + value))
-            GRA.SendEntryMsg(L["GP Penalize"], name, value, reason)
+            F.SendEntryMsg(L["GP Penalize"], name, value, reason)
         end
     end
 
@@ -213,7 +215,7 @@ function GRA.PenalizeEPGP(pDate, pType, value, reason, players)
     GRA.Fire("GRA_ENTRY", pDate)
 end
 
-function GRA.ModifyPenalizeEPGP(pDate, pType, value, reason, players, index)
+function F.ModifyPenalizeEPGP(pDate, pType, value, reason, players, index)
     local changes = {}
     -- undo all
     local t = GRA_Logs[pDate]["details"][index]
@@ -221,13 +223,13 @@ function GRA.ModifyPenalizeEPGP(pDate, pType, value, reason, players, index)
         for _, n in pairs(t[4]) do
             changes[n] = {}
             changes[n]["EP"] = -t[2]
-            GRA.SendEntryMsg(L["EP Penalize Undo"], n, t[2], t[3])
+            F.SendEntryMsg(L["EP Penalize Undo"], n, t[2], t[3])
         end
     else
         for _, n in pairs(t[4]) do
             changes[n] = {}
             changes[n]["GP"] = -t[2]
-            GRA.SendEntryMsg(L["GP Penalize Undo"], n, t[2], t[3])
+            F.SendEntryMsg(L["GP Penalize Undo"], n, t[2], t[3])
         end
     end
 
@@ -237,20 +239,20 @@ function GRA.ModifyPenalizeEPGP(pDate, pType, value, reason, players, index)
         for _, n in pairs(players) do
             if not changes[n] then changes[n] = {} end
             changes[n]["EP"] = (changes[n]["EP"] or 0) + value
-            GRA.SendEntryMsg(L["EP Penalize"], n, value, reason)
+            F.SendEntryMsg(L["EP Penalize"], n, value, reason)
         end
     else -- PGP
         for _, n in pairs(players) do
             if not changes[n] then changes[n] = {} end
             changes[n]["GP"] = (changes[n]["GP"] or 0) + value
-            GRA.SendEntryMsg(L["GP Penalize"], n, value, reason)
+            F.SendEntryMsg(L["GP Penalize"], n, value, reason)
         end
     end
 
     -- set note!
     -- texplore(changes)
     for n, change in pairs(changes) do
-        local epOld, gpOld = GRA.GetEPGP(n)
+        local epOld, gpOld = F.GetEPGP(n)
         local epNew = (change["EP"] or 0) + epOld
         local gpNew = (change["GP"] or 0) + gpOld
         LGN:SetOfficerNote(n, ((epNew > 0) and epNew or 0) .. "," .. gpNew)
@@ -260,20 +262,20 @@ function GRA.ModifyPenalizeEPGP(pDate, pType, value, reason, players, index)
     GRA.Fire("GRA_ENTRY_MODIFY", pDate)
 end
 
-function GRA.UndoPenalizeEPGP(pDate, index)
+function F.UndoPenalizeEPGP(pDate, index)
     local t = GRA_Logs[pDate]["details"][index]
 
     if t[1] == "PEP" then
         for _, n in pairs(t[4]) do
-            local epOld, gp = GRA.GetEPGP(n)
+            local epOld, gp = F.GetEPGP(n)
             LGN:SetOfficerNote(n, (epOld - t[2]) .. "," .. gp)
-            GRA.SendEntryMsg(L["EP Penalize Undo"], n, t[2], t[3])
+            F.SendEntryMsg(L["EP Penalize Undo"], n, t[2], t[3])
         end
     else
         for _, n in pairs(t[4]) do
-            local ep, gpOld = GRA.GetEPGP(n)
+            local ep, gpOld = F.GetEPGP(n)
             LGN:SetOfficerNote(n, ep .. "," .. (gpOld - t[2]))
-            GRA.SendEntryMsg(L["GP Penalize Undo"], n, t[2], t[3])
+            F.SendEntryMsg(L["GP Penalize Undo"], n, t[2], t[3])
         end
     end
 
@@ -289,12 +291,12 @@ end
 local function UpdateRosterEPGP(event, name, note)
     if not GRA_Roster[name] then return end
 
-    local ep, gp = GRA.GetEPGP(name, note)
+    local ep, gp = F.GetEPGP(name, note)
     GRA_Roster[name]["EP"] = ep
     GRA_Roster[name]["GP"] = gp
 
     -- update attendance sheet
-    GRA.UpdatePlayerData_EPGP(name, ep, gp)
+    F.UpdatePlayerData_EPGP(name, ep, gp)
 
     if event then -- not from InitRosterEPGP()
         -- GRA.Debug("|cff66CD00GUILD_OFFICER_NOTE_CHANGED:|r " .. name .. " " .. note)
@@ -310,8 +312,8 @@ local function InitRosterEPGP()
 end
 
 -- update sheet & GRA_Roster, check whether update them automatically
-function GRA.UpdateRosterEPGP()
-    if GRA.Getn(GRA_Roster) ~= 0 then -- has member
+function F.UpdateRosterEPGP()
+    if F.Getn(GRA_Roster) ~= 0 then -- has member
         InitRosterEPGP()
         -- update roster EP and GP when officer note changed
         LGN.RegisterCallback(f, "GUILD_OFFICER_NOTE_CHANGED", UpdateRosterEPGP)
@@ -326,7 +328,7 @@ end
 -- f:SetScript("OnEvent", function(self, event, arg)
 --     if arg == addonName then
 --         if GRA_Config["raidInfo"]["system"] == "EPGP" then
---             LGN.RegisterCallback(f, "GUILD_NOTE_INITIALIZED", GRA.UpdateRosterEPGP)
+--             LGN.RegisterCallback(f, "GUILD_NOTE_INITIALIZED", F.UpdateRosterEPGP)
 --             GRA.Debug("ADDON_LOADED EPGP enabled.")
 --         else
 --             GRA.Debug("ADDON_LOADED EPGP disabled.")
@@ -334,12 +336,12 @@ end
 --     end
 -- end)
 
-function GRA.SetEPGPEnabled(enabled)
+function F.SetEPGPEnabled(enabled)
     if enabled then
         GRA.Print(L["EPGP enabled."])
         LGN.RegisterCallback(f, "GUILD_NOTE_INITIALIZED", GRA.UpdateRosterEPGP)
         -- disable dkp
-        GRA.UnregisterAllCallbacks_DKP()
+        F.UnregisterAllCallbacks_DKP()
         -- init
         LGN:Reinitialize()
         GRA.Fire("GRA_SYSTEM", "EPGP")
@@ -350,11 +352,11 @@ function GRA.SetEPGPEnabled(enabled)
 end
 
 -- used by DKP
-function GRA.UnregisterAllCallbacks_EPGP()
+function F.UnregisterAllCallbacks_EPGP()
     LGN.UnregisterAllCallbacks(f)
 end
 
-function GRA.RefreshEPGP()
+function F.RefreshEPGP()
     LGN.RegisterCallback(f, "GUILD_NOTE_REFRESHED", InitRosterEPGP)
     LGN:ForceRefresh()
 end

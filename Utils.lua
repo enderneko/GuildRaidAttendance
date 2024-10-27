@@ -10,11 +10,15 @@ function F.IsAdmin()
     local info = GetGuildInfoText()
     if info == "" then
         -- GRA.Debug("|cff87CEEBF.IsAdmin: |rfailed")
+        GRA.vars.hasAdmin = nil
+        GRA.vars.isAdmin = nil
+        GRA.vars.admins = nil
         return nil
     end
     local lines = {strsplit("\n", info)}
     for _, line in pairs(lines) do
         if (string.find(line, "^#GRA:")) then
+            GRA.vars.hasAdmin = true
             GRA.Debug("|cff87CEEBF.IsAdmin: |r" .. line)
             -- multi-admin
             GRA.vars.admins = F.ConvertTable({strsplit(",", string.sub(line, 6))}, true)
@@ -31,6 +35,7 @@ function F.IsAdmin()
         end
     end
     GRA.vars.admins = {}
+    GRA.vars.hasAdmin = false
     GRA.vars.isAdmin = false
     GRA.Fire("GRA_PERMISSION", nil) -- nil , no admin
     return false
@@ -42,12 +47,12 @@ function F.CheckPermissions()
     -- permission control
     if F.IsAdmin() == nil then -- check failed
         securecall(C_GuildInfo.GuildRoster)
-        if not trial then -- check 5 more times
+        if not trial then -- check 7 more times
             trial = C_Timer.NewTicker(2, function()
                 count = count + 1
                 GRA.Debug("|cff87CEEBF.CheckPermissions():|r " .. count)
                 F.CheckPermissions() -- try again
-            end, 5)
+            end, 7)
         end
     else
         if trial then
@@ -62,10 +67,6 @@ end
 ---------------------------------------------------------------------
 -- General
 ---------------------------------------------------------------------
-function F.RGBtoHEX(r, g, b)
-    return string.format("%02x%02x%02x", r * 255, g * 255, b * 255)
-end
-
 function F.Round(n)
     if n < 0 then
         return math.ceil(n)
